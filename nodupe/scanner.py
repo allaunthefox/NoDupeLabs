@@ -2,6 +2,7 @@
 # Copyright (c) 2025 Allaun
 
 from __future__ import annotations
+import os
 import time
 import hashlib
 import mimetypes
@@ -95,21 +96,56 @@ def _get_mime_safe(p: Path) -> str:
         return mime
     return "application/octet-stream"
 
-def iter_files(roots: Iterable[str], ignore: List[str]) -> Iterable[Path]:
+def iter_files(roots: Iterable[str], ignore: List[str], follow_symlinks: bool = False) -> Iterable[Path]:
     for r in roots:
         rp = Path(r)
         if not rp.exists():
+            print(f"[scanner][WARN] Root path not found: {r}", file=sys.stderr)
             continue
-        for p in rp.rglob("*"):
-            if p.is_file() and not _should_skip(p, ignore):
-                yield p
+        
+        try:
+            # Use os.walk for robust handling of symlinks and disappearing drives
+            for root, dirs, files in os.walk(str(rp), topdown=True, followlinks=follow_symlinks, onerror=lambda e: print(f"[scanner][WARN] Walk error: {e}", file=sys.stderr)):
+                root_path = Path(root)
 
-def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, hash_algo: str = "sha512"):
+                # Filter directories in-place to prevent recursion into ignored/symlinked dirs
+                i = 0
+                while i < len(dirs):
+                    d = dirs[i]
+                    d_path = root_path / d
+                    
+                    # Skip if ignored
+                    if _should_skip(d_path, ignore):
+                        del dirs[i]
+                        continue
+                    
+                    # Skip if symlink and not following (os.walk followlinks=False handles recursion, but we filter for clarity/safety)
+                    if not follow_symlinks and d_path.is_symlink():
+                        del dirs[i]
+                        continue
+                        
+                    i += 1
+
+                for f in files:
+                    p = root_path / f
+                    
+                    # Skip symlinks if configured
+                    if not follow_symlinks and p.is_symlink():
+                        continue
+
+                    if _should_skip(p, ignore):
+                        continue
+                        
+                    yield p
+        except OSError as e:
+            print(f"[scanner][WARN] Failed to walk {r}: {e}", file=sys.stderr)
+
+def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, hash_algo: str = "sha512", follow_symlinks: bool = False):
     """
     Scan files and compute hashes.
     Returns: (results, duration, total_files)
     """
-    files = list(iter_files(roots, ignore))
+    files = list(iter_files(roots, ignore, follow_symlinks=follow_symlinks))
     results: List[Tuple[str, int, int, str, str, str, str]] = []
     start = time.time()
 

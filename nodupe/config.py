@@ -29,6 +29,7 @@ DEFAULTS = {
     "hash_algo": "sha512",
     "dedup_strategy": "content_hash",
     "parallelism": 0,  # 0 = auto-detect
+    "follow_symlinks": False,
     "dry_run": True,
     "overwrite": False,
     "checkpoint": True,

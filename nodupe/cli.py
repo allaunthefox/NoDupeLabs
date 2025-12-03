@@ -42,7 +42,8 @@ def cmd_scan(args, cfg):
         args.root,
         cfg["ignore_patterns"],
         workers=cfg["parallelism"],
-        hash_algo=hash_algo
+        hash_algo=hash_algo,
+        follow_symlinks=cfg.get("follow_symlinks", False)
     )
 
     db.upsert_files(records)
