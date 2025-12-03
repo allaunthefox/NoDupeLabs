@@ -40,8 +40,11 @@ jobs:
         pip install flake8 pytest mypy types-PyYAML types-jsonschema numpy onnx
         # Install vendored wheels first (vendored onnxruntime) to ensure compat runtime is available
         python scripts/install_vendored_wheels.py --no-deps || true
-        # Install package editable (if package metadata exists)
-        if [ -f pyproject.toml ] || [ -f setup.py ]; then pip install -e .; fi
+        # Do NOT install the project into site-packages for tests.
+        # Installing with `pip install -e .` can shadow the source tree and
+        # lead to import differences; tests should import the repository
+        # source directly via PYTHONPATH set on the test steps.
+        echo "Skipping editable install to ensure tests import repo source (PYTHONPATH)"
 
     - name: Lint with flake8
       run: |
@@ -93,7 +96,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest numpy onnx
         python scripts/install_vendored_wheels.py --no-deps || true
-        if [ -f pyproject.toml ] || [ -f setup.py ]; then pip install -e .; fi
+        # For slow/integration runs we also prefer importing the repository
+        # source by setting PYTHONPATH in the test step; don't install the
+        # package into site-packages to avoid masking subpackages.
+        echo "Skipping editable install for slow tests to ensure repo source is used"
 
     - name: Run slow tests
       env:
