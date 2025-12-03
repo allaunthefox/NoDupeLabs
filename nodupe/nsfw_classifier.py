@@ -70,6 +70,13 @@ class NSFWClassifier:
         self.threshold = threshold
         self.has_pillow = check_dep("pillow")
 
+        # Optional ML backend (ONNX/CPU fallback)
+        try:
+            from .ai.backends import choose_backend
+            self.backend = choose_backend()
+        except Exception:
+            self.backend = None
+
         # Compile regex patterns for performance
         self._filename_regex = [
             (re.compile(pattern, re.IGNORECASE), weight)
@@ -128,11 +135,19 @@ class NSFWClassifier:
                 if method == "none":
                     method = "metadata"
 
-        # TIER 3: Content analysis (reserved for future ML model)
-        # if self.has_ml_model and score > 0:
-        #     ml_score = self._analyze_content(path, mime)
-        #     score = max(score, ml_score)
-        #     method = "ml"
+        # TIER 3: Content analysis (ML model)
+        if mime.startswith('image/') and self.backend is not None and self.backend.available():
+            try:
+                ml_score, ml_reason = self.backend.predict(path)
+                # If ML suggests higher confidence, prefer it
+                if ml_score > score:
+                    score = ml_score
+                    method = "ml"
+                if ml_reason:
+                    reasons.append(ml_reason)
+            except Exception:
+                # Backend failure should not break the pipeline; ignore
+                pass
 
         # Clamp score to valid range
         score = min(3, max(0, score))

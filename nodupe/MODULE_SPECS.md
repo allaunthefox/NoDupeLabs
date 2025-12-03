@@ -98,6 +98,7 @@ This document provides detailed technical specifications for each module in the 
 **Key Features**:
 - **Multi-Tier Detection**: Uses filename keywords (Tier 1) and image analysis (Tier 2, via Pillow).
 - **Privacy**: Runs entirely offline.
+- **ML Backend**: Optional Tier-3 ML inference via ONNX Runtime with a CPU fallback; place runtime model files under `nodupe/models/`.
 **Dependencies**: `re`, `pathlib`. Optional: `Pillow`.
 
 ## 14. `planner.py`
