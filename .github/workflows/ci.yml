@@ -23,11 +23,19 @@ jobs:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
 
-    - name: Install dependencies
+    - name: Install system deps
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends ffmpeg libgl1 libsm6 libxext6
+
+    - name: Install dependencies & vendored wheels
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest mypy types-PyYAML types-jsonschema
-        pip install -e .
+        pip install flake8 pytest mypy types-PyYAML types-jsonschema numpy onnx
+        # Install vendored wheels first (vendored onnxruntime) to ensure compat runtime is available
+        python scripts/install_vendored_wheels.py --no-deps || true
+        # Install package editable (if package metadata exists)
+        if [ -f pyproject.toml ] || [ -f setup.py ]; then pip install -e .; fi
 
     - name: Lint with flake8
       run: |
@@ -40,6 +48,162 @@ jobs:
       run: |
         mypy nodupe --ignore-missing-imports
 
-    - name: Test with pytest
+    - name: Test with pytest (fast)
+      env:
+        # Make tests predictable about progress output
+        NO_DUPE_PROGRESS: auto
       run: |
-        pytest
+        # Run fast tests only (skip slow/integration tests by default)
+        pytest -q -m "not slow"
+
+  slow-tests:
+    name: Slow / Integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.13 for slow tests
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+
+    - name: Install system deps (slow tests)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends ffmpeg libgl1 libsm6 libxext6
+
+    - name: Install dependencies & vendored wheels (slow tests)
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest numpy onnx
+        python scripts/install_vendored_wheels.py --no-deps || true
+        if [ -f pyproject.toml ] || [ -f setup.py ]; then pip install -e .; fi
+
+    - name: Run slow tests
+      env:
+        NO_DUPE_PROGRESS: auto
+      run: |
+        pytest -q -m slow
+
+  vendor-refresh:
+    name: Vendor refresh (scheduled)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Prepare environment
+      run: |
+        python -m pip install --upgrade pip
+        pip install tomli  # fallback for older python envs if needed
+
+    - name: Run vendor script (download latest top-level wheels)
+      run: |
+        # Download packages and their dependencies into nodupe/vendor/libs
+        python scripts/vendor_requirements.py
+
+    - name: Show git status
+      run: |
+        git status --porcelain=v1 || true
+
+    - name: Commit & push vendor updates (if any)
+      id: commit
+      run: |
+        set -e
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        if ! git diff --quiet -- nodupe/vendor/libs; then
+          BRANCH=vendor-refresh/$(date -u +%Y%m%d_%H%M%S)
+          git checkout -b "$BRANCH"
+          git add nodupe/vendor/libs || true
+          git commit -m "chore(vendor): refresh vendored wheels (automated)"
+          git push --set-upstream origin "$BRANCH"
+          echo "pr_branch=$BRANCH" >>$GITHUB_OUTPUT
+        else
+          echo "no_changes=true" >>$GITHUB_OUTPUT
+        fi
+
+    - name: Create Pull Request
+      if: steps.commit.outputs.no_changes != 'true'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "chore(vendor): refresh vendored wheels (automated)"
+        title: "Automated vendor refresh: update vendored wheels"
+        body: |
+          This PR was created automatically by CI to refresh the vendored wheels in `nodupe/vendor/libs`.
+          It runs the project's vendoring helper and updates `vendor_manifest.json`.
+        base: main
+        branch: ${{ steps.commit.outputs.pr_branch }}
+
+    - name: No updates required
+      if: steps.commit.outputs.no_changes == 'true'
+      run: echo "No vendored updates found."
+
+  validate-vendored-install:
+    name: Validate vendored wheel installation
+    runs-on: ubuntu-latest
+    # keep this small and deterministic: use a single python that matches vendored wheels
+    strategy:
+      matrix:
+        python-version: ['3.13']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Prepare environment
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Install all vendored wheels into a clean environment
+        # Use the bundled installer helper to install _all_ wheels found in nodupe/vendor/libs.
+        run: |
+          python scripts/install_vendored_wheels.py || exit 1
+
+      - name: Smoke import checks
+        # Verify a few key packages import successfully after the vendored install.
+        run: |
+          python - <<'PY'
+          import importlib, sys, json
+          pkgs = ['onnxruntime', 'numpy', 'PIL', 'psutil']
+          failures = []
+          out = {}
+          for p in pkgs:
+              try:
+                  m = importlib.import_module(p)
+                  out[p] = getattr(m, '__version__', str(m))
+              except Exception as e:
+                  failures.append((p, str(e)))
+          print('imported:', json.dumps(out))
+          if failures:
+              print('failures:', failures)
+              sys.exit(2)
+          PY
+
+
+  # Schedule weekly vendor refresh
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 2' # weekly on Tue 06:00 UTC
