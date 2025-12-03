@@ -19,6 +19,7 @@ from .planner import ensure_unique, write_plan_csv
 from .applier import apply_moves
 from .rollback import rollback_from_checkpoint
 from .mount import mount_fs
+from .similarity.cli import build_index_from_db, find_near_duplicates
 from .logger import JsonlLogger
 from .metrics import Metrics
 from .archiver import ArchiveHandler
@@ -203,7 +204,21 @@ def cmd_archive_extract(args, cfg):
         print(f"Error: {e}", file=sys.stderr)
         return 1
 
+
+
+        db_path = Path(cfg['db_path'])
+        res = build_index_from_db(db_path, dim=args.dim)
+        print(f"[similarity] index_count={res['index_count']}")
+        return 0
+
+
 def main(argv=None):
+        db_path = Path(cfg['db_path'])
+        target = Path(args.file)
+        res = find_near_duplicates(db_path, target, k=args.k, dim=args.dim)
+        for path, score in res:
+            print(f"{score:>12.6f} {path}")
+        return 0
     # Initialize dependency auto-installer
     init_deps(auto_install=True, silent=False)
 
@@ -275,6 +290,20 @@ def main(argv=None):
     p_e.add_argument("file")
     p_e.add_argument("--dest", required=True)
     p_e.set_defaults(_run=cmd_archive_extract)
+
+    # Similarity
+    p_sim = sub.add_parser("similarity")
+    p_sim_sub = p_sim.add_subparsers(dest="sim_cmd", required=True)
+
+    p_sim_build = p_sim_sub.add_parser("build")
+    p_sim_build.add_argument("--dim", type=int, default=16)
+    p_sim_build.set_defaults(_run=cmd_similarity_build)
+
+    p_sim_query = p_sim_sub.add_parser("query")
+    p_sim_query.add_argument("file")
+    p_sim_query.add_argument("--dim", type=int, default=16)
+    p_sim_query.add_argument("-k", type=int, default=5)
+    p_sim_query.set_defaults(_run=cmd_similarity_query)
 
     args = parser.parse_args(argv)
     

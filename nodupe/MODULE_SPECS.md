@@ -122,6 +122,7 @@ This document provides detailed technical specifications for each module in the 
 - **Threading**: Parallel hashing using `ThreadPoolExecutor`.
 - **Context Awareness**: Detects if files are inside archives or temporary folders.
 - **Permission Tracking**: Captures file permissions (ACLs).
+- **Embeddings**: Hooks are provided for a pluggable embedding pipeline (ONNX/CPU) to compute small per-file vectors for similarity search.
 **Dependencies**: `os`, `hashlib`, `concurrent.futures`, `mimetypes`.
 
 ## 17. `validator.py`
