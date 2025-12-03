@@ -178,13 +178,6 @@ def cmd_plan(args, cfg):
 
 def cmd_apply(args, cfg):
     """Apply command."""
-    res = apply_moves(
-        # Read CSV manually or use helper if we had one for reading
-        # For now, simple read
-        [], # pylint: disable=fixme
-        Path(args.checkpoint),
-        dry_run=(cfg["dry_run"] and not args.force)
-    )
     # Re-implement CSV reading here since applier expects list of dicts
     rows = []
     with Path(args.plan).open("r", encoding="utf-8", newline="") as f:
