@@ -5,7 +5,14 @@ import argparse
 import sys
 import json
 import csv
+import sqlite3
 from pathlib import Path
+
+# Inject vendor libs into sys.path for fallback
+_VENDOR_LIBS = Path(__file__).parent / "vendor" / "libs"
+if _VENDOR_LIBS.exists():
+    sys.path.insert(0, str(_VENDOR_LIBS))
+
 from datetime import datetime
 from collections import defaultdict
 import atexit
@@ -58,6 +65,9 @@ def cmd_scan(args, cfg):
         model_hint = cfg.get("ai", {}).get("model_path")
         be = choose_backend(model_hint)
         updated = 0
+        batch = []
+        BATCH_SIZE = 100
+
         for rec in records:
             p = rec[0]
             mime = rec[4]
@@ -72,14 +82,21 @@ def cmd_scan(args, cfg):
             # compute embedding and store
             try:
                 vec = be.compute_embedding(Path(p), dim=sim_dim)
-                db.upsert_embedding(p, vec, sim_dim, int(mtime))
-                updated += 1
-            except Exception as e:  # pylint: disable=broad-except
+                batch.append((p, vec, sim_dim, int(mtime)))
+                if len(batch) >= BATCH_SIZE:
+                    db.upsert_embeddings(batch)
+                    updated += len(batch)
+                    batch = []
+            except (OSError, ValueError, RuntimeError, sqlite3.Error) as e:
                 # non-fatal
                 print(f"[scan][WARN] embedding failed for {p}: {e}", file=sys.stderr)
 
+        if batch:
+            db.upsert_embeddings(batch)
+            updated += len(batch)
+
         logger.log("INFO", "embeddings_precomputed", updated=updated)
-    except Exception as e:  # pylint: disable=broad-except
+    except (OSError, ValueError, RuntimeError, sqlite3.Error) as e:
         print(f"[scan][WARN] Failed to precompute embeddings: {e}", file=sys.stderr)
 
     # Metrics
