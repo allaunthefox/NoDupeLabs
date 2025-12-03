@@ -35,3 +35,26 @@ def create(dim: int):
 
 def available() -> bool:
     return True
+
+
+# Persistence helpers
+def load(path: str):
+    import numpy as np
+    npz = np.load(path, allow_pickle=True)
+    vectors = npz['vectors']
+    ids = npz['ids'].tolist() if 'ids' in npz else [str(i) for i in range(vectors.shape[0])]
+    dim = vectors.shape[1]
+    inst = BruteForceIndex(dim)
+    inst.vectors = vectors.astype('float32')
+    inst.ids = ids
+    return inst
+
+
+def save(index_obj, path: str):
+    import numpy as np
+    # assume index_obj has attributes vectors and ids
+    np.savez_compressed(path, vectors=np.asarray(index_obj.vectors), ids=np.asarray(index_obj.ids, dtype=object))
+
+
+def available() -> bool:
+    return True

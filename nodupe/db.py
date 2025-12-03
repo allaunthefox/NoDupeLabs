@@ -2,6 +2,7 @@
 # Copyright (c) 2025 Allaun
 
 import sqlite3
+import json
 import textwrap
 import sys
 import time
@@ -36,6 +37,15 @@ BASE_SCHEMA = textwrap.dedent(
         applied_at INTEGER NOT NULL,
         description TEXT
     );
+
+    CREATE TABLE IF NOT EXISTS embeddings(
+            path TEXT PRIMARY KEY,
+            dim INTEGER NOT NULL,
+            vector TEXT NOT NULL,
+            mtime INTEGER NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_embeddings_mtime ON embeddings(mtime);
     """
 )
 
@@ -66,6 +76,23 @@ class DB:
                 if "permissions" not in columns:
                     print("[db] Migrating schema: Adding permissions column...", file=sys.stderr)
                     cur.execute("ALTER TABLE files ADD COLUMN permissions TEXT DEFAULT '0'")
+                    self.conn.commit()
+                # Ensure embeddings table exists
+                cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='embeddings'")
+                if not cur.fetchone():
+                    print("[db] Migrating schema: Adding embeddings table...", file=sys.stderr)
+                    cur.executescript(textwrap.dedent(
+                        '''
+                        CREATE TABLE IF NOT EXISTS embeddings(
+                            path TEXT PRIMARY KEY,
+                            dim INTEGER NOT NULL,
+                            vector TEXT NOT NULL,
+                            mtime INTEGER NOT NULL
+                        );
+
+                        CREATE INDEX IF NOT EXISTS idx_embeddings_mtime ON embeddings(mtime);
+                        '''
+                    ))
                     self.conn.commit()
         except sqlite3.Error as e:
             print(f"[db][ERROR] Failed to initialize schema: {e}", file=sys.stderr)
@@ -119,3 +146,37 @@ class DB:
                 "SELECT path, size, mtime, file_hash, mime, context_tag, hash_algo, permissions FROM files"
             )
         )
+
+    # Embedding helpers
+    def upsert_embedding(self, path: str, vector: list, dim: int, mtime: int):
+        cur = self.conn.cursor()
+        cur.execute(
+            "INSERT INTO embeddings(path, dim, vector, mtime) VALUES(?, ?, ?, ?)"
+            " ON CONFLICT(path) DO UPDATE SET dim=excluded.dim, vector=excluded.vector, mtime=excluded.mtime",
+            (path, int(dim), json.dumps(vector, ensure_ascii=False), int(mtime)),
+        )
+        self.conn.commit()
+
+    def get_embedding(self, path: str):
+        cur = self.conn.cursor()
+        r = cur.execute("SELECT dim, vector, mtime FROM embeddings WHERE path = ?", (path,)).fetchone()
+        if not r:
+            return None
+        dim, vec_text, mtime = r
+        try:
+            vec = json.loads(vec_text)
+        except Exception:
+            vec = []
+        return {'dim': int(dim), 'vector': vec, 'mtime': int(mtime)}
+
+    def get_all_embeddings(self):
+        cur = self.conn.cursor()
+        rows = cur.execute("SELECT path, dim, vector, mtime FROM embeddings").fetchall()
+        out = []
+        for p, dim, vec_text, mtime in rows:
+            try:
+                vec = json.loads(vec_text)
+            except Exception:
+                vec = []
+            out.append((p, int(dim), vec, int(mtime)))
+        return out

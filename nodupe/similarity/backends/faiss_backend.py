@@ -36,6 +36,32 @@ class FaissIndex:
             results.append((self.ids[int(idx)], float(dist)))
         return results
 
+    def save(self, path: str) -> None:
+        """Persist faiss index and ids to disk. Writes binary index to `path` and ids to `path + '.ids.json'`."""
+        import json
+        # write FAISS index
+        faiss.write_index(self.index, path)
+        # write ids
+        with open(path + '.ids.json', 'w', encoding='utf-8') as f:
+            json.dump(self.ids, f, ensure_ascii=False)
+
+    @classmethod
+    def load(cls, path: str):
+        """Load a faiss index from disk and return a FaissIndex instance."""
+        idx_obj = faiss.read_index(path)
+        # determine dim
+        dim = idx_obj.d
+        inst = cls(dim)
+        inst.index = idx_obj
+        # load ids
+        import json
+        try:
+            with open(path + '.ids.json', 'r', encoding='utf-8') as f:
+                inst.ids = json.load(f)
+        except Exception:
+            inst.ids = [str(i) for i in range(int(inst.index.ntotal))]
+        return inst
+
 
 def create(dim: int):
     """Factory used by plugin loader."""

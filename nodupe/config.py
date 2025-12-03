@@ -36,6 +36,7 @@ DEFAULTS = {
     "ignore_patterns": [".git", "node_modules", "__pycache__", ".nodupe_duplicates", ".venv", "venv"],
     "nsfw": {"enabled": False, "threshold": 2, "auto_quarantine": False},
     "ai": {"enabled": "auto", "backend": "onnxruntime", "model_path": "models/nsfw_small.onnx"},
+    "similarity": {"dim": 16},
     "logging": {"rotate_mb": 10, "keep": 7, "level": "INFO"},
     "db_path": "output/index.db",
     "log_dir": "output/logs",

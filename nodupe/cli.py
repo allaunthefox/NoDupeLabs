@@ -15,6 +15,7 @@ from .config import load_config
 from .db import DB
 from .scanner import threaded_hash, validate_hash_algo, hash_file
 from .exporter import write_folder_meta
+from .ai.backends import choose_backend
 from .planner import ensure_unique, write_plan_csv
 from .applier import apply_moves
 from .rollback import rollback_from_checkpoint
@@ -49,6 +50,36 @@ def cmd_scan(args, cfg):
     )
 
     db.upsert_files(records)
+
+    # Precompute embeddings for images (incremental)
+    try:
+        sim_dim = int(cfg.get("similarity", {}).get("dim", 16))
+        model_hint = cfg.get("ai", {}).get("model_path")
+        be = choose_backend(model_hint)
+        updated = 0
+        for rec in records:
+            p = rec[0]
+            mime = rec[4]
+            mtime = rec[2]
+            if not mime or not mime.startswith("image/"):
+                continue
+
+            existing = db.get_embedding(p)
+            if existing and existing.get("mtime") == int(mtime) and existing.get("dim") == sim_dim:
+                continue
+
+            # compute embedding and store
+            try:
+                vec = be.compute_embedding(Path(p), dim=sim_dim)
+                db.upsert_embedding(p, vec, sim_dim, int(mtime))
+                updated += 1
+            except Exception as e:
+                # non-fatal
+                print(f"[scan][WARN] embedding failed for {p}: {e}", file=sys.stderr)
+
+        logger.log("INFO", "embeddings_precomputed", updated=updated)
+    except Exception as e:
+        print(f"[scan][WARN] Failed to precompute embeddings: {e}", file=sys.stderr)
 
     # Metrics
     bytes_scanned = sum(r[1] for r in records)
@@ -207,7 +238,7 @@ def cmd_archive_extract(args, cfg):
 
 
         db_path = Path(cfg['db_path'])
-        res = build_index_from_db(db_path, dim=args.dim)
+        res = build_index_from_db(db_path, dim=args.dim, out_path=args.out)
         print(f"[similarity] index_count={res['index_count']}")
         return 0
 
@@ -215,7 +246,7 @@ def cmd_archive_extract(args, cfg):
 def main(argv=None):
         db_path = Path(cfg['db_path'])
         target = Path(args.file)
-        res = find_near_duplicates(db_path, target, k=args.k, dim=args.dim)
+        res = find_near_duplicates(db_path, target, k=args.k, dim=args.dim, index_path=args.index_file)
         for path, score in res:
             print(f"{score:>12.6f} {path}")
         return 0
@@ -297,12 +328,14 @@ def main(argv=None):
 
     p_sim_build = p_sim_sub.add_parser("build")
     p_sim_build.add_argument("--dim", type=int, default=16)
+    p_sim_build.add_argument("--out", help="Optional output index file (.index or .npz)")
     p_sim_build.set_defaults(_run=cmd_similarity_build)
 
     p_sim_query = p_sim_sub.add_parser("query")
     p_sim_query.add_argument("file")
     p_sim_query.add_argument("--dim", type=int, default=16)
     p_sim_query.add_argument("-k", type=int, default=5)
+    p_sim_query.add_argument("--index-file", help="Optional index file to load for faster queries")
     p_sim_query.set_defaults(_run=cmd_similarity_query)
 
     args = parser.parse_args(argv)
