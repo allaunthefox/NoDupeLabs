@@ -3,6 +3,7 @@
 
 import argparse
 import sys
+import os
 import json
 import csv
 import sqlite3
@@ -35,8 +36,43 @@ from .archiver import ArchiveHandler
 
 __version__ = "0.1.0"
 
+def check_scan_requirements(roots: list, cfg: dict) -> bool:
+    """Check if minimal requirements for scanning are met."""
+    # 1. Check Input Roots
+    for r in roots:
+        p = Path(r)
+        if not p.exists():
+            print(f"[fatal] Scan root does not exist: {r}", file=sys.stderr)
+            return False
+        if not os.access(p, os.R_OK):
+            print(f"[fatal] Scan root is not readable: {r}", file=sys.stderr)
+            return False
+
+    # 2. Check Output Paths
+    for key in ["db_path", "log_dir", "metrics_path"]:
+        path_str = cfg.get(key)
+        if not path_str:
+            continue
+        p = Path(path_str)
+        # Check parent writability
+        parent = p.parent
+        if not parent.exists():
+            try:
+                parent.mkdir(parents=True, exist_ok=True)
+            except OSError as e:
+                print(f"[fatal] Cannot create output directory {parent}: {e}", file=sys.stderr)
+                return False
+        if not os.access(parent, os.W_OK):
+            print(f"[fatal] Output directory not writable: {parent}", file=sys.stderr)
+            return False
+
+    return True
+
 def cmd_scan(args, cfg):
     """Scan command."""
+    if not check_scan_requirements(args.root, cfg):
+        return 1
+
     db = DB(Path(cfg["db_path"]))
     logger = JsonlLogger(Path(cfg["log_dir"]))
     metrics = Metrics(Path(cfg["metrics_path"]))
