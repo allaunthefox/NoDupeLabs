@@ -147,13 +147,33 @@ class DB:
             )
         )
 
+    def get_known_files(self):
+        """Yields (path, size, mtime, file_hash) for incremental scanning."""
+        cur = self.conn.cursor()
+        cur.execute("SELECT path, size, mtime, file_hash FROM files")
+        for row in cur:
+            yield row
+
     # Embedding helpers
     def upsert_embedding(self, path: str, vector: list, dim: int, mtime: int):
+        self.upsert_embeddings([(path, vector, dim, mtime)])
+
+    def upsert_embeddings(self, records: Iterable[Tuple[str, list, int, int]]):
+        """
+        Batch insert/update embeddings.
+        Args:
+            records: list of (path, vector, dim, mtime)
+        """
         cur = self.conn.cursor()
-        cur.execute(
+        # Prepare data: serialize vector to JSON
+        data = [
+            (path, int(dim), json.dumps(vector, ensure_ascii=False), int(mtime))
+            for path, vector, dim, mtime in records
+        ]
+        cur.executemany(
             "INSERT INTO embeddings(path, dim, vector, mtime) VALUES(?, ?, ?, ?)"
             " ON CONFLICT(path) DO UPDATE SET dim=excluded.dim, vector=excluded.vector, mtime=excluded.mtime",
-            (path, int(dim), json.dumps(vector, ensure_ascii=False), int(mtime)),
+            data,
         )
         self.conn.commit()
 
@@ -170,13 +190,13 @@ class DB:
         return {'dim': int(dim), 'vector': vec, 'mtime': int(mtime)}
 
     def get_all_embeddings(self):
+        """Yields (path, dim, vector, mtime) tuples."""
         cur = self.conn.cursor()
-        rows = cur.execute("SELECT path, dim, vector, mtime FROM embeddings").fetchall()
-        out = []
-        for p, dim, vec_text, mtime in rows:
+        # Use the cursor as an iterator to avoid loading all rows into memory
+        cur.execute("SELECT path, dim, vector, mtime FROM embeddings")
+        for p, dim, vec_text, mtime in cur:
             try:
                 vec = json.loads(vec_text)
             except (ValueError, TypeError):
                 vec = []
-            out.append((p, int(dim), vec, int(mtime)))
-        return out
+            yield (p, int(dim), vec, int(mtime))

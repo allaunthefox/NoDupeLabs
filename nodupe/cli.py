@@ -85,12 +85,22 @@ def cmd_scan(args, cfg):
         print(f"[fatal] Configuration error: {e}", file=sys.stderr)
         return 1
 
+    # Load known files for incremental scan
+    known_files = {}
+    try:
+        for path, size, mtime, file_hash in db.get_known_files():
+            known_files[path] = (size, mtime, file_hash)
+    except sqlite3.Error:
+        # DB might be new or empty
+        pass
+
     records, dur, total = threaded_hash(
         args.root,
         cfg["ignore_patterns"],
         workers=cfg["parallelism"],
         hash_algo=hash_algo,
-        follow_symlinks=cfg.get("follow_symlinks", False)
+        follow_symlinks=cfg.get("follow_symlinks", False),
+        known_files=known_files
     )
 
     db.upsert_files(records)

@@ -143,23 +143,31 @@ def iter_files(roots: Iterable[str], ignore: List[str], follow_symlinks: bool = 
         except OSError as e:
             print(f"[scanner][WARN] Failed to walk {r}: {e}", file=sys.stderr)
 
-def process_file(p: Path, hash_algo: str) -> Tuple[str, int, int, str, str, str, str, str]:
-    """Process a single file: hash it and extract all metadata."""
-    sha = hash_file(p, hash_algo)
+def process_file(p: Path, hash_algo: str, known_hash: str = None) -> Tuple[str, int, int, str, str, str, str, str]:
+    """Process a single file: hash it (or use known) and extract all metadata."""
     st = p.stat()
+    
+    if known_hash:
+        sha = known_hash
+    else:
+        sha = hash_file(p, hash_algo)
+        
     mime = _get_mime_safe(p)
     context = _detect_context(p)
     perms = _get_permissions(p)
     return (str(p), st.st_size, int(st.st_mtime), sha, mime, context, hash_algo, perms)
 
-def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, hash_algo: str = "sha512", follow_symlinks: bool = False):
+def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, hash_algo: str = "sha512", follow_symlinks: bool = False, known_files: dict = None):
     """
     Scan files and compute hashes.
+    known_files: dict {path: (size, mtime, hash)} to skip re-hashing.
     Returns: (results, duration, total_files)
     """
     files = list(iter_files(roots, ignore, follow_symlinks=follow_symlinks))
     results: List[Tuple[str, int, int, str, str, str, str, str]] = []
     start = time.time()
+    
+    known_files = known_files or {}
 
     # Try to use tqdm if available
     try:
@@ -170,7 +178,19 @@ def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, has
     with futures.ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
         futs = {}
         for p in files:
-            futs[ex.submit(process_file, p, hash_algo)] = p
+            # Check if we can skip hashing
+            known_hash = None
+            str_p = str(p)
+            if str_p in known_files:
+                k_size, k_mtime, k_hash = known_files[str_p]
+                try:
+                    st = p.stat()
+                    if st.st_size == k_size and int(st.st_mtime) == k_mtime:
+                        known_hash = k_hash
+                except OSError:
+                    pass
+            
+            futs[ex.submit(process_file, p, hash_algo, known_hash)] = p
 
         if tqdm:
             pbar = tqdm(total=len(futs), desc="Hashing files", unit="file")
@@ -179,7 +199,7 @@ def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, has
                 try:
                     # Result is now the full tuple
                     results.append(fut.result())
-                except Exception as e:  # pylint: disable=broad-except
+                except (OSError, ValueError, RuntimeError) as e:
                     print(f"[scanner][WARN] Failed to process {p}: {e}", file=sys.stderr)
                 finally:
                     pbar.update(1)
@@ -191,7 +211,7 @@ def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, has
                 p = futs[fut]
                 try:
                     results.append(fut.result())
-                except Exception as e:  # pylint: disable=broad-except
+                except (OSError, ValueError, RuntimeError) as e:
                     print(f"[scanner][WARN] Failed to process {p}: {e}", file=sys.stderr)
                 done += 1
                 if done % 100 == 0:
