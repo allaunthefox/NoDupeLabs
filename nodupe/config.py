@@ -48,15 +48,45 @@ DEFAULTS = {
     "auto_install_deps": True,
 }
 
-def ensure_config(path: str = "nodupe.yml") -> None:
+PRESETS = {
+    "default": DEFAULTS,
+    "performance": {
+        **DEFAULTS,
+        "hash_algo": "blake2b",
+        "meta_validate_schema": False,
+        "logging": {**DEFAULTS["logging"], "level": "WARN"},
+        "ai": {**DEFAULTS["ai"], "enabled": False},
+    },
+    "paranoid": {
+        **DEFAULTS,
+        "hash_algo": "sha512",
+        "dry_run": True,
+        "checkpoint": True,
+        "meta_validate_schema": True,
+        "nsfw": {**DEFAULTS["nsfw"], "enabled": True, "auto_quarantine": False},
+    },
+    "media": {
+        **DEFAULTS,
+        "hash_algo": "blake2b",
+        "similarity": {"dim": 64},
+        "ai": {**DEFAULTS["ai"], "enabled": True},
+        "nsfw": {**DEFAULTS["nsfw"], "enabled": True},
+    }
+}
+
+def ensure_config(path: str = "nodupe.yml", preset: str = "default") -> None:
     """Create default configuration file if it doesn't exist."""
     p = Path(path)
     if not p.exists():
+        cfg = PRESETS.get(preset, DEFAULTS)
         p.write_text(
-            "# Auto-generated config. Edit as needed.\n"
-            + yaml.safe_dump(DEFAULTS, sort_keys=False),
+            f"# Auto-generated config using '{preset}' preset. Edit as needed.\n"
+            + yaml.safe_dump(cfg, sort_keys=False),
             encoding="utf-8",
         )
+
+def get_available_presets():
+    return list(PRESETS.keys())
 
 def load_config(path: str = "nodupe.yml") -> Dict[str, Any]:
     """Load configuration."""

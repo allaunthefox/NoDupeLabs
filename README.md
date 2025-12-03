@@ -63,6 +63,19 @@ NoDupeLabs includes vendored copies of essential libraries (`tqdm`, `PyYAML`) in
 
 ## Command Reference
 
+### `init`
+Initialize the configuration file (`nodupe.yml`) with a specific preset.
+
+```bash
+nodupe init [--preset default|performance|paranoid|media] [--force]
+```
+*   `--preset`: Choose a configuration profile:
+    *   `default`: Balanced settings (SHA-512, safe defaults).
+    *   `performance`: Faster hashing (BLAKE2b), less logging, validation disabled.
+    *   `paranoid`: Maximum safety (SHA-512, strict validation, dry-run enabled).
+    *   `media`: Optimized for images/video (BLAKE2b, AI enabled, larger similarity index).
+*   `--force`: Overwrite existing configuration file.
+
 ### `scan`
 Walks through specified directories, computes hashes, and populates the database.
 *   **Incremental Scanning**: Automatically skips re-hashing files that haven't changed (based on size and modification time) since the last scan.

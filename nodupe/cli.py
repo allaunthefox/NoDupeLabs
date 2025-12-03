@@ -20,7 +20,7 @@ import atexit
 
 from .bootstrap import lint_tree
 from .deps import init_deps
-from .config import load_config
+from .config import load_config, ensure_config, get_available_presets
 from .db import DB
 from .scanner import threaded_hash, validate_hash_algo
 from .exporter import write_folder_meta
@@ -35,6 +35,20 @@ from .metrics import Metrics
 from .archiver import ArchiveHandler
 
 __version__ = "0.1.0"
+
+def cmd_init(args, _cfg):
+    """Initialize configuration with a preset."""
+    p = Path("nodupe.yml")
+    if p.exists() and not args.force:
+        print(f"[init] Config file {p} already exists. Use --force to overwrite.", file=sys.stderr)
+        return 1
+    
+    if args.force and p.exists():
+        p.unlink()
+        
+    ensure_config("nodupe.yml", preset=args.preset)
+    print(f"[init] Created nodupe.yml using '{args.preset}' preset.")
+    return 0
 
 def check_scan_requirements(roots: list, cfg: dict) -> bool:
     """Check if minimal requirements for scanning are met."""
@@ -346,6 +360,12 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="nodupe")
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
     sub = parser.add_subparsers(dest="cmd", required=True)
+
+    # Init
+    p_init = sub.add_parser("init", help="Initialize configuration")
+    p_init.add_argument("--preset", choices=get_available_presets(), default="default", help="Configuration preset")
+    p_init.add_argument("--force", action="store_true", help="Overwrite existing config")
+    p_init.set_defaults(_run=cmd_init)
 
     # Scan
     p_scan = sub.add_parser("scan")
