@@ -2,13 +2,12 @@
 # Lightweight ONNX runtime + CPU fallback backends for NSFW/embedding inference
 
 from __future__ import annotations
-import os
 from pathlib import Path
 from typing import Optional, Tuple, List
 
 try:
-    import onnxruntime as ort  # type: ignore
-except Exception:  # intentional broad catch — runtime may not be present
+    import onnxruntime as ort  # type: ignore # pylint: disable=import-error
+except Exception:  # pylint: disable=broad-except
     ort = None  # type: ignore
 
 
@@ -37,9 +36,10 @@ class CPUBackend(BaseBackend):
 
     def __init__(self):
         try:
-            from PIL import Image  # type: ignore
+            import PIL  # type: ignore # noqa: F401 # pylint: disable=import-error
+            _ = PIL
             self.has_pil = True
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             self.has_pil = False
 
     def available(self) -> bool:
@@ -51,7 +51,7 @@ class CPUBackend(BaseBackend):
             if not self.has_pil:
                 return 0, "cpu_no_pillow"
 
-            from PIL import Image
+            from PIL import Image  # pylint: disable=import-error
             with Image.open(path) as img:
                 w, h = img.size
                 if w * h > 8000 * 6000:
@@ -61,7 +61,7 @@ class CPUBackend(BaseBackend):
                     return 1, "cpu_portrait"
                 if aspect > 2.0:
                     return 1, "cpu_ultrawide"
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             # Any errors produce neutral result
             return 0, "cpu_error"
 
@@ -84,8 +84,15 @@ class CPUBackend(BaseBackend):
                     out[i] = (v * (i + 1) + m * (dim - i)) / (dim + 1)
                 return out
 
-            from PIL import Image
-            import numpy as np
+            from PIL import Image  # type: ignore # pylint: disable=import-error
+            try:
+                import numpy as np  # type: ignore # pylint: disable=import-error
+            except ImportError:
+                # Fallback if numpy missing even if PIL present
+                st = path.stat()
+                v = float(st.st_size) % 9973 / 9973.0
+                return [(v * (i + 1)) % 1.0 for i in range(dim)]
+
             with Image.open(path) as img:
                 img = img.convert('RGB').resize((32, 32))
                 arr = np.asarray(img).astype('float32') / 255.0
@@ -99,7 +106,7 @@ class CPUBackend(BaseBackend):
                 for i in range(dim):
                     out[i] = float(vals[i % len(vals)]) * (1.0 + (i % 5) * 0.01)
                 return out
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             # On any error, return neutral vector
             return out
 
@@ -139,7 +146,7 @@ class ONNXBackend(BaseBackend):
 
             self.sess = ort.InferenceSession(str(self.model_path), providers=ep)
             self._available = True
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             self._available = False
 
     def available(self) -> bool:
@@ -153,8 +160,8 @@ class ONNXBackend(BaseBackend):
             return 0, "onnx_no_session"
 
         try:
-            import numpy as np  # type: ignore
-            from PIL import Image
+            import numpy as np  # type: ignore # pylint: disable=import-error
+            from PIL import Image  # type: ignore # pylint: disable=import-error
 
             # Basic preprocess: load image, resize to model input shape (assume 224x224), normalize
             img = Image.open(path).convert("RGB").resize((224, 224))
@@ -180,7 +187,7 @@ class ONNXBackend(BaseBackend):
                 score = 0
 
             return score, f"onnx_prob={prob:.3f}"
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             return 0, "onnx_predict_error"
 
     def compute_embedding(self, path: Path, dim: int = 16) -> List[float]:
@@ -192,8 +199,8 @@ class ONNXBackend(BaseBackend):
             # If the model returns a vector-like output use it
             if not self.sess:
                 raise RuntimeError('no_session')
-            import numpy as np
-            from PIL import Image
+            import numpy as np  # type: ignore # pylint: disable=import-error
+            from PIL import Image  # type: ignore # pylint: disable=import-error
             img = Image.open(path).convert('RGB').resize((32, 32))
             arr = (np.asarray(img).astype('float32') / 255.0)[None, :]
             inp_name = self.sess.get_inputs()[0].name
@@ -207,7 +214,7 @@ class ONNXBackend(BaseBackend):
             for i in range(dim):
                 outv[i] = vec[i % vec.size] if vec.size > 0 else 0.0
             return outv.tolist()
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             # fallback to CPU heuristic
             return CPUBackend().compute_embedding(path, dim=dim)
 
@@ -224,7 +231,7 @@ def choose_backend(model_hint: Optional[str] = None) -> BaseBackend:
             be = ONNXBackend(model_path)
             if be.available():
                 return be
-    except Exception:
+    except Exception:  # pylint: disable=broad-except
         pass
 
     # Fallback to CPU

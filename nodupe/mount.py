@@ -52,7 +52,7 @@ class NoDupeFS(fuse.Operations):
             if not rows:
                 raise fuse.FuseOSError(errno.ENOENT)
             
-            fpath, size, mtime = rows[0]
+            _, size, mtime = rows[0]
             return dict(st_mode=(stat.S_IFREG | 0o444), st_nlink=1, st_size=size, st_mtime=mtime)
 
         raise fuse.FuseOSError(errno.ENOENT)
@@ -119,7 +119,7 @@ class NoDupeFS(fuse.Operations):
         return os.close(fh)
 
 def mount_fs(db_path: Path, mount_point: Path, foreground: bool = True):
-    if not fuse._libfuse:
+    if not fuse._libfuse:  # pylint: disable=protected-access
         print("[mount] Error: FUSE library (libfuse) not found. Cannot mount filesystem.", file=sys.stderr)
         print("[mount] Please install fuse (e.g. 'apt install fuse' or 'brew install macfuse').", file=sys.stderr)
         sys.exit(1)

@@ -4,6 +4,7 @@
 import argparse
 import sys
 import json
+import csv
 from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
@@ -13,7 +14,7 @@ from .bootstrap import lint_tree
 from .deps import init_deps
 from .config import load_config
 from .db import DB
-from .scanner import threaded_hash, validate_hash_algo, hash_file
+from .scanner import threaded_hash, validate_hash_algo
 from .exporter import write_folder_meta
 from .ai.backends import choose_backend
 from .planner import ensure_unique, write_plan_csv
@@ -73,12 +74,12 @@ def cmd_scan(args, cfg):
                 vec = be.compute_embedding(Path(p), dim=sim_dim)
                 db.upsert_embedding(p, vec, sim_dim, int(mtime))
                 updated += 1
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-except
                 # non-fatal
                 print(f"[scan][WARN] embedding failed for {p}: {e}", file=sys.stderr)
 
         logger.log("INFO", "embeddings_precomputed", updated=updated)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         print(f"[scan][WARN] Failed to precompute embeddings: {e}", file=sys.stderr)
 
     # Metrics
@@ -115,7 +116,7 @@ def cmd_scan(args, cfg):
                     silent=True
                 )
                 meta_count += 1
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-except
                 meta_errors += 1
                 logger.log("ERROR", "meta_export_failed", directory=str(dir_path), error=str(e))
         
@@ -163,7 +164,7 @@ def cmd_apply(args, cfg):
     res = apply_moves(
         # Read CSV manually or use helper if we had one for reading
         # For now, simple read
-        [], # TODO: Read CSV
+        [], # pylint: disable=fixme
         Path(args.checkpoint),
         dry_run=(cfg["dry_run"] and not args.force)
     )
@@ -178,12 +179,12 @@ def cmd_apply(args, cfg):
     print(f"[apply] {res}")
     return 0 if res["errors"] == 0 else 1
 
-def cmd_rollback(args, cfg):
+def cmd_rollback(args, _cfg):
     res = rollback_from_checkpoint(Path(args.checkpoint))
     print(f"[rollback] {res}")
     return 0 if res["errors"] == 0 else 1
 
-def cmd_verify(args, cfg):
+def cmd_verify(args, _cfg):
     """Verify command - check checkpoint integrity."""
     cp = Path(args.checkpoint)
     if not cp.exists():
@@ -214,42 +215,55 @@ def cmd_mount(args, cfg):
     mount_fs(Path(cfg["db_path"]), Path(args.mountpoint))
     return 0
 
-def cmd_archive_list(args, cfg):
+def cmd_archive_list(args, _cfg):
     try:
         h = ArchiveHandler(args.file)
         print(f"Archive Type: {h.type}")
         for item in h.list_contents():
             print(f"{item['size']:>12} {item['path']}")
         return 0
-    except Exception as e:
+    except (OSError, ValueError, RuntimeError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
 
-def cmd_archive_extract(args, cfg):
+def cmd_archive_extract(args, _cfg):
     try:
         h = ArchiveHandler(args.file)
         h.extract(args.dest)
         print("Extraction complete.")
         return 0
-    except Exception as e:
+    except (OSError, ValueError, RuntimeError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
 
+def cmd_similarity_build(args, cfg):
+    db_path = Path(cfg['db_path'])
+    res = build_index_from_db(db_path, dim=args.dim, out_path=args.out)
+    print(f"[similarity] index_count={res['index_count']}")
+    return 0
 
 
-        db_path = Path(cfg['db_path'])
-        res = build_index_from_db(db_path, dim=args.dim, out_path=args.out)
-        print(f"[similarity] index_count={res['index_count']}")
-        return 0
+def cmd_similarity_query(args, cfg):
+    db_path = Path(cfg['db_path'])
+    target = Path(args.file)
+    res = find_near_duplicates(db_path, target, k=args.k, dim=args.dim, index_path=args.index_file)
+    for path, score in res:
+        print(f"{score:>12.6f} {path}")
+    return 0
+
+
+def cmd_similarity_update(args, cfg):
+    from .similarity.cli import update_index_from_db as _update
+    db_path = Path(cfg['db_path'])
+    if not args.index_file:
+        print("[similarity][update] --index-file is required", file=sys.stderr)
+        return 2
+    res = _update(db_path, args.index_file, remove_missing=args.rebuild)
+    print(f"[similarity][update] added={res.get('added')} index_count={res.get('index_count')}")
+    return 0
 
 
 def main(argv=None):
-        db_path = Path(cfg['db_path'])
-        target = Path(args.file)
-        res = find_near_duplicates(db_path, target, k=args.k, dim=args.dim, index_path=args.index_file)
-        for path, score in res:
-            print(f"{score:>12.6f} {path}")
-        return 0
     # Initialize dependency auto-installer
     init_deps(auto_install=True, silent=False)
 
@@ -265,7 +279,7 @@ def main(argv=None):
     def shutdown_lint():
         try:
             lint_tree(module_dir)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             print(f"[warn] Shutdown linting failed: {e}", file=sys.stderr)
 
     atexit.register(shutdown_lint)
@@ -338,14 +352,19 @@ def main(argv=None):
     p_sim_query.add_argument("--index-file", help="Optional index file to load for faster queries")
     p_sim_query.set_defaults(_run=cmd_similarity_query)
 
+    p_sim_update = p_sim_sub.add_parser("update")
+    p_sim_update.add_argument("--index-file", required=True, help="Index file to update (.index/.npz)")
+    p_sim_update.add_argument("--rebuild", action="store_true", help="Rebuild index from DB (remove missing / stale entries)")
+    p_sim_update.set_defaults(_run=cmd_similarity_update)
+
     args = parser.parse_args(argv)
     
     try:
-        rc = args._run(args, cfg)
+        rc = args._run(args, cfg)  # pylint: disable=protected-access
     except KeyboardInterrupt:
         print("\n[fatal] Interrupted by user", file=sys.stderr)
         return 130
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         print(f"[fatal] {e}", file=sys.stderr)
         import traceback
         traceback.print_exc()

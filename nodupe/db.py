@@ -165,7 +165,7 @@ class DB:
         dim, vec_text, mtime = r
         try:
             vec = json.loads(vec_text)
-        except Exception:
+        except (ValueError, TypeError):
             vec = []
         return {'dim': int(dim), 'vector': vec, 'mtime': int(mtime)}
 
@@ -176,7 +176,7 @@ class DB:
         for p, dim, vec_text, mtime in rows:
             try:
                 vec = json.loads(vec_text)
-            except Exception:
+            except (ValueError, TypeError):
                 vec = []
             out.append((p, int(dim), vec, int(mtime)))
         return out

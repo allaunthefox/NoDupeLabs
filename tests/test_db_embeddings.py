@@ -1,6 +1,6 @@
 import tempfile
 from pathlib import Path
-from nodupe.db import DB
+from nodupe.db import DB  # type: ignore # pylint: disable=import-error
 
 
 def test_db_embedding_upsert_and_get():

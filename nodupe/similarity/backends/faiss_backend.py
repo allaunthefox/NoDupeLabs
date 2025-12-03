@@ -1,10 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 try:
-    import faiss  # type: ignore
-except Exception:
+    import faiss  # type: ignore # pylint: disable=import-error
+except Exception:  # pylint: disable=broad-except
     faiss = None  # type: ignore
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
 from typing import List, Optional, Tuple
 
 
@@ -12,6 +16,8 @@ class FaissIndex:
     def __init__(self, dim: int):
         if not faiss:
             raise RuntimeError("faiss not available")
+        if np is None:
+            raise RuntimeError("numpy not available")
         self.dim = dim
         self.index = faiss.IndexFlatL2(dim)
         self.ids: List[str] = []
@@ -58,7 +64,7 @@ class FaissIndex:
         try:
             with open(path + '.ids.json', 'r', encoding='utf-8') as f:
                 inst.ids = json.load(f)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             inst.ids = [str(i) for i in range(int(inst.index.ntotal))]
         return inst
 
@@ -69,4 +75,4 @@ def create(dim: int):
 
 
 def available() -> bool:
-    return faiss is not None
+    return faiss is not None and np is not None

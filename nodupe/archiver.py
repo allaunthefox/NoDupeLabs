@@ -3,10 +3,6 @@
 
 import zipfile
 import tarfile
-import gzip
-import bz2
-import lzma
-import shutil
 import os
 from pathlib import Path
 from typing import List, Dict, Any
@@ -18,7 +14,7 @@ except ImportError:
     HAS_7Z = False
 
 try:
-    import zstandard
+    import zstandard  # type: ignore # pylint: disable=unused-import
     HAS_ZSTD = True
 except ImportError:
     HAS_ZSTD = False
@@ -71,7 +67,7 @@ class ArchiveHandler:
                     results.append({"path": info.filename, "size": info.file_size, "is_dir": info.is_dir()})
         except (RuntimeError, zipfile.BadZipFile) as e:
             if "password" in str(e).lower() or "encrypted" in str(e).lower():
-                raise PermissionError(f"Password required for {self.path}")
+                raise PermissionError(f"Password required for {self.path}") from e
             raise
         return results
 
@@ -81,7 +77,7 @@ class ArchiveHandler:
                 zf.extractall(path=dest)
         except (RuntimeError, zipfile.BadZipFile) as e:
             if "password" in str(e).lower() or "encrypted" in str(e).lower():
-                raise PermissionError(f"Password required for {self.path}")
+                raise PermissionError(f"Password required for {self.path}") from e
             raise
 
     def _list_7z(self):
@@ -91,8 +87,8 @@ class ArchiveHandler:
             with py7zr.SevenZipFile(self.path, 'r') as archive:
                 for f in archive.list():
                     results.append({"path": f.filename, "size": f.uncompressed, "is_dir": f.is_directory})
-        except py7zr.exceptions.PasswordRequired:
-            raise PermissionError(f"Password required for {self.path}")
+        except py7zr.exceptions.PasswordRequired as e:
+            raise PermissionError(f"Password required for {self.path}") from e
         return results
 
     def _extract_7z(self, dest):
@@ -100,8 +96,8 @@ class ArchiveHandler:
         try:
             with py7zr.SevenZipFile(self.path, 'r') as archive:
                 archive.extractall(path=dest)
-        except py7zr.exceptions.PasswordRequired:
-            raise PermissionError(f"Password required for {self.path}")
+        except py7zr.exceptions.PasswordRequired as e:
+            raise PermissionError(f"Password required for {self.path}") from e
 
     def _list_rar(self):
         if not HAS_RAR: raise ImportError("rarfile not installed")
@@ -111,20 +107,20 @@ class ArchiveHandler:
                 for info in rf.infolist():
                     results.append({"path": info.filename, "size": info.file_size, "is_dir": info.isdir()})
             return results
-        except rarfile.PasswordRequired:
-            raise PermissionError(f"Password required for {self.path}")
-        except rarfile.RarExecError:
-             raise OSError("External tool 'unrar' not found")
+        except rarfile.PasswordRequired as e:
+            raise PermissionError(f"Password required for {self.path}") from e
+        except rarfile.RarExecError as e:
+            raise OSError("External tool 'unrar' not found") from e
 
     def _extract_rar(self, dest):
         if not HAS_RAR: raise ImportError("rarfile not installed")
         try:
             with rarfile.RarFile(self.path) as rf:
                 rf.extractall(path=dest)
-        except rarfile.PasswordRequired:
-            raise PermissionError(f"Password required for {self.path}")
-        except rarfile.RarExecError:
-             raise OSError("External tool 'unrar' not found")
+        except rarfile.PasswordRequired as e:
+            raise PermissionError(f"Password required for {self.path}") from e
+        except rarfile.RarExecError as e:
+            raise OSError("External tool 'unrar' not found") from e
 
     def _list_tar(self):
         results = []
@@ -144,5 +140,5 @@ class ArchiveHandler:
             for member in tf.getmembers():
                 member_path = os.path.join(dest, member.name)
                 if not is_within_directory(dest, member_path):
-                    raise Exception("Attempted Path Traversal in Tar File")
+                    raise RuntimeError("Attempted Path Traversal in Tar File")
             tf.extractall(path=dest)

@@ -155,7 +155,7 @@ class DependencyManager:
                     file=sys.stderr
                 )
             return False
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError) as e:
             if not self.silent:
                 print(
                     f"[deps] ⚠ pip install {pkg_name} error: {e}",
@@ -211,7 +211,7 @@ def init_deps(auto_install: bool = True, silent: bool = False) -> DependencyMana
     Returns:
         DependencyManager instance
     """
-    global _dep_manager
+    global _dep_manager  # pylint: disable=global-statement
     _dep_manager = DependencyManager(auto_install, silent)
     return _dep_manager
 
@@ -226,7 +226,7 @@ def check_dep(module_name: str) -> bool:
     Returns:
         True if module is available, False otherwise
     """
-    global _dep_manager
+    global _dep_manager  # pylint: disable=global-statement
     if _dep_manager is None:
         _dep_manager = DependencyManager()
     return _dep_manager.check_and_install(module_name)
@@ -234,7 +234,6 @@ def check_dep(module_name: str) -> bool:
 
 def get_dep_summary() -> Dict[str, bool]:
     """Get summary of all checked dependencies."""
-    global _dep_manager
     if _dep_manager is None:
         return {}
     return _dep_manager.get_summary()

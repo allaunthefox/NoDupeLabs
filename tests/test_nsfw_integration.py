@@ -1,5 +1,5 @@
 from pathlib import Path
-from nodupe.nsfw_classifier import NSFWClassifier
+from nodupe.nsfw_classifier import NSFWClassifier  # type: ignore # pylint: disable=import-error
 
 
 def test_nsfw_classify_basic():

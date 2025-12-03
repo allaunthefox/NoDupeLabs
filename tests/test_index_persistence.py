@@ -1,6 +1,12 @@
 import tempfile
-import numpy as np
-from nodupe.similarity import make_index, load_index_from_file
+import pytest
+try:
+    import numpy as np
+except ImportError:
+    np = None
+from nodupe.similarity import make_index, load_index_from_file, save_index_to_file  # type: ignore # pylint: disable=import-error
+
+pytestmark = pytest.mark.skipif(np is None, reason="numpy not available")
 
 
 def test_bruteforce_save_load():
@@ -11,7 +17,6 @@ def test_bruteforce_save_load():
     with tempfile.TemporaryDirectory() as td:
         p = f"{td}/test_index.npz"
         # save
-        from nodupe.similarity.index import save_index_to_file, load_index_from_file
         save_index_to_file(idx, p)
         # load
         idx2 = load_index_from_file(p)

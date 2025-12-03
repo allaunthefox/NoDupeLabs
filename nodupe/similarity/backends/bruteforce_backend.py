@@ -1,10 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    np = None
+
 from typing import List, Optional, Tuple
 
 
 class BruteForceIndex:
     def __init__(self, dim: int):
+        if np is None:
+            raise ImportError("numpy is required for BruteForceIndex")
         self.dim = dim
         self.vectors = np.zeros((0, dim), dtype='float32')
         self.ids: List[str] = []
@@ -34,12 +40,11 @@ def create(dim: int):
 
 
 def available() -> bool:
-    return True
+    return np is not None
 
 
 # Persistence helpers
 def load(path: str):
-    import numpy as np
     npz = np.load(path, allow_pickle=True)
     vectors = npz['vectors']
     ids = npz['ids'].tolist() if 'ids' in npz else [str(i) for i in range(vectors.shape[0])]
@@ -51,10 +56,5 @@ def load(path: str):
 
 
 def save(index_obj, path: str):
-    import numpy as np
     # assume index_obj has attributes vectors and ids
     np.savez_compressed(path, vectors=np.asarray(index_obj.vectors), ids=np.asarray(index_obj.ids, dtype=object))
-
-
-def available() -> bool:
-    return True

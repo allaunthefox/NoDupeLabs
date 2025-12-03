@@ -74,7 +74,7 @@ class NSFWClassifier:
         try:
             from .ai.backends import choose_backend
             self.backend = choose_backend()
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             self.backend = None
 
         # Compile regex patterns for performance
@@ -145,7 +145,7 @@ class NSFWClassifier:
                     method = "ml"
                 if ml_reason:
                     reasons.append(ml_reason)
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 # Backend failure should not break the pipeline; ignore
                 pass
 
@@ -176,7 +176,7 @@ class NSFWClassifier:
             Tuple of (score_adjustment, reason)
         """
         try:
-            from PIL import Image
+            from PIL import Image  # type: ignore # pylint: disable=import-error
 
             with Image.open(path) as img:
                 width, height = img.size
@@ -206,7 +206,7 @@ class NSFWClassifier:
                     if aspect > 2.0:
                         return (1, "ultra_wide")
 
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             # Silently ignore PIL errors
             pass
 

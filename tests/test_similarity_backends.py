@@ -1,4 +1,4 @@
-from nodupe.similarity import make_index
+from nodupe.similarity import make_index  # type: ignore # pylint: disable=import-error
 
 
 def test_make_index_default():

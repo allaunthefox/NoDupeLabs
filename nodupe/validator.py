@@ -24,7 +24,7 @@ def validate_meta_dict(meta: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
             return True, None
         except ValidationError as e:
             return False, str(e)
-        except Exception as e:
+        except (OSError, ValueError, ImportError) as e:
             return False, str(e)
 
     # Fallback: structural checks

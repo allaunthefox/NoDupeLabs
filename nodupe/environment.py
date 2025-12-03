@@ -74,10 +74,10 @@ class Environment:
             for marker_file, patterns in cloud_files.items():
                 if Path(marker_file).exists():
                     try:
-                        content = Path(marker_file).read_text().strip()
+                        content = Path(marker_file).read_text(encoding="utf-8").strip()
                         if any(p in content for p in patterns):
                             return "cloud"
-                    except Exception:
+                    except (OSError, UnicodeDecodeError):
                         pass
 
         # Check for NAS-like environments
@@ -125,10 +125,10 @@ class Environment:
         # Try to get accurate memory info
         if check_dep("psutil"):
             try:
-                import psutil
+                import psutil  # type: ignore # pylint: disable=import-error
                 resources['memory_gb'] = psutil.virtual_memory().total / (1024**3)
                 resources['disk_type'] = self._detect_disk_type()
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
                 pass
 
         return resources
@@ -162,7 +162,7 @@ class Environment:
                 if rotational_file.exists():
                     is_rotational = int(rotational_file.read_text().strip())
                     return "hdd" if is_rotational else "ssd"
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             pass
 
         return "ssd"  # Default assumption

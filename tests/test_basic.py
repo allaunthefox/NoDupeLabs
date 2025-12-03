@@ -1,6 +1,6 @@
 import pytest
-from nodupe.scanner import validate_hash_algo
-from nodupe.categorizer import categorize_file
+from nodupe.scanner import validate_hash_algo  # type: ignore # pylint: disable=import-error
+from nodupe.categorizer import categorize_file  # type: ignore # pylint: disable=import-error
 
 def test_validate_hash_algo():
     assert validate_hash_algo("sha512") == "sha512"

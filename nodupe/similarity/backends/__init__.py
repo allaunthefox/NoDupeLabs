@@ -21,7 +21,7 @@ def _discover():
     # pkgutil requires a package object
     mod = importlib.import_module(package)
     path = getattr(mod, '__path__', [])
-    for finder, name, ispkg in pkgutil.iter_modules(path):
+    for _, name, _ in pkgutil.iter_modules(path):
         if name.startswith('_'):
             continue
         full = f"{package}.{name}"
@@ -29,7 +29,7 @@ def _discover():
             m = importlib.import_module(full)
             if hasattr(m, 'create'):
                 _BACKENDS[name] = m
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             # Ignore modules that fail to import so adding/removing remains safe
             continue
 
@@ -62,7 +62,7 @@ def default_backend_name() -> str:
                 try:
                     if avail():
                         return prefer
-                except Exception:
+                except Exception:  # pylint: disable=broad-except
                     continue
             else:
                 # if backend doesn't expose availability, assume present

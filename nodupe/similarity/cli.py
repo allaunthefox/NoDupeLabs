@@ -7,53 +7,88 @@ from ..ai.backends import choose_backend
 from ..db import DB
 
 
-def build_index_from_db(db_path: Path, dim: int = 16) -> dict:
+def build_index_from_db(db_path: Path, dim: int = 16, out_path: str | None = None) -> dict:
     db = DB(db_path)
-    rows = db.get_all()
-    # rows: path, size, mtime, file_hash, mime, context_tag, hash_algo, permissions
-    items = [r for r in rows if r[4] and r[4].startswith('image/')]
-
+    # Use precomputed embeddings when available, compute missing ones optionally
     be = choose_backend()
     idx = make_index(dim)
 
+    embeddings = db.get_all_embeddings()
     vectors = []
     ids = []
-    for r in items:
+
+    for p, d, vec, _ in embeddings:
+        if d != dim:
+            # dimension mismatch — skip or convert? skip for now
+            continue
+        if not vec:
+            continue
+        vectors.append(vec)
+        ids.append(p)
+
+    # Compute embeddings for images missing embeddings
+    rows = db.get_all()
+    for r in rows:
         p = Path(r[0])
+        mime = r[4]
+        if not mime or not mime.startswith('image/'):
+            continue
+        if r[0] in ids:
+            continue
+        # try to compute and store
         try:
             vec = be.compute_embedding(p, dim=dim)
-            vectors.append(vec)
-            ids.append(r[0])
-        except Exception:
-            # skip
+            if vec:
+                db.upsert_embedding(str(p), vec, dim, int(r[2]))
+                vectors.append(vec)
+                ids.append(str(p))
+        except Exception:  # pylint: disable=broad-except
             continue
 
     idx.add(vectors, ids=ids)
+
+    if out_path:
+        # persist to disk if requested: choose format based on extension
+        try:
+            from .index import save_index_to_file
+            save_index_to_file(idx, out_path)
+        except Exception as e:
+            raise RuntimeError(f"Failed to save index: {e}") from e
+
     return {"index_count": len(ids)}
 
 
-def find_near_duplicates(db_path: Path, target: Path, k: int = 5, dim: int = 16) -> List[tuple]:
+def find_near_duplicates(db_path: Path, target: Path, k: int = 5, dim: int = 16, index_path: str | None = None) -> List[tuple]:
+    # If an index file is provided, load it (fast). Otherwise build from DB embeddings in memory.
+    if index_path:
+        from .index import load_index_from_file
+        idx = load_index_from_file(index_path)
+        be = choose_backend()
+        vec = be.compute_embedding(target, dim=dim)
+        return idx.search(vec, k=k)
+
     be = choose_backend()
     vec = be.compute_embedding(target, dim=dim)
     idx = make_index(dim)
 
-    # Build from DB (in-memory) — for production you'd persist this
+    # Build from DB embeddings
     db = DB(db_path)
-    rows = db.get_all()
-    items = [r for r in rows if r[4] and r[4].startswith('image/')]
-
+    embeddings = db.get_all_embeddings()
     vectors = []
     ids = []
-    for r in items:
-        p = Path(r[0])
-        try:
-            v = be.compute_embedding(p, dim=dim)
-            vectors.append(v)
-            ids.append(r[0])
-        except Exception:
+    for p, d, vecv, _ in embeddings:
+        if d != dim or not vecv:
             continue
+        vectors.append(vecv)
+        ids.append(p)
 
     idx.add(vectors, ids=ids)
     res = idx.search(vec, k=k)
-    # return list of (path, score)
     return res
+
+
+def update_index_from_db(db_path: Path, index_path: str, remove_missing: bool = False) -> dict:
+    """Update an existing persisted index by appending missing embeddings from DB."""
+    db = DB(db_path)
+    from .index import update_index_from_db as _upd
+    return _upd(index_path, db, remove_missing=remove_missing)

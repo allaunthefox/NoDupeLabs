@@ -10,13 +10,8 @@ import sys
 import stat
 from pathlib import Path
 from typing import Iterable, List, Tuple
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import concurrent.futures as futures
 
-try:
-    from .deps import check_dep
-except ImportError:
-    def check_dep(_: str) -> bool:
-        return False
 
 CHUNK = 1024 * 1024  # 1MB
 
@@ -101,7 +96,7 @@ def _get_permissions(p: Path) -> str:
     try:
         # Return octal representation of mode, e.g. "0o755"
         return oct(stat.S_IMODE(p.stat().st_mode))
-    except Exception:
+    except OSError:
         return "0"
 
 def iter_files(roots: Iterable[str], ignore: List[str], follow_symlinks: bool = False) -> Iterable[Path]:
@@ -172,19 +167,19 @@ def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, has
     except ImportError:
         tqdm = None
 
-    with ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
+    with futures.ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
         futs = {}
         for p in files:
             futs[ex.submit(process_file, p, hash_algo)] = p
 
         if tqdm:
             pbar = tqdm(total=len(futs), desc="Hashing files", unit="file")
-            for fut in as_completed(futs):
+            for fut in futures.as_completed(futs):
                 p = futs[fut]
                 try:
                     # Result is now the full tuple
                     results.append(fut.result())
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-except
                     print(f"[scanner][WARN] Failed to process {p}: {e}", file=sys.stderr)
                 finally:
                     pbar.update(1)
@@ -192,11 +187,11 @@ def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, has
         else:
             # Simple text progress
             done = 0
-            for fut in as_completed(futs):
+            for fut in futures.as_completed(futs):
                 p = futs[fut]
                 try:
                     results.append(fut.result())
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-except
                     print(f"[scanner][WARN] Failed to process {p}: {e}", file=sys.stderr)
                 done += 1
                 if done % 100 == 0:

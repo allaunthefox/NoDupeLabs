@@ -77,7 +77,7 @@ def load_config(path: str = "nodupe.yml") -> Dict[str, Any]:
         from .environment import Environment
         env = Environment()
         cfg = env.apply_to_config(cfg)
-    except Exception as e:
+    except (ImportError, OSError, ValueError) as e:
         print(f"[config][WARN] Environment detection failed: {e}")
 
     return cfg
