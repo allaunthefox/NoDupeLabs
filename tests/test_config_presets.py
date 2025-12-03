@@ -31,6 +31,23 @@ def test_ensure_config_presets():
                 cfg = yaml.safe_load(f)
             assert cfg["ai"]["enabled"] is True
             assert cfg["similarity"]["dim"] == 64
+            os.unlink("nodupe.yml")
+
+            # Test ebooks
+            ensure_config("nodupe.yml", preset="ebooks")
+            with open("nodupe.yml") as f:
+                cfg = yaml.safe_load(f)
+            assert cfg["hash_algo"] == "sha256"
+            assert cfg["ai"]["enabled"] is False
+            os.unlink("nodupe.yml")
+
+            # Test audiobooks
+            ensure_config("nodupe.yml", preset="audiobooks")
+            with open("nodupe.yml") as f:
+                cfg = yaml.safe_load(f)
+            assert cfg["hash_algo"] == "blake2b"
+            assert ".DS_Store" in cfg["ignore_patterns"]
+            os.unlink("nodupe.yml")
             
         finally:
             os.chdir(cwd)

@@ -71,6 +71,28 @@ PRESETS = {
         "similarity": {"dim": 64},
         "ai": {**DEFAULTS["ai"], "enabled": True},
         "nsfw": {**DEFAULTS["nsfw"], "enabled": True},
+    },
+    "ebooks": {
+        **DEFAULTS,
+        "hash_algo": "sha256",
+        "ai": {**DEFAULTS["ai"], "enabled": False},
+        "nsfw": {**DEFAULTS["nsfw"], "enabled": False},
+        "meta_pretty": True,
+    },
+    "audiobooks": {
+        **DEFAULTS,
+        "hash_algo": "blake2b",
+        "ai": {**DEFAULTS["ai"], "enabled": False},
+        "nsfw": {**DEFAULTS["nsfw"], "enabled": False},
+        "meta_pretty": True,
+        "ignore_patterns": DEFAULTS["ignore_patterns"] + [".DS_Store", "Thumbs.db"],
+    },
+    "archives": {
+        **DEFAULTS,
+        "hash_algo": "sha512",
+        "follow_symlinks": False,
+        "ai": {**DEFAULTS["ai"], "enabled": False},
+        "logging": {**DEFAULTS["logging"], "level": "DEBUG"},
     }
 }
 
