@@ -18,6 +18,7 @@ from .exporter import write_folder_meta
 from .planner import ensure_unique, write_plan_csv
 from .applier import apply_moves
 from .rollback import rollback_from_checkpoint
+from .mount import mount_fs
 from .logger import JsonlLogger
 from .metrics import Metrics
 from .archiver import ArchiveHandler
@@ -176,6 +177,11 @@ def cmd_verify(args, cfg):
     print("[verify] OK. All destination files exist.")
     return 0
 
+def cmd_mount(args, cfg):
+    """Mount command."""
+    mount_fs(Path(cfg["db_path"]), Path(args.mountpoint))
+    return 0
+
 def cmd_archive_list(args, cfg):
     try:
         h = ArchiveHandler(args.file)
@@ -251,6 +257,11 @@ def main(argv=None):
     p_vf = sub.add_parser("verify")
     p_vf.add_argument("--checkpoint", required=True)
     p_vf.set_defaults(_run=cmd_verify)
+
+    # Mount
+    p_mnt = sub.add_parser("mount")
+    p_mnt.add_argument("mountpoint", help="Directory to mount the filesystem")
+    p_mnt.set_defaults(_run=cmd_mount)
 
     # Archive
     p_arch = sub.add_parser("archive")
