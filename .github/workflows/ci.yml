@@ -187,7 +187,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip
 
-      - name: Install all vendored wheels into a clean environment (offline)
+      - id: install_vendored
+        name: Install all vendored wheels into a clean environment (offline)
         # Use the bundled installer helper to install _all_ wheels found in nodupe/vendor/libs.
         run: |
           # If there are no vendored wheels in the checkout then this
@@ -198,7 +199,10 @@ jobs:
           files=(nodupe/vendor/libs/*.whl)
           if [ ${#files[@]} -eq 0 ]; then
             echo "No vendored wheels found in nodupe/vendor/libs — skipping validation step"
+            echo "no_wheels=true" >> $GITHUB_OUTPUT
             exit 0
+          else
+            echo "no_wheels=false" >> $GITHUB_OUTPUT
           fi
 
           # Enforce an offline install to ensure vendored wheels are sufficient
@@ -206,6 +210,7 @@ jobs:
           python scripts/install_vendored_wheels.py || exit 1
 
       - name: Smoke import checks
+        if: steps.install_vendored.outputs.no_wheels != 'true'
         # Verify a few key packages import successfully after the vendored install.
         run: |
           python - <<'PY'
