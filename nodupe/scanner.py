@@ -148,6 +148,15 @@ def iter_files(roots: Iterable[str], ignore: List[str], follow_symlinks: bool = 
         except OSError as e:
             print(f"[scanner][WARN] Failed to walk {r}: {e}", file=sys.stderr)
 
+def process_file(p: Path, hash_algo: str) -> Tuple[str, int, int, str, str, str, str, str]:
+    """Process a single file: hash it and extract all metadata."""
+    sha = hash_file(p, hash_algo)
+    st = p.stat()
+    mime = _get_mime_safe(p)
+    context = _detect_context(p)
+    perms = _get_permissions(p)
+    return (str(p), st.st_size, int(st.st_mtime), sha, mime, context, hash_algo, perms)
+
 def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, hash_algo: str = "sha512", follow_symlinks: bool = False):
     """
     Scan files and compute hashes.
@@ -166,19 +175,15 @@ def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, has
     with ThreadPoolExecutor(max_workers=max(1, workers)) as ex:
         futs = {}
         for p in files:
-            futs[ex.submit(hash_file, p, hash_algo)] = p
+            futs[ex.submit(process_file, p, hash_algo)] = p
 
         if tqdm:
             pbar = tqdm(total=len(futs), desc="Hashing files", unit="file")
             for fut in as_completed(futs):
                 p = futs[fut]
                 try:
-                    sha = fut.result()
-                    st = p.stat()
-                    mime = _get_mime_safe(p)
-                    context = _detect_context(p)
-                    perms = _get_permissions(p)
-                    results.append((str(p), st.st_size, int(st.st_mtime), sha, mime, context, hash_algo, perms))
+                    # Result is now the full tuple
+                    results.append(fut.result())
                 except Exception as e:
                     print(f"[scanner][WARN] Failed to process {p}: {e}", file=sys.stderr)
                 finally:
@@ -190,12 +195,7 @@ def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, has
             for fut in as_completed(futs):
                 p = futs[fut]
                 try:
-                    sha = fut.result()
-                    st = p.stat()
-                    mime = _get_mime_safe(p)
-                    context = _detect_context(p)
-                    perms = _get_permissions(p)
-                    results.append((str(p), st.st_size, int(st.st_mtime), sha, mime, context, hash_algo, perms))
+                    results.append(fut.result())
                 except Exception as e:
                     print(f"[scanner][WARN] Failed to process {p}: {e}", file=sys.stderr)
                 done += 1
