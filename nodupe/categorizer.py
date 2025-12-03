@@ -3,6 +3,7 @@
 
 from typing import Dict
 
+
 def categorize_file(mime: str, name: str) -> Dict[str, str]:
     mime = (mime or "").lower()
     name = (name or "").lower()
@@ -24,7 +25,9 @@ def categorize_file(mime: str, name: str) -> Dict[str, str]:
         "application/x-bzip2",
         "application/x-xz",
         "application/zstd",
-    ) or name.endswith((".zip", ".7z", ".rar", ".tar", ".gz", ".bz2", ".xz", ".zst")):
+    ) or name.endswith((
+        ".zip", ".7z", ".rar", ".tar", ".gz", ".bz2", ".xz", ".zst"
+    )):
         return {"category": "archive", "subtype": "compressed", "topic": None}
 
     return {"category": "other", "subtype": "unknown", "topic": None}

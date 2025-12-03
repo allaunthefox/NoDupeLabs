@@ -30,7 +30,9 @@ BASE_SCHEMA = textwrap.dedent(
     );
 
     CREATE INDEX IF NOT EXISTS idx_file_hash ON files(file_hash);
-    CREATE INDEX IF NOT EXISTS idx_files_hash_ctx ON files(file_hash, context_tag);
+    CREATE INDEX IF NOT EXISTS idx_files_hash_ctx ON files(
+        file_hash, context_tag
+    );
 
     CREATE TABLE IF NOT EXISTS schema_version (
         version INTEGER PRIMARY KEY,
@@ -49,6 +51,7 @@ BASE_SCHEMA = textwrap.dedent(
     """
 )
 
+
 class DB:
     def __init__(self, path: Path):
         self.path = Path(path)
@@ -61,12 +64,19 @@ class DB:
         try:
             # Check if table exists
             cur = self.conn.cursor()
-            cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='files'")
+            cur.execute(
+                "SELECT name FROM sqlite_master "
+                "WHERE type='table' AND name='files'"
+            )
             if not cur.fetchone():
                 self.conn.executescript(BASE_SCHEMA)
                 self.conn.execute(
-                    "INSERT INTO schema_version (version, applied_at, description) VALUES (?, ?, ?)",
-                    (SCHEMA_VERSION, int(time.time()), "Initial NoDupe Schema")
+                    "INSERT INTO schema_version "
+                    "(version, applied_at, description) VALUES (?, ?, ?)",
+                    (
+                        SCHEMA_VERSION, int(time.time()),
+                        "Initial NoDupe Schema"
+                    )
                 )
                 self.conn.commit()
             else:
@@ -74,13 +84,25 @@ class DB:
                 cur.execute("PRAGMA table_info(files)")
                 columns = [row[1] for row in cur.fetchall()]
                 if "permissions" not in columns:
-                    print("[db] Migrating schema: Adding permissions column...", file=sys.stderr)
-                    cur.execute("ALTER TABLE files ADD COLUMN permissions TEXT DEFAULT '0'")
+                    print(
+                        "[db] Migrating schema: Adding permissions column...",
+                        file=sys.stderr
+                    )
+                    cur.execute(
+                        "ALTER TABLE files "
+                        "ADD COLUMN permissions TEXT DEFAULT '0'"
+                    )
                     self.conn.commit()
                 # Ensure embeddings table exists
-                cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='embeddings'")
+                cur.execute(
+                    "SELECT name FROM sqlite_master "
+                    "WHERE type='table' AND name='embeddings'"
+                )
                 if not cur.fetchone():
-                    print("[db] Migrating schema: Adding embeddings table...", file=sys.stderr)
+                    print(
+                        "[db] Migrating schema: Adding embeddings table...",
+                        file=sys.stderr
+                    )
                     cur.executescript(textwrap.dedent(
                         '''
                         CREATE TABLE IF NOT EXISTS embeddings(
@@ -90,28 +112,40 @@ class DB:
                             mtime INTEGER NOT NULL
                         );
 
-                        CREATE INDEX IF NOT EXISTS idx_embeddings_mtime ON embeddings(mtime);
+                        CREATE INDEX IF NOT EXISTS idx_embeddings_mtime
+                        ON embeddings(mtime);
                         '''
                     ))
                     self.conn.commit()
         except sqlite3.Error as e:
-            print(f"[db][ERROR] Failed to initialize schema: {e}", file=sys.stderr)
+            print(
+                f"[db][ERROR] Failed to initialize schema: {e}",
+                file=sys.stderr
+            )
             raise
 
     def close(self):
         self.conn.close()
 
-    def upsert_files(self, records: Iterable[Tuple[str, int, int, str, str, str, str, str]]):
+    def upsert_files(
+        self, records: Iterable[Tuple[str, int, int, str, str, str, str, str]]
+    ):
         """
         Insert or update file records.
         Args:
-            records: (path, size, mtime, file_hash, mime, context_tag, hash_algo, permissions)
+            records: (
+                path, size, mtime, file_hash, mime, context_tag,
+                hash_algo, permissions
+            )
         """
         cur = self.conn.cursor()
         cur.executemany(
             textwrap.dedent(
                 """
-                INSERT INTO files(path, size, mtime, file_hash, mime, context_tag, hash_algo, permissions)
+                INSERT INTO files(
+                    path, size, mtime, file_hash, mime,
+                    context_tag, hash_algo, permissions
+                )
                 VALUES(?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(path) DO UPDATE SET
                     size=excluded.size,
@@ -141,10 +175,13 @@ class DB:
         return list(self.conn.execute(query))
 
     def get_all(self):
-        return list(
-            self.conn.execute(
-                "SELECT path, size, mtime, file_hash, mime, context_tag, hash_algo, permissions FROM files"
-            )
+        return list(self.iter_files())
+
+    def iter_files(self):
+        """Yields file records without loading all into memory."""
+        return self.conn.execute(
+            "SELECT path, size, mtime, file_hash, mime, "
+            "context_tag, hash_algo, permissions FROM files"
         )
 
     def get_known_files(self):
@@ -167,19 +204,29 @@ class DB:
         cur = self.conn.cursor()
         # Prepare data: serialize vector to JSON
         data = [
-            (path, int(dim), json.dumps(vector, ensure_ascii=False), int(mtime))
+            (
+                path, int(dim), json.dumps(vector, ensure_ascii=False),
+                int(mtime)
+            )
             for path, vector, dim, mtime in records
         ]
         cur.executemany(
-            "INSERT INTO embeddings(path, dim, vector, mtime) VALUES(?, ?, ?, ?)"
-            " ON CONFLICT(path) DO UPDATE SET dim=excluded.dim, vector=excluded.vector, mtime=excluded.mtime",
+            (
+                "INSERT INTO embeddings(path, dim, vector, mtime) "
+                "VALUES(?, ?, ?, ?) "
+                "ON CONFLICT(path) DO UPDATE SET "
+                "dim=excluded.dim, vector=excluded.vector, "
+                "mtime=excluded.mtime"
+            ),
             data,
         )
         self.conn.commit()
 
     def get_embedding(self, path: str):
         cur = self.conn.cursor()
-        r = cur.execute("SELECT dim, vector, mtime FROM embeddings WHERE path = ?", (path,)).fetchone()
+        r = cur.execute(
+            "SELECT dim, vector, mtime FROM embeddings WHERE path = ?", (path,)
+        ).fetchone()
         if not r:
             return None
         dim, vec_text, mtime = r

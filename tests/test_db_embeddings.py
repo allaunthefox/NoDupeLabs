@@ -14,5 +14,5 @@ def test_db_embedding_upsert_and_get():
         assert got['dim'] == 3
         assert isinstance(got['vector'], list)
         assert got['mtime'] == 123456
-        all_emb = db.get_all_embeddings()
+        all_emb = list(db.get_all_embeddings())
         assert len(all_emb) == 1

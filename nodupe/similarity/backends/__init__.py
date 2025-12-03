@@ -1,16 +1,16 @@
 """Discoverable similarity backends loader.
 
-This package exposes mechanisms to discover available similarity backend modules
-found inside the `nodupe.similarity.backends` package. Each backend module
-should provide a `create(dim: int)` factory function returning an object that
-implements `add(vectors, ids)` and `search(vector, k)`.
+This package exposes mechanisms to discover available similarity backend
+modules found inside the `nodupe.similarity.backends` package. Each backend
+module should provide a `create(dim: int)` factory function returning an object
+that implements `add(vectors, ids)` and `search(vector, k)`.
 
 Backend modules can be added/removed independently, making the system modular.
 """
 from __future__ import annotations
 import importlib
 import pkgutil
-from typing import Dict, Callable, List
+from typing import Dict, List
 
 _BACKENDS: Dict[str, object] = {}
 
@@ -30,7 +30,8 @@ def _discover():
             if hasattr(m, 'create'):
                 _BACKENDS[name] = m
         except Exception:  # pylint: disable=broad-except
-            # Ignore modules that fail to import so adding/removing remains safe
+            # Ignore modules that fail to import so adding/removing remains
+            # safe
             continue
 
 
@@ -50,9 +51,12 @@ def get_factory(name: str):
 
 
 def default_backend_name() -> str:
-    # Prefer faiss if available, else bruteforce. Only pick modules that expose 'available()' and return True
+    # Prefer faiss if available, else bruteforce. Only pick modules that
+    # expose 'available()' and return True
     names = list_backends()
-    for prefer in ('faiss_backend', 'faiss', 'bruteforce_backend', 'bruteforce'):
+    for prefer in (
+        'faiss_backend', 'faiss', 'bruteforce_backend', 'bruteforce'
+    ):
         if prefer in names:
             mod = _BACKENDS.get(prefer)
             if mod is None:

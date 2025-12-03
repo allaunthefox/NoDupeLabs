@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 2' # weekly on Tue 06:00 UTC
 
 jobs:
   test:
@@ -212,12 +214,4 @@ jobs:
           PY
 
 
-  # Schedule weekly vendor refresh
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-  schedule:
-    - cron: '0 6 * * 2' # weekly on Tue 06:00 UTC
+

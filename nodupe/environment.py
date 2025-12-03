@@ -74,7 +74,9 @@ class Environment:
             for marker_file, patterns in cloud_files.items():
                 if Path(marker_file).exists():
                     try:
-                        content = Path(marker_file).read_text(encoding="utf-8").strip()
+                        content = Path(marker_file).read_text(
+                            encoding="utf-8"
+                        ).strip()
                         if any(p in content for p in patterns):
                             return "cloud"
                     except (OSError, UnicodeDecodeError):
@@ -126,7 +128,9 @@ class Environment:
         if check_dep("psutil"):
             try:
                 import psutil  # type: ignore # pylint: disable=import-error
-                resources['memory_gb'] = psutil.virtual_memory().total / (1024**3)
+                resources['memory_gb'] = (
+                    psutil.virtual_memory().total / (1024**3)
+                )
                 resources['disk_type'] = self._detect_disk_type()
             except Exception:  # pylint: disable=broad-except
                 pass
@@ -193,7 +197,8 @@ class Environment:
             # NAS: Limited CPU, network bottleneck, optimize for I/O
             opts['parallelism'] = max(2, cpu_count // 2)
             opts['chunk_size'] = 2 * 1024 * 1024  # 2MB chunks for network I/O
-            opts['batch_size'] = 500  # Smaller batches to avoid network timeouts
+            # Smaller batches to avoid network timeouts
+            opts['batch_size'] = 500
 
         elif self.type == "cloud":
             # Cloud VM: Optimize for throughput, assume fast I/O
@@ -269,6 +274,10 @@ class Environment:
         print(f"      Memory: {self.resources['memory_gb']:.1f} GB")
         print(f"      Disk Type: {self.resources['disk_type'].upper()}")
         print("[env] Optimizations:")
-        print(f"      Parallelism: {self.optimizations['parallelism']} workers")
-        print(f"      Chunk Size: {self.optimizations['chunk_size'] // 1024} KB")
+        print(
+            f"      Parallelism: {self.optimizations['parallelism']} workers"
+        )
+        print(
+            f"      Chunk Size: {self.optimizations['chunk_size'] // 1024} KB"
+        )
         print(f"      Batch Size: {self.optimizations['batch_size']} records")
