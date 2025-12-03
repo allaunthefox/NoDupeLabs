@@ -182,6 +182,9 @@ jobs:
         run: |
           python - <<'PY'
           import importlib, sys, json
+          # The following smoke imports exercise a few vendored wheels to
+          # verify pip installed them into the runner environment.
+          # Keep this list minimal to keep the job fast.
           pkgs = ['onnxruntime', 'numpy', 'PIL', 'psutil']
           failures = []
           out = {}
