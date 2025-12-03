@@ -1,5 +1,7 @@
 # NoDupeLabs
 
+**New to NoDupeLabs?** Check out the [Beginner's Guide](docs/BEGINNERS_GUIDE.md) for step-by-step instructions!
+
 **Important!** NoDupeLabs was written by a combination of LLMs and should not be used on production unless you accept what that implies. It works for me, might not work for you. Might delete everything.
 
 NoDupeLabs is a next-generation, context-aware system for cataloging, deduplicating, and organizing files. It is designed with enhanced safety features and environment-aware performance tuning.
