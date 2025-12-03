@@ -24,7 +24,8 @@ BASE_SCHEMA = textwrap.dedent(
             file_hash TEXT NOT NULL,
             mime TEXT DEFAULT 'application/octet-stream',
             context_tag TEXT DEFAULT 'unarchived',
-            hash_algo TEXT DEFAULT 'sha512'
+            hash_algo TEXT DEFAULT 'sha512',
+            permissions TEXT DEFAULT '0'
     );
 
     CREATE INDEX IF NOT EXISTS idx_file_hash ON files(file_hash);
@@ -58,6 +59,14 @@ class DB:
                     (SCHEMA_VERSION, int(time.time()), "Initial NoDupe Schema")
                 )
                 self.conn.commit()
+            else:
+                # Check for permissions column
+                cur.execute("PRAGMA table_info(files)")
+                columns = [row[1] for row in cur.fetchall()]
+                if "permissions" not in columns:
+                    print("[db] Migrating schema: Adding permissions column...", file=sys.stderr)
+                    cur.execute("ALTER TABLE files ADD COLUMN permissions TEXT DEFAULT '0'")
+                    self.conn.commit()
         except sqlite3.Error as e:
             print(f"[db][ERROR] Failed to initialize schema: {e}", file=sys.stderr)
             raise
@@ -65,25 +74,26 @@ class DB:
     def close(self):
         self.conn.close()
 
-    def upsert_files(self, records: Iterable[Tuple[str, int, int, str, str, str, str]]):
+    def upsert_files(self, records: Iterable[Tuple[str, int, int, str, str, str, str, str]]):
         """
         Insert or update file records.
         Args:
-            records: (path, size, mtime, file_hash, mime, context_tag, hash_algo)
+            records: (path, size, mtime, file_hash, mime, context_tag, hash_algo, permissions)
         """
         cur = self.conn.cursor()
         cur.executemany(
             textwrap.dedent(
                 """
-                INSERT INTO files(path, size, mtime, file_hash, mime, context_tag, hash_algo)
-                VALUES(?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO files(path, size, mtime, file_hash, mime, context_tag, hash_algo, permissions)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(path) DO UPDATE SET
                     size=excluded.size,
                     mtime=excluded.mtime,
                     file_hash=excluded.file_hash,
                     mime=excluded.mime,
                     context_tag=excluded.context_tag,
-                    hash_algo=excluded.hash_algo
+                    hash_algo=excluded.hash_algo,
+                    permissions=excluded.permissions
                 """
             ),
             records,
@@ -106,6 +116,6 @@ class DB:
     def get_all(self):
         return list(
             self.conn.execute(
-                "SELECT path, size, mtime, file_hash, mime, context_tag, hash_algo FROM files"
+                "SELECT path, size, mtime, file_hash, mime, context_tag, hash_algo, permissions FROM files"
             )
         )

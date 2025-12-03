@@ -7,6 +7,7 @@ import time
 import hashlib
 import mimetypes
 import sys
+import stat
 from pathlib import Path
 from typing import Iterable, List, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -96,6 +97,13 @@ def _get_mime_safe(p: Path) -> str:
         return mime
     return "application/octet-stream"
 
+def _get_permissions(p: Path) -> str:
+    try:
+        # Return octal representation of mode, e.g. "0o755"
+        return oct(stat.S_IMODE(p.stat().st_mode))
+    except Exception:
+        return "0"
+
 def iter_files(roots: Iterable[str], ignore: List[str], follow_symlinks: bool = False) -> Iterable[Path]:
     for r in roots:
         rp = Path(r)
@@ -146,7 +154,7 @@ def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, has
     Returns: (results, duration, total_files)
     """
     files = list(iter_files(roots, ignore, follow_symlinks=follow_symlinks))
-    results: List[Tuple[str, int, int, str, str, str, str]] = []
+    results: List[Tuple[str, int, int, str, str, str, str, str]] = []
     start = time.time()
 
     # Try to use tqdm if available
@@ -169,7 +177,8 @@ def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, has
                     st = p.stat()
                     mime = _get_mime_safe(p)
                     context = _detect_context(p)
-                    results.append((str(p), st.st_size, int(st.st_mtime), sha, mime, context, hash_algo))
+                    perms = _get_permissions(p)
+                    results.append((str(p), st.st_size, int(st.st_mtime), sha, mime, context, hash_algo, perms))
                 except Exception as e:
                     print(f"[scanner][WARN] Failed to process {p}: {e}", file=sys.stderr)
                 finally:
@@ -185,7 +194,8 @@ def threaded_hash(roots: Iterable[str], ignore: List[str], workers: int = 4, has
                     st = p.stat()
                     mime = _get_mime_safe(p)
                     context = _detect_context(p)
-                    results.append((str(p), st.st_size, int(st.st_mtime), sha, mime, context, hash_algo))
+                    perms = _get_permissions(p)
+                    results.append((str(p), st.st_size, int(st.st_mtime), sha, mime, context, hash_algo, perms))
                 except Exception as e:
                     print(f"[scanner][WARN] Failed to process {p}: {e}", file=sys.stderr)
                 done += 1

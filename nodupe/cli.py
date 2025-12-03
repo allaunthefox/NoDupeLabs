@@ -66,7 +66,8 @@ def cmd_scan(args, cfg):
                 "file_hash": rec[3],
                 "mime": rec[4],
                 "context_tag": rec[5],
-                "hash_algo": rec[6]
+                "hash_algo": rec[6],
+                "permissions": rec[7]
             })
 
         meta_count = 0

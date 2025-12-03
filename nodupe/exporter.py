@@ -79,6 +79,8 @@ def write_folder_meta(folder_path: Path, file_records: List[Dict[str, Any]], roo
         }
         if "context_tag" in r:
             entry["context_tag"] = r["context_tag"]
+        if "permissions" in r:
+            entry["permissions"] = r["permissions"]
         
         meta["entries"].append(entry)
 
