@@ -63,6 +63,9 @@ jobs:
       env:
         # Make tests predictable about progress output
         NO_DUPE_PROGRESS: auto
+        # Ensure tests import the repository source first so subpackages
+        # like `nodupe.ai` are resolvable during test collection.
+        PYTHONPATH: ${{ github.workspace }}
       run: |
         # Run fast tests only (skip slow/integration tests by default)
         pytest -q -m "not slow"
@@ -186,6 +189,17 @@ jobs:
       - name: Install all vendored wheels into a clean environment (offline)
         # Use the bundled installer helper to install _all_ wheels found in nodupe/vendor/libs.
         run: |
+          # If there are no vendored wheels in the checkout then this
+          # PR/branch isn't shipping vendored binaries — don't fail the
+          # job for that case (this job is primarily a validation for
+          # branches that include the vendor files).
+          shopt -s nullglob
+          files=(nodupe/vendor/libs/*.whl)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No vendored wheels found in nodupe/vendor/libs — skipping validation step"
+            exit 0
+          fi
+
           # Enforce an offline install to ensure vendored wheels are sufficient
           export PIP_NO_INDEX=1
           python scripts/install_vendored_wheels.py || exit 1
