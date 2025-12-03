@@ -2,7 +2,7 @@
 
 **Important!** NoDupeLabs was written by a combination of LLMs and should not be used on production unless you accept what that implies. It works for me, might not work for you. Might delete everything.
 
-NoDupeLabs is a next-generation, context-aware system for cataloging, deduplicating, and organizing files. It features a completely refactored architecture, enhanced safety features, and environment-aware performance tuning.
+NoDupeLabs is a next-generation, context-aware system for cataloging, deduplicating, and organizing files. It is designed with enhanced safety features and environment-aware performance tuning.
 
 It generates self-describing `meta.json` manifests for every folder so that archives remain readable and verifiable even without the original software.
 
