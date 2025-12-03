@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nodupe"
+version = "0.1.0"
+description = "Next-generation context-aware file deduplication and organization system"
+authors = [{name = "Allaun"}]
+license = {text = "Apache-2.0"}
+requires-python = ">=3.9"
+dependencies = [
+    "PyYAML",
+    "tqdm",
+    "xxhash",
+    "zstandard",
+    "py7zr",
+    "rarfile",
+    "jsonschema"
+]
+
+[project.scripts]
+nodupe = "nodupe.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]

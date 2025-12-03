@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nodupe.labs/schemas/nodupe_meta_v1.schema.json",
+  "title": "NoDupe Metadata V1",
+  "type": "object",
+  "properties": {
+    "spec": { "const": "nodupe_meta_v1" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "folder_rel": { "type": "string" },
+    "parent_rel": { "type": ["string", "null"] },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "files_total": { "type": "integer", "minimum": 0 },
+        "bytes_total": { "type": "integer", "minimum": 0 },
+        "categories": { "type": "object" },
+        "topics": { "type": "array", "items": { "type": "string" } },
+        "keywords": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["files_total", "bytes_total"]
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "size": { "type": "integer", "minimum": 0 },
+          "mtime": { "type": "integer" },
+          "file_hash": { "type": "string", "pattern": "^[a-fA-F0-9]{32,128}$" },
+          "hash_algo": { "type": "string", "enum": ["sha512", "sha256", "blake2b", "sha1", "md5"] },
+          "mime": { "type": "string" },
+          "category": { "type": "string" },
+          "subtype": { "type": "string" },
+          "topic": { "type": ["string", "null"] },
+          "context_tag": { "type": "string" }
+        },
+        "required": ["name", "size", "mtime", "file_hash", "hash_algo", "mime", "category"]
+      }
+    }
+  },
+  "required": ["spec", "generated_at", "entries"]
+}
