@@ -1,4 +1,24 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
+
+"""FAISS similarity search backend.
+
+This module provides an interface to the Facebook AI Similarity Search
+(FAISS) library. It offers highly optimized vector search capabilities,
+suitable for large datasets.
+
+Key Features:
+    - High-performance vector search (IndexFlatL2)
+    - Efficient persistence (native FAISS format + JSON IDs)
+    - Scalable to large vector counts
+
+Classes:
+    - FaissIndex: Wrapper around faiss.Index
+
+Functions:
+    - create: Factory function
+    - available: Check if backend can be used (requires faiss-cpu/gpu)
+"""
 try:
     import faiss  # type: ignore # pylint: disable=import-error
 except Exception:  # pylint: disable=broad-except

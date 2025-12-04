@@ -1,4 +1,26 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
+
+"""Brute-force similarity search backend.
+
+This module implements a simple, exact nearest neighbor search using
+NumPy. It calculates Euclidean distances between the query vector and
+all indexed vectors. While not scalable to millions of items, it is
+accurate and requires no complex dependencies beyond NumPy.
+
+Key Features:
+    - Exact nearest neighbor search (L2 distance)
+    - Full persistence support (.npz, .json, .jsonl)
+    - No external C++ dependencies (unlike FAISS)
+
+Classes:
+    - BruteForceIndex: In-memory index implementation
+
+Functions:
+    - create: Factory function
+    - available: Check if backend can be used (requires numpy)
+    - load/save: Persistence helpers
+"""
 try:
     import numpy as np
 except ImportError:

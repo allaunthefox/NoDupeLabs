@@ -1,4 +1,28 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
+
+"""High-level similarity operations for CLI.
+
+This module implements the core logic for similarity-related CLI commands.
+It orchestrates the interaction between the database, AI backends, and
+similarity indices to perform build, search, and update operations.
+
+Key Features:
+    - Build index from database embeddings
+    - Compute missing embeddings on-the-fly
+    - Search for nearest neighbors
+    - Update existing indices
+
+Functions:
+    - build_index_from_db: Create and optionally save an index
+    - find_near_duplicates: Search for similar files
+    - update_index_from_db: Sync persisted index with DB
+
+Dependencies:
+    - .index: Index factory and persistence
+    - ..ai.backends: Embedding computation
+    - ..db: Database access
+"""
 from __future__ import annotations
 from pathlib import Path
 from typing import List

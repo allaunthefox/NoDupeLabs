@@ -1,8 +1,27 @@
-"""Pluggable similarity index factory.
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
 
-This module exposes make_index(dim, preferred=None) which will attempt to
-use a plugin backend found under `nodupe.similarity.backends`. Backends may
-be added or removed by creating/removing files under the `backends` package.
+"""Pluggable similarity index factory and persistence.
+
+This module provides a unified interface for creating, saving, and loading
+similarity indices. It supports multiple backends (e.g., FAISS, BruteForce)
+and handles format-specific persistence logic.
+
+Key Features:
+    - Factory pattern for index creation (make_index)
+    - Backend plugin discovery
+    - Unified save/load interface supporting multiple formats (.index, .npz)
+    - Incremental index updates from database records
+
+Functions:
+    - make_index: Create a new index instance
+    - save_index_to_file: Persist index to disk
+    - load_index_from_file: Load index from disk
+    - update_index_from_db: Sync index with database embeddings
+
+Dependencies:
+    - .backends: Backend implementations
+    - pathlib: File handling
 """
 from __future__ import annotations
 from typing import Optional, List, Any, Dict

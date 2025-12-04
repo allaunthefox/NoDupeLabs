@@ -1,11 +1,22 @@
-"""Discoverable similarity backends loader.
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
 
-This package exposes mechanisms to discover available similarity backend
-modules found inside the `nodupe.similarity.backends` package. Each backend
-module should provide a `create(dim: int)` factory function returning an object
-that implements `add(vectors, ids)` and `search(vector, k)`.
+"""Similarity backend plugin system.
 
-Backend modules can be added/removed independently, making the system modular.
+This module handles the discovery and loading of similarity backends.
+It scans the package directory for modules that implement the backend
+interface (providing a `create(dim)` factory).
+
+Key Features:
+    - Automatic plugin discovery via pkgutil
+    - Lazy loading of backend modules
+    - Preference-based default selection (FAISS > BruteForce)
+    - Fault tolerance (skips broken plugins)
+
+Functions:
+    - list_backends: Return names of available backends
+    - get_factory: Get the factory function for a specific backend
+    - default_backend_name: Determine the best available backend
 """
 from __future__ import annotations
 import importlib
