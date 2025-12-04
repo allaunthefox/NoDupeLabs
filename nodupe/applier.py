@@ -97,7 +97,7 @@ def apply_moves(
         1
     """
     results = {"success": 0, "errors": 0, "skipped": 0}
-    manifest = {
+    manifest: Dict[str, Any] = {
         "ts": time.time(),
         "moves": []
     }

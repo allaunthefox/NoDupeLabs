@@ -13,8 +13,11 @@ Key Features:
     - Graceful degradation
     - Diagnostic reporting for backend failures
 
-Functions:
+Public API:
     - choose_backend: Factory function to get the best available backend
+    - BaseBackend: Base class for AI backends
+    - CPUBackend: CPU-based inference backend
+    - ONNXBackend: ONNX Runtime backend
 """
 from __future__ import annotations
 from pathlib import Path
@@ -22,6 +25,8 @@ from typing import Optional
 from .base import BaseBackend
 from .cpu import CPUBackend
 from .onnx import ONNXBackend
+
+__all__ = ["choose_backend", "BaseBackend", "CPUBackend", "ONNXBackend"]
 
 try:
     import onnxruntime as ort  # type: ignore # pylint: disable=import-error

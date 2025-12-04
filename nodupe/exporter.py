@@ -156,7 +156,7 @@ def write_folder_meta(
                 keywords.add(tok[:32])
 
     topics = sorted({t for t in topics if t})[:8]
-    keywords = sorted(list(keywords))[:16]
+    keywords = list(sorted(keywords))[:16]
 
     meta = {
         "spec": "nodupe_meta_v1",

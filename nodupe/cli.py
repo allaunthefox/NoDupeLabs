@@ -52,22 +52,10 @@ from .deps import init_deps  # noqa: E402
 from .config import load_config, get_available_presets  # noqa: E402
 from .plugins import pm  # noqa: E402
 
-# Import commands
-from .commands.init import cmd_init  # noqa: E402
-from .commands.scan import cmd_scan  # noqa: E402
-from .commands.scan import (  # noqa: F401, E402
+# Import command registry and utilities
+from .commands import COMMANDS  # noqa: E402
+from .commands import (  # noqa: F401, E402
     check_scan_requirements  # re-export for tests / external use
-)
-from .commands.plan import cmd_plan  # noqa: E402
-from .commands.apply import cmd_apply  # noqa: E402
-from .commands.rollback import cmd_rollback  # noqa: E402
-from .commands.verify import cmd_verify  # noqa: E402
-from .commands.mount import cmd_mount  # noqa: E402
-from .commands.archive import (  # noqa: E402
-    cmd_archive_list, cmd_archive_extract
-)
-from .commands.similarity import (  # noqa: E402
-    cmd_similarity_build, cmd_similarity_query, cmd_similarity_update
 )
 
 __version__ = "0.1.0"
@@ -123,7 +111,7 @@ def main(argv=None):
     p_init.add_argument(
         "--force", action="store_true", help="Overwrite existing config"
     )
-    p_init.set_defaults(_run=cmd_init)
+    p_init.set_defaults(_run=COMMANDS["init"])
 
     # Scan
     p_scan = sub.add_parser("scan")
@@ -133,34 +121,34 @@ def main(argv=None):
         help="Control ffmpeg/test progress UI (auto|quiet|interactive). "
              "Overrides NO_DUPE_PROGRESS"
     )
-    p_scan.set_defaults(_run=cmd_scan)
+    p_scan.set_defaults(_run=COMMANDS["scan"])
 
     # Plan
     p_plan = sub.add_parser("plan")
     p_plan.add_argument("--out", required=True)
-    p_plan.set_defaults(_run=cmd_plan)
+    p_plan.set_defaults(_run=COMMANDS["plan"])
 
     # Apply
     p_apply = sub.add_parser("apply")
     p_apply.add_argument("--plan", required=True)
     p_apply.add_argument("--checkpoint", required=True)
     p_apply.add_argument("--force", action="store_true")
-    p_apply.set_defaults(_run=cmd_apply)
+    p_apply.set_defaults(_run=COMMANDS["apply"])
 
     # Rollback
     p_rb = sub.add_parser("rollback")
     p_rb.add_argument("--checkpoint", required=True)
-    p_rb.set_defaults(_run=cmd_rollback)
+    p_rb.set_defaults(_run=COMMANDS["rollback"])
 
     # Verify
     p_vf = sub.add_parser("verify")
     p_vf.add_argument("--checkpoint", required=True)
-    p_vf.set_defaults(_run=cmd_verify)
+    p_vf.set_defaults(_run=COMMANDS["verify"])
 
     # Mount
     p_mnt = sub.add_parser("mount")
     p_mnt.add_argument("mountpoint", help="Directory to mount the filesystem")
-    p_mnt.set_defaults(_run=cmd_mount)
+    p_mnt.set_defaults(_run=COMMANDS["mount"])
 
     # Archive
     p_arch = sub.add_parser("archive")
@@ -168,12 +156,12 @@ def main(argv=None):
 
     p_l = p_arch_sub.add_parser("list")
     p_l.add_argument("file")
-    p_l.set_defaults(_run=cmd_archive_list)
+    p_l.set_defaults(_run=COMMANDS["archive:list"])
 
     p_e = p_arch_sub.add_parser("extract")
     p_e.add_argument("file")
     p_e.add_argument("--dest", required=True)
-    p_e.set_defaults(_run=cmd_archive_extract)
+    p_e.set_defaults(_run=COMMANDS["archive:extract"])
 
     # Similarity
     p_sim = sub.add_parser("similarity")
@@ -186,7 +174,7 @@ def main(argv=None):
         help="Optional output index file "
              "(.index/.faiss, .npz, .json, or .jsonl)"
     )
-    p_sim_build.set_defaults(_run=cmd_similarity_build)
+    p_sim_build.set_defaults(_run=COMMANDS["similarity:build"])
 
     p_sim_query = p_sim_sub.add_parser("query")
     p_sim_query.add_argument("file")
@@ -195,7 +183,7 @@ def main(argv=None):
     p_sim_query.add_argument(
         "--index-file", help="Optional index file to load for faster queries"
     )
-    p_sim_query.set_defaults(_run=cmd_similarity_query)
+    p_sim_query.set_defaults(_run=COMMANDS["similarity:query"])
 
     p_sim_update = p_sim_sub.add_parser("update")
     p_sim_update.add_argument(
@@ -206,7 +194,7 @@ def main(argv=None):
         "--rebuild", action="store_true",
         help="Rebuild index from DB (remove missing / stale entries)"
     )
-    p_sim_update.set_defaults(_run=cmd_similarity_update)
+    p_sim_update.set_defaults(_run=COMMANDS["similarity:update"])
 
     args = parser.parse_args(argv)
 

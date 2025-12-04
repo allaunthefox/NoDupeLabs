@@ -41,10 +41,10 @@ Example:
     {'category': 'archive', 'subtype': 'compressed', 'topic': None}
 """
 
-from typing import Dict
+from typing import Dict, Optional
 
 
-def categorize_file(mime: str, name: str) -> Dict[str, str]:
+def categorize_file(mime: str, name: str) -> Dict[str, Optional[str]]:
     """Classify file by MIME type and extension.
 
     Categorizes files into high-level categories (image, video, text,
