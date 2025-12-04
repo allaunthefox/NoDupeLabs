@@ -10,7 +10,7 @@ def test_threaded_hash_incremental():
         f1.write_bytes(b"content1")
         
         # First scan
-        res1, _, _ = threaded_hash([str(root)], ignore=[])
+        res1, _, _ = threaded_hash([str(root)], ignore=[], collect=True)
         assert len(res1) == 1
         path1, size1, mtime1, hash1, _, _, _, _ = res1[0]
         
@@ -28,7 +28,7 @@ def test_threaded_hash_incremental():
         fake_hash = "fake_hash_123"
         known_fake = {path1: (size1, mtime1, fake_hash)}
         
-        res2, _, _ = threaded_hash([str(root)], ignore=[], known_files=known_fake)
+        res2, _, _ = threaded_hash([str(root)], ignore=[], known_files=known_fake, collect=True)
         assert len(res2) == 1
         assert res2[0][3] == fake_hash
         
@@ -36,7 +36,7 @@ def test_threaded_hash_incremental():
         time.sleep(1.1) # Ensure mtime diff
         f1.touch()
         
-        res3, _, _ = threaded_hash([str(root)], ignore=[], known_files=known_fake)
+        res3, _, _ = threaded_hash([str(root)], ignore=[], known_files=known_fake, collect=True)
         assert len(res3) == 1
         # Should NOT be fake hash because mtime changed
         assert res3[0][3] != fake_hash

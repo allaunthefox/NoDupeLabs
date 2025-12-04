@@ -1,0 +1,20 @@
+nodupe-demo:÷
+/
+inputpooledglobal_pool"GlobalAveragePool
+-
+pooledflatflatten"Flatten*
+axis 
+
+flat
+W
+boutputfc"Gemmnsfw_small_graph*"êÏ?œ¿D6¿BW*"IaÕ¾BbZ 
+input
+
+N
+
+ 
+ b
+output
+	
+N
+B

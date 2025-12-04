@@ -19,6 +19,7 @@ from .plugins import pm  # noqa: E402
 # Import commands
 from .commands.init import cmd_init  # noqa: E402
 from .commands.scan import cmd_scan  # noqa: E402
+from .commands.scan import check_scan_requirements  # re-export for tests / external use  # noqa: E402
 from .commands.plan import cmd_plan  # noqa: E402
 from .commands.apply import cmd_apply  # noqa: E402
 from .commands.rollback import cmd_rollback  # noqa: E402

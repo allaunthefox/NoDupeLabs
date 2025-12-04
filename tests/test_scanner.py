@@ -84,7 +84,7 @@ def test_threaded_hash():
         create_dummy_file(root / "a.txt", b"a")
         create_dummy_file(root / "b.txt", b"b")
         
-        results, dur, total = threaded_hash([str(root)], ignore=[], workers=2)
+        results, dur, total = threaded_hash([str(root)], ignore=[], workers=2, collect=True)
         
         assert len(results) == 2
         assert total == 2

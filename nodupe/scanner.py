@@ -6,9 +6,10 @@ import os
 import sys
 from pathlib import Path
 from typing import Iterable, List, Tuple
+import time
 import concurrent.futures as futures
 
-from .utils.hashing import hash_file
+from .utils.hashing import hash_file, validate_hash_algo
 from .utils.filesystem import (
     should_skip, detect_context, get_mime_safe, get_permissions
 )
@@ -93,7 +94,19 @@ def process_file(
 def threaded_hash(
     roots: Iterable[str], ignore: List[str], workers: int = 4,
     hash_algo: str = "sha512", follow_symlinks: bool = False,
-    known_files: dict | None = None
+    known_files: dict | None = None,
+    heartbeat_interval: float = 10.0,
+    stall_timeout: float | None = None,
+    # Backwards-compatible alias (some tests/older callers):
+    stalled_timeout: float | None = None,
+    # Default hard timeout so callers don't hang indefinitely. Tests may
+    # override this to a smaller value when exercising timeout behavior.
+    max_idle_time: float | None = 300.0,
+    show_eta: bool = True,
+    *,
+    # When collect=True, return (list_of_results, duration_s, total_count).
+    # When False, return a generator to stream results (original behavior).
+    collect: bool = False,
 ):
     """
     Scan files and compute hashes incrementally.
@@ -114,76 +127,183 @@ def threaded_hash(
         pbar = None
 
     count = 0
+    start_time = time.time()
+    last_progress_time = start_time
+    _completed_durations: list[float] = []
+    last_complete_ts = time.time()
 
-    with futures.ThreadPoolExecutor(
-        max_workers=max(1, workers)
-    ) as ex:
-        pending = set()
+    def _iter_impl():
+        nonlocal count, last_progress_time, last_complete_ts
+        with futures.ThreadPoolExecutor(
+            max_workers=max(1, workers)
+        ) as ex:
+            pending = set()
 
-        try:
-            for p in iter_files(
-                roots, ignore, follow_symlinks=follow_symlinks
-            ):  # Check if we can skip hashing
-                known_hash = None
-                str_p = str(p)
-                if str_p in known_files:
-                    k_size, k_mtime, k_hash = known_files[str_p]
-                    try:
-                        st = p.stat()
-                        if (
-                            st.st_size == k_size and
-                            int(st.st_mtime) == k_mtime
-                        ):
-                            known_hash = k_hash
-                    except OSError:
-                        pass
-
-                fut = ex.submit(process_file, p, hash_algo, known_hash)
-                pending.add(fut)
-                # If we have too many pending tasks, wait for some to finish
-                if len(pending) >= MAX_PENDING:
-                    done, pending = futures.wait(
-                        pending, return_when=futures.FIRST_COMPLETED
-                    )
-                    for f in done:
+            try:
+                for p in iter_files(
+                    roots, ignore, follow_symlinks=follow_symlinks
+                ):  # Check if we can skip hashing
+                    known_hash = None
+                    str_p = str(p)
+                    if str_p in known_files:
+                        k_size, k_mtime, k_hash = known_files[str_p]
                         try:
-                            res = f.result()
-                            if pbar:
-                                pbar.update(1)
-                            else:
-                                count += 1
-                                if count % 100 == 0:
-                                    print(
-                                        f"[scanner] Processed {count}...",
-                                        file=sys.stderr
+                            st = p.stat()
+                            if (
+                                st.st_size == k_size and
+                                int(st.st_mtime) == k_mtime
+                            ):
+                                known_hash = k_hash
+                        except OSError:
+                            pass
+
+                    str_p = str(p)
+                    submit_time = time.time()
+                    fut = ex.submit(process_file, p, hash_algo, known_hash)
+                    pending.add(fut)
+                    # attach metadata so we can diagnose stalled tasks / ETA
+                    if not hasattr(fut, '_submit_meta'):
+                        setattr(fut, '_submit_meta', (str_p, submit_time))
+                    # If we have too many pending tasks, wait for some to finish
+                    if len(pending) >= MAX_PENDING:
+                        # Wait for the first completed future. Prefer the configured
+                        # stall_timeout (or the alias stalled_timeout), otherwise use the heartbeat_interval.
+                        effective_stall_timeout = (
+                            stall_timeout if stall_timeout is not None else stalled_timeout
+                        )
+                        wait_timeout = effective_stall_timeout if effective_stall_timeout is not None else heartbeat_interval
+                        done, pending = futures.wait(
+                            pending, timeout=wait_timeout,
+                            return_when=futures.FIRST_COMPLETED
+                        )
+                        # If nothing completed in the wait interval we are stalled.
+                        if not done:
+                            now = time.time()
+                            # If we have some historic per-task durations, compute an
+                            # ETA from the average. Otherwise emit a short stall
+                            # message so user knows we're still alive.
+                            avg = (sum(_completed_durations) / len(_completed_durations)) if _completed_durations else None
+                            if show_eta:
+                                if avg:
+                                    est = avg * len(pending) / max(1, workers)
+                                    msg = (
+                                        f"[scanner][ETA] approx {round(est,3)}s for {len(pending)} "
+                                        f"pending tasks (elapsed={now - start_time:.1f}s)"
                                     )
-                            yield res
-                        except (OSError, ValueError, RuntimeError) as e:
-                            print(
-                                f"[scanner][WARN] Processing error: {e}",
-                                file=sys.stderr
-                            )
+                                else:
+                                    msg = (
+                                        f"[scanner][STALL] no tasks completed in {wait_timeout}s; "
+                                        f"{len(pending)} pending (elapsed={now - start_time:.1f}s)"
+                                    )
+                            else:
+                                msg = f"[scanner][INFO] no progress in {wait_timeout}s; pending={len(pending)}"
 
-            # Drain remaining
-            for f in futures.as_completed(pending):
-                try:
-                    res = f.result()
-                    if pbar:
-                        pbar.update(1)
-                    else:
-                        count += 1
-                        if count % 100 == 0:
-                            print(
-                                f"[scanner] Processed {count}...",
-                                file=sys.stderr
-                            )
-                    yield res
-                except (OSError, ValueError, RuntimeError) as e:
-                    print(
-                        f"[scanner][WARN] Processing error: {e}",
-                        file=sys.stderr
-                    )
+                            if pbar is not None:
+                                try:
+                                    pbar.write(msg)
+                                except Exception:
+                                    print(msg, file=sys.stderr)
+                            else:
+                                print(msg, file=sys.stderr)
 
-        finally:
-            if pbar:
-                pbar.close()
+                            # Check for long-running tasks using submission metadata
+                            oldest = None
+                            for f in pending:
+                                meta = getattr(f, '_submit_meta', None)
+                                if not meta:
+                                    continue
+                                age = now - meta[1]
+                                # if we have a per-task stall threshold, surface it
+                                if effective_stall_timeout is not None and age >= effective_stall_timeout:
+                                    if not oldest or age > oldest[0]:
+                                        oldest = (age, meta[0])
+                            if oldest:
+                                warn = f"[scanner][WARN] Task stalled {oldest[0]:.1f}s for: {oldest[1]}"
+                                if pbar is not None:
+                                    try:
+                                        pbar.write(warn)
+                                    except Exception:
+                                        print(warn, file=sys.stderr)
+                                else:
+                                    print(warn, file=sys.stderr)
+
+                            # Enforce a hard idle timeout so callers don't hang forever
+                            if max_idle_time is not None and (now - last_complete_ts) >= max_idle_time:
+                                # Cancel pending tasks so the executor shutdown
+                                # doesn't wait indefinitely for blocked workers.
+                                try:
+                                    ex.shutdown(wait=False, cancel_futures=True)
+                                except TypeError:
+                                    # Older Python versions may not support cancel_futures
+                                    try:
+                                        ex.shutdown(wait=False)
+                                    except Exception:
+                                        pass
+                                raise TimeoutError(
+                                    f"scanner.threaded_hash: no tasks completed for {now - last_complete_ts:.3f}s (max_idle_time={max_idle_time})"
+                                )
+                        for f in done:
+                            try:
+                                res = f.result()
+                                # Update statistics on completion
+                                now = time.time()
+                                meta = getattr(f, '_submit_meta', None)
+                                if meta:
+                                    _completed_durations.append(max(0.0, now - meta[1]))
+                                else:
+                                    _completed_durations.append(max(0.0, now - last_complete_ts))
+                                last_complete_ts = now
+                                if pbar is not None:
+                                    pbar.update(1)
+                                else:
+                                    count += 1
+                                    last_progress_time = time.time()
+                                    if count % 100 == 0:
+                                        print(
+                                            f"[scanner] Processed {count}...",
+                                            file=sys.stderr
+                                        )
+                                yield res
+                            except (OSError, ValueError, RuntimeError) as e:
+                                print(
+                                    f"[scanner][WARN] Processing error: {e}",
+                                    file=sys.stderr
+                                )
+
+                # Drain remaining
+                for f in futures.as_completed(pending):
+                    try:
+                        res = f.result()
+                        if pbar is not None:
+                            pbar.update(1)
+                        else:
+                            count += 1
+                            last_progress_time = time.time()
+                            if count % 100 == 0:
+                                print(
+                                    f"[scanner] Processed {count}...",
+                                    file=sys.stderr
+                                )
+                        yield res
+                    except (OSError, ValueError, RuntimeError) as e:
+                        print(
+                            f"[scanner][WARN] Processing error: {e}",
+                            file=sys.stderr
+                        )
+
+            finally:
+                if pbar is not None:
+                    pbar.close()
+
+    # When collect is False we want to return a generator so callers can stream
+    # results. When collect is True we will collect into a list and return a
+    # (results, duration, total) tuple for older callers/tests.
+    gen = _iter_impl()
+    if not collect:
+        return gen
+    # collect mode: iterate and gather results
+    t0 = time.time()
+    results = list(gen)
+    dur = time.time() - t0
+    return results, dur, len(results)
+    # end threaded_hash

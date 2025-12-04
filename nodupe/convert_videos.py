@@ -16,8 +16,10 @@ except Exception:  # pragma: no cover - best-effort shim
 
 
 def convert_video(input_path: Any, output_path: Any) -> None:
-    if _cv and hasattr(_cv, "convert_video"):
-        return _cv.convert_video(input_path, output_path)
+    # Prefer the library helper so tests can patch the ffmpeg helper;
+    # if a top-level script is present we'll still use the shared helper
+    # implementation below instead of delegating to the script's binding
+    # (which may have captured its own helper at import time).
 
     # Fallback minimal implementation if the top-level script isn't importable.
     # This keeps tests robust but real code should prefer the main script.
