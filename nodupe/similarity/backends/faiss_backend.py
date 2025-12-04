@@ -22,7 +22,9 @@ class FaissIndex:
         self.index = faiss.IndexFlatL2(dim)
         self.ids: List[str] = []
 
-    def add(self, vectors: List[List[float]], ids: Optional[List[str]] = None) -> None:
+    def add(
+        self, vectors: List[List[float]], ids: Optional[List[str]] = None
+    ) -> None:
         arr = np.asarray(vectors, dtype='float32')
         if arr.ndim != 2 or arr.shape[1] != self.dim:
             raise ValueError("Invalid vectors shape")
@@ -30,20 +32,29 @@ class FaissIndex:
         if ids:
             self.ids.extend(ids)
         else:
-            self.ids.extend([str(i) for i in range(len(self.ids), len(self.ids) + len(vectors))])
+            self.ids.extend([
+                str(i) for i in range(
+                    len(self.ids), len(self.ids) + len(vectors)
+                )
+            ])
 
-    def search(self, vector: List[float], k: int = 5) -> List[Tuple[str, float]]:
+    def search(
+        self, vector: List[float], k: int = 5
+    ) -> List[Tuple[str, float]]:
         q = np.asarray([vector], dtype='float32')
-        D, I = self.index.search(q, k)
+        D, I_idx = self.index.search(q, k)
         results: List[Tuple[str, float]] = []
-        for dist, idx in zip(D[0], I[0]):
+        for dist, idx in zip(D[0], I_idx[0]):
             if idx < 0:
                 continue
             results.append((self.ids[int(idx)], float(dist)))
         return results
 
     def save(self, path: str) -> None:
-        """Persist faiss index and ids to disk. Writes binary index to `path` and ids to `path + '.ids.json'`."""
+        """
+        Persist faiss index and ids to disk.
+        Writes binary index to `path` and ids to `path + '.ids.json'`.
+        """
         import json
         # write FAISS index
         faiss.write_index(self.index, path)

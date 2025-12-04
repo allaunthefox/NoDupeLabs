@@ -3,13 +3,13 @@
 
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 class Metrics:
     def __init__(self, path: Path):
         self.path = Path(path)
         self.data = {
-            "last_run": datetime.utcnow().isoformat() + "Z",
+            "last_run": datetime.now(timezone.utc).isoformat(),
             "files_scanned": 0,
             "bytes_scanned": 0,
             "durations": {},

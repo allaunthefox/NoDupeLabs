@@ -37,6 +37,34 @@ NoDupeLabs automatically detects your deployment environment and optimizes its c
 *   **Expanded MIME Support**: Native detection for modern formats like `.webp`, `.heic`, `.mkv`, and `.json`.
 *   **NSFW Classification**: Multi-tier detection system (filename patterns, metadata analysis) to flag potential sensitive content.
 
+### Video handling and file formats
+
+NoDupe now supports basic video identification by extracting a representative frame and computing embeddings on that frame. Extracted frames are saved as standard JPEG files and include a human-readable JSON sidecar (same base filename with a .json suffix) containing source path and extraction metadata.
+
+Index files can be persisted in human-readable formats so they can be inspected or processed by plain text tools or an LLM. Supported index formats include:
+
+- `.npz` (numpy compressed) — compact binary format
+- `.json` — full JSON object with `dim`, `ids`, and `vectors` entries
+- `.jsonl` — JSON lines, one entry per id/vector pair (easy to stream/process)
+
+When converting video files, the project uses widely supported codecs/containers by default, for example:
+
+- MP4 -> H.264 (libx264) + AAC audio
+- WebM -> VP9 (libvpx-vp9) + Opus audio
+- MKV -> H.264 (libx264) + AAC audio
+- AVI -> MPEG4
+
+These formats are chosen for compatibility with common desktop tools and text-based tooling for metadata.
+
+Schema & spec files
+-------------------
+If you want to validate or inspect the exact format, NoDupe includes JSON Schema files under `nodupe/schemas/`:
+
+- `nodupe/schemas/index.json.schema` — schema for `.json` index files
+- `nodupe/schemas/index.jsonl.schema` — schema for each line in `.jsonl` files
+
+The JSONL format follows the industry-standard JSON Lines / NDJSON format (see https://jsonlines.org/).
+
 ### 📦 Smart Dependency Management
 *   **Auto-Install**: Automatically detects and installs optional dependencies (like `psutil`, `tqdm`, `pillow`) at runtime if they are missing.
 *   **Graceful Degradation**: If dependencies cannot be installed, the system falls back to standard library implementations without crashing.
@@ -58,6 +86,21 @@ pip install -e .
 
 ### Minimal/Offline Operation
 NoDupeLabs includes vendored copies of essential libraries (`tqdm`, `PyYAML`) in `nodupe/vendor/libs`. If the system Python environment lacks these dependencies, the application will automatically use the bundled versions, ensuring basic functionality works out-of-the-box.
+
+If you want a reliable baseline runtime for ML inference (e.g. `onnxruntime`) we've added support for vendoring runtime wheels into `nodupe/vendor/libs` and a helper to install them into your environment.
+
+Quick install from vendored wheel (offline-friendly):
+
+```bash
+# Install all vendored wheels
+python scripts/install_vendored_wheels.py
+
+# Or install a specific vendored wheel (eg onnxruntime)
+python scripts/install_vendored_wheels.py --pattern onnxruntime
+
+# Alternatively (pure pip):
+python -m pip install --no-index --find-links nodupe/vendor/libs onnxruntime
+```
 
 ---
 
@@ -131,13 +174,13 @@ Tools for finding near-duplicates (e.g., resized images) using vector embeddings
 #### `build`
 Creates a similarity index from the database.
 ```bash
-nodupe similarity build --out index.npz [--dim 16]
+nodupe similarity build --out index.npz (or .json/.jsonl) [--dim 16]
 ```
 
 #### `update`
 Incrementally updates an existing index with new files from the database.
 ```bash
-nodupe similarity update --index-file index.npz [--rebuild]
+nodupe similarity update --index-file index.npz|index.json|index.jsonl [--rebuild]
 ```
 *   `--index-file`: Path to the existing index.
 *   `--rebuild`: Completely rebuild the index from the DB, removing stale entries.
@@ -145,7 +188,7 @@ nodupe similarity update --index-file index.npz [--rebuild]
 #### `query`
 Finds files similar to a target file.
 ```bash
-nodupe similarity query target.jpg --index-file index.npz [-k 5]
+nodupe similarity query target.jpg --index-file index.npz|index.json|index.jsonl [-k 5]
 ```
 
 ### `archive`

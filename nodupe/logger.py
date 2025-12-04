@@ -3,7 +3,7 @@
 
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 class JsonlLogger:
     def __init__(self, log_dir: Path, rotate_mb: int = 10, keep: int = 7):
@@ -29,7 +29,7 @@ class JsonlLogger:
 
     def log(self, level: str, event: str, **kwargs):
         entry = {
-            "ts": datetime.utcnow().isoformat() + "Z",
+            "ts": datetime.now(timezone.utc).isoformat(),
             "level": level,
             "event": event,
             "data": kwargs

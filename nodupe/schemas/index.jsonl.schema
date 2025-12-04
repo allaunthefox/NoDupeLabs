@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NoDupe similarity index (JSONL line schema)",
+  "type": "object",
+  "required": ["id", "vector"],
+  "properties": {
+    "id": { "type": "string" },
+    "vector": { "type": "array", "items": { "type": "number" } },
+    "meta": { "type": "object" }
+  },
+  "additionalProperties": false
+}

@@ -9,6 +9,7 @@ Attempts pip install, falls back to reduced functionality if unavailable.
 import subprocess
 import sys
 import importlib.util
+from pathlib import Path
 from typing import Dict, Optional, Set
 
 
@@ -123,23 +124,90 @@ class DependencyManager:
         Returns:
             True if installation succeeded, False otherwise
         """
-        pkg_name = OPTIONAL_DEPS.get(module_name, {}).get("package", module_name)
+        pkg_name = OPTIONAL_DEPS.get(module_name, {}).get(
+            "package", module_name
+        )
 
         try:
-            # Run pip install with timeout
-            result = subprocess.run(
-                [sys.executable, "-m", "pip", "install", "-q", pkg_name],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                timeout=60,
-                check=False
-            )
+            # First, check if the repo contains a vendored wheel we can use
+            try:
+
+                # Special-case onnxruntime: try a network upgrade first
+                # (prefer latest official or pre-release), then fall back to
+                # bundled wheel if network install fails. This lets
+                # environments get newer ORT builds automatically while keeping
+                # a reproducible vendored baseline if network/install fails.
+                if module_name.lower() == 'onnxruntime':
+                    # Try network upgrade first (allow pre-releases)
+                    try:
+                        result = subprocess.run(
+                            [sys.executable, '-m', 'pip', 'install',
+                             '--upgrade', '--pre', pkg_name],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            timeout=300, check=False
+                        )
+                        if result.returncode == 0:
+                            # success -> verify we can import
+                            spec = importlib.util.find_spec(module_name)
+                            if spec:
+                                return True
+                    except Exception:
+                        # fall through to vendored wheel path below
+                        result = None
+
+                repo_root = Path(__file__).resolve().parents[1]
+                vendor_dir = repo_root / 'nodupe' / 'vendor' / 'libs'
+                if vendor_dir.exists():
+                    # Look for a wheel matching the package name
+                    wheels = [
+                        p for p in vendor_dir.iterdir()
+                        if p.suffix == '.whl' and
+                        module_name.lower() in p.name.lower()
+                    ]
+                    if wheels:
+                        # prefer the most recently modified wheel
+                        candidate = sorted(
+                            wheels, key=lambda p: p.stat().st_mtime,
+                            reverse=True
+                        )[0]
+                        cmd = [
+                            sys.executable, '-m', 'pip', 'install',
+                            '--no-index', '--find-links', str(vendor_dir),
+                            str(candidate)
+                        ]
+                        result = subprocess.run(
+                            cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, timeout=120, check=False
+                        )
+                    else:
+                        result = subprocess.run(
+                            [sys.executable, "-m", "pip", "install", "-q",
+                             pkg_name],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            timeout=60, check=False
+                        )
+                else:
+                    result = subprocess.run(
+                        [sys.executable, "-m", "pip", "install", "-q",
+                         pkg_name],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                        timeout=60, check=False
+                    )
+            except Exception:
+                # Fall back to network-based pip install for unexpected
+                # failures
+                result = subprocess.run(
+                    [sys.executable, "-m", "pip", "install", "-q", pkg_name],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    timeout=60, check=False
+                )
 
             if result.returncode != 0:
                 if not self.silent:
                     stderr_msg = result.stderr.decode()[:100]
                     print(
-                        f"[deps] ⚠ pip install {pkg_name} failed: {stderr_msg}",
+                        f"[deps] ⚠ pip install {pkg_name} failed: "
+                        f"{stderr_msg}",
                         file=sys.stderr
                     )
                 return False
@@ -200,7 +268,9 @@ class DependencyManager:
 _dep_manager: Optional[DependencyManager] = None
 
 
-def init_deps(auto_install: bool = True, silent: bool = False) -> DependencyManager:
+def init_deps(
+    auto_install: bool = True, silent: bool = False
+) -> DependencyManager:
     """
     Initialize global dependency manager.
 

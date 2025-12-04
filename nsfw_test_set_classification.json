@@ -1,0 +1,782 @@
+{
+  "stats": {
+    "total": 108,
+    "flagged": 50,
+    "flagged_percentage": 46.3,
+    "score_distribution": {
+      "0": 53,
+      "1": 5,
+      "3": 49,
+      "2": 1
+    },
+    "methods_used": {
+      "none": 53,
+      "metadata": 5,
+      "filename": 50
+    }
+  },
+  "results": {
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017856.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017858.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017862.webp": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017869.png": {
+      "score": 1,
+      "flagged": false,
+      "method": "metadata",
+      "reason": "very_high_res; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017870.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.029",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017872.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017874.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.035",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017881.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017883.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.039",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017888.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017917.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.018",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017920.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017927.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017929.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.290",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017938.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017940.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.042",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017964.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.005",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017975.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017978.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.106",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017982.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017989.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017996.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6017997.png": {
+      "score": 1,
+      "flagged": false,
+      "method": "metadata",
+      "reason": "portrait_orientation; onnx_prob=0.075",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018007.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018010.png": {
+      "score": 1,
+      "flagged": false,
+      "method": "metadata",
+      "reason": "portrait_orientation; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018015.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018022.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018024.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.020",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018031.png": {
+      "score": 1,
+      "flagged": false,
+      "method": "metadata",
+      "reason": "very_high_res; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018032.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.009",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018038.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.032",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018070.gif": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018071.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018073.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018075.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018077.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018081.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018089.jpg": {
+      "score": 1,
+      "flagged": false,
+      "method": "metadata",
+      "reason": "portrait_orientation; onnx_prob=0.093",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018090.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.180",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018099.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.029",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018108.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018111.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.024",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018115.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018116.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018127.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018136.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.045",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018137.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.085",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018141.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018143.png": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/safe/6018145.jpg": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_prob=0.117",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018061.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018062.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; portrait_orientation; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018063.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018064.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018065.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018067.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018069.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018072.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.140",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018078.png": {
+      "score": 2,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; camera_metadata; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018079.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018080.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018082.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.161",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018085.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018086.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018087.mp4": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_predict_error",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018091.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018092.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018093.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018094.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.139",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018095.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018097.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.084",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018098.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.135",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018100.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018101.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.275",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018102.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.064",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018103.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; portrait_orientation; onnx_prob=0.193",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018104.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.001",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018106.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; portrait_orientation; onnx_prob=0.022",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018107.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018109.webm": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_predict_error",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018113.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018119.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018120.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.029",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018121.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.021",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018123.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.027",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018124.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018125.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018126.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.143",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018128.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.150",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018129.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.039",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018131.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.009",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018133.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018134.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018135.jpg": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; portrait_orientation; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018138.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; portrait_orientation; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018139.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018140.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.147",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018144.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018146.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/explicit/6018148.png": {
+      "score": 3,
+      "flagged": true,
+      "method": "filename",
+      "reason": "pattern_match:\\b(nsfw|xxx|porn|nude|adult|ex; onnx_prob=0.000",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/converted/6018070_converted.mp4": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_predict_error",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/converted/6018070_converted.webm": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_predict_error",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/converted/6018087_converted.avi": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_predict_error",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/converted/6018087_converted.mkv": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_predict_error",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/converted/6018087_converted.webm": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_predict_error",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/converted/6018109_converted.avi": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_predict_error",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/converted/6018109_converted.mkv": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_predict_error",
+      "threshold": 2
+    },
+    "/home/allaun/Workspace/NoDupeLabs/nsfw_test_set/converted/6018109_converted.mp4": {
+      "score": 0,
+      "flagged": false,
+      "method": "none",
+      "reason": "onnx_predict_error",
+      "threshold": 2
+    }
+  },
+  "backend_info": {
+    "backend_class": "ONNXBackend",
+    "backend_available": true,
+    "backend_unavailable_reason": null
+  },
+  "onnxruntime_version": "1.22.0"
+}

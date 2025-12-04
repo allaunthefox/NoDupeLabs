@@ -49,11 +49,15 @@ class NSFWClassifier:
 
     # Safe patterns that reduce score
     SAFE_PATTERNS: Dict[str, int] = {
-        r'\b(family|vacation|wedding|birthday|graduation|portrait|baby|kids)\b': -2,
+        r'\b(family|vacation|wedding|birthday|graduation|portrait|baby|'
+        r'kids)\b':
+        -2,
         r'\b(landscape|nature|pet|animal|food|recipe|cooking|garden)\b': -2,
-        r'\b(work|office|project|document|invoice|receipt|report|finance)\b': -3,
+        r'\b(work|office|project|document|invoice|receipt|report|finance)\b':
+        -3,
         r'\b(screenshot|screen|desktop|wallpaper|game|gameplay)\b': -2,
-        r'\b(art|drawing|sketch|painting|illustration|anime|manga)\b': -1,  # Art can be NSFW but often isn't
+        # Art can be NSFW but often isn't
+        r'\b(art|drawing|sketch|painting|illustration|anime|manga)\b': -1,
         r'\b(meme|funny|joke|reaction)\b': -2,
     }
 
@@ -136,7 +140,12 @@ class NSFWClassifier:
                     method = "metadata"
 
         # TIER 3: Content analysis (ML model)
-        if mime.startswith('image/') and self.backend is not None and self.backend.available():
+        # Previously ML only ran on image types. We now allow video/* as well
+        # — backends will extract a representative frame if needed.
+        if (
+            (mime.startswith('image/') or mime.startswith('video/')) and
+            self.backend is not None and self.backend.available()
+        ):
             try:
                 ml_score, ml_reason = self.backend.predict(path)
                 # If ML suggests higher confidence, prefer it
@@ -151,6 +160,19 @@ class NSFWClassifier:
 
         # Clamp score to valid range
         score = min(3, max(0, score))
+
+        # If an ML backend was configured but is not actually available we
+        # surface the failure reason so callers and logs can explain why ML
+        # analysis wasn't used (eg: missing runtime or unsupported model IR).
+        if self.backend is not None and not self.backend.available():
+            try:
+                reason_text = getattr(
+                    self.backend, 'unavailable_reason', lambda: None
+                )()
+                if reason_text:
+                    reasons.append(f"ml_unavailable:{str(reason_text)[:200]}")
+            except Exception:
+                pass
 
         return {
             'score': score,
@@ -176,7 +198,8 @@ class NSFWClassifier:
             Tuple of (score_adjustment, reason)
         """
         try:
-            from PIL import Image  # type: ignore # pylint: disable=import-error
+            # type: ignore # pylint: disable=import-error
+            from PIL import Image
 
             with Image.open(path) as img:
                 width, height = img.size
@@ -212,7 +235,9 @@ class NSFWClassifier:
 
         return (0, None)
 
-    def batch_classify(self, paths_with_mime: List[Tuple[Path, str]]) -> Dict[str, Dict]:
+    def batch_classify(
+        self, paths_with_mime: List[Tuple[Path, str]]
+    ) -> Dict[str, Dict]:
         """
         Classify multiple files efficiently.
 
@@ -256,7 +281,9 @@ class NSFWClassifier:
         return {
             'total': total,
             'flagged': flagged,
-            'flagged_percentage': round(100 * flagged / total, 2) if total > 0 else 0,
+            'flagged_percentage': round(
+                100 * flagged / total, 2
+            ) if total > 0 else 0,
             'score_distribution': score_dist,
             'methods_used': methods_used
         }

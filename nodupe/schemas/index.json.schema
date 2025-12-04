@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NoDupe similarity index (JSON)",
+  "type": "object",
+  "required": ["format", "format_version", "dim", "ids", "vectors"],
+  "properties": {
+    "format": { "type": "string", "const": "nodupe.similarity.index" },
+    "format_version": { "type": "string", "pattern": "^\\d+\\.\\d+$" },
+    "dim": { "type": "integer", "minimum": 1 },
+    "ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "vectors": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": { "type": "number" }
+      }
+    },
+    "meta": { "type": "object" }
+  },
+  "additionalProperties": false
+}

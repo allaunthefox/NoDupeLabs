@@ -6,9 +6,11 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 from .deps import check_dep
 
+
 def get_schema() -> Dict[str, Any]:
     p = Path(__file__).parent / "schemas" / "nodupe_meta_v1.schema.json"
     return json.loads(p.read_text(encoding="utf-8"))
+
 
 def validate_meta_dict(meta: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
     """Validate metadata dictionary against schema."""

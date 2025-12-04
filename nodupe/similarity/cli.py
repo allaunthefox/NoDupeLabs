@@ -7,15 +7,19 @@ from ..ai.backends import choose_backend
 from ..db import DB
 
 
-def build_index_from_db(db_path: Path, dim: int = 16, out_path: str | None = None) -> dict:
+def build_index_from_db(
+    db_path: Path, dim: int = 16, out_path: str | None = None
+) -> dict:
     db = DB(db_path)
-    # Use precomputed embeddings when available, compute missing ones optionally
+    # Use precomputed embeddings when available,
+    # compute missing ones optionally
     be = choose_backend()
     idx = make_index(dim)
 
     embeddings = db.get_all_embeddings()
     vectors = []
     ids = []
+    ids_set = set()
 
     for p, d, vec, _ in embeddings:
         if d != dim:
@@ -25,15 +29,16 @@ def build_index_from_db(db_path: Path, dim: int = 16, out_path: str | None = Non
             continue
         vectors.append(vec)
         ids.append(p)
+        ids_set.add(p)
 
     # Compute embeddings for images missing embeddings
-    rows = db.get_all()
-    for r in rows:
-        p = Path(r[0])
+    for r in db.iter_files():
+        p_str = r[0]
+        p = Path(p_str)
         mime = r[4]
         if not mime or not mime.startswith('image/'):
             continue
-        if r[0] in ids:
+        if p_str in ids_set:
             continue
         # try to compute and store
         try:
@@ -42,6 +47,7 @@ def build_index_from_db(db_path: Path, dim: int = 16, out_path: str | None = Non
                 db.upsert_embedding(str(p), vec, dim, int(r[2]))
                 vectors.append(vec)
                 ids.append(str(p))
+                ids_set.add(str(p))
         except Exception:  # pylint: disable=broad-except
             continue
 
@@ -58,8 +64,12 @@ def build_index_from_db(db_path: Path, dim: int = 16, out_path: str | None = Non
     return {"index_count": len(ids)}
 
 
-def find_near_duplicates(db_path: Path, target: Path, k: int = 5, dim: int = 16, index_path: str | None = None) -> List[tuple]:
-    # If an index file is provided, load it (fast). Otherwise build from DB embeddings in memory.
+def find_near_duplicates(
+    db_path: Path, target: Path, k: int = 5,
+    dim: int = 16, index_path: str | None = None
+) -> List[tuple]:
+    # If an index file is provided, load it (fast).
+    # Otherwise build from DB embeddings in memory.
     if index_path:
         from .index import load_index_from_file
         idx = load_index_from_file(index_path)
@@ -87,8 +97,12 @@ def find_near_duplicates(db_path: Path, target: Path, k: int = 5, dim: int = 16,
     return res
 
 
-def update_index_from_db(db_path: Path, index_path: str, remove_missing: bool = False) -> dict:
-    """Update an existing persisted index by appending missing embeddings from DB."""
+def update_index_from_db(
+    db_path: Path, index_path: str, remove_missing: bool = False
+) -> dict:
+    """Update an existing persisted index by appending missing
+    embeddings from DB.
+    """
     db = DB(db_path)
     from .index import update_index_from_db as _upd
     return _upd(index_path, db, remove_missing=remove_missing)
