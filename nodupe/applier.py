@@ -1,6 +1,53 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
+"""Deduplication plan execution with three-phase commit pattern.
+
+This module implements the physical file operations defined in a
+deduplication plan using a three-phase commit pattern for safety
+and recoverability.
+
+Three-Phase Commit Pattern:
+    1. Prepare: Validate all moves (check source exists, destination vacant)
+    2. Execute: Perform the file moves atomically
+    3. Commit: Save checkpoint manifest for potential rollback
+
+Key Features:
+    - Atomic operations with validation before execution
+    - Checkpoint generation for rollback capability
+    - Dry-run mode for safe testing
+    - Detailed operation logging and error reporting
+    - Automatic destination directory creation
+
+Checkpoint Format:
+    The checkpoint JSON contains:
+    - ts: Timestamp of operation
+    - moves: List of move operations performed
+      - src: Original source path
+      - dst: Destination path
+      - ts: Timestamp of individual move
+
+Safety Guarantees:
+    - No moves executed if any validation fails
+    - Source existence verified before move
+    - Destination vacancy verified before move
+    - Parent directories created automatically
+    - All operations logged to checkpoint for rollback
+
+Dependencies:
+    - shutil: File operations
+    - json: Checkpoint serialization
+    - pathlib: Path manipulation
+
+Example:
+    >>> rows = [{'op': 'move', 'src_path': '/a/file.txt',
+    ...          'dst_path': '/b/file.txt'}]
+    >>> checkpoint = Path('output/checkpoints/chk_01.json')
+    >>> results = apply_moves(rows, checkpoint, dry_run=False)
+    >>> print(results)
+    {'success': 1, 'errors': 0, 'skipped': 0}
+"""
+
 import shutil
 import json
 import time
@@ -11,8 +58,43 @@ from typing import List, Dict
 def apply_moves(
     rows: List[Dict], checkpoint_path: Path, dry_run: bool = True
 ) -> Dict:
-    """
-    Execute moves with three-phase commit (Prepare, Execute, Commit).
+    """Execute file moves with three-phase commit pattern.
+
+    Implements a safe, atomic approach to executing deduplication plans:
+    1. Prepare: Validate all source files exist and destinations are vacant
+    2. Execute: Perform the actual file moves
+    3. Commit: Save checkpoint manifest for potential rollback
+
+    Args:
+        rows: List of operation dicts with keys:
+            - op: Operation type (must be 'move')
+            - src_path: Source file path
+            - dst_path: Destination file path
+        checkpoint_path: Path where checkpoint JSON will be saved
+        dry_run: If True, validate but don't execute moves (default: True)
+
+    Returns:
+        Dict with operation counts:
+            - success: Number of successful moves
+            - errors: Number of failed moves
+            - skipped: Number of skipped moves (validation failed)
+
+    Raises:
+        OSError: If file operations fail (logged but doesn't stop execution)
+
+    Example:
+        >>> rows = [
+        ...     {'op': 'move', 'src_path': '/data/dup.jpg',
+        ...      'dst_path': '/data/.nodupe_duplicates/dup.jpg'}
+        ... ]
+        >>> checkpoint = Path('output/checkpoints/chk_01.json')
+        >>> # First test with dry-run
+        >>> results = apply_moves(rows, checkpoint, dry_run=True)
+        [apply] Dry run: would move 1 files.
+        >>> # Then execute
+        >>> results = apply_moves(rows, checkpoint, dry_run=False)
+        >>> print(results['success'])
+        1
     """
     results = {"success": 0, "errors": 0, "skipped": 0}
     manifest = {

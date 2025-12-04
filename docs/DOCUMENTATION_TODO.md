@@ -12,11 +12,11 @@ work based on module criticality and usage frequency.
 ## Progress Summary
 
 - **Total modules reviewed**: 50+
-- **Modules fully documented**: 4 (cli.py, config.py, scanner.py, db.py)
+- **Modules fully documented**: 6 (cli.py, config.py, scanner.py, db.py, applier.py, archiver.py)
 - **External docs updated**: 5 (BEGINNERS_GUIDE.md, SIMILARITY.md, AI_BACKEND.md, CHANGELOG.md, docs/CHANGELOG.md entry)
 - **Repository releases**: v0.1.1 created and published (includes full changelog as release notes)
-- **Modules remaining**: ~48
-- **Completion**: ~10% (Phase 1 completed for scanner + db; next phase ready)
+- **Modules remaining**: ~44
+- **Completion**: ~12% (Priority 1 critical infrastructure completed)
 - **Last updated**: 2025-12-03
 
 ## Recent work & status (summary)
@@ -123,20 +123,12 @@ Remaining work: add usage examples and expand architecture diagram in docs.
 
 **File**: `nodupe/applier.py`
 
-**Status**: ❌ No module docstring, incomplete function docstrings
+**Status**: ✅ Module and function docstrings added
 
-**Required Documentation**:
-- Module docstring explaining:
-  - Three-phase commit pattern (Prepare/Execute/Commit)
-  - Rollback safety guarantees
-  - Checkpoint file format
-  - Atomic operation requirements
-- Function docstrings:
-  - `apply_moves()` - Add detailed Args/Returns/Raises sections
-  - Document error handling and rollback triggers
-  - Explain checkpoint JSON structure
-
-**Estimated Effort**: 1-2 hours
+**Notes**: Module-level docstring added explaining three-phase commit
+pattern, safety guarantees, and checkpoint format. Complete function
+docstring added to `apply_moves()` with Args/Returns/Raises sections
+and usage examples. Completed 2025-12-03.
 
 ---
 
@@ -144,20 +136,13 @@ Remaining work: add usage examples and expand architecture diagram in docs.
 
 **File**: `nodupe/archiver.py`
 
-**Status**: ❌ No module docstring, no class/method docstrings
+**Status**: ✅ Module, class, and method docstrings added
 
-**Required Documentation**:
-- Module docstring with:
-  - Supported archive formats (zip, tar, 7z, rar, etc.)
-  - Optional dependencies and graceful degradation
-  - Password-protected archive handling
-  - Path traversal attack prevention
-- ArchiveHandler class:
-  - Usage examples
-  - Format detection logic
-  - All method docstrings (_detect_type, list_contents, extract, etc.)
-
-**Estimated Effort**: 2 hours
+**Notes**: Comprehensive module docstring added covering all supported
+formats (zip, tar, 7z, rar), optional dependencies, security features,
+and usage examples. ArchiveHandler class fully documented with all
+public and private method docstrings including Args/Returns/Raises.
+Completed 2025-12-03.
 
 ---
 

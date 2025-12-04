@@ -1,6 +1,46 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
+"""Archive file handling with unified interface.
+
+This module provides a consistent API for working with various archive
+formats (zip, tar, 7z, rar, etc.) including listing contents and
+extraction.
+
+Supported Formats:
+    - ZIP (.zip) - Standard Python zipfile, always available
+    - TAR (.tar, .tar.gz, .tgz, .tar.bz2, .tbz2, .tar.xz, .txz)
+      - Standard Python tarfile, always available
+    - 7Z (.7z) - Requires py7zr package (optional)
+    - RAR (.rar) - Requires rarfile package and unrar tool (optional)
+
+Key Features:
+    - Automatic format detection from file extension
+    - Graceful degradation when optional dependencies unavailable
+    - Password-protected archive detection
+    - Path traversal attack prevention (tar extraction)
+    - Consistent dict-based return format for all archive types
+
+Security:
+    - TAR extraction validates all paths to prevent directory traversal
+    - Password-protected archives raise PermissionError with clear message
+    - External tool requirements (unrar) detected and reported
+
+Dependencies:
+    - zipfile, tarfile (standard library, always available)
+    - py7zr (optional, for .7z support)
+    - rarfile (optional, for .rar support, requires unrar binary)
+    - zstandard (optional, for .tar.zst support)
+
+Example:
+    >>> from pathlib import Path
+    >>> handler = ArchiveHandler(Path('archive.zip'))
+    >>> contents = handler.list_contents()
+    >>> for item in contents:
+    ...     print(f"{item['path']}: {item['size']} bytes")
+    >>> handler.extract(Path('/tmp/extracted'))
+"""
+
 import zipfile
 import tarfile
 import os
@@ -27,13 +67,49 @@ except ImportError:
 
 
 class ArchiveHandler:
+    """Unified handler for various archive formats.
+
+    Provides consistent interface for listing and extracting archive
+    contents across multiple formats (zip, tar, 7z, rar).
+
+    Attributes:
+        path: Path to the archive file
+        type: Detected archive type (zip, tar, 7z, rar, unknown)
+
+    Raises:
+        FileNotFoundError: If archive file doesn't exist
+        ImportError: If optional dependency unavailable for format
+        PermissionError: If archive requires password
+        OSError: If external tool (unrar) not found
+
+    Example:
+        >>> handler = ArchiveHandler(Path('data.zip'))
+        >>> print(handler.type)
+        'zip'
+        >>> files = handler.list_contents()
+        >>> handler.extract(Path('/tmp/out'))
+    """
+
     def __init__(self, path: Path):
+        """Initialize archive handler with path.
+
+        Args:
+            path: Path to archive file
+
+        Raises:
+            FileNotFoundError: If path doesn't exist
+        """
         self.path = Path(path)
         if not self.path.exists():
             raise FileNotFoundError(f"Archive not found: {path}")
         self.type = self._detect_type()
 
     def _detect_type(self) -> str:
+        """Detect archive format from file extension.
+
+        Returns:
+            Archive type string: zip, tar, 7z, rar, or unknown
+        """
         s = str(self.path).lower()
         if s.endswith(".zip"):
             return "zip"
@@ -52,6 +128,19 @@ class ArchiveHandler:
         return "unknown"
 
     def list_contents(self) -> List[Dict[str, Any]]:
+        """List archive contents without extraction.
+
+        Returns:
+            List of dicts with keys:
+                - path: Relative path within archive
+                - size: Uncompressed size in bytes
+                - is_dir: True if directory, False if file
+
+        Raises:
+            ImportError: If required library unavailable for format
+            PermissionError: If archive requires password
+            ValueError: If archive type unsupported
+        """
         if self.type == "zip":
             return self._list_zip()
         if self.type == "7z":
@@ -63,6 +152,21 @@ class ArchiveHandler:
         raise ValueError(f"Unsupported archive type: {self.type}")
 
     def extract(self, dest: Path) -> None:
+        """Extract archive contents to destination directory.
+
+        Creates destination directory if it doesn't exist. For tar archives,
+        validates paths to prevent directory traversal attacks.
+
+        Args:
+            dest: Destination directory path
+
+        Raises:
+            ImportError: If required library unavailable for format
+            PermissionError: If archive requires password
+            OSError: If external tool unavailable (unrar)
+            RuntimeError: If path traversal attempted in tar file
+            ValueError: If archive type unsupported
+        """
         dest = Path(dest)
         dest.mkdir(parents=True, exist_ok=True)
         dest.mkdir(parents=True, exist_ok=True)
