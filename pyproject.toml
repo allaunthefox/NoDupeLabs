@@ -24,3 +24,25 @@ nodupe = "nodupe.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
+
+[tool.interrogate]
+ignore-init-module = false
+ignore-init-method = true
+ignore-module = false
+ignore-nested-functions = true
+ignore-magic = false
+ignore-private = true
+ignore-semiprivate = true
+exclude = ["setup.py", "docs", "build", "tests", "nodupe/vendor"]
+fail-under = 80
+verbose = 2
+color = true
+
+[tool.pydocstyle]
+convention = "google"
+match-dir = "nodupe"
+# D100: Missing docstring in public module (we enforce this via interrogate mostly, but good to have)
+# D104: Missing docstring in public package
+# D107: Missing docstring in __init__
+add-ignore = ["D107"]
+

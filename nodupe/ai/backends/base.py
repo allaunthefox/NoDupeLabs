@@ -24,10 +24,28 @@ class BaseBackend:
     """
 
     def available(self) -> bool:
+        """Check if backend is available (dependencies installed)."""
         return False
 
     def predict(self, path: Path) -> Tuple[int, str]:
+        """Predict NSFW score for a file.
+
+        Args:
+            path: Path to the file (image or video)
+
+        Returns:
+            Tuple of (score, reason) where score is 0-3
+        """
         raise NotImplementedError()
 
     def compute_embedding(self, path: Path, dim: int = 16) -> List[float]:
+        """Compute vector embedding for a file.
+
+        Args:
+            path: Path to the file
+            dim: Dimension of the embedding vector
+
+        Returns:
+            List of floats representing the embedding
+        """
         raise NotImplementedError()

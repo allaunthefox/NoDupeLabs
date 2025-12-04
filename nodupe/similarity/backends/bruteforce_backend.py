@@ -32,7 +32,18 @@ import json
 
 
 class BruteForceIndex:
+    """In-memory brute-force similarity index.
+
+    Stores vectors and IDs, performs exact L2 nearest neighbor search.
+
+    Attributes:
+        dim: Dimension of vectors
+        vectors: NumPy array of stored vectors
+        ids: List of string IDs corresponding to vectors
+    """
+
     def __init__(self, dim: int):
+        """Initialize index with given dimension."""
         if np is None:
             raise ImportError("numpy is required for BruteForceIndex")
         self.dim = dim
@@ -42,6 +53,7 @@ class BruteForceIndex:
     def add(
         self, vectors: List[List[float]], ids: Optional[List[str]] = None
     ) -> None:
+        """Add vectors to the index."""
         arr = np.asarray(vectors, dtype='float32')
         if arr.ndim != 2 or arr.shape[1] != self.dim:
             raise ValueError("Invalid vectors shape for brute-force")
@@ -61,6 +73,7 @@ class BruteForceIndex:
     def search(
         self, vector: List[float], k: int = 5
     ) -> List[Tuple[str, float]]:
+        """Search for k nearest neighbors."""
         if self.vectors.size == 0:
             return []
         q = np.asarray(vector, dtype='float32')
@@ -73,15 +86,18 @@ class BruteForceIndex:
 
 
 def create(dim: int):
+    """Create a new brute-force index with given dimension."""
     return BruteForceIndex(dim)
 
 
 def available() -> bool:
+    """Check if numpy is available for brute-force backend."""
     return np is not None
 
 
 # Persistence helpers
 def load(path: str):
+    """Load index from file (.npz, .json, or .jsonl)."""
     # Support multiple persistence formats: .npz, .json, .jsonl
     p = Path(path)
     ext = p.suffix.lower()
@@ -153,6 +169,7 @@ def load(path: str):
 
 
 def save(index_obj, path: str):
+    """Save index to file (.npz, .json, or .jsonl)."""
     # assume index_obj has attributes vectors and ids
     p = Path(path)
     ext = p.suffix.lower()
