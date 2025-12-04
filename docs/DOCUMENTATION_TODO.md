@@ -12,10 +12,10 @@ work based on module criticality and usage frequency.
 ## Progress Summary
 
 - **Total modules reviewed**: 50+
-- **Modules fully documented**: 2 (cli.py, config.py)
+- **Modules fully documented**: 4 (cli.py, config.py, scanner.py, db.py)
 - **External docs updated**: 4 (BEGINNERS_GUIDE.md, SIMILARITY.md, AI_BACKEND.md, CHANGELOG.md)
 - **Modules remaining**: ~48
-- **Completion**: ~4%
+- **Completion**: ~8%
 - **Last updated**: 2025-12-03
 
 ## Priority 1: Critical Infrastructure (IMMEDIATE)
@@ -27,7 +27,12 @@ other module. They require immediate, comprehensive documentation.
 
 **File**: `nodupe/db.py`
 
-**Status**: ❌ No module docstring, no class/method docstrings
+**Status**: ✅ Module and method docstrings added
+
+**Notes**: Module-level docstring added and the `DB` class and public
+methods (initialization, migrations, upsert/get helpers, embedding
+helpers) were documented. Follow-up: add usage examples to docs and a
+short migration guide for maintainers.
 
 **Required Documentation**:
 - Module docstring explaining:
@@ -56,11 +61,12 @@ other module. They require immediate, comprehensive documentation.
 
 ---
 
+
 ### 1.2 Scanner Module
 
 **File**: `nodupe/scanner.py`
 
-**Status**: ❌ No module docstring, incomplete function docstrings
+**Status**: ✅ Module and function-level docstrings added
 
 **Required Documentation**:
 - Module docstring explaining:
@@ -80,7 +86,11 @@ other module. They require immediate, comprehensive documentation.
     - `collect` - List collection vs. generator mode
   - `validate_hash_algo()` - Hash algorithm validation (re-exported)
 
-**Estimated Effort**: 3-4 hours
+**Notes**: Module-level docstring and detailed function docstrings for
+`iter_files`, `process_file` and `threaded_hash` were added on 2025-12-03.
+Remaining work: add usage examples and expand architecture diagram in docs.
+
+**Estimated Effort**: 0.5-1 hour (follow-ups)
 
 ---
 

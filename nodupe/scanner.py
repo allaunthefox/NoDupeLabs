@@ -1,6 +1,26 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
+"""nodupe.scanner — parallel file discovery and hashing utilities.
+
+This module provides the high-level scanning utilities used by the
+`nodupe` CLI and library. It implements a multi-threaded scanning
+pipeline that discovers files on-disk, optionally skips files using a
+known-files cache, and computes file hashes and basic metadata in a
+bounded-thread pool. Key features:
+
+- Robust file discovery via `iter_files` that honors ignore patterns and
+    safely handles symlinks and transient filesystem errors.
+- `process_file` unifies hashing + metadata extraction (mime type,
+    context, permissions) for a single file.
+- `threaded_hash` coordinates a threaded hashing pipeline with progress
+    reporting (optional tqdm), ETA/stall messages, and a hard idle-timeout
+    that cancels tasks if the pipeline appears stuck.
+
+The documentation in `docs/DOCUMENTATION_TODO.md` lists additional
+explanations and TODOs for improving the module-level docs and examples.
+"""
+
 from __future__ import annotations
 import os
 import sys
@@ -19,6 +39,23 @@ def iter_files(
     roots: Iterable[str], ignore: List[str],
     follow_symlinks: bool = False
 ) -> Iterable[Path]:
+    """Yield Path objects for files under `roots`.
+
+    This function walks each directory in `roots` and yields files while
+    respecting the `ignore` patterns (checked with `should_skip`) and the
+    `follow_symlinks` flag. It is resilient to transient filesystem
+    errors and reports non-fatal issues via stderr so the calling code
+    can continue scanning other roots.
+
+    Args:
+        roots: Iterable of root paths to search (strings).
+        ignore: List of path patterns to skip (passed to `should_skip`).
+        follow_symlinks: If True, follow directory symlinks when walking.
+
+    Yields:
+        pathlib.Path objects for each discovered file.
+    """
+
     for r in roots:
         rp = Path(r)
         if not rp.exists():
@@ -74,7 +111,24 @@ def iter_files(
 def process_file(
     p: Path, hash_algo: str, known_hash: str | None = None
 ) -> Tuple[str, int, int, str, str, str, str, str]:
-    """Process a single file: hash it (or use known) and extract metadata."""
+    """Process a single file and return a metadata tuple.
+
+    The returned tuple mirrors the values used in the rest of the
+    project and tests:
+
+    (path, size, mtime, hash, mime, context, algo, perms)
+
+    Args:
+        p: Path to the file to process.
+        hash_algo: Hash algorithm name used by `hash_file`.
+        known_hash: Optional pre-computed hash to avoid re-hashing
+            (used by incremental scans where file size/mtime match).
+
+    Returns:
+        A tuple with the file path (str), size (int), modification
+        timestamp (int), hash (str), mime (str), detected context
+        (str), the algorithm used (str), and permissions string (str).
+    """
     st = p.stat()
 
     if known_hash:
@@ -108,10 +162,41 @@ def threaded_hash(
     # When False, return a generator to stream results (original behavior).
     collect: bool = False,
 ):
-    """
-    Scan files and compute hashes incrementally.
-    known_files: dict {path: (size, mtime, hash)} to skip re-hashing.
-    Yields: (path, size, mtime, hash, mime, context, algo, perms)
+    """High-throughput threaded file hashing pipeline.
+
+    threaded_hash implements a producer-consumer pattern over a
+    thread pool. It discovers files (using `iter_files`), submits
+    per-file hashing work to a ThreadPoolExecutor, and yields results
+    as they complete. The function supports two modes:
+
+    - Streaming (collect=False): returns a generator that yields
+      (path, size, mtime, hash, mime, context, algo, perms) tuples as
+      work completes.
+    - Collect (collect=True): collects all results into a list and
+      returns a tuple: (results_list, duration_seconds, total_count).
+
+    Important arguments:
+        roots: Iterable of root paths to scan.
+        ignore: list of ignore patterns.
+        workers: number of threads in the worker pool.
+        hash_algo: name of hashing algorithm (passed to `hash_file`).
+        follow_symlinks: whether discovery should follow symlinked dirs.
+        known_files: optional mapping {path: (size, mtime, hash)} to skip
+            re-hashing files that have not changed.
+        heartbeat_interval: time in seconds used as a fallback wait
+            interval for progress reporting when stall_timeout is not
+            configured.
+        stall_timeout/stalled_timeout: optional per-task stall threshold
+            in seconds. If provided, the scanner will report tasks that
+            exceed this age and can provide ETA calculations.
+        max_idle_time: hard idle timeout in seconds. If no task
+            completes for this many seconds, the pipeline will cancel
+            pending work and raise TimeoutError so callers don't hang.
+        show_eta: If True, print ETA/STALL messages when progress stalls.
+
+    Returns:
+        If collect is False, returns a generator of result tuples.
+        If collect is True, returns (results_list, duration_seconds, total_count).
     """
     # Use a bounded set of futures to prevent loading all files into memory
     MAX_PENDING = workers * 4

@@ -35,6 +35,7 @@ All notable changes to this project will be documented in this file.
 
 See docs/DOCUMENTATION_TODO.md for the complete documentation roadmap and
 prioritized list of modules requiring documentation.
+prioritized list of modules requiring documentation.
 
 ## 2025-12-03 — ci/fix-mypy-and-validate-job (merged via PR #2)
 

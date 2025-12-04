@@ -1,6 +1,25 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
+"""Database layer for NoDupeLabs.
+
+This module provides a thin wrapper around SQLite3 for storing file
+metadata, deduplication information, and vector embeddings used by the
+similarity backends. It exposes a simple DB class which manages a
+single SQLite connection, initialization/migration of the schema, and
+convenience methods for upserting and querying files and embeddings.
+
+Design notes:
+- Uses WAL journaling mode and tuned PRAGMAs for reasonable concurrent
+    reads/writes.
+- The database schema is intentionally compact: `files` holds the
+    deduplication metadata and `embeddings` stores serialized vectors
+    (JSON) for persistence.
+- The DB class is not fully thread-safe; callers should serialize
+    concurrent access (connections may be created per-thread in higher
+    concurrency scenarios).
+"""
+
 import sqlite3
 import json
 import textwrap
@@ -53,6 +72,20 @@ BASE_SCHEMA = textwrap.dedent(
 
 
 class DB:
+    """Lightweight SQLite-backed persistence for file metadata.
+
+    Usage example:
+
+        >>> db = DB(Path('data/nodupe.db'))
+        >>> db.upsert_files([(path, size, mtime, sha, mime, ctx, algo, perms)])
+        >>> for row in db.iter_files():
+        ...     print(row)
+
+    Args:
+        path: Path to the sqlite database file. The parent directory will
+            be created if necessary.
+    """
+
     def __init__(self, path: Path):
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -60,7 +93,13 @@ class DB:
         self._init_schema()
 
     def _init_schema(self):
-        """Initialize the database schema."""
+        """Ensure the required tables and indexes exist for the current schema.
+
+        This method is idempotent and performs lightweight migrations for
+        older schema versions (for example, adding a missing `permissions`
+        column or creating the `embeddings` table). Any schema changes are
+        committed immediately to keep the on-disk state consistent.
+        """
         try:
             # Check if table exists
             cur = self.conn.cursor()
@@ -125,18 +164,29 @@ class DB:
             raise
 
     def close(self):
+        """Close the underlying SQLite connection.
+
+        Call this when the DB instance is no longer needed to release
+        file handles and ensure all pending transactions are persisted.
+        """
         self.conn.close()
 
     def upsert_files(
         self, records: Iterable[Tuple[str, int, int, str, str, str, str, str]]
     ):
-        """
-        Insert or update file records.
+        """Bulk insert or update file metadata records.
+
+        This method is used by the scanner pipeline to persist discovered
+        files into the `files` table. It performs an UPSERT (INSERT ON
+        CONFLICT DO UPDATE) to make repeated runs idempotent and safe for
+        incremental updates.
+
         Args:
-            records: (
-                path, size, mtime, file_hash, mime, context_tag,
-                hash_algo, permissions
-            )
+            records: Iterable of tuples matching the table columns:
+                (path, size, mtime, file_hash, mime, context_tag, hash_algo, permissions)
+
+        Returns:
+            None
         """
         cur = self.conn.cursor()
         cur.executemany(
@@ -162,9 +212,13 @@ class DB:
         self.conn.commit()
 
     def get_duplicates(self) -> List[Tuple[str, str, str]]:
-        """
-        Get duplicate file groups.
-        Returns: (file_hash, context_tag, pipe-separated paths)
+        """Return groups of duplicate files.
+
+        Returns a list of tuples:
+            (file_hash, context_tag, concatenated_paths)
+
+        Files are grouped by (file_hash, context_tag, hash_algo) and only
+        groups with more than one member are returned.
         """
         query = """
             SELECT file_hash, context_tag, GROUP_CONCAT(path, '|')
@@ -175,17 +229,31 @@ class DB:
         return list(self.conn.execute(query))
 
     def get_all(self):
+        """Return a list of all file records (helper wrapper).
+
+        This eagerly loads all rows into memory so callers should prefer
+        `iter_files()` when iterating large databases.
+        """
         return list(self.iter_files())
 
     def iter_files(self):
-        """Yields file records without loading all into memory."""
+        """Yield file metadata rows as a DB cursor iterator.
+
+        Yields rows in the same order as the SELECT statement. Each row
+        contains (path, size, mtime, file_hash, mime, context_tag, hash_algo, permissions).
+        """
         return self.conn.execute(
             "SELECT path, size, mtime, file_hash, mime, "
             "context_tag, hash_algo, permissions FROM files"
         )
 
     def get_known_files(self):
-        """Yields (path, size, mtime, file_hash) for incremental scanning."""
+        """Yield (path, size, mtime, file_hash) tuples used by incremental scans.
+
+        This generator is usually loaded into memory by the scanner to
+        build a lightweight known-files mapping to avoid re-hashing
+        unchanged files.
+        """
         cur = self.conn.cursor()
         cur.execute("SELECT path, size, mtime, file_hash FROM files")
         for row in cur:
@@ -196,10 +264,11 @@ class DB:
         self.upsert_embeddings([(path, vector, dim, mtime)])
 
     def upsert_embeddings(self, records: Iterable[Tuple[str, list, int, int]]):
-        """
-        Batch insert/update embeddings.
-        Args:
-            records: list of (path, vector, dim, mtime)
+        """Batch insert/update vector embeddings.
+
+        Embeddings are serialized to JSON for storage. Each record must be
+        a tuple: (path, vector, dim, mtime). The method uses an UPSERT so
+        repeated writes for the same path overwrite the previous vector.
         """
         cur = self.conn.cursor()
         # Prepare data: serialize vector to JSON
@@ -237,7 +306,11 @@ class DB:
         return {'dim': int(dim), 'vector': vec, 'mtime': int(mtime)}
 
     def get_all_embeddings(self):
-        """Yields (path, dim, vector, mtime) tuples."""
+        """Yield (path, dim, vector, mtime) tuples for all embeddings.
+
+        The stored vector is deserialized from JSON; corrupt or malformed
+        JSON will result in an empty vector for that row.
+        """
         cur = self.conn.cursor()
         # Use the cursor as an iterator to avoid loading all rows into memory
         cur.execute("SELECT path, dim, vector, mtime FROM embeddings")
