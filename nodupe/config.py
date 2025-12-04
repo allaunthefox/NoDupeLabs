@@ -1,6 +1,54 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
+"""Configuration management for NoDupeLabs.
+
+This module handles loading, merging, and validating configuration
+files. It supports YAML format with automatic fallback to JSON if
+PyYAML is not available.
+
+Key Features:
+    - Configuration presets for common use cases
+    - Environment-aware auto-tuning (desktop, NAS, cloud, container)
+    - Graceful degradation when PyYAML is unavailable
+    - Automatic config file generation with sensible defaults
+
+Presets:
+    - default: Balanced settings (SHA-512, safe defaults)
+    - performance: Faster hashing (BLAKE2b), less logging, validation
+        disabled
+    - paranoid: Maximum safety (SHA-512, strict validation,
+        dry-run enabled)
+    - media: Optimized for images/video (BLAKE2b, AI enabled,
+        larger similarity index)
+    - ebooks: Optimized for text/PDFs (SHA-256, AI disabled,
+        pretty metadata)
+    - audiobooks: Optimized for audio collections (BLAKE2b,
+        AI disabled, extra ignore patterns)
+    - archives: Optimized for long-term storage (SHA-512, debug logging)
+
+Configuration Keys:
+    - hash_algo: Hash algorithm (sha256, sha512, blake2b)
+    - dedup_strategy: Deduplication strategy (content_hash)
+    - parallelism: Number of worker threads (0 = auto-detect)
+    - dry_run: If True, no destructive operations are performed
+    - ignore_patterns: List of glob patterns to skip during scanning
+    - nsfw: NSFW detection settings (enabled, threshold, auto_quarantine)
+    - ai: AI backend settings (enabled, backend, model_path)
+    - similarity: Similarity index settings (dim)
+    - logging: Log rotation and verbosity settings
+    - db_path: SQLite database path
+    - export_folder_meta: Generate meta.json files in scanned directories
+
+Dependencies:
+    - PyYAML (optional, falls back to JSON if unavailable)
+
+Example:
+    >>> cfg = load_config('nodupe.yml')
+    >>> print(cfg['hash_algo'])
+    'sha512'
+"""
+
 from pathlib import Path
 from typing import Any, Dict
 
@@ -111,7 +159,15 @@ PRESETS = {
 
 
 def ensure_config(path: str = "nodupe.yml", preset: str = "default") -> None:
-    """Create default configuration file if it doesn't exist."""
+    """Create default configuration file if it doesn't exist.
+
+    Args:
+        path: Path to configuration file (default: nodupe.yml)
+        preset: Preset name to use for initial config (default: 'default')
+
+    Returns:
+        None
+    """
     p = Path(path)
     if not p.exists():
         cfg = PRESETS.get(preset, DEFAULTS)

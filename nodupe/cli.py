@@ -1,6 +1,42 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
+"""NoDupeLabs command-line interface.
+
+This module provides the main entry point for the nodupe CLI application.
+It orchestrates configuration loading, plugin management, dependency installation,
+and command dispatching.
+
+Key Features:
+    - Automatic dependency installation and graceful degradation
+    - Plugin system with event hooks (startup, shutdown, etc.)
+    - Startup/shutdown code linting for integrity checking
+    - Command registration and argument parsing
+    - Configuration management with preset support
+
+Available Commands:
+    - init: Initialize configuration with presets
+    - scan: Scan directories and build file index
+    - plan: Generate deduplication plan
+    - apply: Execute deduplication plan with checkpointing
+    - rollback: Undo previous apply operation
+    - verify: Validate checkpoint against filesystem
+    - mount: Mount database as FUSE filesystem (Linux only)
+    - archive: Inspect and extract archive files
+    - similarity: Build/query/update similarity indices
+
+Architecture:
+    The CLI uses a plugin-based architecture where plugins can register event
+    handlers for lifecycle events (startup, shutdown, tool use). Commands are
+    implemented in separate modules under nodupe.commands.
+
+Exit Codes:
+    0: Success
+    1: General error
+    10: Startup linting failed
+    Other: Command-specific errors
+"""
+
 import argparse
 import sys
 import atexit
