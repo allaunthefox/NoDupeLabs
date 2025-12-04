@@ -1,12 +1,53 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
+"""Checkpoint verification command.
+
+This module implements the 'verify' command, which validates the integrity
+of a deduplication operation by checking that all files moved during an
+'apply' operation exist at their expected destination paths.
+
+Key Features:
+    - Load checkpoint manifest (JSON)
+    - Verify existence of all destination files
+    - Report missing files and overall success/failure
+
+Usage:
+    Used after 'nodupe apply' to ensure that the filesystem state matches
+    the recorded checkpoint before deleting originals or finalizing.
+
+Dependencies:
+    - json: Manifest parsing
+    - pathlib: File existence checks
+
+Example:
+    >>> # CLI usage
+    >>> $ nodupe verify --checkpoint .nodupe/checkpoints/cp_123.json
+    >>> [verify] OK. All destination files exist.
+"""
+
 import json
 from pathlib import Path
 
 
 def cmd_verify(args, _cfg):
-    """Verify command - check checkpoint integrity."""
+    """Verify that all files in a checkpoint exist at destination.
+
+    Reads the checkpoint JSON file created by the 'apply' command and
+    iterates through all recorded move operations. Checks if the
+    destination file exists on disk.
+
+    Args:
+        args: Argparse Namespace with attributes:
+            - checkpoint (str): Path to checkpoint JSON file
+        _cfg: Configuration dictionary (unused)
+
+    Returns:
+        int: Exit code (0 for success, 1 for failure/missing files)
+
+    Side Effects:
+        - Prints verification status to stdout
+    """
     cp = Path(args.checkpoint)
     if not cp.exists():
         print(f"[verify] checkpoint not found: {cp}")
