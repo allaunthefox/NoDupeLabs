@@ -6,4 +6,6 @@
 Exposes the global plugin manager instance.
 """
 
+from .manager import pm
+
 __all__ = ["pm"]
