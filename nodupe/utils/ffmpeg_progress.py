@@ -1,12 +1,73 @@
+"""FFmpeg progress monitoring and execution wrapper.
+
+This module provides progress reporting for FFmpeg operations with
+support for both interactive (terminal) and non-interactive (CI) modes.
+Automatically detects environment and adapts display accordingly.
+
+Key Features:
+    - Interactive progress bars with ETA for terminal environments
+    - CI-safe quiet mode for automated environments
+    - Duration inference from FFmpeg args (-t, -to, -ss)
+    - Automatic duration probing via ffprobe when available
+    - Timeout support to prevent hangs
+    - Graceful degradation when FFmpeg unavailable
+
+Progress Modes:
+    - auto: Detect interactivity via sys.stdout.isatty() (default)
+    - interactive: Force progress bar display
+    - quiet: Suppress progress output (CI-friendly)
+    - Set via NO_DUPE_PROGRESS environment variable or force_mode param
+
+Duration Detection Strategy:
+    1. Use explicit expected_duration parameter if provided
+    2. Parse FFmpeg command args for -t/-to/-ss timing
+    3. Probe input file with ffprobe if available
+    4. Fallback to 1.0s default estimate
+
+Dependencies:
+    - subprocess: FFmpeg process management
+    - os: Environment variable detection
+    - sys: Terminal interactivity detection
+    - ffprobe (optional): Input file duration probing
+
+Example:
+    >>> cmd = ['ffmpeg', '-i', 'input.mp4', '-t', '5', 'output.mp4']
+    >>> success = run_ffmpeg_with_progress(cmd)
+    [TEST NOTICE] Running ffmpeg (ETA estimated). Please wait...
+    [TEST PROGRESS] | [========>                    ]  25.0%  ...
+    >>> print(success)
+    True
+"""
+
 import os
 import subprocess
 import sys
 
 
 def _parse_time_string(value: str) -> float | None:
-    """Parse an ffmpeg time string (seconds or HH:MM:SS[.ms]) into seconds.
+    """Parse FFmpeg time string to seconds.
 
-    Returns a float or None if parsing failed.
+    Supports multiple formats:
+    - Pure numeric: '10.5' -> 10.5s
+    - Seconds: '42' -> 42.0s
+    - Minutes:seconds: '5:30' -> 330.0s
+    - Hours:minutes:seconds: '1:23:45' -> 5025.0s
+
+    Args:
+        value: Time string from FFmpeg arguments
+
+    Returns:
+        Time in seconds (float), or None if parsing fails
+
+    Example:
+        >>> _parse_time_string('10.5')
+        10.5
+        >>> _parse_time_string('1:30')
+        90.0
+        >>> _parse_time_string('1:23:45')
+        5025.0
+        >>> _parse_time_string('invalid')
+        None
     """
     if value is None:
         return None
@@ -35,13 +96,35 @@ def _parse_time_string(value: str) -> float | None:
 
 
 def _parse_ffmpeg_duration_from_cmd(cmd: list) -> float | None:
-    """Parse common ffmpeg args (-t, -to, -ss) to infer expected duration.
+    """Infer expected duration from FFmpeg command arguments.
 
-    Logic:
-    - If both -ss and -to present -> duration = to - ss
-    - Else if -t present -> duration = t
-    - Else if -to present -> duration = to
-    - Returns None when not inferable.
+    Parses FFmpeg timing arguments to estimate operation duration.
+    Supports both separate arguments (-t 10) and combined form (-t10).
+
+    Args:
+        cmd: FFmpeg command as list of arguments
+
+    Returns:
+        Estimated duration in seconds, or None if not inferable
+
+    Duration Inference Logic:
+        1. If both -ss and -to: duration = to - ss (trim operation)
+        2. Else if -t: duration = t (explicit duration)
+        3. Else if -to: duration = to (encode up to position)
+        4. Otherwise: None (cannot infer)
+
+    Supported Arguments:
+        - -ss VALUE: Start time offset
+        - -to VALUE: End time position
+        - -t VALUE: Duration limit
+
+    Example:
+        >>> cmd = ['ffmpeg', '-i', 'in.mp4', '-t', '10', 'out.mp4']
+        >>> _parse_ffmpeg_duration_from_cmd(cmd)
+        10.0
+        >>> cmd = ['ffmpeg', '-ss', '5', '-to', '15', '-i', 'in.mp4', 'out.mp4']
+        >>> _parse_ffmpeg_duration_from_cmd(cmd)
+        10.0
     """
     ss = None
     to = None
@@ -100,10 +183,60 @@ def run_ffmpeg_with_progress(
     timeout: float | None = None, force_mode: str | None = None,
     probe_input_duration: bool = True, show_eta: bool = True
 ):
-    """Run an ffmpeg command with an interactive (or CI-safe) progress helper.
+    """Execute FFmpeg command with progress monitoring.
 
-    See tests for usage. This helper will try to infer duration from -t/-to/-ss
-    and will fallback to probing the input file if ffprobe is available.
+    Runs FFmpeg with adaptive progress display that works in both
+    interactive terminal and CI environments. Automatically infers
+    operation duration and displays real-time progress with ETA.
+
+    Args:
+        cmd: FFmpeg command as list (e.g., ['ffmpeg', '-i', 'in.mp4', ...])
+        expected_duration: Expected operation duration in seconds
+            (default: None, will auto-detect)
+        max_wait: Soft timeout in seconds for progress display
+            (default: 12s, continues without progress after)
+        timeout: Hard timeout in seconds, kills FFmpeg if exceeded
+            (default: None, no hard timeout)
+        force_mode: Override progress mode detection
+            (default: None, use auto-detection)
+            Options: 'auto', 'interactive', 'quiet'
+        probe_input_duration: If True, use ffprobe to detect input duration
+            (default: True)
+        show_eta: If True, display ETA in progress bar
+            (default: True)
+
+    Returns:
+        True if FFmpeg succeeded (exit code 0), False otherwise
+
+    Progress Mode Selection:
+        1. force_mode parameter (if specified)
+        2. NO_DUPE_PROGRESS environment variable
+        3. Auto-detect via sys.stdout.isatty()
+
+    Duration Detection:
+        1. Use explicit expected_duration if provided
+        2. Parse cmd args for -t/-to/-ss timing
+        3. Probe input file with ffprobe if available
+        4. Fallback to 1.0s estimate
+
+    Raises:
+        KeyboardInterrupt: If user interrupts (Ctrl+C), kills FFmpeg
+
+    Example:
+        >>> # Extract 5 second clip with progress
+        >>> cmd = ['ffmpeg', '-i', 'video.mp4', '-t', '5', 'clip.mp4']
+        >>> success = run_ffmpeg_with_progress(cmd)
+        [TEST NOTICE] Running ffmpeg (ETA estimated). Please wait...
+        [TEST PROGRESS] | [=======================>      ]  75.0%  ...
+        >>> print(success)
+        True
+
+        >>> # Force quiet mode for CI
+        >>> success = run_ffmpeg_with_progress(cmd, force_mode='quiet')
+        [TEST NOTICE] Running ffmpeg (ETA estimated). Please wait...
+        [TEST PROGRESS] [==============================] 100.0%  ...
+        >>> print(success)
+        True
     """
     # Try to infer duration from command args first (-t / -to / -ss)
     if expected_duration is None:

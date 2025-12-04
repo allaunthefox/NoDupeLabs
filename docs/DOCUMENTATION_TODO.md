@@ -12,16 +12,16 @@ work based on module criticality and usage frequency.
 ## Progress Summary
 
 - **Total modules reviewed**: 50+
-- **Modules fully documented**: 11 (cli.py, config.py, scanner.py, db.py, applier.py, archiver.py, planner.py, rollback.py, exporter.py, categorizer.py, validator.py)
+- **Modules fully documented**: 15 (cli.py, config.py, scanner.py, db.py, applier.py, archiver.py, planner.py, rollback.py, exporter.py, categorizer.py, validator.py, utils/hashing.py, utils/filesystem.py, utils/media.py, utils/ffmpeg_progress.py)
 - **External docs updated**: 5 (BEGINNERS_GUIDE.md, SIMILARITY.md, AI_BACKEND.md, CHANGELOG.md, docs/CHANGELOG.md entry)
 - **Repository releases**: v0.1.1 created and published (includes full changelog as release notes)
-- **Modules remaining**: ~39
-- **Completion**: ~22% (Priority 1 & Priority 2 completed)
+- **Modules remaining**: ~35
+- **Completion**: ~30% (Priority 1, 2, & 3 completed)
 - **Last updated**: 2025-12-03
 
 ## Recent work & status (summary)
 
-- **Priority 1 & Priority 2 Documentation (COMPLETED 2025-12-03)**:
+- **Priority 1, 2, & 3 Documentation (COMPLETED 2025-12-03)**:
   - ✅ **Priority 1 (Critical Infrastructure)**: cli.py, config.py, scanner.py, db.py,
     applier.py, archiver.py - All modules fully documented with comprehensive module
     docstrings and function/method docstrings including Args/Returns/Raises/Example
@@ -29,7 +29,10 @@ work based on module criticality and usage frequency.
   - ✅ **Priority 2 (Core Functionality)**: planner.py, rollback.py, exporter.py,
     categorizer.py, validator.py - All modules fully documented following the same
     comprehensive standards.
-  - 11 of 50+ modules now have complete documentation (22% completion)
+  - ✅ **Priority 3 (Utilities)**: utils/hashing.py, utils/filesystem.py, utils/media.py,
+    utils/ffmpeg_progress.py - All utility modules fully documented with detailed
+    module docstrings, function docstrings, and comprehensive examples.
+  - 15 of 50+ modules now have complete documentation (30% completion)
   - All docstrings follow PEP 8 line length limits and include usage examples
 
 - **Changelog & release**: Updated `docs/CHANGELOG.md` with detailed entries covering
@@ -47,7 +50,6 @@ work based on module criticality and usage frequency.
 
 Next steps:
 
-- Priority 3: Utilities (4 modules: hashing, filesystem, media, ffmpeg_progress)
 - Priority 4: Commands (9 command modules)
 - Priority 5: Supporting modules (10+ modules)
 
@@ -232,18 +234,13 @@ two-phase validation approach. Completed 2025-12-03.
 
 **File**: `nodupe/utils/hashing.py`
 
-**Status**: ❌ No module docstring, incomplete function docstrings
+**Status**: ✅ Module and function docstrings added
 
-**Required Documentation**:
-- Module docstring with:
-  - Supported hash algorithms
-  - Performance characteristics
-  - Incremental hashing strategy
-- Function docstrings:
-  - `validate_hash_algo()` - Algorithm validation
-  - `hash_file()` - Complete Args/Returns/Raises documentation
-
-**Estimated Effort**: 45 minutes
+**Notes**: Module docstring added covering supported algorithms (SHA-512,
+SHA-256, BLAKE2b, SHA-1, MD5), performance characteristics, and incremental
+hashing strategy. Complete function docstrings added for `validate_hash_algo()`
+and `hash_file()` with Args/Returns/Raises/Example sections. Includes performance
+notes comparing algorithm speeds. Completed 2025-12-03.
 
 ---
 
@@ -251,17 +248,13 @@ two-phase validation approach. Completed 2025-12-03.
 
 **File**: `nodupe/utils/filesystem.py`
 
-**Status**: ❌ No module docstring, no function docstrings
+**Status**: ✅ Module and function docstrings added
 
-**Required Documentation**:
-- Module docstring explaining utility purpose
-- Function docstrings:
-  - `should_skip()` - Ignore pattern matching
-  - `detect_context()` - Archive/temp folder detection
-  - `get_mime_safe()` - MIME detection with overrides
-  - `get_permissions()` - ACL/permission capture
-
-**Estimated Effort**: 1 hour
+**Notes**: Module docstring added explaining modern MIME type support (WebP,
+HEIC, AVIF, Matroska), context detection strategy, and permission handling.
+Complete function docstrings added for `should_skip()`, `detect_context()`,
+`get_mime_safe()`, and `get_permissions()` with Args/Returns/Example sections.
+Completed 2025-12-03.
 
 ---
 
@@ -269,16 +262,13 @@ two-phase validation approach. Completed 2025-12-03.
 
 **File**: `nodupe/utils/media.py`
 
-**Status**: ❌ No module docstring, no function docstrings
+**Status**: ✅ Module and function docstrings added
 
-**Required Documentation**:
-- Module docstring explaining:
-  - Video frame extraction
-  - Image embedding computation
-  - Supported media formats
-- All function docstrings with full parameter documentation
-
-**Estimated Effort**: 1 hour
+**Notes**: Module docstring added covering video frame extraction strategy,
+FFmpeg integration, frame caching, and metadata sidecar generation. Complete
+function docstrings added for `_hash_path()` and `extract_representative_frame()`
+with detailed Args/Returns/Raises/Example sections. Includes cache location
+and FFmpeg command documentation. Completed 2025-12-03.
 
 ---
 
@@ -286,16 +276,13 @@ two-phase validation approach. Completed 2025-12-03.
 
 **File**: `nodupe/utils/ffmpeg_progress.py`
 
-**Status**: ❌ No module docstring, no function docstrings
+**Status**: ✅ Module and function docstrings added
 
-**Required Documentation**:
-- Module docstring explaining:
-  - Progress mode detection (auto/quiet/interactive)
-  - Environment variable (NO_DUPE_PROGRESS) handling
-  - FFmpeg output parsing
-- All function and class docstrings
-
-**Estimated Effort**: 1 hour
+**Notes**: Module docstring added explaining progress mode detection (auto/
+interactive/quiet), NO_DUPE_PROGRESS environment variable, duration inference,
+and timeout handling. Complete function docstrings added for `_parse_time_string()`,
+`_parse_ffmpeg_duration_from_cmd()`, and `run_ffmpeg_with_progress()` with
+comprehensive Args/Returns/Raises/Example sections. Completed 2025-12-03.
 
 ---
 
