@@ -1,7 +1,6 @@
 import time
 from pathlib import Path
 
-import pytest
 
 import nodupe.scanner as scanner
 
@@ -44,7 +43,7 @@ def test_threaded_hash_detects_stall_and_prints(monkeypatch, tmp_path, capsys):
         pass
 
     captured = capsys.readouterr()
-    assert "[scanner][STALL]" in captured.out or "[scanner][ETA]" in captured.out or "[scanner][INFO]" in captured.out
+    assert "[scanner][STALL]" in captured.out or "[scanner][ETA]" in captured.out or "[scanner][INFO]" in captured.out  # noqa: E501
 
 
 def test_threaded_hash_prints_eta_on_stall(monkeypatch, tmp_path, capsys):

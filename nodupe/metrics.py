@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from datetime import datetime, timezone
 
+
 class Metrics:
     def __init__(self, path: Path):
         self.path = Path(path)

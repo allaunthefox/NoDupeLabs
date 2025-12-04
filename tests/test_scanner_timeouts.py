@@ -1,6 +1,5 @@
 import os
 import time
-import tempfile
 
 import pytest
 
@@ -36,7 +35,8 @@ def test_threaded_hash_times_out_when_no_progress(tmp_path):
     orig = scanner.process_file
     scanner.process_file = slow_process_file
     try:
-        gen = scanner.threaded_hash(roots, ignore=[], workers=1, stall_timeout=0.02, max_idle_time=0.01, show_eta=False)
+        gen = scanner.threaded_hash(
+            roots, ignore=[], workers=1, stall_timeout=0.02, max_idle_time=0.01, show_eta=False)
         with pytest.raises(TimeoutError):
             # consume generator - should raise due to max_idle_time
             list(gen)
@@ -69,7 +69,8 @@ def test_threaded_hash_prints_stall_and_eta(tmp_path, capsys):
         st = os.stat(p)
         return (str(p), st.st_size, int(st.st_mtime), "deadbeef", None, None, algo, None)
 
-    import sys, types
+    import sys
+    import types
     orig = scanner.process_file
     # Prevent the progress bar (tqdm) from being used by the function so we can
     # reliably capture stderr messages produced by the stall/ETA prints.
@@ -77,7 +78,8 @@ def test_threaded_hash_prints_stall_and_eta(tmp_path, capsys):
     sys.modules['tqdm'] = types.ModuleType('tqdm')
     scanner.process_file = varied_process_file
     try:
-        gen = scanner.threaded_hash(roots, ignore=[], workers=1, stall_timeout=0.05, max_idle_time=0.5, show_eta=True)
+        gen = scanner.threaded_hash(
+            roots, ignore=[], workers=1, stall_timeout=0.05, max_idle_time=0.5, show_eta=True)
         # consume a few results but don't trigger overall timeout
         results = []
         for i, rec in enumerate(gen):

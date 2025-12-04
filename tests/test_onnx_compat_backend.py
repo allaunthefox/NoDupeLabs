@@ -17,7 +17,8 @@ def test_onnx_backend_compat_model_loads():
     assert compat.exists(), 'compat model must exist for this test'
 
     be = ONNXBackend(compat)
-    assert be.available(), f'ONNXBackend should be available for compat model, got reason={be.unavailable_reason()}'
+    assert be.available(
+    ), f'ONNXBackend should be available for compat model, got reason={be.unavailable_reason()}'
 
     # Call predict on a small sample to ensure the runtime actually responds
     sample = root / 'nsfw_test_set' / 'safe' / '6017856.jpg'

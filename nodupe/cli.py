@@ -19,7 +19,9 @@ from .plugins import pm  # noqa: E402
 # Import commands
 from .commands.init import cmd_init  # noqa: E402
 from .commands.scan import cmd_scan  # noqa: E402
-from .commands.scan import check_scan_requirements  # re-export for tests / external use  # noqa: E402
+from .commands.scan import (  # noqa: F401, E402
+    check_scan_requirements  # re-export for tests / external use
+)
 from .commands.plan import cmd_plan  # noqa: E402
 from .commands.apply import cmd_apply  # noqa: E402
 from .commands.rollback import cmd_rollback  # noqa: E402
@@ -70,7 +72,9 @@ def main(argv=None):
     pm.emit("startup", cfg=cfg)
 
     parser = argparse.ArgumentParser(prog="nodupe")
-    parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}')
+    parser.add_argument(
+        '--version', action='version', version=f'%(prog)s {__version__}'
+    )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     # Init
@@ -124,7 +128,7 @@ def main(argv=None):
     # Archive
     p_arch = sub.add_parser("archive")
     p_arch_sub = p_arch.add_subparsers(dest="archive_cmd", required=True)
-    
+
     p_l = p_arch_sub.add_parser("list")
     p_l.add_argument("file")
     p_l.set_defaults(_run=cmd_archive_list)

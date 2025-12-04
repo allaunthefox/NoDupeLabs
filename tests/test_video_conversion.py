@@ -1,13 +1,14 @@
-import subprocess
 import tempfile
 from pathlib import Path
-import os
 
 import pytest
+
 from nodupe.convert_videos import convert_video
 from tests.test_helpers import run_ffmpeg_with_progress
 
-# Note: extract_video_conversions isn't present; we'll test convert_videos main operations directly by creating a short sample.
+# Note: extract_video_conversions isn't present; we'll test
+# convert_videos main operations directly by creating a short sample.
+
 
 @pytest.mark.slow
 def test_convert_videos_basic():
@@ -18,13 +19,18 @@ def test_convert_videos_basic():
         img.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 512)
         video = td / "in.mp4"
         # create a 1 second mp4 from image
-        cmd = ["ffmpeg", "-y", "-loop", "1", "-i", str(img), "-c:v", "libx264", "-t", "1", "-pix_fmt", "yuv420p", str(video)]
+        cmd = [
+            "ffmpeg", "-y", "-loop", "1", "-i", str(img), "-c:v",
+            "libx264", "-t", "1", "-pix_fmt", "yuv420p", str(video)
+        ]
         ok = run_ffmpeg_with_progress(cmd, expected_duration=None)
         if not ok:
             # ffmpeg not available in this environment — skip
             return
 
-        outputs = [td / "out.mp4", td / "out.webm", td / "out.mkv", td / "out.avi"]
+        outputs = [
+            td / "out.mp4", td / "out.webm", td / "out.mkv", td / "out.avi"
+        ]
         # convert
         for out in outputs:
             convert_video(video, out)

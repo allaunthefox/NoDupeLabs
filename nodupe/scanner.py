@@ -9,7 +9,7 @@ from typing import Iterable, List, Tuple
 import time
 import concurrent.futures as futures
 
-from .utils.hashing import hash_file, validate_hash_algo
+from .utils.hashing import hash_file
 from .utils.filesystem import (
     should_skip, detect_context, get_mime_safe, get_permissions
 )
@@ -150,8 +150,8 @@ def threaded_hash(
                         try:
                             st = p.stat()
                             if (
-                                st.st_size == k_size and
-                                int(st.st_mtime) == k_mtime
+                                st.st_size == k_size
+                                and int(st.st_mtime) == k_mtime
                             ):
                                 known_hash = k_hash
                         except OSError:
@@ -164,39 +164,60 @@ def threaded_hash(
                     # attach metadata so we can diagnose stalled tasks / ETA
                     if not hasattr(fut, '_submit_meta'):
                         setattr(fut, '_submit_meta', (str_p, submit_time))
-                    # If we have too many pending tasks, wait for some to finish
+                    # If we have too many pending tasks, wait for some to
+                    # finish
                     if len(pending) >= MAX_PENDING:
-                        # Wait for the first completed future. Prefer the configured
-                        # stall_timeout (or the alias stalled_timeout), otherwise use the heartbeat_interval.
+                        # Wait for the first completed future. Prefer the
+                        # configured stall_timeout (or the alias
+                        # stalled_timeout), otherwise use the
+                        # heartbeat_interval.
                         effective_stall_timeout = (
-                            stall_timeout if stall_timeout is not None else stalled_timeout
+                            stall_timeout
+                            if stall_timeout is not None
+                            else stalled_timeout
                         )
-                        wait_timeout = effective_stall_timeout if effective_stall_timeout is not None else heartbeat_interval
+                        wait_timeout = (
+                            effective_stall_timeout
+                            if effective_stall_timeout is not None
+                            else heartbeat_interval
+                        )
                         done, pending = futures.wait(
                             pending, timeout=wait_timeout,
                             return_when=futures.FIRST_COMPLETED
                         )
-                        # If nothing completed in the wait interval we are stalled.
+                        # If nothing completed in the wait interval we are
+                        # stalled.
                         if not done:
                             now = time.time()
-                            # If we have some historic per-task durations, compute an
-                            # ETA from the average. Otherwise emit a short stall
-                            # message so user knows we're still alive.
-                            avg = (sum(_completed_durations) / len(_completed_durations)) if _completed_durations else None
+                            # If we have some historic per-task durations,
+                            # compute an ETA from the average. Otherwise emit
+                            # a short stall message so user knows we're still
+                            # alive.
+                            avg = (
+                                sum(_completed_durations)
+                                / len(_completed_durations)
+                            ) if _completed_durations else None
                             if show_eta:
                                 if avg:
                                     est = avg * len(pending) / max(1, workers)
                                     msg = (
-                                        f"[scanner][ETA] approx {round(est,3)}s for {len(pending)} "
-                                        f"pending tasks (elapsed={now - start_time:.1f}s)"
+                                        f"[scanner][ETA] approx "
+                                        f"{round(est, 3)}s for {len(pending)} "
+                                        f"pending tasks "
+                                        f"(elapsed={now - start_time:.1f}s)"
                                     )
                                 else:
                                     msg = (
-                                        f"[scanner][STALL] no tasks completed in {wait_timeout}s; "
-                                        f"{len(pending)} pending (elapsed={now - start_time:.1f}s)"
+                                        f"[scanner][STALL] no tasks completed "
+                                        f"in {wait_timeout}s; {len(pending)} "
+                                        f"pending "
+                                        f"(elapsed={now - start_time:.1f}s)"
                                     )
                             else:
-                                msg = f"[scanner][INFO] no progress in {wait_timeout}s; pending={len(pending)}"
+                                msg = (
+                                    f"[scanner][INFO] no progress in "
+                                    f"{wait_timeout}s; pending={len(pending)}"
+                                )
 
                             if pbar is not None:
                                 try:
@@ -206,19 +227,27 @@ def threaded_hash(
                             else:
                                 print(msg, file=sys.stderr)
 
-                            # Check for long-running tasks using submission metadata
+                            # Check for long-running tasks using submission
+                            # metadata
                             oldest = None
                             for f in pending:
                                 meta = getattr(f, '_submit_meta', None)
                                 if not meta:
                                     continue
                                 age = now - meta[1]
-                                # if we have a per-task stall threshold, surface it
-                                if effective_stall_timeout is not None and age >= effective_stall_timeout:
+                                # if we have a per-task stall threshold,
+                                # surface it
+                                if (
+                                    effective_stall_timeout is not None
+                                    and age >= effective_stall_timeout
+                                ):
                                     if not oldest or age > oldest[0]:
                                         oldest = (age, meta[0])
                             if oldest:
-                                warn = f"[scanner][WARN] Task stalled {oldest[0]:.1f}s for: {oldest[1]}"
+                                warn = (
+                                    f"[scanner][WARN] Task stalled "
+                                    f"{oldest[0]:.1f}s for: {oldest[1]}"
+                                )
                                 if pbar is not None:
                                     try:
                                         pbar.write(warn)
@@ -227,20 +256,31 @@ def threaded_hash(
                                 else:
                                     print(warn, file=sys.stderr)
 
-                            # Enforce a hard idle timeout so callers don't hang forever
-                            if max_idle_time is not None and (now - last_complete_ts) >= max_idle_time:
+                            # Enforce a hard idle timeout so callers don't
+                            # hang forever
+                            if (
+                                max_idle_time is not None
+                                and (now - last_complete_ts) >= max_idle_time
+                            ):
                                 # Cancel pending tasks so the executor shutdown
-                                # doesn't wait indefinitely for blocked workers.
+                                # doesn't wait indefinitely for blocked
+                                # workers.
                                 try:
-                                    ex.shutdown(wait=False, cancel_futures=True)
+                                    ex.shutdown(
+                                        wait=False, cancel_futures=True
+                                    )
                                 except TypeError:
-                                    # Older Python versions may not support cancel_futures
+                                    # Older Python versions may not support
+                                    # cancel_futures
                                     try:
                                         ex.shutdown(wait=False)
                                     except Exception:
                                         pass
                                 raise TimeoutError(
-                                    f"scanner.threaded_hash: no tasks completed for {now - last_complete_ts:.3f}s (max_idle_time={max_idle_time})"
+                                    f"scanner.threaded_hash: no tasks "
+                                    f"completed for "
+                                    f"{now - last_complete_ts:.3f}s "
+                                    f"(max_idle_time={max_idle_time})"
                                 )
                         for f in done:
                             try:
@@ -249,9 +289,13 @@ def threaded_hash(
                                 now = time.time()
                                 meta = getattr(f, '_submit_meta', None)
                                 if meta:
-                                    _completed_durations.append(max(0.0, now - meta[1]))
+                                    _completed_durations.append(
+                                        max(0.0, now - meta[1])
+                                    )
                                 else:
-                                    _completed_durations.append(max(0.0, now - last_complete_ts))
+                                    _completed_durations.append(
+                                        max(0.0, now - last_complete_ts)
+                                    )
                                 last_complete_ts = now
                                 if pbar is not None:
                                     pbar.update(1)

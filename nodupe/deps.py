@@ -161,8 +161,8 @@ class DependencyManager:
                     # Look for a wheel matching the package name
                     wheels = [
                         p for p in vendor_dir.iterdir()
-                        if p.suffix == '.whl' and
-                        module_name.lower() in p.name.lower()
+                        if p.suffix == '.whl'
+                        and module_name.lower() in p.name.lower()
                     ]
                     if wheels:
                         # prefer the most recently modified wheel

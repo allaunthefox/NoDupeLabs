@@ -24,8 +24,8 @@ def choose_backend(model_hint: Optional[str] = None) -> BaseBackend:
                 model_path = Path(model_hint)
             else:
                 model_path = (
-                    Path(__file__).parent.parent.parent /
-                    "models" / "nsfw_small.onnx"
+                    Path(__file__).parent.parent.parent
+                    / "models" / "nsfw_small.onnx"
                 )
             be = ONNXBackend(model_path)
             if be.available():

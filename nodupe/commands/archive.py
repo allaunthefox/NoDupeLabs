@@ -4,6 +4,7 @@
 import sys
 from ..archiver import ArchiveHandler
 
+
 def cmd_archive_list(args, _cfg):
     try:
         h = ArchiveHandler(args.file)
@@ -14,6 +15,7 @@ def cmd_archive_list(args, _cfg):
     except (OSError, ValueError, RuntimeError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
+
 
 def cmd_archive_extract(args, _cfg):
     try:

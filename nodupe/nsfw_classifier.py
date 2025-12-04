@@ -143,8 +143,8 @@ class NSFWClassifier:
         # Previously ML only ran on image types. We now allow video/* as well
         # — backends will extract a representative frame if needed.
         if (
-            (mime.startswith('image/') or mime.startswith('video/')) and
-            self.backend is not None and self.backend.available()
+            (mime.startswith('image/') or mime.startswith('video/'))
+            and self.backend is not None and self.backend.available()
         ):
             try:
                 ml_score, ml_reason = self.backend.predict(path)

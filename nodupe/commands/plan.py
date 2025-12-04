@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from ..db import DB
 from ..planner import ensure_unique, write_plan_csv
 
+
 def cmd_plan(args, cfg):
     """Plan command."""
     db = DB(Path(cfg["db_path"]))
@@ -21,7 +22,7 @@ def cmd_plan(args, cfg):
             srcp = Path(src)
             dup_dir = srcp.parent / ".nodupe_duplicates"
             dst = ensure_unique(dup_dir / srcp.name)
-            
+
             rows.append({
                 "status": "planned",
                 "op": "move",
@@ -35,5 +36,8 @@ def cmd_plan(args, cfg):
             rbk += 1
 
     write_plan_csv(rows, Path(args.out))
-    print(f"[plan] duplicate_groups={len(dups)} planned_ops={len(rows)} -> {args.out}")
+    print(
+        f"[plan] duplicate_groups={len(dups)} planned_ops={len(rows)} -> "
+        f"{args.out}"
+    )
     return 0
