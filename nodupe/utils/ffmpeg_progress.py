@@ -83,16 +83,17 @@ def _parse_time_string(value: str) -> float | None:
     # HH:MM:SS[.xxx]
     parts = value.split(':')
     try:
-        parts = [float(p) for p in parts]
+        nums = [float(p) for p in parts]
         # Support s, m:s, h:m:s
-        if len(parts) == 1:
-            return parts[0]
-        if len(parts) == 2:
-            return parts[0] * 60.0 + parts[1]
-        if len(parts) == 3:
-            return parts[0] * 3600.0 + parts[1] * 60.0 + parts[2]
+        if len(nums) == 1:
+            return nums[0]
+        if len(nums) == 2:
+            return nums[0] * 60.0 + nums[1]
+        if len(nums) == 3:
+            return nums[0] * 3600.0 + nums[1] * 60.0 + nums[2]
     except Exception:
         return None
+    return None
 
 
 def _parse_ffmpeg_duration_from_cmd(cmd: list) -> float | None:

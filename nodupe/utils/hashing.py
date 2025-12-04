@@ -42,6 +42,7 @@ Example:
 
 import hashlib
 from pathlib import Path
+from typing import Any
 
 CHUNK = 1024 * 1024  # 1MB
 
@@ -122,6 +123,7 @@ def hash_file(p: Path, algo: str = "sha512") -> str:
         >>> hash_file(Path('/data/file.bin')) == h
         True
     """
+    h: Any
     if algo == "sha512":
         h = hashlib.sha512()
     elif algo == "sha256":
