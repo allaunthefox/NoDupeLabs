@@ -1,4 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
+
+"""CPU-based fallback backend.
+
+This backend provides basic heuristics for NSFW classification and
+embedding computation without requiring heavy dependencies like
+ONNX Runtime or PyTorch. It uses Pillow for basic image analysis
+if available, or file metadata as a last resort.
+
+Key Features:
+    - Zero heavy dependencies (optional Pillow)
+    - Heuristic-based classification (aspect ratio, resolution)
+    - Deterministic embedding generation from file stats
+
+Classes:
+    - CPUBackend: Implementation of BaseBackend
+"""
 from __future__ import annotations
 from pathlib import Path
 from typing import Tuple, List

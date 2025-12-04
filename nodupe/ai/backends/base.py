@@ -1,4 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
+
+"""Abstract base class for AI backends.
+
+Defines the interface that all AI backends must implement. This ensures
+consistency across different implementations (CPU, ONNX, etc.).
+
+Classes:
+    - BaseBackend: Abstract interface for prediction and embedding
+"""
 from __future__ import annotations
 from pathlib import Path
 from typing import Tuple, List

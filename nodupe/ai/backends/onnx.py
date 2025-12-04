@@ -1,4 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
+
+"""ONNX Runtime backend for AI inference.
+
+This backend uses ONNX Runtime to execute machine learning models for
+NSFW classification and embedding generation. It supports hardware
+acceleration (CUDA, ROCm, DirectML) if available.
+
+Key Features:
+    - High-performance inference via ONNX Runtime
+    - Hardware acceleration support
+    - Robust error handling and fallback logic
+    - Automatic input resizing and normalization
+
+Classes:
+    - ONNXBackend: Implementation of BaseBackend using ONNX Runtime
+"""
 from __future__ import annotations
 from pathlib import Path
 from typing import Optional, Tuple, List

@@ -1,4 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
+
+"""AI backend selection and initialization.
+
+This module manages the selection of AI backends for NSFW classification
+and embedding computation. It attempts to load the ONNX backend first,
+falling back to the CPU backend if ONNX Runtime is unavailable or the
+model file is missing.
+
+Key Features:
+    - Automatic backend selection (ONNX > CPU)
+    - Graceful degradation
+    - Diagnostic reporting for backend failures
+
+Functions:
+    - choose_backend: Factory function to get the best available backend
+"""
 from __future__ import annotations
 from pathlib import Path
 from typing import Optional

@@ -1,10 +1,18 @@
-"""Compatibility shim so tests and callers can import convert_videos from the
-package.
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
 
-This tries to import the top-level `convert_videos` module (keeps existing
-CLI/utility scripts working) and re-exports the `convert_video` helper so
-callers can import `nodupe.convert_videos.convert_video` reliably whether the
-package is installed or running from source.
+"""Video conversion compatibility shim.
+
+This module provides a compatibility layer for video conversion, allowing
+imports from `nodupe.convert_videos` to work regardless of whether the
+code is running from source or as an installed package. It re-exports
+functionality from the top-level script or provides a fallback implementation.
+
+Functions:
+    - convert_video: Convert video format using FFmpeg
+
+Dependencies:
+    - nodupe.utils.ffmpeg_progress: FFmpeg execution
 """
 from importlib import import_module
 from typing import Any

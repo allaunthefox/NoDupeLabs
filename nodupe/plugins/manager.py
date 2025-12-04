@@ -1,10 +1,37 @@
 # SPDX-License-Identifier: Apache-2.0
-from typing import Callable, Dict, List, Any
+# Copyright (c) 2025 Allaun
+
+"""Event-based plugin system.
+
+This module implements a lightweight plugin manager that allows extending
+application functionality through event hooks. Plugins can register callbacks
+for specific events (e.g., 'scan_start', 'file_processed') and are loaded
+dynamically from a specified directory.
+
+Key Features:
+    - Event-driven architecture (register/emit)
+    - Dynamic plugin loading from .py files
+    - Fault tolerance (plugin errors don't crash the app)
+    - Global singleton instance for easy access
+
+Classes:
+    - PluginManager: Core plugin management logic
+
+Attributes:
+    - pm: Global PluginManager instance
+"""
+
 import sys
+from typing import Callable, Dict, List, Any
 
 
 class PluginManager:
-    """Simple event-based plugin manager."""
+    """Simple event-based plugin manager.
+
+    Manages plugin lifecycle and event dispatching. Plugins are Python
+    scripts that are loaded at runtime and can register callbacks for
+    various application events.
+    """
 
     def __init__(self):
         self._hooks: Dict[str, List[Callable]] = {}
