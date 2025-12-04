@@ -3,7 +3,7 @@
 
 """NoDupeLabs command-line interface.
 
-This module provides the main entry point for the nodupe CLI application.
+This module provides the main entry point for the ``nodupe`` CLI.
 It orchestrates configuration loading, plugin management, dependency installation,
 and command dispatching.
 
