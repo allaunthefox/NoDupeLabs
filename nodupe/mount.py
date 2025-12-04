@@ -1,6 +1,31 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
+"""FUSE filesystem implementation for deduplicated content view.
+
+This module provides a read-only virtual filesystem that exposes the
+deduplicated file index. It organizes files by hash and algorithm,
+allowing users to browse the content-addressable storage directly.
+
+Key Features:
+    - Read-only access to all indexed files
+    - Virtual directory structure: /by-hash/<algo>/<hash>
+    - Virtual statistics file: /stats
+    - Efficient on-demand database queries
+    - Low memory footprint (streaming reads)
+
+Classes:
+    - NoDupeFS: FUSE operations implementation
+
+Dependencies:
+    - fuse: Python FUSE bindings (fusepy)
+    - ..db: Database access
+    - ..vendor.fuse: Vendored FUSE interface
+
+Example:
+    >>> mount_fs(Path("nodupe.db"), Path("/mnt/nodupe"))
+"""
+
 import os
 import sys
 import errno
@@ -13,14 +38,21 @@ from .vendor import fuse
 
 
 class NoDupeFS(fuse.Operations):
-    """
-    A read-only FUSE filesystem that presents a deduplicated view of the
-    scanned files.
+    """Read-only FUSE filesystem presenting a deduplicated view.
 
-    Structure:
-    /by-hash/<algo>/<hash>  -> Read-only view of the file content
-                               (using the first found path)
-    /stats                  -> Virtual file with DB statistics
+    Implements standard FUSE operations (getattr, readdir, open, read)
+    to expose the database contents as a virtual filesystem.
+
+    Virtual Structure:
+        /                       -> Root directory
+        /stats                  -> Text file with DB statistics
+        /by-hash/               -> Directory of hash algorithms
+        /by-hash/<algo>/        -> Directory of file hashes
+        /by-hash/<algo>/<hash>  -> File content (read-only)
+
+    Attributes:
+        db (DB): Database connection
+        logger (Logger): Logger instance
     """
 
     def __init__(self, db_path: Path):

@@ -1,14 +1,33 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
-"""
-NSFW classification using multiple heuristics.
-Lightweight, privacy-preserving, fully offline.
+"""NSFW content classification system.
 
-Three-tier detection system:
-1. Filename pattern matching (instant, zero-cost)
-2. Image metadata analysis (requires Pillow)
-3. Content analysis (reserved for future ML model)
+This module implements a multi-tier classification system to detect
+potentially NSFW (Not Safe For Work) content. It combines fast heuristics
+(filename patterns) with deeper analysis (metadata, ML models) to provide
+a confidence score for each file.
+
+Key Features:
+    - Tier 1: Filename/path regex matching (instant)
+    - Tier 2: Image metadata analysis (resolution, EXIF)
+    - Tier 3: Content analysis via ML backends (optional)
+    - Privacy-preserving: Fully offline, no data upload
+    - Configurable sensitivity threshold
+
+Classes:
+    - NSFWClassifier: Main classification engine
+
+Dependencies:
+    - re: Regex pattern matching
+    - PIL: Image metadata analysis (optional)
+    - ..ai.backends: ML model integration (optional)
+
+Example:
+    >>> classifier = NSFWClassifier(threshold=2)
+    >>> result = classifier.classify(Path("image.jpg"), "image/jpeg")
+    >>> if result['flagged']:
+    ...     print(f"NSFW detected: {result['reason']}")
 """
 
 import re
@@ -18,14 +37,22 @@ from .deps import check_dep
 
 
 class NSFWClassifier:
-    """
-    Multi-tier NSFW content detector.
+    """Multi-tier NSFW content detector.
 
-    Confidence scoring: 0=safe, 1=suspicious, 2=likely, 3=certain
+    Combines multiple analysis methods to produce a cumulative risk score
+    (0-3) for each file. Higher scores indicate higher likelihood of
+    NSFW content.
+
+    Confidence Levels:
+        0: Safe (no indicators found)
+        1: Suspicious (weak indicators, e.g., 'beach', 'model')
+        2: Likely (strong indicators, e.g., 'onlyfans', specific sites)
+        3: Certain (explicit keywords)
 
     Attributes:
-        threshold: Minimum score to flag as NSFW (0-3)
-        has_pillow: Whether Pillow is available for image analysis
+        threshold (int): Minimum score to flag as NSFW (0-3)
+        has_pillow (bool): Whether Pillow is available for image analysis
+        backend (Backend): Optional ML backend for content analysis
     """
 
     # Filename patterns with confidence weights

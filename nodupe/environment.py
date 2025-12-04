@@ -1,9 +1,31 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
-"""
-Environment detection and automatic configuration tuning.
-Optimizes settings for Desktop, NAS, Cloud, and Container deployments.
+"""Environment detection and automatic configuration tuning.
+
+This module analyzes the runtime environment to optimize configuration
+settings for different deployment scenarios (Desktop, NAS, Cloud, Container).
+It adjusts parameters like parallelism, buffer sizes, and batch limits
+based on available system resources.
+
+Key Features:
+    - Detect environment type (desktop, nas, cloud, container)
+    - Analyze system resources (CPU, RAM, Disk Type)
+    - Provide optimized defaults for performance tuning
+    - Apply optimizations to configuration dictionary
+
+Classes:
+    - Environment: Main detection and optimization logic
+
+Dependencies:
+    - os, platform: System information
+    - psutil: Advanced resource metrics (optional)
+    - .deps: Dependency checking
+
+Example:
+    >>> env = Environment()
+    >>> print(f"Detected: {env.type}")
+    >>> cfg = env.apply_to_config(base_config)
 """
 
 import os

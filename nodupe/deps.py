@@ -1,9 +1,32 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
-"""
-Automatic dependency installation with graceful degradation.
-Attempts pip install, falls back to reduced functionality if unavailable.
+"""Automatic dependency management and graceful degradation.
+
+This module handles optional dependencies for the NoDupe application.
+It provides mechanisms to check for available packages, attempt automatic
+installation via pip (including vendored wheels), and report feature
+availability status.
+
+Key Features:
+    - Auto-detection of optional libraries (pandas, cudf, pillow, etc.)
+    - Automatic installation with fallback to vendored wheels
+    - Graceful degradation when dependencies are missing
+    - Unified interface for checking and installing requirements
+
+Classes:
+    - DependencyManager: Core logic for dependency handling
+
+Functions:
+    - init_deps: Initialize the global dependency manager
+    - check_dep: Check/install a specific dependency
+    - get_dep_summary: Get status of all checked dependencies
+
+Example:
+    >>> if check_dep("tqdm"):
+    ...     from tqdm import tqdm
+    ... else:
+    ...     tqdm = lambda x: x  # Fallback
 """
 
 import subprocess
