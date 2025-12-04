@@ -4,8 +4,8 @@
 """NoDupeLabs command-line interface.
 
 This module provides the main entry point for the ``nodupe`` CLI.
-It orchestrates configuration loading, plugin management, dependency installation,
-and command dispatching.
+It orchestrates configuration loading, plugin management, dependency
+installation, and command dispatching.
 
 Key Features:
     - Automatic dependency installation and graceful degradation
@@ -50,7 +50,7 @@ if _VENDOR_LIBS.exists():
 from .bootstrap import lint_tree  # noqa: E402
 from .deps import init_deps  # noqa: E402
 from .config import load_config, get_available_presets  # noqa: E402
-from .plugins import pm  # noqa: E402
+from .plugins import pm  # noqa: E402  # type: ignore[attr-defined]
 
 # Import commands
 from .commands.init import cmd_init  # noqa: E402

@@ -73,9 +73,9 @@ except ImportError:
             return json.dumps(
                 obj, sort_keys=sort_keys, ensure_ascii=False, indent=2
             )
-    yaml = _YAMLShim()
+    yaml = _YAMLShim()  # type: ignore[assignment]
 
-DEFAULTS = {
+DEFAULTS: Dict[str, Any] = {
     "hash_algo": "sha512",
     "dedup_strategy": "content_hash",
     "parallelism": 0,  # 0 = auto-detect

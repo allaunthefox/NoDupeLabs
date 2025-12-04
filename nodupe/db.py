@@ -183,7 +183,8 @@ class DB:
 
         Args:
             records: Iterable of tuples matching the table columns:
-                (path, size, mtime, file_hash, mime, context_tag, hash_algo, permissions)
+                (path, size, mtime, file_hash, mime, context_tag,
+                hash_algo, permissions)
 
         Returns:
             None
@@ -240,7 +241,8 @@ class DB:
         """Yield file metadata rows as a DB cursor iterator.
 
         Yields rows in the same order as the SELECT statement. Each row
-        contains (path, size, mtime, file_hash, mime, context_tag, hash_algo, permissions).
+        contains (path, size, mtime, file_hash, mime, context_tag,
+        hash_algo, permissions).
         """
         return self.conn.execute(
             "SELECT path, size, mtime, file_hash, mime, "
@@ -248,7 +250,7 @@ class DB:
         )
 
     def get_known_files(self):
-        """Yield (path, size, mtime, file_hash) tuples used by incremental scans.
+        """Yield (path, size, mtime, file_hash) for incremental scans.
 
         This generator is usually loaded into memory by the scanner to
         build a lightweight known-files mapping to avoid re-hashing

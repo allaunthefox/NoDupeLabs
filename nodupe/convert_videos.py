@@ -21,7 +21,7 @@ try:
     # prefer the top-level script if present
     _cv = import_module("convert_videos")
 except Exception:  # pragma: no cover - best-effort shim
-    _cv = None
+    _cv = None  # type: ignore[assignment]
 
 
 def convert_video(input_path: Any, output_path: Any) -> None:
