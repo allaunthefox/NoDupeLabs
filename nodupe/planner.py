@@ -34,10 +34,14 @@ Dependencies:
 Example:
     >>> from pathlib import Path
     >>> rows = [
-    ...     {'src_path': '/data/dup1.jpg', 'dst_path': '/data/.nodupe_duplicates/dup1.jpg',
-    ...      'op': 'move', 'reason': 'duplicate', 'file_hash': 'abc123', 'size': 1024},
-    ...     {'src_path': '/data/original.jpg', 'dst_path': '/data/original.jpg',
-    ...      'op': 'keep', 'reason': 'first_occurrence', 'file_hash': 'abc123', 'size': 1024}
+    ...     {'src_path': '/data/dup1.jpg',
+    ...      'dst_path': '/data/.nodupe_duplicates/dup1.jpg',
+    ...      'op': 'move', 'reason': 'duplicate',
+    ...      'file_hash': 'abc123', 'size': 1024},
+    ...     {'src_path': '/data/original.jpg',
+    ...      'dst_path': '/data/original.jpg',
+    ...      'op': 'keep', 'reason': 'first_occurrence',
+    ...      'file_hash': 'abc123', 'size': 1024}
     ... ]
     >>> write_plan_csv(rows, Path('plan.csv'))
 """

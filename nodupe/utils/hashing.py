@@ -118,7 +118,8 @@ def hash_file(p: Path, algo: str = "sha512") -> str:
         >>> # Hash with faster BLAKE2b
         >>> h2 = hash_file(Path('/data/photo.jpg'), 'blake2b')
         >>> # Both produce consistent results
-        >>> hash_file(Path('/data/file.bin')) == hash_file(Path('/data/file.bin'))
+        >>> h = hash_file(Path('/data/file.bin'))
+        >>> hash_file(Path('/data/file.bin')) == h
         True
     """
     if algo == "sha512":

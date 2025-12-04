@@ -122,7 +122,8 @@ def _parse_ffmpeg_duration_from_cmd(cmd: list) -> float | None:
         >>> cmd = ['ffmpeg', '-i', 'in.mp4', '-t', '10', 'out.mp4']
         >>> _parse_ffmpeg_duration_from_cmd(cmd)
         10.0
-        >>> cmd = ['ffmpeg', '-ss', '5', '-to', '15', '-i', 'in.mp4', 'out.mp4']
+        >>> cmd = ['ffmpeg', '-ss', '5', '-to', '15', '-i', 'in.mp4',
+        ...        'out.mp4']
         >>> _parse_ffmpeg_duration_from_cmd(cmd)
         10.0
     """

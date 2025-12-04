@@ -196,7 +196,8 @@ def threaded_hash(
 
     Returns:
         If collect is False, returns a generator of result tuples.
-        If collect is True, returns (results_list, duration_seconds, total_count).
+        If collect is True, returns (results_list, duration_seconds,
+        total_count).
     """
     # Use a bounded set of futures to prevent loading all files into memory
     MAX_PENDING = workers * 4
