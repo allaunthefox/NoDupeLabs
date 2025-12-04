@@ -98,6 +98,7 @@ def save_index_to_file(index_obj: Any, path: str) -> None:
 
 
 def load_index_from_file(path: str):
+    """Load a similarity index from disk."""
     p = Path(path)
     ext = p.suffix.lower()
     if ext in ('.index', '.faiss'):

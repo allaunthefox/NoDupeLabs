@@ -74,6 +74,7 @@ __version__ = "0.1.0"
 
 
 def main(argv=None):
+    """Entry point for the nodupe CLI."""
     # Initialize dependency auto-installer
     init_deps(auto_install=True, silent=False)
 
