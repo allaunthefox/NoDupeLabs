@@ -4,7 +4,7 @@ Welcome! This guide is written for someone who has never used this program befor
 
 ## 1. Prerequisites (What you need)
 
-Before you start, you need a computer (Linux, macOS, or Windows) with a terminal (command prompt) and **Python 3.8 or newer** installed.
+Before you start, you need a computer (Linux, macOS, or Windows) with a terminal (command prompt) and **Python 3.9 or newer** installed.
 
 ### How to check if you have Python:
 1.  Open your terminal (Terminal on macOS/Linux, PowerShell or Command Prompt on Windows).
@@ -46,7 +46,7 @@ The first step is to let NoDupeLabs look at your files. It will create a "finger
 
 1.  Run the scan command:
     ```bash
-    python3 -m nodupe.cli scan --root /path/to/MyPhotos
+    nodupe scan --root /path/to/MyPhotos
     ```
     *(Replace `/path/to/MyPhotos` with the actual location of your folder).*
 
@@ -63,7 +63,7 @@ Now that the program knows about your files, ask it to find the duplicates.
 
 1.  Run the plan command:
     ```bash
-    python3 -m nodupe.cli plan --out my_cleanup_plan.csv
+    nodupe plan --out my_cleanup_plan.csv
     ```
 
 2.  **Review the Plan**:
@@ -82,7 +82,7 @@ If you are happy with the plan, you can tell NoDupeLabs to execute it.
 
 1.  Run the apply command:
     ```bash
-    python3 -m nodupe.cli apply --plan my_cleanup_plan.csv
+    nodupe apply --plan my_cleanup_plan.csv
     ```
 
 2.  **What happens?**
@@ -101,7 +101,7 @@ If you realize you made a mistake or the program moved a file you wanted to keep
 
 2.  Run the rollback command:
     ```bash
-    python3 -m nodupe.cli rollback --checkpoint output/checkpoints/checkpoint_20251202_120000.json
+    nodupe rollback --checkpoint output/checkpoints/checkpoint_20251202_120000.json
     ```
     *(Replace the filename with the one you found).*
 
@@ -117,4 +117,4 @@ If you realize you made a mistake or the program moved a file you wanted to keep
 ---
 
 **Need Help?**
-If you get stuck, try running `python3 -m nodupe.cli --help` to see a list of available commands.
+If you get stuck, try running `nodupe --help` to see a list of available commands.

@@ -10,7 +10,6 @@ This document explains the optional ONNX-based ML backend and CPU fallback we ad
 ## How it works
 - `nodupe/ai/backends.py` exposes `choose_backend()` which attempts to instantiate an `ONNXBackend` (if `onnxruntime` is installed and a model file exists).
 - If ONNX Runtime or the model is missing, a `CPUBackend` is returned — this is pure-Python and works in restricted environments.
- - If ONNX Runtime or the model is missing, a `CPUBackend` is returned — this is pure-Python and works in restricted environments.
 - The `NSFWClassifier` now calls the chosen backend on image files as a TIER-3 analysis step; any errors in the backend are ignored and do not break scans.
 
 ## Configuration
@@ -34,16 +33,17 @@ Compatibility & vendoring
 - For reproducible or offline deployments you can vendor an `onnxruntime` wheel into `nodupe/vendor/libs` and the project will attempt to use that vendored wheel for installs (the dependency manager will prefer vendored wheels).
 
 - There's a helper script in `scripts/vendor_onnxruntime_wheel.py` that copies a wheel from a local cache (or downloads it) into `nodupe/vendor/libs`.
- - There's a helper script in `scripts/vendor_onnxruntime_wheel.py` that copies a wheel from a local cache (or downloads it) into `nodupe/vendor/libs`.
- - After vendoring a wheel you can install it into your environment using the new helper `scripts/install_vendored_wheels.py` or directly with pip:
+
+- After vendoring a wheel you can install it into your environment using the new helper `scripts/install_vendored_wheels.py` or directly with pip:
 
 ```bash
 # install vendored onnxruntime from repo without hitting PyPI
 python scripts/install_vendored_wheels.py --pattern onnxruntime
 # or
 python -m pip install --no-index --find-links nodupe/vendor/libs onnxruntime
-If you'd like to automagically try a newer PyPI ORT build first and fall back
-to the vendored copy on failure, use the helper script `scripts/upgrade_or_fallback_onnxruntime.py`.
+```
+
+If you'd like to automagically try a newer PyPI ORT build first and fall back to the vendored copy on failure, use the helper script `scripts/upgrade_or_fallback_onnxruntime.py`.
 
 Example:
 
@@ -54,12 +54,13 @@ python scripts/upgrade_or_fallback_onnxruntime.py --model nodupe/models/nsfw_sma
 # Force an attempt even if local version is up-to-date
 python scripts/upgrade_or_fallback_onnxruntime.py --force
 ```
-```
 
 ## Testing
+
 - Unit tests that exercise the AI backend and NSFW integration were added in `tests/test_ai_backend.py` and `tests/test_nsfw_integration.py`.
 - CI runs on CPU-only environments and will exercise the CPU fallback path.
 
 ## Next steps (optional)
+
 - Add a small onnx model as a separate release artifact or vendor a tiny demo under `nodupe/models/` (watch repo size).
 - Optionally add FAISS for similarity search after you generate embeddings with the chosen ML backend.

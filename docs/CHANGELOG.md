@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2025-12-03 — Documentation Updates & Repository Cleanup
+
+- docs: Updated all documentation to use the `nodupe` command instead of `python -m nodupe.cli`
+- docs: Fixed Python version requirement (3.9+) across all documentation
+- docs: Fixed duplicate lines and markdown formatting issues in AI_BACKEND.md
+- repo: Removed e621_downloader submodule from repository
+
 ## 2025-12-03 — ci/fix-mypy-and-validate-job (merged via PR #2)
 
 - scanner: threaded_hash now emits ETA/STALL messages when worker queues stall and supports a hard

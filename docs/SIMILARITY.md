@@ -13,12 +13,12 @@ Provided backends
 Using the system
 - Build an index from the DB:
   ```bash
-  python -m nodupe.cli similarity build --dim 16
+  nodupe similarity build --dim 16
   ```
 
 - Query the in-memory index for near-duplicates of a file:
   ```bash
-  python -m nodupe.cli similarity query /path/to/image.jpg --dim 16 -k 5
+  nodupe similarity query /path/to/image.jpg --dim 16 -k 5
   ```
 
 Adding a new backend
