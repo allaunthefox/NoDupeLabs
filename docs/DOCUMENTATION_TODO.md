@@ -12,36 +12,44 @@ work based on module criticality and usage frequency.
 ## Progress Summary
 
 - **Total modules reviewed**: 50+
-- **Modules fully documented**: 6 (cli.py, config.py, scanner.py, db.py, applier.py, archiver.py)
+- **Modules fully documented**: 11 (cli.py, config.py, scanner.py, db.py, applier.py, archiver.py, planner.py, rollback.py, exporter.py, categorizer.py, validator.py)
 - **External docs updated**: 5 (BEGINNERS_GUIDE.md, SIMILARITY.md, AI_BACKEND.md, CHANGELOG.md, docs/CHANGELOG.md entry)
 - **Repository releases**: v0.1.1 created and published (includes full changelog as release notes)
-- **Modules remaining**: ~44
-- **Completion**: ~12% (Priority 1 critical infrastructure completed)
+- **Modules remaining**: ~39
+- **Completion**: ~22% (Priority 1 & Priority 2 completed)
 - **Last updated**: 2025-12-03
 
 ## Recent work & status (summary)
 
-- Documentation: Completed module-level and function docstrings for `nodupe/scanner.py` and
-  `nodupe/db.py` (Phase 1) with notes and follow-ups in-place. Examples and longer how-to
-  snippets remain as follow-up work.
-- Changelog & release: Updated `docs/CHANGELOG.md` with detailed entries covering the recent
-  CI and documentation efforts, then created and published a release tag `v0.1.1` with the
-  full changelog as the release body.
-- CI & vendoring hardening: Disabled submodule handling in CI checkout and set `fetch-depth: 0`.
-  Added/updated vendoring helpers and a `validate-vendored-install` CI job that performs offline
-  installs of vendored wheels and smoke-import checks; this protects CI from network-dependent
-  failures and removed-history artifacts (e.g. previously-removed submodules).
-- Scanner & tests: Implemented ETA / STALL progress messaging, a hard `max_idle_time` to prevent
-  scanner hangs, and added unit tests exercising timing and progress behavior. Adjusted tests to
-  import repo source reliably (PYTHONPATH usage) and made helpers easier to monkeypatch where needed.
-- Lint fixes: Resolved a flake8 E501 docstring-length violation introduced during documentation
-  work by wrapping the offending `nodupe/cli.py` docstring to satisfy line-length checks.
+- **Priority 1 & Priority 2 Documentation (COMPLETED 2025-12-03)**:
+  - ✅ **Priority 1 (Critical Infrastructure)**: cli.py, config.py, scanner.py, db.py,
+    applier.py, archiver.py - All modules fully documented with comprehensive module
+    docstrings and function/method docstrings including Args/Returns/Raises/Example
+    sections.
+  - ✅ **Priority 2 (Core Functionality)**: planner.py, rollback.py, exporter.py,
+    categorizer.py, validator.py - All modules fully documented following the same
+    comprehensive standards.
+  - 11 of 50+ modules now have complete documentation (22% completion)
+  - All docstrings follow PEP 8 line length limits and include usage examples
 
-If you'd like, I can now:
+- **Changelog & release**: Updated `docs/CHANGELOG.md` with detailed entries covering
+  CI and documentation efforts, then created and published release tag `v0.1.1` with
+  the full changelog as release body.
 
-- Start Phase 2 documentation (priority: `nodupe/applier.py`, `nodupe/archiver.py`).
-- Continue adding usage examples and migration notes to the `nodupe/db.py` docs.
-- Review CI runs and address any remaining failing jobs.
+- **CI & vendoring hardening**: Disabled submodule handling in CI checkout and set
+  `fetch-depth: 0`. Added/updated vendoring helpers and a `validate-vendored-install`
+  CI job that performs offline installs of vendored wheels and smoke-import checks.
+
+- **Scanner & tests**: Implemented ETA / STALL progress messaging, hard `max_idle_time`
+  to prevent scanner hangs, and added unit tests exercising timing and progress behavior.
+
+- **Lint fixes**: Resolved flake8 E501 violations by wrapping long docstring lines.
+
+Next steps:
+
+- Priority 3: Utilities (4 modules: hashing, filesystem, media, ffmpeg_progress)
+- Priority 4: Commands (9 command modules)
+- Priority 5: Supporting modules (10+ modules)
 
 ## Priority 1: Critical Infrastructure (IMMEDIATE)
 
@@ -154,18 +162,12 @@ These modules implement primary user-facing features.
 
 **File**: `nodupe/planner.py`
 
-**Status**: ❌ No module docstring, no function docstrings
+**Status**: ✅ Module and function docstrings added
 
-**Required Documentation**:
-- Module docstring explaining:
-  - Deduplication strategy (keep first, move rest)
-  - CSV plan format
-  - Conflict resolution for filename collisions
-- Function docstrings:
-  - `ensure_unique()` - Filename collision handling
-  - `write_plan_csv()` - CSV generation with columns specification
-
-**Estimated Effort**: 1 hour
+**Notes**: Module docstring added covering deduplication strategy,
+CSV plan format, and conflict resolution. Complete function docstrings
+added for `ensure_unique()` and `write_plan_csv()` with Args/Returns/
+Example sections. Completed 2025-12-03.
 
 ---
 
@@ -173,17 +175,12 @@ These modules implement primary user-facing features.
 
 **File**: `nodupe/rollback.py`
 
-**Status**: ❌ No module docstring, no function docstrings
+**Status**: ✅ Module and function docstrings added
 
-**Required Documentation**:
-- Module docstring explaining:
-  - Rollback safety requirements
-  - Checkpoint validation
-  - Destination availability checks
-- Function docstrings:
-  - `rollback_from_checkpoint()` - Full Args/Returns/Raises documentation
-
-**Estimated Effort**: 1 hour
+**Notes**: Module docstring added explaining LIFO rollback strategy,
+safety requirements, and validation steps. Complete function docstring
+added for `rollback_from_checkpoint()` with Args/Returns/Example
+sections. Completed 2025-12-03.
 
 ---
 
@@ -191,18 +188,13 @@ These modules implement primary user-facing features.
 
 **File**: `nodupe/exporter.py`
 
-**Status**: ❌ No module docstring, incomplete function docstrings
+**Status**: ✅ Module and function docstrings added
 
-**Required Documentation**:
-- Module docstring explaining:
-  - `nodupe_meta_v1` schema compliance
-  - Idempotent writes (skip unchanged meta.json)
-  - Read-only filesystem detection
-- Function docstrings:
-  - `_iso_now()` - ISO 8601 timestamp generation
-  - `write_folder_meta()` - Full parameter documentation
-
-**Estimated Effort**: 1 hour
+**Notes**: Module docstring added covering nodupe_meta_v1 schema,
+idempotent write behavior, safety features (read-only detection,
+atomic writes, disk full handling). Complete function docstrings
+added for `_iso_now()` and `write_folder_meta()` with Args/Returns/
+Raises/Example sections. Completed 2025-12-03.
 
 ---
 
@@ -210,17 +202,13 @@ These modules implement primary user-facing features.
 
 **File**: `nodupe/categorizer.py`
 
-**Status**: ❌ No module docstring, no function docstrings
+**Status**: ✅ Module and function docstrings added
 
-**Required Documentation**:
-- Module docstring explaining:
-  - Category taxonomy (image, video, text, archive, etc.)
-  - MIME type to category mapping
-  - Subtype and topic inference
-- Function docstrings:
-  - `categorize_file()` - Full parameter and return value documentation
-
-**Estimated Effort**: 45 minutes
+**Notes**: Module docstring added explaining category taxonomy
+(image, video, text, archive, other), MIME type mapping, and topic
+inference. Complete function docstring added for `categorize_file()`
+with Args/Returns/Example sections covering all supported categories.
+Completed 2025-12-03.
 
 ---
 
@@ -228,18 +216,13 @@ These modules implement primary user-facing features.
 
 **File**: `nodupe/validator.py`
 
-**Status**: ❌ No module docstring, incomplete function docstrings
+**Status**: ✅ Module and function docstrings added
 
-**Required Documentation**:
-- Module docstring explaining:
-  - JSON Schema validation integration
-  - Fallback validation when jsonschema unavailable
-  - `nodupe_meta_v1` spec enforcement
-- Function docstrings:
-  - `get_schema()` - Schema retrieval
-  - `validate_meta_dict()` - Complete Args/Raises documentation
-
-**Estimated Effort**: 1 hour
+**Notes**: Module docstring added covering JSON Schema validation,
+fallback structural checks, and validation strategy. Complete function
+docstrings added for `get_schema()` and `validate_meta_dict()` with
+Args/Returns/Raises/Example sections. Includes documentation of
+two-phase validation approach. Completed 2025-12-03.
 
 ---
 

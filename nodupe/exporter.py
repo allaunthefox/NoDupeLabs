@@ -1,6 +1,50 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
+"""Metadata manifest generation for scanned directories.
+
+This module generates `nodupe_meta_v1` compliant meta.json files for
+each scanned directory. These manifests provide self-describing metadata
+that remains readable even without the original software.
+
+Key Features:
+    - nodupe_meta_v1 schema compliance
+    - Idempotent writes (skip if metadata unchanged)
+    - Read-only filesystem detection
+    - Disk full protection with atomic writes
+    - Automatic categorization and keyword extraction
+    - Topic inference from filenames
+
+Manifest Contents:
+    - spec: Schema version (nodupe_meta_v1)
+    - generated_at: ISO 8601 timestamp
+    - summary: Aggregate statistics (file count, bytes, categories, topics)
+    - entries: Per-file metadata (name, size, hash, MIME, category)
+
+Safety Features:
+    - Read-only directory/file detection
+    - Atomic write via temp file + replace
+    - Disk full error handling (ENOSPC)
+    - Validation before write
+    - Idempotent updates (preserves mtime when no changes)
+
+Dependencies:
+    - json: Manifest serialization
+    - collections.Counter: Category aggregation
+    - datetime: Timestamp generation
+    - categorizer: File classification
+    - validator: Schema validation
+
+Example:
+    >>> from pathlib import Path
+    >>> records = [
+    ...     {'name': 'photo.jpg', 'size': 1024, 'mtime': 1234567890,
+    ...      'file_hash': 'abc123', 'mime': 'image/jpeg'}
+    ... ]
+    >>> write_folder_meta(Path('/data'), records, Path('/data'))
+    # Creates /data/meta.json if changed
+"""
+
 import os
 import json
 from pathlib import Path
@@ -12,6 +56,20 @@ from .validator import validate_meta_dict
 
 
 def _iso_now():
+    """Generate ISO 8601 timestamp with UTC timezone.
+
+    Returns current UTC time formatted as ISO 8601 with 'Z' suffix
+    (e.g., '2025-12-03T14:30:00Z'). Microseconds are truncated for
+    consistency.
+
+    Returns:
+        ISO 8601 timestamp string with Z suffix
+
+    Example:
+        >>> timestamp = _iso_now()
+        >>> print(timestamp)
+        '2025-12-03T14:30:00Z'
+    """
     return datetime.now(timezone.utc).replace(
         microsecond=0
     ).isoformat().replace("+00:00", "Z")
@@ -21,9 +79,49 @@ def write_folder_meta(
     folder_path: Path, file_records: List[Dict[str, Any]],
     root_path: Path, pretty: bool = False, silent: bool = True
 ):
-    """
-    Write nodupe_meta_v1 meta.json for a folder.
-    Includes read-only checks, disk full checks, and skip-if-identical logic.
+    """Write nodupe_meta_v1 manifest to folder.
+
+    Generates a self-describing meta.json file containing file hashes,
+    categories, topics, and keywords. Implements idempotent writes
+    (skips update if content unchanged) and atomic write-replace
+    pattern for safety.
+
+    Args:
+        folder_path: Directory where meta.json will be written
+        file_records: List of file metadata dicts with keys:
+            - name: Filename
+            - size: File size in bytes
+            - mtime: Modification timestamp (Unix epoch)
+            - file_hash: Content hash (sha512 by default)
+            - hash_algo: Hash algorithm used (optional, default: sha512)
+            - mime: MIME type
+            - context_tag: Optional context tag
+            - permissions: Optional permissions string
+        root_path: Root scan directory for relative path calculation
+        pretty: If True, format JSON with indentation (default: False)
+        silent: If True, suppress validation error messages
+            (default: True)
+
+    Returns:
+        None
+
+    Raises:
+        PermissionError: If directory or existing meta.json is read-only
+        OSError: If disk full (ENOSPC) during write
+
+    Side Effects:
+        - Creates meta.json in folder_path
+        - Creates meta.invalid.json if validation fails
+        - Skips write if content unchanged (idempotent)
+
+    Example:
+        >>> from pathlib import Path
+        >>> records = [
+        ...     {'name': 'photo.jpg', 'size': 1024, 'mtime': 1234567890,
+        ...      'file_hash': 'abc123', 'mime': 'image/jpeg'}
+        ... ]
+        >>> write_folder_meta(Path('/data'), records, Path('/data'))
+        # Creates /data/meta.json if changed
     """
     # Check directory permissions
     if not os.access(folder_path, os.W_OK):
