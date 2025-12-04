@@ -157,9 +157,9 @@ class Environment:
                 dev_name = dev_path.name
 
                 # Only check physical drives (sd*, nvme*, vd*)
-                if not (dev_name.startswith('sd') or
-                        dev_name.startswith('nvme') or
-                        dev_name.startswith('vd')):
+                if not (dev_name.startswith('sd')
+                        or dev_name.startswith('nvme')
+                        or dev_name.startswith('vd')):
                     continue
 
                 rotational_file = dev_path / 'queue' / 'rotational'

@@ -5,6 +5,7 @@ from pathlib import Path
 import csv
 from typing import Dict, Iterable
 
+
 def ensure_unique(p: Path) -> Path:
     p = Path(p)
     if not p.exists():
@@ -18,6 +19,7 @@ def ensure_unique(p: Path) -> Path:
         if not cand.exists():
             return cand
         i += 1
+
 
 def write_plan_csv(rows: Iterable[Dict], out_path: Path) -> None:
     rows = list(rows)

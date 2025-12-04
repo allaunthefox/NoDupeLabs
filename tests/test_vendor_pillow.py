@@ -1,6 +1,6 @@
 import importlib.util
-import nodupe
-from nodupe.deps import check_dep
+from nodupe.deps import check_dep  # noqa: F401
+
 
 def test_vendor_pillow_discovered():
     # importing nodupe should add vendor libs to sys.path
@@ -8,6 +8,7 @@ def test_vendor_pillow_discovered():
     assert importlib.util.find_spec('PIL') is not None
     # check_dep should return True because vendor 'pillow' exists
     assert check_dep('pillow') is True
+
 
 def test_image_api_available():
     from PIL import Image as PILImageModule

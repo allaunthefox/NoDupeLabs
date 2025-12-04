@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from datetime import datetime, timezone
 
+
 class JsonlLogger:
     def __init__(self, log_dir: Path, rotate_mb: int = 10, keep: int = 7):
         self.log_dir = Path(log_dir)

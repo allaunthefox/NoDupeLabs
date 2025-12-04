@@ -22,7 +22,9 @@ except ImportError:
 
         @staticmethod
         def safe_dump(obj: Any, sort_keys: bool = False) -> str:
-            return json.dumps(obj, sort_keys=sort_keys, ensure_ascii=False, indent=2)
+            return json.dumps(
+                obj, sort_keys=sort_keys, ensure_ascii=False, indent=2
+            )
     yaml = _YAMLShim()
 
 DEFAULTS = {
@@ -33,9 +35,16 @@ DEFAULTS = {
     "dry_run": True,
     "overwrite": False,
     "checkpoint": True,
-    "ignore_patterns": [".git", "node_modules", "__pycache__", ".nodupe_duplicates", ".venv", "venv"],
+    "ignore_patterns": [
+        ".git", "node_modules", "__pycache__", ".nodupe_duplicates", ".venv",
+        "venv"
+    ],
     "nsfw": {"enabled": False, "threshold": 2, "auto_quarantine": False},
-    "ai": {"enabled": "auto", "backend": "onnxruntime", "model_path": "models/nsfw_small.onnx"},
+    "ai": {
+        "enabled": "auto",
+        "backend": "onnxruntime",
+        "model_path": "models/nsfw_small.onnx"
+    },
     "similarity": {"dim": 16},
     "logging": {"rotate_mb": 10, "keep": 7, "level": "INFO"},
     "db_path": "output/index.db",
@@ -63,7 +72,9 @@ PRESETS = {
         "dry_run": True,
         "checkpoint": True,
         "meta_validate_schema": True,
-        "nsfw": {**DEFAULTS["nsfw"], "enabled": True, "auto_quarantine": False},
+        "nsfw": {
+            **DEFAULTS["nsfw"], "enabled": True, "auto_quarantine": False
+        },
     },
     "media": {
         **DEFAULTS,
@@ -85,7 +96,9 @@ PRESETS = {
         "ai": {**DEFAULTS["ai"], "enabled": False},
         "nsfw": {**DEFAULTS["nsfw"], "enabled": False},
         "meta_pretty": True,
-        "ignore_patterns": DEFAULTS["ignore_patterns"] + [".DS_Store", "Thumbs.db"],
+        "ignore_patterns": DEFAULTS["ignore_patterns"] + [
+            ".DS_Store", "Thumbs.db"
+        ],
     },
     "archives": {
         **DEFAULTS,
@@ -96,19 +109,23 @@ PRESETS = {
     }
 }
 
+
 def ensure_config(path: str = "nodupe.yml", preset: str = "default") -> None:
     """Create default configuration file if it doesn't exist."""
     p = Path(path)
     if not p.exists():
         cfg = PRESETS.get(preset, DEFAULTS)
         p.write_text(
-            f"# Auto-generated config using '{preset}' preset. Edit as needed.\n"
+            f"# Auto-generated config using '{preset}' preset. "
+            f"Edit as needed.\n"
             + yaml.safe_dump(cfg, sort_keys=False),
             encoding="utf-8",
         )
 
+
 def get_available_presets():
     return list(PRESETS.keys())
+
 
 def load_config(path: str = "nodupe.yml") -> Dict[str, Any]:
     """Load configuration."""

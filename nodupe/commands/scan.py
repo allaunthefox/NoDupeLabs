@@ -157,9 +157,11 @@ def cmd_scan(args, cfg):
                     # For now, we'll do the SELECT. SQLite is fast.
                     existing = db.get_embedding(p)
                     # Check if we need to compute (mtime or dim mismatch)
-                    if not (existing and
-                            existing.get("mtime") == int(mtime) and
-                            existing.get("dim") == sim_dim):
+                    if not (
+                        existing
+                        and existing.get("mtime") == int(mtime)
+                        and existing.get("dim") == sim_dim
+                    ):
                         try:
                             vec = be.compute_embedding(Path(p), dim=sim_dim)
                             embeddings_batch.append(

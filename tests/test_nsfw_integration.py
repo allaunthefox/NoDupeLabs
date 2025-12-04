@@ -1,5 +1,6 @@
 from pathlib import Path
-from nodupe.nsfw_classifier import NSFWClassifier  # type: ignore # pylint: disable=import-error
+# type: ignore # pylint: disable=import-error
+from nodupe.nsfw_classifier import NSFWClassifier
 
 
 def test_nsfw_classify_basic():
@@ -7,7 +8,8 @@ def test_nsfw_classify_basic():
     p = Path(__file__)
     res = c.classify(p, 'text/plain')
     assert isinstance(res, dict)
-    assert set(['score', 'flagged', 'method', 'reason', 'threshold']).issubset(res.keys())
+    assert set(['score', 'flagged', 'method', 'reason',
+               'threshold']).issubset(res.keys())
     assert isinstance(res['score'], int)
     assert isinstance(res['flagged'], bool)
     assert isinstance(res['threshold'], int)

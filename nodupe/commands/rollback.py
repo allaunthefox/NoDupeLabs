@@ -4,6 +4,7 @@
 from pathlib import Path
 from ..rollback import rollback_from_checkpoint
 
+
 def cmd_rollback(args, _cfg):
     res = rollback_from_checkpoint(Path(args.checkpoint))
     print(f"[rollback] {res}")

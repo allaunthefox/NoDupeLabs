@@ -6,7 +6,9 @@ def test_vendor_manifest_present_and_valid():
     root = Path(__file__).resolve().parents[1]
     vendor = root / 'nodupe' / 'vendor' / 'libs'
     mf = vendor / 'vendor_manifest.json'
-    assert mf.exists(), 'vendor_manifest.json should exist in nodupe/vendor/libs'
+    assert mf.exists(), (
+        'vendor_manifest.json should exist in nodupe/vendor/libs'
+    )
 
     data = json.loads(mf.read_text(encoding='utf-8'))
     assert 'packages' in data and isinstance(data['packages'], list)

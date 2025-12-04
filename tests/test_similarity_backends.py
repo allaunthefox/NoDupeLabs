@@ -1,4 +1,5 @@
-from nodupe.similarity import make_index  # type: ignore # pylint: disable=import-error
+# type: ignore # pylint: disable=import-error
+from nodupe.similarity import make_index
 
 
 def test_make_index_default():
@@ -6,6 +7,7 @@ def test_make_index_default():
     # index should have add and search methods
     assert hasattr(idx, 'add')
     assert hasattr(idx, 'search')
+
 
 def test_index_add_search():
     idx = make_index(dim=4)

@@ -1,5 +1,6 @@
 from pathlib import Path
-from nodupe.ai.backends import choose_backend  # type: ignore # pylint: disable=import-error
+# type: ignore # pylint: disable=import-error
+from nodupe.ai.backends import choose_backend
 
 
 def test_choose_backend_returns_backend():

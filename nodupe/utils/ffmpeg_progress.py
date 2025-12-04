@@ -177,8 +177,8 @@ def run_ffmpeg_with_progress(
                     bar_len * min(1.0, elapsed / expected_duration)
                 ) if expected_duration > 0 else 0
                 bar = (
-                    '[' + '=' * filled + '>' +
-                    ' ' * max(0, bar_len - filled - 1) + ']'
+                    '[' + '=' * filled + '>'
+                    + ' ' * max(0, bar_len - filled - 1) + ']'
                 )
                 spinner_ch = spinner[spin_i % len(spinner)]
                 eta_str = f"ETA: {remaining:.1f}s" if show_eta else ''
@@ -193,9 +193,9 @@ def run_ffmpeg_with_progress(
 
                 now_print = __import__('time').time()
                 if (
-                    (filled != last_filled or
-                     (now_print - last_print_time) >= 0.5) and
-                    update_count < max_updates
+                    (filled != last_filled
+                     or (now_print - last_print_time) >= 0.5)
+                    and update_count < max_updates
                 ):
                     sys.stdout.write('\r' + msg + pad)
                     sys.stdout.flush()

@@ -13,6 +13,7 @@ from nodupe.commands.mount import cmd_mount
 from nodupe.commands.archive import cmd_archive_list, cmd_archive_extract
 from nodupe.commands.similarity import cmd_similarity_build
 
+
 class TestCommandsStructure(unittest.TestCase):
     def test_command_signatures(self):
         # All commands should accept (args, cfg)
@@ -32,18 +33,19 @@ class TestCommandsStructure(unittest.TestCase):
         args = MagicMock()
         args.preset = "default"
         args.force = False
-        
+
         with patch("nodupe.commands.init.ensure_config") as mock_ensure:
             with patch("pathlib.Path.exists", return_value=False):
                 ret = cmd_init(args, {})
                 self.assertEqual(ret, 0)
-                mock_ensure.assert_called_once_with("nodupe.yml", preset="default")
+                mock_ensure.assert_called_once_with(
+                    "nodupe.yml", preset="default")
 
     def test_cmd_init_respects_existing_config(self):
         args = MagicMock()
         args.preset = "default"
         args.force = False
-        
+
         with patch("nodupe.commands.init.ensure_config") as mock_ensure:
             with patch("pathlib.Path.exists", return_value=True):
                 ret = cmd_init(args, {})
@@ -54,14 +56,16 @@ class TestCommandsStructure(unittest.TestCase):
         args = MagicMock()
         args.preset = "default"
         args.force = True
-        
+
         with patch("nodupe.commands.init.ensure_config") as mock_ensure:
             with patch("pathlib.Path.exists", return_value=True):
                 with patch("pathlib.Path.unlink") as mock_unlink:
                     ret = cmd_init(args, {})
                     self.assertEqual(ret, 0)
                     mock_unlink.assert_called_once()
-                    mock_ensure.assert_called_once_with("nodupe.yml", preset="default")
+                    mock_ensure.assert_called_once_with(
+                        "nodupe.yml", preset="default")
+
 
 if __name__ == "__main__":
     unittest.main()
