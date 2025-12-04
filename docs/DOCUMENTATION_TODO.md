@@ -13,10 +13,35 @@ work based on module criticality and usage frequency.
 
 - **Total modules reviewed**: 50+
 - **Modules fully documented**: 4 (cli.py, config.py, scanner.py, db.py)
-- **External docs updated**: 4 (BEGINNERS_GUIDE.md, SIMILARITY.md, AI_BACKEND.md, CHANGELOG.md)
+- **External docs updated**: 5 (BEGINNERS_GUIDE.md, SIMILARITY.md, AI_BACKEND.md, CHANGELOG.md, docs/CHANGELOG.md entry)
+- **Repository releases**: v0.1.1 created and published (includes full changelog as release notes)
 - **Modules remaining**: ~48
-- **Completion**: ~8%
+- **Completion**: ~10% (Phase 1 completed for scanner + db; next phase ready)
 - **Last updated**: 2025-12-03
+
+## Recent work & status (summary)
+
+- Documentation: Completed module-level and function docstrings for `nodupe/scanner.py` and
+  `nodupe/db.py` (Phase 1) with notes and follow-ups in-place. Examples and longer how-to
+  snippets remain as follow-up work.
+- Changelog & release: Updated `docs/CHANGELOG.md` with detailed entries covering the recent
+  CI and documentation efforts, then created and published a release tag `v0.1.1` with the
+  full changelog as the release body.
+- CI & vendoring hardening: Disabled submodule handling in CI checkout and set `fetch-depth: 0`.
+  Added/updated vendoring helpers and a `validate-vendored-install` CI job that performs offline
+  installs of vendored wheels and smoke-import checks; this protects CI from network-dependent
+  failures and removed-history artifacts (e.g. previously-removed submodules).
+- Scanner & tests: Implemented ETA / STALL progress messaging, a hard `max_idle_time` to prevent
+  scanner hangs, and added unit tests exercising timing and progress behavior. Adjusted tests to
+  import repo source reliably (PYTHONPATH usage) and made helpers easier to monkeypatch where needed.
+- Lint fixes: Resolved a flake8 E501 docstring-length violation introduced during documentation
+  work by wrapping the offending `nodupe/cli.py` docstring to satisfy line-length checks.
+
+If you'd like, I can now:
+
+- Start Phase 2 documentation (priority: `nodupe/applier.py`, `nodupe/archiver.py`).
+- Continue adding usage examples and migration notes to the `nodupe/db.py` docs.
+- Review CI runs and address any remaining failing jobs.
 
 ## Priority 1: Critical Infrastructure (IMMEDIATE)
 
