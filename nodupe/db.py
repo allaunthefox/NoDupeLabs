@@ -261,6 +261,7 @@ class DB:
 
     # Embedding helpers
     def upsert_embedding(self, path: str, vector: list, dim: int, mtime: int):
+        """Insert or update a single embedding."""
         self.upsert_embeddings([(path, vector, dim, mtime)])
 
     def upsert_embeddings(self, records: Iterable[Tuple[str, list, int, int]]):
@@ -292,6 +293,7 @@ class DB:
         self.conn.commit()
 
     def get_embedding(self, path: str):
+        """Get a single embedding by path."""
         cur = self.conn.cursor()
         r = cur.execute(
             "SELECT dim, vector, mtime FROM embeddings WHERE path = ?", (path,)

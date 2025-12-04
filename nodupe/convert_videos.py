@@ -25,6 +25,7 @@ except Exception:  # pragma: no cover - best-effort shim
 
 
 def convert_video(input_path: Any, output_path: Any) -> None:
+    """Convert video format using FFmpeg."""
     # Prefer the library helper so tests can patch the ffmpeg helper;
     # if a top-level script is present we'll still use the shared helper
     # implementation below instead of delegating to the script's binding

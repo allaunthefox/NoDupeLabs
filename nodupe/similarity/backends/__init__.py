@@ -47,12 +47,14 @@ def _discover():
 
 
 def list_backends() -> List[str]:
+    """Return list of available backend names."""
     if not _BACKENDS:
         _discover()
     return sorted(_BACKENDS.keys())
 
 
 def get_factory(name: str):
+    """Get the factory function for a specific backend."""
     if not _BACKENDS:
         _discover()
     mod = _BACKENDS.get(name)
@@ -62,6 +64,7 @@ def get_factory(name: str):
 
 
 def default_backend_name() -> str:
+    """Return the name of the best available backend."""
     # Prefer faiss if available, else bruteforce. Only pick modules that
     # expose 'available()' and return True
     names = list_backends()

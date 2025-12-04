@@ -34,6 +34,7 @@ from ..db import DB
 def build_index_from_db(
     db_path: Path, dim: int = 16, out_path: str | None = None
 ) -> dict:
+    """Build a similarity index from database embeddings."""
     db = DB(db_path)
     # Use precomputed embeddings when available,
     # compute missing ones optionally
@@ -92,6 +93,7 @@ def find_near_duplicates(
     db_path: Path, target: Path, k: int = 5,
     dim: int = 16, index_path: str | None = None
 ) -> List[tuple]:
+    """Find files similar to the target file."""
     # If an index file is provided, load it (fast).
     # Otherwise build from DB embeddings in memory.
     if index_path:

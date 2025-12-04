@@ -60,6 +60,7 @@ class NoDupeFS(fuse.Operations):
         self.logger = logging.getLogger("nodupe.mount")
 
     def getattr(self, path: str, fh=None) -> Dict[str, Any]:
+        """Get file attributes for a path."""
         if path == "/":
             return dict(st_mode=(stat.S_IFDIR | 0o755), st_nlink=2)
 
@@ -100,6 +101,7 @@ class NoDupeFS(fuse.Operations):
         raise fuse.FuseOSError(errno.ENOENT)
 
     def readdir(self, path: str, fh) -> List[str]:
+        """List directory contents."""
         if path == "/":
             return [".", "..", "by-hash", "stats"]
 
@@ -125,6 +127,7 @@ class NoDupeFS(fuse.Operations):
         return [".", ".."]
 
     def open(self, path: str, flags: int) -> int:
+        """Open a file and return a file descriptor."""
         # We only support read-only
         if (flags & os.O_ACCMODE) != os.O_RDONLY:
             raise fuse.FuseOSError(errno.EACCES)
@@ -149,6 +152,7 @@ class NoDupeFS(fuse.Operations):
         raise fuse.FuseOSError(errno.ENOENT)
 
     def read(self, path: str, size: int, offset: int, fh: int) -> bytes:
+        """Read data from a file."""
         if path == "/stats":
             # Generate stats on the fly
             count = self.db.conn.execute(
@@ -162,12 +166,14 @@ class NoDupeFS(fuse.Operations):
         return os.read(fh, size)
 
     def release(self, path: str, fh: int) -> int:
+        """Release (close) a file."""
         if path == "/stats":
             return 0
         return os.close(fh)
 
 
 def mount_fs(db_path: Path, mount_point: Path, foreground: bool = True):
+    """Mount the deduplicated filesystem at the given mount point."""
     if not fuse._libfuse:  # pylint: disable=protected-access
         print(
             "[mount] Error: FUSE library (libfuse) not found. "

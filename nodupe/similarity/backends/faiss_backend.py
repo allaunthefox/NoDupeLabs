@@ -33,7 +33,13 @@ from typing import List, Optional, Tuple
 
 
 class FaissIndex:
+    """FAISS-based similarity index.
+
+    Uses IndexFlatL2 for exact L2 distance search.
+    """
+
     def __init__(self, dim: int):
+        """Initialize FAISS index with given dimension."""
         if not faiss:
             raise RuntimeError("faiss not available")
         if np is None:
@@ -45,6 +51,7 @@ class FaissIndex:
     def add(
         self, vectors: List[List[float]], ids: Optional[List[str]] = None
     ) -> None:
+        """Add vectors to the index."""
         arr = np.asarray(vectors, dtype='float32')
         if arr.ndim != 2 or arr.shape[1] != self.dim:
             raise ValueError("Invalid vectors shape")
@@ -61,6 +68,7 @@ class FaissIndex:
     def search(
         self, vector: List[float], k: int = 5
     ) -> List[Tuple[str, float]]:
+        """Search for k nearest neighbors."""
         q = np.asarray([vector], dtype='float32')
         D, I_idx = self.index.search(q, k)
         results: List[Tuple[str, float]] = []
@@ -106,4 +114,5 @@ def create(dim: int):
 
 
 def available() -> bool:
+    """Check if FAISS and numpy are available."""
     return faiss is not None and np is not None

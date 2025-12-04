@@ -130,6 +130,7 @@ class ONNXBackend(BaseBackend):
             self._available = False
 
     def available(self) -> bool:
+        """Check if ONNX backend is available."""
         return bool(self._available)
 
     def unavailable_reason(self) -> Optional[str]:
@@ -142,6 +143,7 @@ class ONNXBackend(BaseBackend):
         return self._unavailable_reason
 
     def predict(self, path: Path) -> Tuple[int, str]:
+        """Predict NSFW score using the ONNX model."""
         # Offload heavy model I/O to ORT -> returns score 0-3
         # Implementation assumes the model accepts an image input
         # and returns a single float [0,1]

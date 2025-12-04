@@ -34,7 +34,7 @@ ignore-magic = false
 ignore-private = true
 ignore-semiprivate = true
 exclude = ["setup.py", "docs", "build", "tests", "nodupe/vendor"]
-fail-under = 80
+fail-under = 95
 verbose = 2
 color = true
 

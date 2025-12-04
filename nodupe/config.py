@@ -180,6 +180,7 @@ def ensure_config(path: str = "nodupe.yml", preset: str = "default") -> None:
 
 
 def get_available_presets():
+    """Return list of available preset names."""
     return list(PRESETS.keys())
 
 

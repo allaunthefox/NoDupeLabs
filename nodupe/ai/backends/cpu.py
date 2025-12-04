@@ -40,9 +40,11 @@ class CPUBackend(BaseBackend):
             self.has_pil = False
 
     def available(self) -> bool:
+        """CPU backend is always available."""
         return True
 
     def predict(self, path: Path) -> Tuple[int, str]:
+        """Predict NSFW score using simple heuristics."""
         # Best-effort analysis: return (score, reason)
         try:
             if not self.has_pil:
