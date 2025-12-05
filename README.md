@@ -326,8 +326,8 @@ flake8 nodupe/
 # Type checking (Python 3.9+ compatible)
 mypy nodupe/
 
-# Docstring coverage (enforced in CI; threshold configured in pyproject.toml)
-interrogate -vv nodupe/
+# Docstring coverage (enforced at 100% in CI; configured in pyproject.toml)
+interrogate -vv nodupe/ --fail-under 100
 
 # Run tests
 pytest tests/ -v
@@ -351,7 +351,7 @@ Quality checks run automatically on every commit:
 
 * Flake8 linting (must pass)
 * MyPy type checking (must pass)
-* Interrogate docstring coverage (must be 100%)
+* Interrogate docstring coverage (100% required — enforced in CI)
 * Test suite (comprehensive tests covering unit, integration and slow markers; run by CI)
 
 See [.github/workflows/ci.yml](.github/workflows/ci.yml) for details.

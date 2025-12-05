@@ -11,7 +11,7 @@ license = {text = "Apache-2.0"}
 requires-python = ">=3.9"
 dependencies = [
     "PyYAML",
-    "tqdm",
+
     "xxhash",
     "zstandard",
     "py7zr",
@@ -34,7 +34,7 @@ ignore-magic = false
 ignore-private = true
 ignore-semiprivate = true
 exclude = ["setup.py", "docs", "build", "tests", "nodupe/vendor"]
-fail-under = 95
+fail-under = 100
 verbose = 2
 color = true
 
@@ -47,7 +47,7 @@ match-dir = "nodupe"
 add-ignore = ["D107"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 exclude = [
     "vendor",
     "nodupe/vendor",
