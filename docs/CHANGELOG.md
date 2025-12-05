@@ -182,6 +182,19 @@ prioritized list of modules requiring documentation.
   bumped documentation coverage progress. The roadmap now documents the next priority modules and
   the staged approach for documentation completion.
 
+### Docs & CI enhancements
+
+- Added lightweight Sphinx docs scaffolding under `docs/sphinx/` to auto-generate API docs from
+  docstrings using `sphinx.ext.autodoc` and `napoleon` (keeps code and docs consistent).
+- Added CI checks:
+  - `doc-sanity` job runs a lightweight script `scripts/check_docstrings_and_size.py` to
+    ensure public APIs have docstrings and modules remain below a size threshold.
+  - `docs-build` job builds the Sphinx docs to verify the site renders from docstrings.
+
+### Stress tests
+
+- Added stress tests for concurrent DB writes/reads and plugin async dispatch (`tests/test_concurrency_stress.py`) and wired them into the slow/integration CI job (marked `slow`) so CI can verify runtime stability under concurrent workloads.
+
 ---
 
 If you'd like, I can also:

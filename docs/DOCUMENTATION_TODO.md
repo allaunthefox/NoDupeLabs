@@ -48,6 +48,10 @@ work based on module criticality and usage frequency.
 
 - **Lint fixes**: Resolved flake8 E501 violations by wrapping long docstring lines.
 
+- **Docs site**: Added a lightweight Sphinx site under `docs/sphinx/` and CI job (`docs-build`) that builds it to verify API docs render from docstrings.
+- **Doc sanity checks**: Added `scripts/check_docstrings_and_size.py` and a CI `doc-sanity` job to block PRs when public APIs lack docstrings or a module becomes too large.
+- **Stress tests**: Added concurrent stress tests for DB and plugin dispatch under `tests/test_concurrency_stress.py` and hooked them into the `slow-tests` CI job (marked as `slow`).
+
 Next steps:
 
 - Priority 4: Commands (9 command modules)
