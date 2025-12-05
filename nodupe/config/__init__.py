@@ -28,6 +28,14 @@ except ImportError:
 
         @staticmethod
         def safe_load(text: str):
+            """Parse YAML/JSON text in a safe manner for environments without PyYAML.
+
+            Args:
+                text: YAML or JSON text to parse
+
+            Returns:
+                Parsed Python object (typically a dict)
+            """
             try:
                 return json.loads(text)
             except json.JSONDecodeError as e:
@@ -35,6 +43,10 @@ except ImportError:
 
         @staticmethod
         def safe_dump(obj: Any, sort_keys: bool = False) -> str:
+            """Serialize a Python object to YAML/JSON text.
+
+            This shim uses JSON formatting when PyYAML is unavailable.
+            """
             return json.dumps(
                 obj, sort_keys=sort_keys, ensure_ascii=False, indent=2
             )

@@ -27,6 +27,11 @@ _BACKENDS: Dict[str, object] = {}
 
 
 def _discover():
+    """Discover backend modules located in this package and register them.
+
+    Scans the package path for submodules, imports them, and records any
+    modules exposing a `create` factory function into the `_BACKENDS` map.
+    """
     # scan submodules in this package
     package = __name__
     # pkgutil requires a package object

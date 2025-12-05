@@ -182,6 +182,10 @@ class ArchiveHandler:
             raise ValueError(f"Unsupported archive type: {self.type}")
 
     def _list_zip(self):
+        """List contents of zip archive.
+
+        Returns a list of dicts describing each entry in the zip file.
+        """
         results = []
         try:
             with zipfile.ZipFile(self.path, 'r') as zf:
@@ -200,6 +204,11 @@ class ArchiveHandler:
         return results
 
     def _extract_zip(self, dest):
+        """Extract zip archive into destination directory.
+
+        Args:
+            dest: destination path where the archive will be extracted.
+        """
         try:
             with zipfile.ZipFile(self.path, 'r') as zf:
                 zf.extractall(path=dest)
@@ -211,6 +220,10 @@ class ArchiveHandler:
             raise
 
     def _list_7z(self):
+        """List contents of a 7z archive using py7zr.
+
+        Raises ImportError if py7zr is not available.
+        """
         if not HAS_7Z:
             raise ImportError("py7zr not installed")
         results = []
@@ -227,6 +240,11 @@ class ArchiveHandler:
         return results
 
     def _extract_7z(self, dest):
+        """Extract a 7z archive to the given destination.
+
+        Args:
+            dest: destination directory path
+        """
         if not HAS_7Z:
             raise ImportError("py7zr not installed")
         try:
@@ -236,6 +254,10 @@ class ArchiveHandler:
             raise PermissionError(f"Password required for {self.path}") from e
 
     def _list_rar(self):
+        """List contents of a rar archive using rarfile.
+
+        Raises ImportError if rarfile is not available.
+        """
         if not HAS_RAR:
             raise ImportError("rarfile not installed")
         try:
@@ -254,6 +276,11 @@ class ArchiveHandler:
             raise OSError("External tool 'unrar' not found") from e
 
     def _extract_rar(self, dest):
+        """Extract rar archive to destination directory.
+
+        Args:
+            dest: destination directory
+        """
         if not HAS_RAR:
             raise ImportError("rarfile not installed")
         try:
@@ -265,6 +292,11 @@ class ArchiveHandler:
             raise OSError("External tool 'unrar' not found") from e
 
     def _list_tar(self):
+        """List contents of a tar archive.
+
+        Uses the standard library tarfile module and returns a list of dicts
+        describing entries (path, size, is_dir).
+        """
         results = []
         with tarfile.open(self.path, 'r:*') as tf:
             for member in tf.getmembers():
@@ -276,8 +308,20 @@ class ArchiveHandler:
         return results
 
     def _extract_tar(self, dest):
+        """Safely extract tar archive to destination, preventing path traversal.
+
+        Args:
+            dest: destination directory
+        Raises:
+            RuntimeError: if a path traversal attempt is detected
+        """
         with tarfile.open(self.path, 'r:*') as tf:
             def is_within_directory(directory, target):
+                """Return True if `target` path is inside `directory`.
+
+                Used to protect against path traversal attacks when
+                extracting tar archives.
+                """
                 abs_directory = os.path.abspath(directory)
                 abs_target = os.path.abspath(target)
                 prefix = os.path.commonprefix([abs_directory, abs_target])

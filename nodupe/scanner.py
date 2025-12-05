@@ -219,6 +219,12 @@ def threaded_hash(
     last_complete_ts = time.time()
 
     def _iter_impl():
+        """Internal generator implementing the threaded hashing pipeline.
+
+        Yields result tuples for each processed file as futures complete.
+        This internal helper is returned as a generator by threaded_hash()
+        when collect=False.
+        """
         nonlocal count, last_progress_time, last_complete_ts
         with futures.ThreadPoolExecutor(
             max_workers=max(1, workers)

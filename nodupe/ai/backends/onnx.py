@@ -40,6 +40,12 @@ class ONNXBackend(BaseBackend):
     """
 
     def __init__(self, model_path: Optional[Path] = None):
+        """Initialize ONNX backend and attempt to create an inference session.
+
+        Args:
+            model_path: Optional path to an ONNX model file. If omitted,
+                the backend is marked unavailable.
+        """
         self.model_path = Path(model_path) if model_path else None
         self.sess = None
         self._unavailable_reason: Optional[str] = None

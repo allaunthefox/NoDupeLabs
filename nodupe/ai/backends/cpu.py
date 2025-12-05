@@ -31,6 +31,10 @@ class CPUBackend(BaseBackend):
     """
 
     def __init__(self):
+        """Initialize CPUBackend, probing for optional Pillow support.
+
+        Sets `self.has_pil` based on whether PIL is importable.
+        """
         try:
             # type: ignore # noqa: F401 # pylint: disable=import-error
             import PIL

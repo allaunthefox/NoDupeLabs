@@ -36,6 +36,11 @@ class PluginManager:
     """
 
     def __init__(self):
+        """Create a new PluginManager.
+
+        The manager stores hooks and a list of loaded plugins. Methods are
+        thread-safe via an internal RLock.
+        """
         self._hooks: Dict[str, List[Callable]] = {}
         self._loaded_plugins: List[str] = []
         # Lock to ensure register/emit/load_plugins are safe when used across
@@ -67,6 +72,11 @@ class PluginManager:
                     coro = callback(**kwargs)
 
                     def _run():
+                        """Run the coroutine `coro` in an asyncio event loop.
+
+                        Executed on a background thread to keep emit() non-blocking.
+                        Exceptions are logged to stderr by the caller.
+                        """
                         try:
                             asyncio.run(coro)
                         except Exception as e:

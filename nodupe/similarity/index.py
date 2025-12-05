@@ -222,6 +222,12 @@ def update_index_from_db(
     ids_batch: List[str] = []
 
     def flush_batch():
+        """Flush the current vectors/ids batch into the index.
+
+        This helper appends the accumulated vectors_batch/ids_batch into
+        the index and resets the batch buffers. It's used for both
+        incremental updates and full rebuilds.
+        """
         nonlocal added, vectors_batch, ids_batch
         if vectors_batch:
             idx.add(vectors_batch, ids=ids_batch)

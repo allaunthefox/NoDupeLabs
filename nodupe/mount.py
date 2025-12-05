@@ -56,6 +56,11 @@ class NoDupeFS(fuse.Operations):
     """
 
     def __init__(self, db_path: Path):
+        """Initialize NoDupeFS with the path to the database.
+
+        Args:
+            db_path: Path to the SQLite database containing file index.
+        """
         self.db = DB(db_path)
         self.logger = logging.getLogger("nodupe.mount")
 

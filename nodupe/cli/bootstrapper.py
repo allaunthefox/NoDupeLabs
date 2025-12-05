@@ -59,6 +59,12 @@ class CLIBootstrapper:
         module_dir = self.module_dir
 
         def shutdown_lint():
+            """Run lint_tree at process exit and print non-fatal failures.
+
+            This function is registered with atexit so that shutdown-time
+            linting provides useful hints to maintainers without failing
+            the runtime.
+            """
             try:
                 lint_tree(module_dir)
             except Exception as e:  # pylint: disable=broad-except
