@@ -135,3 +135,5 @@ def test_plugin_manager_concurrent_register_and_emit(tmp_path):
     # verify callbacks were called
     assert sync_calls, "No sync callbacks invoked"
     assert async_calls, "No async callbacks invoked"
+    # shutdown background loop
+    pm.stop()

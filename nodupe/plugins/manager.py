@@ -48,12 +48,65 @@ class PluginManager:
         # called from worker threads during scans.
         self._lock = threading.RLock()
 
+        # Create an asyncio event loop running in a dedicated background
+        # thread. This allows the manager to dispatch coroutine callbacks
+        # efficiently without allocating a new thread per callback.
+        self._loop = asyncio.new_event_loop()
+        self._loop_thread = threading.Thread(
+            target=self._run_loop, name="PluginManagerLoop", daemon=True
+        )
+        self._loop_thread.start()
+
     def register(self, event: str, callback: Callable):
         """Register a callback for an event."""
         with self._lock:
             if event not in self._hooks:
                 self._hooks[event] = []
             self._hooks[event].append(callback)
+
+    def _run_loop(self):
+        """Background target: run the event loop forever.
+
+        The method is executed on a dedicated thread and drives the
+        asyncio event loop used to execute coroutine callbacks and run
+        synchronous callbacks in the loop's executor.
+        """
+        asyncio.set_event_loop(self._loop)
+        try:
+            self._loop.run_forever()
+        finally:
+            # Drain and close loop on shutdown
+            pending = asyncio.all_tasks(loop=self._loop)
+            for t in pending:
+                t.cancel()
+            try:
+                self._loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+            except Exception:
+                pass
+            self._loop.close()
+
+    def stop(self, wait: bool = True):
+        """Stop the background event loop and join the loop thread.
+
+        Args:
+            wait: If True (default) join the background thread; otherwise
+                  return immediately after requesting shutdown.
+        """
+        try:
+            if self._loop.is_running():
+                self._loop.call_soon_threadsafe(self._loop.stop)
+        except Exception:
+            pass
+
+        if wait and self._loop_thread.is_alive():
+            self._loop_thread.join(timeout=5)
+
+    def __del__(self):
+        # Best-effort cleanup of background loop on GC
+        try:
+            self.stop(wait=False)
+        except Exception:
+            pass
 
     def emit(self, event: str, **kwargs: Any):
         """Emit an event, calling all registered callbacks."""
@@ -65,40 +118,40 @@ class PluginManager:
 
         for callback in callbacks:
             try:
-                # Support synchronous and asynchronous callbacks. If the
-                # callback is a coroutine function, run it in a separate
-                # thread via asyncio.run so callbacks can use async I/O.
                 if asyncio.iscoroutinefunction(callback):
+                    # Schedule the coroutine on the background loop and
+                    # attach an error handler so exceptions get logged.
                     coro = callback(**kwargs)
+                    fut = asyncio.run_coroutine_threadsafe(coro, self._loop)
 
-                    def _run():
-                        """Run the coroutine `coro` in an asyncio event loop.
-
-                        Executed on a background thread to keep emit() non-blocking.
-                        Exceptions are logged to stderr by the caller.
-                        """
+                    def _done_check(f):
                         try:
-                            asyncio.run(coro)
-                        except Exception as e:
-                            print(
-                                f"[plugin][WARN] Error in async hook '{event}': {e}",
-                                file=sys.stderr
-                            )
+                            _ = f.result()
+                        except Exception as exc:  # pragma: no cover - best-effort logging
+                            print(f"[plugin][WARN] Error in async hook '{event}': {exc}", file=sys.stderr)
 
-                    # Spawn a thread to run the coroutine so emit remains
-                    # non-blocking; this keeps backward compatibility with
-                    # synchronous usage.
-                    import threading
+                    fut.add_done_callback(_done_check)
 
-                    t = threading.Thread(target=_run, daemon=True)
-                    t.start()
                 else:
-                    callback(**kwargs)
+                    # Wrap synchronous callbacks in the default executor so
+                    # that blocking work doesn't stall the event loop.
+                    async def _run_in_executor(cb, kw):
+                        loop = asyncio.get_running_loop()
+                        await loop.run_in_executor(None, lambda: cb(**kw))
+
+                    fut = asyncio.run_coroutine_threadsafe(
+                        _run_in_executor(callback, kwargs), self._loop
+                    )
+
+                    def _done_check_sync(f):
+                        try:
+                            _ = f.result()
+                        except Exception as exc:  # pragma: no cover - best-effort logging
+                            print(f"[plugin][WARN] Error in sync hook '{event}': {exc}", file=sys.stderr)
+
+                    fut.add_done_callback(_done_check_sync)
             except Exception as e:
-                print(
-                    f"[plugin][WARN] Error in hook '{event}': {e}",
-                    file=sys.stderr
-                )
+                print(f"[plugin][WARN] Error scheduling hook '{event}': {e}", file=sys.stderr)
 
     def load_plugins(self, paths: List[str]):
         """Load plugins from specified paths."""

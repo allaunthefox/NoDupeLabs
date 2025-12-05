@@ -89,3 +89,4 @@ def test_plugin_async_dispatch_stress():
 
     # Ensure at least some callbacks executed (events set)
     assert any(e.is_set() for e in events)
+    pm.stop()
