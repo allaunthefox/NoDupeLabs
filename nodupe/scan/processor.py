@@ -70,3 +70,42 @@ class FileProcessor:
             self.hash_algo,
             perms
         )
+
+
+def process_file(
+    p: Path, hash_algo: str, known_hash: Optional[str] = None
+
+
+) -> Tuple[str, int, int, str, str, str, str, str]:
+    """Process a single file and return a metadata tuple.
+
+    The returned tuple mirrors the values used in the rest of the
+    project and tests:
+
+    (path, size, mtime, hash, mime, context, algo, perms)
+
+    Args:
+        p: Path to the file to process.
+        hash_algo: Hash algorithm name used by `hash_file`.
+        known_hash: Optional pre-computed hash to avoid re-hashing
+            (used by incremental scans where file size/mtime match).
+
+    Returns:
+        A tuple with the file path (str), size (int), modification
+        timestamp (int), hash (str), mime (str), detected context
+        (str), the algorithm used (str), and permissions string (str).
+    """
+    st = p.stat()
+
+    if known_hash:
+        sha = known_hash
+    else:
+        sha = hash_file(p, hash_algo)
+
+    mime = get_mime_safe(p)
+    context = detect_context(p)
+    perms = get_permissions(p)
+    return (
+        str(p), st.st_size, int(st.st_mtime), sha, mime,
+        context, hash_algo, perms
+    )

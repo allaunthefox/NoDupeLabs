@@ -1,7 +1,7 @@
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
+
 
 import pytest
 
@@ -26,7 +26,16 @@ def test_db_stress_concurrent_writes_reads(tmp_path):
         for b in range(BATCH):
             base = idx * WRITERS * BATCH + b
             rows = [
-                (f"/tmp/stf{base+i}", (base + i) * 10, base + i, f"h{base+i}", "application/octet-stream", "unarchived", "sha512", "0")
+                (
+                    f"/tmp/stf{base + i}",
+                    (base + i) * 10,
+                    base + i,
+                    f"h{base + i}",
+                    "application/octet-stream",
+                    "unarchived",
+                    "sha512",
+                    "0"
+                )
                 for i in range(5)
             ]
             db.upsert_files(rows)
@@ -35,6 +44,7 @@ def test_db_stress_concurrent_writes_reads(tmp_path):
         futures = [ex.submit(writer_thread, i) for i in range(WRITERS)]
         # Also spawn some readers while writes are active
         reader_futures = []
+
         def reader():
             # do a few reads
             for _ in range(50):
@@ -80,7 +90,7 @@ def test_plugin_async_dispatch_stress():
     # Emit from multiple threads concurrently
     def emitter(n):
         for _ in range(n):
-            pm.emit('stress_ev', val=_) 
+            pm.emit('stress_ev', val=_)
 
     with ThreadPoolExecutor(max_workers=12) as ex:
         futures = [ex.submit(emitter, PER_CALL) for _ in range(12)]

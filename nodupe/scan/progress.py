@@ -11,6 +11,58 @@ import time
 from typing import Any, List, Optional
 
 
+class SimpleProgressBar:
+    """A simple progress bar using standard library only.
+
+    Mimics a subset of tqdm interface for drop-in replacement.
+    """
+
+    def __init__(self, desc: str = "Processing", unit: str = "items"):
+        self.desc = desc
+        self.unit = unit
+        self.count = 0
+        self.start_time = time.time()
+        self._last_len = 0
+
+    def update(self, n: int = 1):
+        """Update progress counter."""
+        self.count += n
+        self._refresh()
+
+    def write(self, msg: str):
+        """Print message above progress bar."""
+        # Clear line
+        sys.stderr.write("\r" + " " * self._last_len + "\r")
+        sys.stderr.write(msg + "\n")
+        self._refresh()
+
+    def close(self):
+        """Clean up progress bar."""
+        sys.stderr.write("\n")
+
+    def _refresh(self):
+        """Redraw progress bar."""
+        elapsed = time.time() - self.start_time
+        rate = self.count / elapsed if elapsed > 0 else 0
+
+        # Format time as MM:SS
+        mins, secs = divmod(int(elapsed), 60)
+        time_str = f"{mins:02d}:{secs:02d}"
+
+        line = (
+            f"{self.desc}: {self.count}{self.unit} "
+            f"[{time_str}, {rate:.2f}{self.unit}/s]"
+        )
+
+        # Pad with spaces to clear previous longer lines
+        if len(line) < self._last_len:
+            line += " " * (self._last_len - len(line))
+
+        self._last_len = len(line)
+        sys.stderr.write("\r" + line)
+        sys.stderr.flush()
+
+
 class ProgressTracker:
     """Tracks progress and detects stalls during scanning.
 
