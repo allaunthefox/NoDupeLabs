@@ -7,6 +7,7 @@ Handles SQLite connection lifecycle, schema setup, and migrations.
 Provides low-level query execution.
 """
 import sqlite3
+import threading
 import sys
 import time
 import textwrap

@@ -22,6 +22,7 @@ Attributes:
 """
 
 import sys
+import asyncio
 import threading
 from typing import Callable, Dict, List, Any
 
@@ -59,7 +60,30 @@ class PluginManager:
 
         for callback in callbacks:
             try:
-                callback(**kwargs)
+                # Support synchronous and asynchronous callbacks. If the
+                # callback is a coroutine function, run it in a separate
+                # thread via asyncio.run so callbacks can use async I/O.
+                if asyncio.iscoroutinefunction(callback):
+                    coro = callback(**kwargs)
+
+                    def _run():
+                        try:
+                            asyncio.run(coro)
+                        except Exception as e:
+                            print(
+                                f"[plugin][WARN] Error in async hook '{event}': {e}",
+                                file=sys.stderr
+                            )
+
+                    # Spawn a thread to run the coroutine so emit remains
+                    # non-blocking; this keeps backward compatibility with
+                    # synchronous usage.
+                    import threading
+
+                    t = threading.Thread(target=_run, daemon=True)
+                    t.start()
+                else:
+                    callback(**kwargs)
             except Exception as e:
                 print(
                     f"[plugin][WARN] Error in hook '{event}': {e}",
@@ -91,8 +115,8 @@ class PluginManager:
                             mod.pm = self
                             sys.modules[module_name] = mod
                             spec.loader.exec_module(mod)
-                                with self._lock:
-                                    self._loaded_plugins.append(module_name)
+                            with self._lock:
+                                self._loaded_plugins.append(module_name)
                             # print(f"[plugin] Loaded {module_name}")
                     except Exception as e:
                         print(
