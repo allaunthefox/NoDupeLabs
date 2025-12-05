@@ -1,3 +1,12 @@
+### Plugin improvements
+
+- `nodupe.plugins.manager`: Converted the plugin manager to an async-first design.
+  - Runs a dedicated background asyncio event loop to dispatch coroutine callbacks
+    efficiently and run synchronous callbacks in an executor.
+  - Provides `stop()` for graceful shutdown of the loop (useful in tests and
+    long-running services).
+  - Improves performance and reduces thread churn when many async callbacks are executed.
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
