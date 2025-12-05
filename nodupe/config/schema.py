@@ -24,20 +24,19 @@ class HashAlgorithm(Enum):
 
 
 class DedupStrategy(Enum):
-    """Strategies used to select which files are kept when duplicates are
-    discovered.
-    """
+    """Strategies for selecting files when duplicates are discovered."""
     CONTENT_HASH = "content_hash"
 
 
 @dataclass(frozen=True)
 class NSFWConfig:
-    """Configuration options for NSFW detection and automatic handling.
+    """Configuration options for NSFW detection and handling.
 
     Fields:
         enabled: Whether NSFW classification is enabled.
         threshold: Score threshold for classifying content as NSFW.
-        auto_quarantine: Whether to move or quarantine NSFW files automatically.
+        auto_quarantine:
+            Whether to move or quarantine NSFW files automatically.
     """
     enabled: bool = False
     threshold: int = 2
@@ -46,10 +45,11 @@ class NSFWConfig:
 
 @dataclass(frozen=True)
 class AIConfig:
-    """Configuration for AI/ML backends used by the application.
+    """Configuration for AI/ML backends.
 
     Fields:
-        enabled: Controls whether AI features are used ('auto', 'true', 'false').
+        enabled: Controls whether AI features are used.
+            Accepted strings include 'auto', 'true' or 'false'.
         backend: Preferred backend name (e.g., 'onnxruntime').
         model_path: Default location of the model artifact.
     """
@@ -63,7 +63,8 @@ class SimilarityConfig:
     """Configuration related to similarity indexing.
 
     Fields:
-        dim: Dimensionality of numeric embeddings used by similarity indices.
+        dim: Dimensionality of numeric embeddings used by
+            similarity indices.
     """
     dim: int = 16
 
@@ -170,9 +171,9 @@ class Config:
 
         Returns:
             A dictionary containing all configuration values. Nested
-            datatypes are converted to plain Python containers (eg. tuples
-            -> lists, nested dict-like fields preserved as dicts) so the
-            result is safe to serialize to YAML/JSON.
+            datatypes are converted to plain Python containers
+            (eg. tuples -> lists, nested dict-like fields preserved
+            as dicts) so the result is safe to serialize to YAML/JSON.
         """
         return {
             "hash_algo": self.hash_algo,
@@ -216,11 +217,12 @@ class Config:
 
         # Filter to only known fields
         known_fields = {
-            "hash_algo", "dedup_strategy", "parallelism", "follow_symlinks",
-            "dry_run", "overwrite", "checkpoint", "db_path", "log_dir",
-            "metrics_path", "ignore_patterns", "nsfw", "ai", "similarity",
-            "logging", "export_folder_meta", "meta_format", "meta_pretty",
-            "meta_validate_schema", "auto_install_deps", "plugins_dir"
+            "hash_algo", "dedup_strategy", "parallelism",
+            "follow_symlinks", "dry_run", "overwrite", "checkpoint",
+            "db_path", "log_dir", "metrics_path", "ignore_patterns",
+            "nsfw", "ai", "similarity", "logging", "export_folder_meta",
+            "meta_format", "meta_pretty", "meta_validate_schema",
+            "auto_install_deps", "plugins_dir"
         }
 
         filtered = {k: v for k, v in data.items() if k in known_fields}

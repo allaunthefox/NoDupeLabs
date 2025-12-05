@@ -24,16 +24,16 @@ except ImportError:
 
     class _YAMLShim:
         class YAMLError(Exception):
-            """Raised when the YAML/JSON parsing shim encounters an error.
+            """Raised on YAML/JSON parsing shim errors.
 
-            This mirrors PyYAML's YAMLError to provide compatible behaviour when
-            PyYAML is not installed and a lightweight JSON-based shim is used.
+            This mirrors PyYAML's YAMLError so callers can rely
+            on the same exception type when PyYAML is unavailable
+            and the code is using the JSON-based shim instead.
             """
 
         @staticmethod
         def safe_load(text: str):
-            """Parse YAML/JSON text in a safe manner for environments without
-            PyYAML.
+            """Parse YAML/JSON text safely without PyYAML.
 
             Args:
                 text: YAML or JSON text to parse
