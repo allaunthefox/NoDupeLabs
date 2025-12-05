@@ -52,10 +52,26 @@ class PluginManager:
         # thread. This allows the manager to dispatch coroutine callbacks
         # efficiently without allocating a new thread per callback.
         self._loop = asyncio.new_event_loop()
+        # Executor used by the event loop for running sync callbacks.
+        # It is bounded by `executor_max_workers` to avoid unbounded thread
+        # growth when many blocking callbacks are executed.
+        self._executor_max_workers = 8
+        from concurrent.futures import ThreadPoolExecutor
+        self._executor = ThreadPoolExecutor(
+            max_workers=self._executor_max_workers)
         self._loop_thread = threading.Thread(
             target=self._run_loop, name="PluginManagerLoop", daemon=True
         )
         self._loop_thread.start()
+        # Monitoring metrics. Use the same RLock for thread-safety.
+        self._metrics = {
+            "scheduled": 0,
+            "pending": 0,
+            "running": 0,
+            "completed": 0,
+            "failed": 0,
+            "executor_max_workers": self._executor_max_workers,
+        }
 
     def register(self, event: str, callback: Callable):
         """Register a callback for an event."""
@@ -72,6 +88,12 @@ class PluginManager:
         synchronous callbacks in the loop's executor.
         """
         asyncio.set_event_loop(self._loop)
+        # Set the loop's default executor to our bounded ThreadPoolExecutor
+        try:
+            self._loop.set_default_executor(self._executor)
+        except Exception:
+            # Older Python versions may not support setting default executor
+            pass
         try:
             self._loop.run_forever()
         finally:
@@ -80,10 +102,49 @@ class PluginManager:
             for t in pending:
                 t.cancel()
             try:
-                self._loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                self._loop.run_until_complete(
+                    asyncio.gather(*pending, return_exceptions=True))
             except Exception:
                 pass
             self._loop.close()
+
+    def set_executor_max_workers(self, max_workers: int):
+        """Change the executor max worker count.
+
+        This will replace the existing executor with a new bounded one.
+        """
+        if max_workers <= 0:
+            raise ValueError("max_workers must be positive")
+
+        with self._lock:
+            # Shutdown existing executor and replace
+            try:
+                self._executor.shutdown(wait=False)
+            except Exception:
+                pass
+            from concurrent.futures import ThreadPoolExecutor
+            self._executor_max_workers = max_workers
+            self._executor = ThreadPoolExecutor(
+                max_workers=self._executor_max_workers)
+            # update observable metric
+            with self._lock:
+                self._metrics["executor_max_workers"] = (
+                    self._executor_max_workers
+                )
+            try:
+                self._loop.set_default_executor(self._executor)
+            except Exception:
+                pass
+
+    def metrics(self) -> dict:
+        """Return a snapshot of internal metrics for monitoring.
+
+        Metrics include counts for scheduled tasks, pending tasks, completed
+        tasks, and failed tasks.
+        """
+        with self._lock:
+            # Return a shallow copy so callers can't mutate our internal state
+            return dict(self._metrics)
 
     def stop(self, wait: bool = True):
         """Stop the background event loop and join the loop thread.
@@ -102,7 +163,13 @@ class PluginManager:
             self._loop_thread.join(timeout=5)
 
     def __del__(self):
-        # Best-effort cleanup of background loop on GC
+        """Best-effort cleanup when the manager is garbage-collected.
+
+        The background asyncio loop and its thread are cleaned up if still
+        running. This is a best-effort operation — callers should prefer
+        explicit lifecycle management and call :meth:`stop` during shutdown
+        to ensure deterministic cleanup.
+        """
         try:
             self.stop(wait=False)
         except Exception:
@@ -118,40 +185,105 @@ class PluginManager:
 
         for callback in callbacks:
             try:
-                if asyncio.iscoroutinefunction(callback):
-                    # Schedule the coroutine on the background loop and
-                    # attach an error handler so exceptions get logged.
-                    coro = callback(**kwargs)
-                    fut = asyncio.run_coroutine_threadsafe(coro, self._loop)
+                # Try to register the task in metrics first. We'll roll back
+                # the registration if scheduling fails.
+                with self._lock:
+                    self._metrics["scheduled"] += 1
+                    self._metrics["pending"] += 1
 
-                    def _done_check(f):
+                if asyncio.iscoroutinefunction(callback):
+                    # Wrap the coroutine so we can maintain
+                    # running/completed/failed
+                    # counters in a deterministic way.
+                    # Bind callback and kwargs via default args to avoid
+                    # closure issues
+                    async def _wrapped_coro(cb=callback, kw=kwargs):
+                        with self._lock:
+                            self._metrics["running"] += 1
+                            # an item moved from pending -> running
+                            self._metrics["pending"] = max(
+                                0, self._metrics["pending"] - 1)
+                        try:
+                            result = await cb(**kw)
+                        except Exception:
+                            with self._lock:
+                                self._metrics["failed"] += 1
+                            raise
+                        else:
+                            with self._lock:
+                                self._metrics["completed"] += 1
+                            return result
+                        finally:
+                            with self._lock:
+                                # running finished
+                                self._metrics["running"] = max(
+                                    0, self._metrics["running"] - 1)
+
+                    fut = asyncio.run_coroutine_threadsafe(
+                        _wrapped_coro(), self._loop)
+
+                    def _done_check(f, ev=event):
                         try:
                             _ = f.result()
-                        except Exception as exc:  # pragma: no cover - best-effort logging
-                            print(f"[plugin][WARN] Error in async hook '{event}': {exc}", file=sys.stderr)
+                        except Exception as exc:  # pragma: no cover
+                            print(
+                                f"[plugin][WARN] Error in async hook '{ev}': "
+                                f"{exc}", file=sys.stderr)
 
                     fut.add_done_callback(_done_check)
 
                 else:
-                    # Wrap synchronous callbacks in the default executor so
-                    # that blocking work doesn't stall the event loop.
-                    async def _run_in_executor(cb, kw):
+                    # Wrap synchronous callbacks so we can update metrics when
+                    # they actually run in the executor thread.
+                    # Bind callback and kwargs via default args to avoid
+                    # closure issues
+                    def _callable(cb=callback, kw=kwargs):
+                        # Running begins here (executor thread)
+                        with self._lock:
+                            self._metrics["running"] += 1
+                            self._metrics["pending"] = max(
+                                0, self._metrics["pending"] - 1)
+                        try:
+                            cb(**kw)
+                        except Exception:
+                            with self._lock:
+                                self._metrics["failed"] += 1
+                            raise
+                        else:
+                            with self._lock:
+                                self._metrics["completed"] += 1
+                        finally:
+                            with self._lock:
+                                self._metrics["running"] = max(
+                                    0, self._metrics["running"] - 1)
+
+                    async def _run_in_executor(call=_callable):
                         loop = asyncio.get_running_loop()
-                        await loop.run_in_executor(None, lambda: cb(**kw))
+                        await loop.run_in_executor(None, call)
 
                     fut = asyncio.run_coroutine_threadsafe(
-                        _run_in_executor(callback, kwargs), self._loop
+                        _run_in_executor(), self._loop
                     )
 
-                    def _done_check_sync(f):
+                    def _done_check_sync(f, ev=event):
                         try:
                             _ = f.result()
-                        except Exception as exc:  # pragma: no cover - best-effort logging
-                            print(f"[plugin][WARN] Error in sync hook '{event}': {exc}", file=sys.stderr)
+                        except Exception as exc:  # pragma: no cover
+                            print(
+                                f"[plugin][WARN] Error in sync hook '{ev}': "
+                                f"{exc}", file=sys.stderr)
 
                     fut.add_done_callback(_done_check_sync)
             except Exception as e:
-                print(f"[plugin][WARN] Error scheduling hook '{event}': {e}", file=sys.stderr)
+                # Ensure metrics reflect the failed scheduling attempt
+                with self._lock:
+                    self._metrics["scheduled"] = max(
+                        0, self._metrics["scheduled"] - 1)
+                    self._metrics["pending"] = max(
+                        0, self._metrics["pending"] - 1)
+                print(
+                    f"[plugin][WARN] Error scheduling hook '{event}': {e}",
+                    file=sys.stderr)
 
     def load_plugins(self, paths: List[str]):
         """Load plugins from specified paths."""
@@ -180,11 +312,10 @@ class PluginManager:
                             spec.loader.exec_module(mod)
                             with self._lock:
                                 self._loaded_plugins.append(module_name)
-                            # print(f"[plugin] Loaded {module_name}")
                     except Exception as e:
-                        print(
-                            f"[plugin][WARN] Failed to load {filename}: {e}",
-                            file=sys.stderr
+                        self.logger.warning(
+                            f"Error loading plugin {module_name} "
+                            f"from {filepath}: {e}"
                         )
 
 
