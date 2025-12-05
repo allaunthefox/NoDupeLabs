@@ -98,6 +98,14 @@ class ArchiveHandler:
 
         Raises:
             FileNotFoundError: If path doesn't exist
+        
+        Example:
+            >>> from pathlib import Path
+            >>> handler = ArchiveHandler(Path('tests/fixtures/sample.zip'))
+            >>> out = Path('/tmp/nodupe-extract')
+            >>> handler.extract(out)
+            >>> # Verify output
+            >>> assert out.exists()
         """
         self.path = Path(path)
         if not self.path.exists():
@@ -181,13 +189,7 @@ class ArchiveHandler:
         else:
             raise ValueError(f"Unsupported archive type: {self.type}")
 
-        Example:
-            >>> from pathlib import Path
-            >>> handler = ArchiveHandler(Path('tests/fixtures/sample.zip'))
-            >>> out = Path('/tmp/nodupe-extract')
-            >>> handler.extract(out)
-            >>> # Verify output
-            >>> assert out.exists()
+        
 
     def _list_zip(self):
         """List contents of zip archive.

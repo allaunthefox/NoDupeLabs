@@ -34,12 +34,11 @@ class FileRepository:
         Args:
             records: Iterable of (path, size, mtime, hash,
                      mime, context, algo, perms) tuples
-        """
+
         Example:
             >>> repo = FileRepository(DatabaseConnection(Path('/tmp/index.db')))
             >>> rows = [('/a.jpg', 1024, 1600000000, 'h1', 'image/jpeg', 'unarchived', 'sha512', '0')]
             >>> repo.upsert_files(rows)
-
         """
         self.conn.executemany(
             textwrap.dedent(
