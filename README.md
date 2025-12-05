@@ -77,12 +77,19 @@ The JSONL format follows the industry-standard JSON Lines / NDJSON format (see <
 
 ### ✨ Code Quality & Reliability
 
-* **100% Type Safe**: Full type coverage with mypy validation (47/47 files passing)
-* **100% Documented**: Complete docstring coverage across all modules
-* **PEP 8 Compliant**: Zero linting errors with flake8
-* **Python 3.9+ Compatible**: Modern type hints with backwards compatibility
-* **Comprehensive Tests**: 59 tests with unit/integration separation
-* **CI/CD Quality Gates**: Automated quality checks on every commit
+NoDupeLabs enforces automated quality checks so the codebase remains correct
+and maintainable across changes:
+
+- **Type-checked**: The project uses mypy for static type checking on
+  production code (configured in `pyproject.toml` and run in CI).
+- **Docstring coverage**: Docstring coverage is enforced in CI using
+  `interrogate` (configured with a high coverage threshold).
+- **Style / linting**: PEP 8 checks run with `flake8` as part of CI.
+- **Python compatibility**: Requires Python 3.9+ (see `pyproject.toml`).
+- **Automated tests**: A comprehensive test suite (unit/integration/slow
+  markers) runs on CI to help prevent regressions.
+- **CI/CD Quality Gates**: flake8, mypy, docstring coverage and pytest are
+  run automatically on pushes and pull requests.
 
 ---
 
@@ -319,7 +326,7 @@ flake8 nodupe/
 # Type checking (Python 3.9+ compatible)
 mypy nodupe/
 
-# Docstring coverage (100% requirement)
+# Docstring coverage (enforced in CI; threshold configured in pyproject.toml)
 interrogate -vv nodupe/
 
 # Run tests
@@ -335,7 +342,7 @@ All quality tools are configured in `pyproject.toml`:
 
 * **MyPy**: Type checking with Python 3.9 baseline
 * **Pytest**: Test markers for unit/integration/slow tests
-* **Interrogate**: 100% docstring coverage enforcement
+* **Interrogate**: Docstring coverage enforced (threshold configured in pyproject.toml / CI)
 * **Flake8**: PEP 8 compliance (configured in `.flake8`)
 
 ### Continuous Integration
@@ -345,7 +352,7 @@ Quality checks run automatically on every commit:
 * Flake8 linting (must pass)
 * MyPy type checking (must pass)
 * Interrogate docstring coverage (must be 100%)
-* Test suite (59 tests across unit/integration)
+* Test suite (comprehensive tests covering unit, integration and slow markers; run by CI)
 
 See [.github/workflows/ci.yml](.github/workflows/ci.yml) for details.
 
