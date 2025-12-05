@@ -40,6 +40,15 @@ class DB:
         self, records: Iterable[Tuple[str, int, int, str, str, str, str, str]]
     ):
         """Bulk insert or update file metadata records."""
+        """
+        Example:
+            >>> from pathlib import Path
+            >>> db = DB(Path('/tmp/test-index.db'))
+            >>> records = [
+            ...     ('/a.jpg', 1024, 1600000000, 'h1', 'image/jpeg', 'unarchived', 'sha512', '0'),
+            ... ]
+            >>> db.upsert_files(records)
+        """
         self.files.upsert_files(records)
 
     def get_duplicates(self) -> List[Tuple[str, str, str]]:
