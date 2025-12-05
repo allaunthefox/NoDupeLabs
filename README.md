@@ -12,30 +12,34 @@ It generates self-describing `meta.json` manifests for every folder so that arch
 
 ## Overview
 
-NoDupeLabs performs recursive directory scans, identifies unique files using configurable hashing (defaulting to SHA-512), and produces metadata that describes each folder’s structure, file types, and inferred categories.
+NoDupeLabs scans directories recursively, computes content hashes using a configurable hashing algorithm (default: SHA-512), and generates self-describing metadata that captures each folder’s structure, file types, inferred categories, and optional context tags.
 
-Every directory receives a `meta.json` manifest that follows the `nodupe_meta_v1` schema. These manifests are meant to remain valid and machine-readable indefinitely.
+Each scanned directory receives a `meta.json` manifest conforming to the `nodupe_meta_v1` schema. These manifests are designed to be stable, machine-readable, and long-lived so archives remain verifiable even without the original toolset.
 
 ---
 
 ## Features
 
 ### 🛡️ Enhanced Safety & Integrity
-*   **Smart Metadata Updates**: Automatically skips writing `meta.json` if the content hasn't changed, preserving file modification timestamps.
-*   **Read-Only Detection**: Proactively checks for read-only directories and files before attempting writes, preventing crash-loops on protected storage.
-*   **Verification**: New `verify` command validates checkpoints against the current filesystem state to ensure data integrity before applying changes.
+
+* **Smart Metadata Updates**: Automatically skips writing `meta.json` if the content hasn't changed, preserving file modification timestamps.
+* **Read-Only Detection**: Proactively checks for read-only directories and files before attempting writes, preventing crash-loops on protected storage.
+* **Verification**: New `verify` command validates checkpoints against the current filesystem state to ensure data integrity before applying changes.
 
 ### 🚀 Environment Auto-Tuning
+
 NoDupeLabs automatically detects your deployment environment and optimizes its configuration:
-*   **Desktop**: Balances performance with system responsiveness.
-*   **NAS**: Optimizes for network I/O and lower CPU availability.
-*   **Cloud**: Maximizes throughput for high-speed VM storage.
-*   **Container**: Uses conservative defaults for Docker/Kubernetes environments.
+
+* **Desktop**: Balances performance with system responsiveness.
+* **NAS**: Optimizes for network I/O and lower CPU availability.
+* **Cloud**: Maximizes throughput for high-speed VM storage.
+* **Container**: Uses conservative defaults for Docker/Kubernetes environments.
 
 ### 🔍 Advanced Detection
-*   **Contextual Hashing**: Distinguishes between archived (inside zip/tar) and unarchived copies of the same file.
-*   **Expanded MIME Support**: Native detection for modern formats like `.webp`, `.heic`, `.mkv`, and `.json`.
-*   **NSFW Classification**: Multi-tier detection system (filename patterns, metadata analysis) to flag potential sensitive content.
+
+* **Contextual Hashing**: Distinguishes between archived (inside zip/tar) and unarchived copies of the same file.
+* **Expanded MIME Support**: Native detection for modern formats like `.webp`, `.heic`, `.mkv`, and `.json`.
+* **NSFW Classification**: Multi-tier detection system (filename patterns, metadata analysis) to flag potential sensitive content.
 
 ### Video handling and file formats
 
@@ -43,41 +47,42 @@ NoDupe now supports basic video identification by extracting a representative fr
 
 Index files can be persisted in human-readable formats so they can be inspected or processed by plain text tools or an LLM. Supported index formats include:
 
-- `.npz` (numpy compressed) — compact binary format
-- `.json` — full JSON object with `dim`, `ids`, and `vectors` entries
-- `.jsonl` — JSON lines, one entry per id/vector pair (easy to stream/process)
+* `.npz` (numpy compressed) — compact binary format
+* `.json` — full JSON object with `dim`, `ids`, and `vectors` entries
+* `.jsonl` — JSON lines, one entry per id/vector pair (easy to stream/process)
 
 When converting video files, the project uses widely supported codecs/containers by default, for example:
 
-- MP4 -> H.264 (libx264) + AAC audio
-- WebM -> VP9 (libvpx-vp9) + Opus audio
-- MKV -> H.264 (libx264) + AAC audio
-- AVI -> MPEG4
+* MP4 -> H.264 (libx264) + AAC audio
+* WebM -> VP9 (libvpx-vp9) + Opus audio
+* MKV -> H.264 (libx264) + AAC audio
+* AVI -> MPEG4
 
 These formats are chosen for compatibility with common desktop tools and text-based tooling for metadata.
 
 Schema & spec files
 -------------------
+
 If you want to validate or inspect the exact format, NoDupe includes JSON Schema files under `nodupe/schemas/`:
 
-- `nodupe/schemas/index.json.schema` — schema for `.json` index files
-- `nodupe/schemas/index.jsonl.schema` — schema for each line in `.jsonl` files
+* `nodupe/schemas/index.json.schema` — schema for `.json` index files
+* `nodupe/schemas/index.jsonl.schema` — schema for each line in `.jsonl` files
 
-The JSONL format follows the industry-standard JSON Lines / NDJSON format (see https://jsonlines.org/).
+The JSONL format follows the industry-standard JSON Lines / NDJSON format (see <https://jsonlines.org/>).
 
 ### 📦 Smart Dependency Management
 
-*   **Auto-Install**: Automatically detects and installs optional dependencies (like `psutil`, `tqdm`, `pillow`) at runtime if they are missing.
-*   **Graceful Degradation**: If dependencies cannot be installed, the system falls back to standard library implementations without crashing.
+* **Auto-Install**: Automatically detects and installs optional dependencies (like `psutil`, `pillow`) at runtime if they are missing.
+* **Graceful Degradation**: If dependencies cannot be installed, the system falls back to standard library implementations without crashing.
 
 ### ✨ Code Quality & Reliability
 
-*   **100% Type Safe**: Full type coverage with mypy validation (47/47 files passing)
-*   **100% Documented**: Complete docstring coverage across all modules
-*   **PEP 8 Compliant**: Zero linting errors with flake8
-*   **Python 3.9+ Compatible**: Modern type hints with backwards compatibility
-*   **Comprehensive Tests**: 59 tests with unit/integration separation
-*   **CI/CD Quality Gates**: Automated quality checks on every commit
+* **100% Type Safe**: Full type coverage with mypy validation (47/47 files passing)
+* **100% Documented**: Complete docstring coverage across all modules
+* **PEP 8 Compliant**: Zero linting errors with flake8
+* **Python 3.9+ Compatible**: Modern type hints with backwards compatibility
+* **Comprehensive Tests**: 59 tests with unit/integration separation
+* **CI/CD Quality Gates**: Automated quality checks on every commit
 
 ---
 
@@ -95,7 +100,8 @@ pip install -e .
 ```
 
 ### Minimal/Offline Operation
-NoDupeLabs includes vendored copies of essential libraries (`tqdm`, `PyYAML`) in `nodupe/vendor/libs`. If the system Python environment lacks these dependencies, the application will automatically use the bundled versions, ensuring basic functionality works out-of-the-box.
+
+NoDupeLabs includes vendored copies of essential libraries (`PyYAML`) in `nodupe/vendor/libs`. If the system Python environment lacks these dependencies, the application will automatically use the bundled versions, ensuring basic functionality works out-of-the-box.
 
 If you want a reliable baseline runtime for ML inference (e.g. `onnxruntime`) we've added support for vendoring runtime wheels into `nodupe/vendor/libs` and a helper to install them into your environment.
 
@@ -117,91 +123,115 @@ python -m pip install --no-index --find-links nodupe/vendor/libs onnxruntime
 ## Command Reference
 
 ### `init`
+
 Initialize the configuration file (`nodupe.yml`) with a specific preset.
 
 ```bash
 nodupe init [--preset default|performance|paranoid|media|ebooks|audiobooks|archives] [--force]
 ```
-*   `--preset`: Choose a configuration profile:
-    *   `default`: Balanced settings (SHA-512, safe defaults).
-    *   `performance`: Faster hashing (BLAKE2b), less logging, validation disabled.
-    *   `paranoid`: Maximum safety (SHA-512, strict validation, dry-run enabled).
-    *   `media`: Optimized for images/video (BLAKE2b, AI enabled, larger similarity index).
-    *   `ebooks`: Optimized for text/PDFs (SHA-256, AI disabled, pretty metadata).
-    *   `audiobooks`: Optimized for audio collections (BLAKE2b, AI disabled, extra ignore patterns).
-    *   `archives`: Optimized for long-term storage (SHA-512, debug logging).
-*   `--force`: Overwrite existing configuration file.
+
+* `--preset`: Choose a configuration profile:
+  * `default`: Balanced settings (SHA-512, safe defaults).
+  * `performance`: Faster hashing (BLAKE2b), less logging, validation disabled.
+  * `paranoid`: Maximum safety (SHA-512, strict validation, dry-run enabled).
+  * `media`: Optimized for images/video (BLAKE2b, AI enabled, larger similarity index).
+  * `ebooks`: Optimized for text/PDFs (SHA-256, AI disabled, pretty metadata).
+  * `audiobooks`: Optimized for audio collections (BLAKE2b, AI disabled, extra ignore patterns).
+  * `archives`: Optimized for long-term storage (SHA-512, debug logging).
+* `--force`: Overwrite existing configuration file.
 
 ### `scan`
+
 Walks through specified directories, computes hashes, and populates the database.
-*   **Incremental Scanning**: Automatically skips re-hashing files that haven't changed (based on size and modification time) since the last scan.
-*   **Pre-flight Checks**: Verifies input readability and output writability before starting.
+
+* **Incremental Scanning**: Automatically skips re-hashing files that haven't changed (based on size and modification time) since the last scan.
+* **Pre-flight Checks**: Verifies input readability and output writability before starting.
 
 ```bash
 nodupe scan --root /path/to/data [--root /another/path]
 ```
-*   `--root`: Directory to scan. Can be specified multiple times.
+
+* `--root`: Directory to scan. Can be specified multiple times.
 
 ### `plan`
+
 Analyzes the database for duplicates and generates a CSV action plan.
-*   **Strategy**: By default, keeps the first file found and marks others for moving to a `.nodupe_duplicates` folder.
+
+* **Strategy**: By default, keeps the first file found and marks others for moving to a `.nodupe_duplicates` folder.
 
 ```bash
 nodupe plan --out plan.csv
 ```
-*   `--out`: Path to save the generated CSV plan.
+
+* `--out`: Path to save the generated CSV plan.
 
 ### `apply`
+
 Executes the actions defined in a plan CSV.
-*   **Safety**: Creates a checkpoint file before moving any files, allowing for rollback.
+
+* **Safety**: Creates a checkpoint file before moving any files, allowing for rollback.
 
 ```bash
 nodupe apply --plan plan.csv --checkpoint output/checkpoints/chk_01.json [--force]
 ```
-*   `--plan`: Path to the CSV plan generated by `plan`.
-*   `--checkpoint`: Path to save the rollback checkpoint.
-*   `--force`: Execute changes immediately (disables dry-run mode).
+
+* `--plan`: Path to the CSV plan generated by `plan`.
+* `--checkpoint`: Path to save the rollback checkpoint.
+* `--force`: Execute changes immediately (disables dry-run mode).
 
 ### `verify`
+
 Validates a checkpoint file against the current filesystem state.
-*   Ensures that files listed in the checkpoint still exist and haven't been modified before attempting a rollback.
+
+* Ensures that files listed in the checkpoint still exist and haven't been modified before attempting a rollback.
 
 ```bash
 nodupe verify --checkpoint output/checkpoints/chk_01.json
 ```
 
 ### `rollback`
+
 Undoes a previous `apply` operation using its checkpoint file.
-*   Moves files back to their original locations.
+
+* Moves files back to their original locations.
 
 ```bash
 nodupe rollback --checkpoint output/checkpoints/chk_01.json
 ```
 
 ### `similarity`
+
 Tools for finding near-duplicates (e.g., resized images) using vector embeddings.
 
 #### `build`
+
 Creates a similarity index from the database.
+
 ```bash
 nodupe similarity build --out index.npz (or .json/.jsonl) [--dim 16]
 ```
 
 #### `update`
+
 Incrementally updates an existing index with new files from the database.
+
 ```bash
 nodupe similarity update --index-file index.npz|index.json|index.jsonl [--rebuild]
 ```
-*   `--index-file`: Path to the existing index.
-*   `--rebuild`: Completely rebuild the index from the DB, removing stale entries.
+
+* `--index-file`: Path to the existing index.
+* `--rebuild`: Completely rebuild the index from the DB, removing stale entries.
 
 #### `query`
+
 Finds files similar to a target file.
+
 ```bash
 nodupe similarity query target.jpg --index-file index.npz|index.json|index.jsonl [-k 5]
 ```
 
 ### `archive`
+
 Utilities for inspecting archive files (zip, tar, etc.) without extracting them.
 
 ```bash
@@ -210,8 +240,10 @@ nodupe archive extract file.zip --dest /tmp/out
 ```
 
 ### `mount`
+
 Mounts the NoDupeLabs database as a read-only FUSE filesystem (Linux only).
-*   Allows browsing files by hash, size, or type.
+
+* Allows browsing files by hash, size, or type.
 
 ```bash
 nodupe mount /mnt/nodupe
@@ -223,11 +255,11 @@ nodupe mount /mnt/nodupe
 
 Configuration is handled via `nodupe.yml`. If it doesn't exist, a default one is generated on the first run. Key settings include:
 
-*   `db_path`: Location of the SQLite database (default: `output/index.db`).
-*   `log_dir`: Directory for logs (default: `output/logs`).
-*   `parallelism`: Number of threads for scanning (0 = auto).
-*   `ignore_patterns`: List of file/folder patterns to skip (e.g., `.git`, `node_modules`).
-*   `ai`: Settings for the optional AI backend (ONNX/PyTorch).
+* `db_path`: Location of the SQLite database (default: `output/index.db`).
+* `log_dir`: Directory for logs (default: `output/logs`).
+* `parallelism`: Number of threads for scanning (0 = auto).
+* `ignore_patterns`: List of file/folder patterns to skip (e.g., `.git`, `node_modules`).
+* `ai`: Settings for the optional AI backend (ONNX/PyTorch).
 
 ```yaml
 hash_algo: sha512
