@@ -1,0 +1,10 @@
+pytest
+pytest-asyncio
+pytest-xdist
+sphinx
+interrogate
+flake8
+mypy
+types-PyYAML
+onnx
+numpy
