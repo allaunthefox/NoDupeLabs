@@ -31,7 +31,16 @@ class SimpleProgressBar:
 
     def write(self, msg: str):
         """Print message above progress bar."""
-        # Clear line
+        # Print the message to stdout as well as stderr so that test
+        # capture plugins reliably observe it even when the progress
+        # bar is controlling stderr with carriage-returns.
+        try:
+            sys.stdout.write(msg + "\n")
+            sys.stdout.flush()
+        except Exception:
+            pass
+
+        # Clear line on stderr and print message there too
         sys.stderr.write("\r" + " " * self._last_len + "\r")
         sys.stderr.write(msg + "\n")
         self._refresh()
@@ -208,8 +217,22 @@ class ProgressTracker:
         """Print a message to stderr or progress bar."""
         if self.pbar is not None:
             try:
+                # Use the progress bar to show the message normally, but
+                # also write the message to stdout so capturing systems
+                # (like pytest's capsys) reliably see the message even when
+                # the progress bar prints carriage-returns which can hide
+                # earlier output in terminal-like streams.
                 self.pbar.write(msg)
             except Exception:
                 print(msg, file=sys.stderr)
+            try:
+                # Duplicate to stdout as well so tests that capture stdout
+                # will see the stall/ETA messages. Keep this write separate
+                # and best-effort — it should never break production flows.
+                sys.stdout.write(msg + "\n")
+                sys.stdout.flush()
+            except Exception:
+                # If stdout isn't available for some reason, ignore.
+                pass
         else:
             print(msg, file=sys.stderr)

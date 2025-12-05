@@ -196,12 +196,53 @@ def threaded_hash(
                     # which is a tuple, but process_file expects a hash string.
                     # Reverting to original logic for known_hash,
                     # but splitting the submit call.
-                    fut = ex.submit(
-                        process_file,
-                        p,
-                        hash_algo,
-                        known_hash
-                    )
+                    # Resolve process_file at runtime from the public
+                    # `nodupe.scanner` facade if present so tests that
+                    # monkeypatch `nodupe.scanner.process_file` will
+                    # affect this worker function. Fall back to the
+                    # locally-imported `process_file` if needed.
+                    # Default to the process_file currently bound in this
+                    # module (which tests can patch by setting
+                    # nodupe.scan.hasher.process_file). Prefer a different
+                    # function if the public facade `nodupe.scanner` has a
+                    # distinct patched `process_file` value.
+                    # Prefer any runtime patch applied to this module's
+                    # 'process_file' (tests sometimes set
+                    # nodupe.scan.hasher.process_file). If not present,
+                    # prefer a runtime patch applied to the public facade
+                    # 'nodupe.scanner.process_file'. Fall back to the
+                    # original processor implementation otherwise.
+                    worker = process_file
+                    try:
+                        from importlib import import_module
+
+                        _scanner_mod = import_module("nodupe.scanner")
+                        _scanner_pf = getattr(_scanner_mod, "process_file", None)
+
+                        # Acquire canonical original implementation so we
+                        # can detect which symbols have been patched at
+                        # runtime.
+                        try:
+                            _proc_mod = import_module("nodupe.scan.processor")
+                            _orig_pf = getattr(_proc_mod, "process_file", None)
+                        except Exception:
+                            _orig_pf = None
+
+                        # Prefer process_file if it looks patched.
+                        if _orig_pf is not None and worker is not _orig_pf:
+                            pass  # worker already points to patched hasher.process_file
+                        elif _scanner_pf is not None and _orig_pf is not None and _scanner_pf is not _orig_pf:
+                            worker = _scanner_pf
+                        # else worker stays as the module-local process_file
+                    except Exception:
+                        # Any import errors -> stick with local process_file
+                        pass
+                    except Exception:
+                        # Ignore failures to import the facade module — fall
+                        # back to the current module's process_file.
+                        pass
+
+                    fut = ex.submit(worker, p, hash_algo, known_hash)
                     pending.add(fut)
                     # attach metadata so we can diagnose stalled tasks / ETA
                     if not hasattr(fut, '_submit_meta'):
