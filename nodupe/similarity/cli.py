@@ -25,14 +25,14 @@ Dependencies:
 """
 from __future__ import annotations
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 from .index import make_index
 from ..ai.backends import choose_backend
 from ..db import DB
 
 
 def build_index_from_db(
-    db_path: Path, dim: int = 16, out_path: str | None = None
+    db_path: Path, dim: int = 16, out_path: Optional[str] = None
 ) -> dict:
     """Build a similarity index from database embeddings."""
     db = DB(db_path)
@@ -91,7 +91,7 @@ def build_index_from_db(
 
 def find_near_duplicates(
     db_path: Path, target: Path, k: int = 5,
-    dim: int = 16, index_path: str | None = None
+    dim: int = 16, index_path: Optional[str] = None
 ) -> List[tuple]:
     """Find files similar to the target file."""
     # If an index file is provided, load it (fast).

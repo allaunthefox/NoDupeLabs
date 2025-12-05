@@ -29,6 +29,7 @@ Example:
 import json
 from pathlib import Path
 from datetime import datetime, timezone
+import threading
 
 
 class JsonlLogger:
@@ -54,6 +55,8 @@ class JsonlLogger:
         self.keep = keep
         self.log_dir.mkdir(parents=True, exist_ok=True)
         self.current_log = self.log_dir / "nodupe.log.jsonl"
+        # Protect rotation and writes from concurrent threads
+        self._lock = threading.RLock()
         self._rotate_if_needed()
 
     def _rotate_if_needed(self):
@@ -62,8 +65,9 @@ class JsonlLogger:
         Renames the current log file with a timestamp suffix and
         triggers cleanup of old logs.
         """
-        if not self.current_log.exists():
-            return
+        with self._lock:
+            if not self.current_log.exists():
+                return
         if self.current_log.stat().st_size > self.rotate_mb * 1024 * 1024:
             ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             self.current_log.rename(self.log_dir / f"nodupe.log.{ts}.jsonl")
@@ -75,7 +79,8 @@ class JsonlLogger:
         Sorts log files by name (which includes timestamp) and deletes
         the oldest ones until the count is within the 'keep' limit.
         """
-        logs = sorted(self.log_dir.glob("nodupe.log.*.jsonl"))
+        with self._lock:
+            logs = sorted(self.log_dir.glob("nodupe.log.*.jsonl"))
         while len(logs) > self.keep:
             logs.pop(0).unlink()
 
@@ -93,5 +98,7 @@ class JsonlLogger:
             "event": event,
             "data": kwargs
         }
-        with self.current_log.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(entry) + "\n")
+        # Use a lock to avoid races with rotation / cleanup
+        with self._lock:
+            with self.current_log.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(entry) + "\n")

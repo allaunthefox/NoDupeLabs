@@ -28,23 +28,52 @@ Topic Inference:
 Key Features:
     - MIME type to category mapping
     - Extension-based fallback for archives
-    - Consistent dict return format
+    - Immutable FileCategory dataclass
     - Case-insensitive matching
 
 Dependencies:
-    - typing: Type hints only
+    - dataclasses: FileCategory definition
+    - typing: Type hints
 
 Example:
     >>> categorize_file('image/jpeg', 'photo.jpg')
-    {'category': 'image', 'subtype': 'photo', 'topic': None}
+    FileCategory(category='image', subtype='photo', topic=None)
     >>> categorize_file('application/zip', 'archive.zip')
-    {'category': 'archive', 'subtype': 'compressed', 'topic': None}
+    FileCategory(category='archive', subtype='compressed', topic=None)
 """
 
+from dataclasses import dataclass
 from typing import Dict, Optional
 
 
-def categorize_file(mime: str, name: str) -> Dict[str, Optional[str]]:
+@dataclass(frozen=True)
+class FileCategory:
+    """Immutable file category classification.
+
+    Attributes:
+        category: High-level category (image, video, text, archive, other)
+        subtype: Specific subtype (photo, clip, textfile, compressed, unknown)
+        topic: Optional topic inference (reserved for future use)
+    """
+
+    category: str
+    subtype: str
+    topic: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Optional[str]]:
+        """Convert to dict for backwards compatibility.
+
+        Returns:
+            Dict with category, subtype, and topic keys
+        """
+        return {
+            "category": self.category,
+            "subtype": self.subtype,
+            "topic": self.topic
+        }
+
+
+def categorize_file(mime: str, name: str) -> FileCategory:
     """Classify file by MIME type and extension.
 
     Categorizes files into high-level categories (image, video, text,
@@ -56,30 +85,27 @@ def categorize_file(mime: str, name: str) -> Dict[str, Optional[str]]:
         name: Filename (e.g., 'photo.jpg', 'archive.zip')
 
     Returns:
-        Dict with classification keys:
-            - category: High-level category (str)
-            - subtype: Specific subtype (str)
-            - topic: Optional topic inference (str or None)
+        FileCategory with classification
 
     Example:
         >>> categorize_file('image/png', 'screenshot.png')
-        {'category': 'image', 'subtype': 'photo', 'topic': None}
+        FileCategory(category='image', subtype='photo', topic=None)
         >>> categorize_file('video/mp4', 'movie.mp4')
-        {'category': 'video', 'subtype': 'clip', 'topic': None}
+        FileCategory(category='video', subtype='clip', topic=None)
         >>> categorize_file('application/zip', 'data.zip')
-        {'category': 'archive', 'subtype': 'compressed', 'topic': None}
+        FileCategory(category='archive', subtype='compressed', topic=None)
         >>> categorize_file('application/octet-stream', 'unknown.bin')
-        {'category': 'other', 'subtype': 'unknown', 'topic': None}
+        FileCategory(category='other', subtype='unknown', topic=None)
     """
     mime = (mime or "").lower()
     name = (name or "").lower()
 
     if mime.startswith("image"):
-        return {"category": "image", "subtype": "photo", "topic": None}
+        return FileCategory("image", "photo")
     if mime.startswith("video"):
-        return {"category": "video", "subtype": "clip", "topic": None}
+        return FileCategory("video", "clip")
     if name.endswith(".txt"):
-        return {"category": "text", "subtype": "textfile", "topic": None}
+        return FileCategory("text", "textfile")
 
     # Archive detection
     if mime in (
@@ -94,6 +120,6 @@ def categorize_file(mime: str, name: str) -> Dict[str, Optional[str]]:
     ) or name.endswith((
         ".zip", ".7z", ".rar", ".tar", ".gz", ".bz2", ".xz", ".zst"
     )):
-        return {"category": "archive", "subtype": "compressed", "topic": None}
+        return FileCategory("archive", "compressed")
 
-    return {"category": "other", "subtype": "unknown", "topic": None}
+    return FileCategory("other", "unknown")

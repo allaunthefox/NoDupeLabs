@@ -22,6 +22,7 @@ Attributes:
 """
 
 import sys
+import threading
 from typing import Callable, Dict, List, Any
 
 
@@ -36,19 +37,27 @@ class PluginManager:
     def __init__(self):
         self._hooks: Dict[str, List[Callable]] = {}
         self._loaded_plugins: List[str] = []
+        # Lock to ensure register/emit/load_plugins are safe when used across
+        # threads. Plugins are generally loaded at startup, but emit may be
+        # called from worker threads during scans.
+        self._lock = threading.RLock()
 
     def register(self, event: str, callback: Callable):
         """Register a callback for an event."""
-        if event not in self._hooks:
-            self._hooks[event] = []
-        self._hooks[event].append(callback)
+        with self._lock:
+            if event not in self._hooks:
+                self._hooks[event] = []
+            self._hooks[event].append(callback)
 
     def emit(self, event: str, **kwargs: Any):
         """Emit an event, calling all registered callbacks."""
-        if event not in self._hooks:
-            return
+        # Copy callbacks under lock and invoke them without holding the lock
+        # to avoid re-entrant deadlocks if callbacks register/unregister
+        # other hooks.
+        with self._lock:
+            callbacks = list(self._hooks.get(event, ()))
 
-        for callback in self._hooks[event]:
+        for callback in callbacks:
             try:
                 callback(**kwargs)
             except Exception as e:
@@ -82,7 +91,8 @@ class PluginManager:
                             mod.pm = self
                             sys.modules[module_name] = mod
                             spec.loader.exec_module(mod)
-                            self._loaded_plugins.append(module_name)
+                                with self._lock:
+                                    self._loaded_plugins.append(module_name)
                             # print(f"[plugin] Loaded {module_name}")
                     except Exception as e:
                         print(

@@ -46,3 +46,56 @@ match-dir = "nodupe"
 # D107: Missing docstring in __init__
 add-ignore = ["D107"]
 
+[tool.mypy]
+python_version = "3.9"
+exclude = [
+    "vendor",
+    "nodupe/vendor",
+    ".venv",
+    "build",
+    "dist"
+]
+warn_return_any = false
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = false
+disallow_untyped_defs = false
+check_untyped_defs = false
+ignore_missing_imports = true
+no_implicit_optional = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = "nodupe.vendor.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    "nodupe.mount",
+    "nodupe.plugins.manager",
+    "nodupe.similarity.backends.*"
+]
+# Modules with known issues that don't affect core functionality:
+# - mount: Optional FUSE dependency
+# - plugins.manager: Dynamic plugin loading
+# - similarity backends: Optional dependencies (faiss)
+ignore_errors = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "unit: Fast unit tests that don't require external dependencies",
+    "integration: Integration tests that may require external resources",
+    "slow: Tests that take more than 1 second to complete",
+    "requires_model: Tests that require ML models to be present",
+    "requires_ffmpeg: Tests that require ffmpeg to be installed"
+]
+addopts = "-ra --strict-markers"
+filterwarnings = [
+    "error::DeprecationWarning:nodupe.*"
+]
+

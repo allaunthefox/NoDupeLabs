@@ -48,6 +48,7 @@ Example:
 
 from pathlib import Path
 import csv
+import os
 from typing import Dict, Iterable
 
 
@@ -56,6 +57,9 @@ def ensure_unique(p: Path) -> Path:
 
     If the given path exists, appends -1, -2, etc. to the filename
     (before extension) until a non-existing path is found.
+
+    Uses atomic file creation (O_CREAT | O_EXCL) to avoid race conditions
+    between concurrent processes checking for file existence.
 
     Args:
         p: Path that may have collision
@@ -71,15 +75,43 @@ def ensure_unique(p: Path) -> Path:
         /data/file-1.txt
     """
     p = Path(p)
-    if not p.exists():
+
+    # Try to atomically create a lock file to avoid race conditions
+    # between checking existence and using the path
+    def try_reserve(candidate: Path) -> bool:
+        """Try to atomically reserve a path."""
+        try:
+            # Use O_CREAT | O_EXCL for atomic creation
+            # This fails if file already exists
+            fd = os.open(
+                str(candidate),
+                os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+                0o644
+            )
+            os.close(fd)
+            # File created - we own it, but we want to return path for
+            # future use, so delete the empty placeholder
+            candidate.unlink()
+            return True
+        except FileExistsError:
+            return False
+        except OSError:
+            # Other errors (permission, disk full, etc.)
+            # Fall back to exists() check
+            return not candidate.exists()
+
+    # Fast path: if file doesn't exist, try to reserve it
+    if try_reserve(p):
         return p
+
+    # Slow path: find a unique name
     base = p.stem
     suffix = p.suffix
     parent = p.parent
     i = 1
     while True:
         cand = parent / f"{base}-{i}{suffix}"
-        if not cand.exists():
+        if try_reserve(cand):
             return cand
         i += 1
 

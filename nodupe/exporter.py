@@ -50,9 +50,10 @@ import json
 from pathlib import Path
 from collections import Counter
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set
 from .categorizer import categorize_file
 from .validator import validate_meta_dict
+from .io import FileWriter
 
 
 def _iso_now():
@@ -77,7 +78,8 @@ def _iso_now():
 
 def write_folder_meta(
     folder_path: Path, file_records: List[Dict[str, Any]],
-    root_path: Path, pretty: bool = False, silent: bool = True
+    root_path: Path, pretty: bool = False, silent: bool = True,
+    writer: Optional[FileWriter] = None
 ):
     """Write nodupe_meta_v1 manifest to folder.
 
@@ -138,7 +140,7 @@ def write_folder_meta(
     ]
 
     cats = Counter([
-        categorize_file(r["mime"], r["name"])["category"]
+        categorize_file(r["mime"], r["name"]).category
         for r in filtered_records
     ])
     topics: List[str] = []
@@ -146,8 +148,9 @@ def write_folder_meta(
 
     for r in filtered_records:
         c = categorize_file(r["mime"], r["name"])
-        if c.get("topic"):
-            topics.append(c["topic"])
+        topic = c.topic
+        if topic:
+            topics.append(topic)
 
         # Keywords from filename
         stem = Path(r["name"]).stem.replace("_", " ").replace("-", " ")
@@ -155,8 +158,8 @@ def write_folder_meta(
             if tok and tok.isascii() and tok[0].isalpha() and len(tok) >= 3:
                 keywords.add(tok[:32])
 
-    topics = sorted({t for t in topics if t})[:8]
-    keywords = list(sorted(keywords))[:16]
+    topics_list = list(sorted({t for t in topics if t}))[:8]
+    keywords_list = list(sorted(keywords))[:16]
 
     meta = {
         "spec": "nodupe_meta_v1",
@@ -171,8 +174,8 @@ def write_folder_meta(
             "files_total": len(filtered_records),
             "bytes_total": sum(int(r["size"]) for r in filtered_records),
             "categories": dict(cats),
-            "topics": topics,
-            "keywords": keywords
+            "topics": topics_list,
+            "keywords": keywords_list
         },
         "entries": []
     }
@@ -186,9 +189,9 @@ def write_folder_meta(
             "file_hash": r["file_hash"],
             "hash_algo": r.get("hash_algo", "sha512"),
             "mime": r["mime"],
-            "category": c["category"],
-            "subtype": c["subtype"],
-            "topic": c["topic"]
+            "category": c.category,
+            "subtype": c.subtype,
+            "topic": c.topic
         }
         if "context_tag" in r:
             entry["context_tag"] = r["context_tag"]

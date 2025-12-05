@@ -32,7 +32,7 @@ Example:
 
 import re
 from pathlib import Path
-from typing import Dict, Optional, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from .deps import check_dep
 
 
@@ -88,12 +88,19 @@ class NSFWClassifier:
         r'\b(meme|funny|joke|reaction)\b': -2,
     }
 
-    def __init__(self, threshold: int = 2):
+    def __init__(
+        self,
+        threshold: int = 2,
+        backend: Optional[Any] = None
+    ):
         """
         Initialize NSFW classifier.
 
         Args:
             threshold: Minimum score (0-3) to flag content as NSFW
+            backend: Optional AI backend for ML classification.
+                     If None, will attempt to auto-create one.
+                     Pass False to disable ML classification entirely.
         """
         if not 0 <= threshold <= 3:
             raise ValueError(f"Threshold must be 0-3, got {threshold}")
@@ -101,12 +108,20 @@ class NSFWClassifier:
         self.threshold = threshold
         self.has_pillow = check_dep("pillow")
 
-        # Optional ML backend (ONNX/CPU fallback)
-        try:
-            from .ai.backends import choose_backend
-            self.backend = choose_backend()
-        except Exception:  # pylint: disable=broad-except
+        # Dependency injection: accept backend or auto-create
+        if backend is False:
+            # Explicitly disabled
             self.backend = None
+        elif backend is not None:
+            # Injected backend
+            self.backend = backend
+        else:
+            # Auto-create (backwards compatibility)
+            try:
+                from .ai.backends import choose_backend
+                self.backend = choose_backend()
+            except Exception:  # pylint: disable=broad-except
+                self.backend = None  # type: ignore[assignment]
 
         # Compile regex patterns for performance
         self._filename_regex = [
@@ -118,7 +133,7 @@ class NSFWClassifier:
             for pattern, weight in self.SAFE_PATTERNS.items()
         ]
 
-    def classify(self, path: Path, mime: str) -> Dict[str, any]:
+    def classify(self, path: Path, mime: str) -> Dict[str, Any]:
         """
         Classify file for NSFW content.
 
@@ -225,8 +240,7 @@ class NSFWClassifier:
             Tuple of (score_adjustment, reason)
         """
         try:
-            # type: ignore # pylint: disable=import-error
-            from PIL import Image
+            from PIL import Image  # type: ignore[import-not-found]
 
             with Image.open(path) as img:
                 width, height = img.size
@@ -279,7 +293,7 @@ class NSFWClassifier:
             results[str(path)] = self.classify(path, mime)
         return results
 
-    def get_statistics(self, results: Dict[str, Dict]) -> Dict[str, any]:
+    def get_statistics(self, results: Dict[str, Dict]) -> Dict[str, Any]:
         """
         Calculate statistics from batch classification results.
 

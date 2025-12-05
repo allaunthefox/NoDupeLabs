@@ -25,7 +25,7 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Optional, Tuple
 import time
 import concurrent.futures as futures
 
@@ -109,7 +109,7 @@ def iter_files(
 
 
 def process_file(
-    p: Path, hash_algo: str, known_hash: str | None = None
+    p: Path, hash_algo: str, known_hash: Optional[str] = None
 ) -> Tuple[str, int, int, str, str, str, str, str]:
     """Process a single file and return a metadata tuple.
 
@@ -148,14 +148,14 @@ def process_file(
 def threaded_hash(
     roots: Iterable[str], ignore: List[str], workers: int = 4,
     hash_algo: str = "sha512", follow_symlinks: bool = False,
-    known_files: dict | None = None,
+    known_files: Optional[dict] = None,
     heartbeat_interval: float = 10.0,
-    stall_timeout: float | None = None,
+    stall_timeout: Optional[float] = None,
     # Backwards-compatible alias (some tests/older callers):
-    stalled_timeout: float | None = None,
+    stalled_timeout: Optional[float] = None,
     # Default hard timeout so callers don't hang indefinitely. Tests may
     # override this to a smaller value when exercising timeout behavior.
-    max_idle_time: float | None = 300.0,
+    max_idle_time: Optional[float] = 300.0,
     show_eta: bool = True,
     *,
     # When collect=True, return (list_of_results, duration_s, total_count).

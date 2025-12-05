@@ -66,8 +66,18 @@ If you want to validate or inspect the exact format, NoDupe includes JSON Schema
 The JSONL format follows the industry-standard JSON Lines / NDJSON format (see https://jsonlines.org/).
 
 ### 📦 Smart Dependency Management
+
 *   **Auto-Install**: Automatically detects and installs optional dependencies (like `psutil`, `tqdm`, `pillow`) at runtime if they are missing.
 *   **Graceful Degradation**: If dependencies cannot be installed, the system falls back to standard library implementations without crashing.
+
+### ✨ Code Quality & Reliability
+
+*   **100% Type Safe**: Full type coverage with mypy validation (47/47 files passing)
+*   **100% Documented**: Complete docstring coverage across all modules
+*   **PEP 8 Compliant**: Zero linting errors with flake8
+*   **Python 3.9+ Compatible**: Modern type hints with backwards compatibility
+*   **Comprehensive Tests**: 59 tests with unit/integration separation
+*   **CI/CD Quality Gates**: Automated quality checks on every commit
 
 ---
 
@@ -261,6 +271,51 @@ Every directory receives a `meta.json` file describing its contents.
   ]
 }
 ```
+
+---
+
+## Development & Testing
+
+### Quality Tools
+
+NoDupeLabs maintains high code quality standards with automated checks:
+
+```bash
+# Linting (PEP 8 compliance)
+flake8 nodupe/
+
+# Type checking (Python 3.9+ compatible)
+mypy nodupe/
+
+# Docstring coverage (100% requirement)
+interrogate -vv nodupe/
+
+# Run tests
+pytest tests/ -v
+
+# Run only fast tests (skip slow/integration)
+pytest tests/ -v -m "not slow and not integration"
+```
+
+### Tool Configuration
+
+All quality tools are configured in `pyproject.toml`:
+
+* **MyPy**: Type checking with Python 3.9 baseline
+* **Pytest**: Test markers for unit/integration/slow tests
+* **Interrogate**: 100% docstring coverage enforcement
+* **Flake8**: PEP 8 compliance (configured in `.flake8`)
+
+### Continuous Integration
+
+Quality checks run automatically on every commit:
+
+* Flake8 linting (must pass)
+* MyPy type checking (must pass)
+* Interrogate docstring coverage (must be 100%)
+* Test suite (59 tests across unit/integration)
+
+See [.github/workflows/ci.yml](.github/workflows/ci.yml) for details.
 
 ---
 

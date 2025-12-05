@@ -16,3 +16,4 @@ nodupe.yml
 *.log
 *.tmp
 *.db
+pytest.ini.deprecated

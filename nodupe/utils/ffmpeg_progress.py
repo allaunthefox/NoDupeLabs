@@ -42,9 +42,10 @@ Example:
 import os
 import subprocess
 import sys
+from typing import Optional
 
 
-def _parse_time_string(value: str) -> float | None:
+def _parse_time_string(value: str) -> Optional[float]:
     """Parse FFmpeg time string to seconds.
 
     Supports multiple formats:
@@ -96,7 +97,7 @@ def _parse_time_string(value: str) -> float | None:
     return None
 
 
-def _parse_ffmpeg_duration_from_cmd(cmd: list) -> float | None:
+def _parse_ffmpeg_duration_from_cmd(cmd: list) -> Optional[float]:
     """Infer expected duration from FFmpeg command arguments.
 
     Parses FFmpeg timing arguments to estimate operation duration.
@@ -181,8 +182,8 @@ def _parse_ffmpeg_duration_from_cmd(cmd: list) -> float | None:
 
 
 def run_ffmpeg_with_progress(
-    cmd, expected_duration: float | None = None, max_wait=12,
-    timeout: float | None = None, force_mode: str | None = None,
+    cmd, expected_duration: Optional[float] = None, max_wait=12,
+    timeout: Optional[float] = None, force_mode: Optional[str] = None,
     probe_input_duration: bool = True, show_eta: bool = True
 ):
     """Execute FFmpeg command with progress monitoring.

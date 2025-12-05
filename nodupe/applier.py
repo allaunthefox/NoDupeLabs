@@ -51,8 +51,10 @@ Example:
 import shutil
 import json
 import time
+import tempfile
+import uuid
 from pathlib import Path
-from typing import List, Dict
+from typing import Any, Dict, List
 
 
 def apply_moves(
@@ -99,6 +101,7 @@ def apply_moves(
     results = {"success": 0, "errors": 0, "skipped": 0}
     manifest: Dict[str, Any] = {
         "ts": time.time(),
+        "status": "pending",
         "moves": []
     }
 
@@ -127,27 +130,66 @@ def apply_moves(
         print(f"[apply] Dry run: would move {len(valid_moves)} files.")
         return results
 
-    # 2. Execute
-    for src, dst, row in valid_moves:
-        try:
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(str(src), str(dst))
-
-            manifest["moves"].append({
-                "src": str(src),
-                "dst": str(dst),
-                "ts": time.time()
-            })
-            results["success"] += 1
-        except OSError as e:
-            print(f"[apply][ERROR] Failed to move {src} -> {dst}: {e}")
-            results["errors"] += 1
-
-    # 3. Checkpoint
+    # 2. Write checkpoint BEFORE any moves (for recovery)
     if checkpoint_path:
+        manifest["moves"] = [
+            {"src": str(src), "dst": str(dst)}
+            for src, dst, _ in valid_moves
+        ]
         checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
         checkpoint_path.write_text(
             json.dumps(manifest, indent=2), encoding="utf-8"
         )
+
+    # 3. Create staging directory for atomic operations
+    staging_id = uuid.uuid4().hex[:8]
+    staging_dir = Path(tempfile.gettempdir()) / f"nodupe_staging_{staging_id}"
+    staging_dir.mkdir(parents=True, exist_ok=True)
+
+    staged_files: List[tuple] = []
+
+    try:
+        # 4. Stage: Copy all files to staging first
+        for src, dst, row in valid_moves:
+            staging_path = staging_dir / f"{uuid.uuid4().hex}_{src.name}"
+            try:
+                shutil.copy2(str(src), str(staging_path))
+                staged_files.append((src, dst, staging_path))
+            except OSError as e:
+                print(f"[apply][ERROR] Failed to stage {src}: {e}")
+                results["errors"] += 1
+                # Rollback staged files
+                for _, _, staged in staged_files:
+                    try:
+                        staged.unlink()
+                    except OSError:
+                        pass
+                shutil.rmtree(staging_dir, ignore_errors=True)
+                return results
+
+        # 5. Commit: Move staged files to final destinations
+        for src, dst, staging_path in staged_files:
+            try:
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                # Atomic rename from staging to destination
+                shutil.move(str(staging_path), str(dst))
+                # Only delete original after successful move
+                src.unlink()
+                results["success"] += 1
+            except OSError as e:
+                print(f"[apply][ERROR] Failed to commit {src} -> {dst}: {e}")
+                results["errors"] += 1
+
+        # 6. Update checkpoint to completed
+        if checkpoint_path:
+            manifest["status"] = "completed"
+            manifest["completed_at"] = time.time()
+            checkpoint_path.write_text(
+                json.dumps(manifest, indent=2), encoding="utf-8"
+            )
+
+    finally:
+        # Cleanup staging directory
+        shutil.rmtree(staging_dir, ignore_errors=True)
 
     return results

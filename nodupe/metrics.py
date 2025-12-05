@@ -29,6 +29,7 @@ Example:
 
 import json
 from pathlib import Path
+import threading
 from datetime import datetime, timezone
 
 
@@ -58,11 +59,14 @@ class Metrics:
             "planned_ops": 0,
             "apply": {}
         }
+        # Protect concurrent saves/updates
+        self._lock = threading.RLock()
 
     def save(self):
         """Write current metrics to the JSON file.
 
         Creates parent directories if they don't exist.
         """
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(self.data, indent=2), encoding="utf-8")
+        with self._lock:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            self.path.write_text(json.dumps(self.data, indent=2), encoding="utf-8")

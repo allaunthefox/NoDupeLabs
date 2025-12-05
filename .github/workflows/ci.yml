@@ -63,12 +63,17 @@ jobs:
           # Tests can have longer lines for assertions and test data
           flake8 tests/ --count --max-line-length=100 --extend-ignore=E501,F841 --statistics || true
 
-      - name: Type check with mypy (skip vendored libs, non-blocking)
+      - name: Type check with mypy (production code only)
         run: |
-          # Exclude vendored libraries from mypy checks (those are external
-          # packages stored under nodupe/vendor/libs). Also keep mypy non-
-          # blocking for now until the codebase is gradually cleaned up.
-          mypy nodupe --ignore-missing-imports --exclude 'nodupe/vendor' || true
+          # Type check production code with strict settings from pyproject.toml
+          # Vendor directory is excluded via config. Production code must pass.
+          mypy nodupe/
+
+      - name: Check docstring coverage
+        run: |
+          pip install interrogate
+          # Enforce 100% docstring coverage (current achievement)
+          interrogate -vv nodupe/ --fail-under 100
 
       - name: Test with pytest (fast)
         env:
@@ -79,7 +84,8 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           # Run fast tests only (skip slow/integration tests by default)
-          pytest -q -m "not slow"
+          # Use new markers from pyproject.toml
+          pytest -v -m "not slow and not integration"
 
   slow-tests:
     name: Slow / Integration tests
