@@ -72,7 +72,7 @@ jobs:
       - name: Check docstring coverage
         run: |
           pip install interrogate
-          # Enforce docstring coverage (threshold configured by CI)
+          # Enforce 100% docstring coverage (current achievement)
           interrogate -vv nodupe/ --fail-under 100
 
       - name: Test with pytest (fast)
