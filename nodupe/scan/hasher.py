@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
-
 """Hashing pipeline utilities.
 
 Provides threaded_hash for high-throughput parallel hashing.
@@ -11,7 +10,6 @@ import time
 import concurrent.futures as futures
 from typing import Iterable, List, Optional
 import sys
-
 from .walker import iter_files
 from .processor import process_file
 
@@ -60,7 +58,6 @@ def _choose_executor_type(executor_choice: str, workers_count: int) -> str:
         return "thread"
 
     return "process"
-
 
 def threaded_hash(
     roots: Iterable[str], ignore: List[str], workers: int = 4,
