@@ -207,7 +207,9 @@ class ProgressTracker:
             meta = getattr(task, '_submit_meta', None)
             if not meta:
                 continue
-            age = now - meta[1]
+            # _submit_meta format: (path, size, submit_time)
+            # compute age using the submit_time (index 2)
+            age = now - meta[2]
             if self.stall_timeout and age >= self.stall_timeout:
                 if not oldest or age > oldest[0]:
                     oldest = (age, meta[0])

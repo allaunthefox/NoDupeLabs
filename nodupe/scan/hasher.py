@@ -332,7 +332,10 @@ def threaded_hash(
                                 meta = getattr(f, '_submit_meta', None)
                                 if not meta:
                                     continue
-                                age = now - meta[1]
+                                # _submit_meta format: (path, size, submit_time)
+                                # age should be computed from submit_time which
+                                # is the third tuple element (index 2).
+                                age = now - meta[2]
                                 # if we have a per-task stall threshold,
                                 # surface it
                                 if (
