@@ -34,7 +34,20 @@ from ..db import DB
 def build_index_from_db(
     db_path: Path, dim: int = 16, out_path: Optional[str] = None
 ) -> dict:
-    """Build a similarity index from database embeddings."""
+    """Build a similarity index from database embeddings.
+
+    This function reads embeddings from the DB, computes any missing
+    embeddings using the chosen AI backend, builds an in-memory index and
+    optionally persists it to disk.
+
+    Args:
+        db_path: Path to the database file.
+        dim: Embedding dimensionality to use.
+        out_path: Optional path to persist the resulting index.
+
+    Returns:
+        Dict containing index metadata (e.g. index_count).
+    """
     db = DB(db_path)
     # Use precomputed embeddings when available,
     # compute missing ones optionally
@@ -93,7 +106,22 @@ def find_near_duplicates(
     db_path: Path, target: Path, k: int = 5,
     dim: int = 16, index_path: Optional[str] = None
 ) -> List[tuple]:
-    """Find files similar to the target file."""
+    """Find files similar to the target file using a vector index.
+
+    If ``index_path`` is provided the function will load a persisted
+    index for fast searching. Otherwise it will build a temporary index
+    from database embeddings and perform the search.
+
+    Args:
+        db_path: Path to the database file containing embeddings.
+        target: Path to the file to search for near-duplicates.
+        k: Number of nearest neighbors to return.
+        dim: Expected embedding dimensionality.
+        index_path: Optional persisted index path to load and search.
+
+    Returns:
+        List[Tuple[str, float]]: List of (file_path, distance) pairs.
+    """
     # If an index file is provided, load it (fast).
     # Otherwise build from DB embeddings in memory.
     if index_path:
@@ -126,8 +154,17 @@ def find_near_duplicates(
 def update_index_from_db(
     db_path: Path, index_path: str, remove_missing: bool = False
 ) -> dict:
-    """Update an existing persisted index by appending missing
-    embeddings from DB.
+    """Update an existing persisted index by appending embeddings from DB.
+
+    Args:
+        db_path: Path to the database file used as provenance for
+            computing embeddings.
+        index_path: Path to the persisted index to update.
+        remove_missing: If True, remove index entries that no longer have
+            corresponding DB records.
+
+    Returns:
+        Dict containing update metrics (e.g. counts of added/removed items).
     """
     db = DB(db_path)
     from .index import update_index_from_db as _upd

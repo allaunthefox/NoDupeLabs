@@ -51,7 +51,13 @@ class FaissIndex:
     def add(
         self, vectors: List[List[float]], ids: Optional[List[str]] = None
     ) -> None:
-        """Add vectors to the index."""
+        """Add vectors (and optional ids) to the FAISS-backed index.
+
+        Args:
+            vectors: Sequence of vectors to add (shape N x dim).
+            ids: Optional list of string ids to associate with the stored
+                vectors. If omitted, integer-string ids will be assigned.
+        """
         arr = np.asarray(vectors, dtype='float32')
         if arr.ndim != 2 or arr.shape[1] != self.dim:
             raise ValueError("Invalid vectors shape")
@@ -68,7 +74,16 @@ class FaissIndex:
     def search(
         self, vector: List[float], k: int = 5
     ) -> List[Tuple[str, float]]:
-        """Search for k nearest neighbors."""
+        """Search for k nearest neighbors to a query vector using FAISS.
+
+        Args:
+            vector: Query vector (length must match index dim).
+            k: Number of neighbors to return.
+
+        Returns:
+            List of (id, distance) pairs. Distance semantics follow FAISS
+            (squared L2 distance for IndexFlatL2).
+        """
         q = np.asarray([vector], dtype='float32')
         D, I_idx = self.index.search(q, k)
         results: List[Tuple[str, float]] = []
@@ -79,9 +94,11 @@ class FaissIndex:
         return results
 
     def save(self, path: str) -> None:
-        """
-        Persist faiss index and ids to disk.
-        Writes binary index to `path` and ids to `path + '.ids.json'`.
+        """Persist the FAISS index and associated ids to disk.
+
+        Args:
+            path: File path for the FAISS binary index. The id list is
+                written to <path>.ids.json alongside the binary index.
         """
         import json
         # write FAISS index
@@ -92,7 +109,15 @@ class FaissIndex:
 
     @classmethod
     def load(cls, path: str):
-        """Load a faiss index from disk and return a FaissIndex instance."""
+        """Load a FAISS index and return a populated FaissIndex instance.
+
+        Args:
+            path: Path to the FAISS binary index file. If a sidecar
+                <path>.ids.json exists the id list will be loaded from it.
+
+        Returns:
+            FaissIndex: Reconstructed index instance.
+        """
         idx_obj = faiss.read_index(path)
         # determine dim
         dim = idx_obj.d
@@ -109,10 +134,21 @@ class FaissIndex:
 
 
 def create(dim: int):
-    """Factory used by plugin loader."""
+    """Factory used by the plugin loader to create a new FaissIndex.
+
+    Args:
+        dim: Vector dimensionality for the index.
+
+    Returns:
+        FaissIndex: Initialized index instance.
+    """
     return FaissIndex(dim)
 
 
 def available() -> bool:
-    """Check if FAISS and numpy are available."""
+    """Return True if the FAISS backend dependencies are importable.
+
+    Returns:
+        bool: True when both FAISS and NumPy are available.
+    """
     return faiss is not None and np is not None

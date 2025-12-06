@@ -65,7 +65,18 @@ class NoDupeFS(fuse.Operations):
         self.logger = logging.getLogger("nodupe.mount")
 
     def getattr(self, path: str, fh=None) -> Dict[str, Any]:
-        """Get file attributes for a path."""
+        """Return POSIX stat-like attributes for a virtual path.
+
+        Args:
+            path: Virtual path within the mounted view (e.g. '/', '/by-hash',
+                '/by-hash/sha512/abcd...').
+            fh: Optional file handle (ignored for virtual filesystem queries).
+
+        Returns:
+            Mapping containing POSIX-like stat attributes (st_mode, st_nlink,
+            st_size, st_mtime, ...). If the path does not exist, raises
+            :class:`fuse.FuseOSError(errno.ENOENT)`.
+        """
         if path == "/":
             return dict(st_mode=(stat.S_IFDIR | 0o755), st_nlink=2)
 
@@ -106,7 +117,17 @@ class NoDupeFS(fuse.Operations):
         raise fuse.FuseOSError(errno.ENOENT)
 
     def readdir(self, path: str, fh) -> List[str]:
-        """List directory contents."""
+        """Return a list of directory entries for the virtual directory.
+
+        Args:
+            path: Virtual directory path to list.
+            fh: File handle (unused by this implementation).
+
+        Returns:
+            List[str]: Directory entries including '.' and '..'. For
+            top-level directories this may include subdirectories such as
+            'by-hash' and 'stats'.
+        """
         if path == "/":
             return [".", "..", "by-hash", "stats"]
 
@@ -132,7 +153,21 @@ class NoDupeFS(fuse.Operations):
         return [".", ".."]
 
     def open(self, path: str, flags: int) -> int:
-        """Open a file and return a file descriptor."""
+        """Open a file from the virtual filesystem and return an OS fd.
+
+        This filesystem supports read-only access for content-addressed
+        files exposed under /by-hash/<algo>/<hash>. Opening files in
+        write mode will raise an access error.
+
+        Args:
+            path: Virtual path to open.
+            flags: OS flags passed by FUSE (used to check for read-only).
+
+        Returns:
+            int: File descriptor for the underlying real file when
+                reading a backed file, or a special descriptor for
+                virtual files like /stats.
+        """
         # We only support read-only
         if (flags & os.O_ACCMODE) != os.O_RDONLY:
             raise fuse.FuseOSError(errno.EACCES)
@@ -157,7 +192,22 @@ class NoDupeFS(fuse.Operations):
         raise fuse.FuseOSError(errno.ENOENT)
 
     def read(self, path: str, size: int, offset: int, fh: int) -> bytes:
-        """Read data from a file."""
+        """Read up to ``size`` bytes from ``path`` starting at ``offset``.
+
+        Behavior differs for virtual files (such as /stats) and backed
+        filesystem files. For physical files the file descriptor ``fh`` is
+        used to read from the underlying filesystem. For virtual files the
+        contents are dynamically generated.
+
+        Args:
+            path: Virtual path to read.
+            size: Number of bytes to read.
+            offset: Byte offset to start reading from.
+            fh: File descriptor (for backed files).
+
+        Returns:
+            bytes: The requested data slice.
+        """
         if path == "/stats":
             # Generate stats on the fly
             count = self.db.conn.execute(
@@ -171,14 +221,33 @@ class NoDupeFS(fuse.Operations):
         return os.read(fh, size)
 
     def release(self, path: str, fh: int) -> int:
-        """Release (close) a file."""
+        """Release a previously-opened file descriptor.
+
+        Args:
+            path: Virtual path that was opened.
+            fh: File descriptor to close.
+
+        Returns:
+            int: 0 on success.
+        """
         if path == "/stats":
             return 0
         return os.close(fh)
 
 
 def mount_fs(db_path: Path, mount_point: Path, foreground: bool = True):
-    """Mount the deduplicated filesystem at the given mount point."""
+    """Mount the deduplication view using FUSE.
+
+    This helper performs a runtime check for libfuse and mounts
+    :class:`NoDupeFS` at the requested mount point. If libfuse is not
+    available the process will exit with a helpful error message.
+
+    Args:
+        db_path: Path to the SQLite database storing file metadata.
+        mount_point: Target mount directory where the FUSE fs will be
+            mounted.
+        foreground: When True, run in the foreground (do not daemonize).
+    """
     if not fuse._libfuse:  # pylint: disable=protected-access
         print(
             "[mount] Error: FUSE library (libfuse) not found. "

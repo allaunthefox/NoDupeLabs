@@ -74,7 +74,13 @@ class PluginManager:
         }
 
     def register(self, event: str, callback: Callable):
-        """Register a callback for an event."""
+        """Register a callback for `event`.
+
+        Args:
+            event: Name of the event to register the callback for.
+            callback: Callable to invoke when the event is emitted. The
+                callable may be a coroutine function or a regular function.
+        """
         with self._lock:
             if event not in self._hooks:
                 self._hooks[event] = []
@@ -111,7 +117,13 @@ class PluginManager:
     def set_executor_max_workers(self, max_workers: int):
         """Change the executor max worker count.
 
-        This will replace the existing executor with a new bounded one.
+        This will replace the existing bounded ThreadPoolExecutor used by
+        the manager to run synchronous callbacks. The change takes effect
+        immediately and updates monitoring metrics.
+
+        Args:
+            max_workers: New maximum worker count for the executor. Must be
+                a positive integer.
         """
         if max_workers <= 0:
             raise ValueError("max_workers must be positive")
@@ -139,8 +151,12 @@ class PluginManager:
     def metrics(self) -> dict:
         """Return a snapshot of internal metrics for monitoring.
 
-        Metrics include counts for scheduled tasks, pending tasks, completed
-        tasks, and failed tasks.
+        The returned mapping is a shallow copy of the manager's monitoring
+        counters and is safe for callers to inspect without affecting the
+        manager's internal state.
+
+        Returns:
+            A dictionary of metric names to integer counts.
         """
         with self._lock:
             # Return a shallow copy so callers can't mutate our internal state
@@ -176,7 +192,18 @@ class PluginManager:
             pass
 
     def emit(self, event: str, **kwargs: Any):
-        """Emit an event, calling all registered callbacks."""
+        """Emit `event` and schedule all registered callbacks.
+
+        Callbacks registered for `event` will be scheduled on the manager's
+        asyncio loop. Coroutine callbacks are awaited in the loop while
+        synchronous callbacks are executed on the manager's bounded
+        ThreadPoolExecutor.
+
+        Args:
+            event: The name of the event to emit.
+            **kwargs: Arbitrary keyword arguments that will be forwarded to
+                each callback.
+        """
         # Copy callbacks under lock and invoke them without holding the lock
         # to avoid re-entrant deadlocks if callbacks register/unregister
         # other hooks.
@@ -286,7 +313,16 @@ class PluginManager:
                     file=sys.stderr)
 
     def load_plugins(self, paths: List[str]):
-        """Load plugins from specified paths."""
+        """Discover and load plugin modules from a list of paths.
+
+        Each path is expected to be a directory containing Python modules
+        with a '.py' suffix. The function will import each module and
+        inject the manager instance into the module namespace as `pm` so
+        plugins can register their hooks.
+
+        Args:
+            paths: List of directory paths to scan for plugin modules.
+        """
         import importlib.util
         import os
 

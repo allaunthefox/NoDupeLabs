@@ -7,7 +7,6 @@ Validates scan command arguments and configuration before execution.
 Ensures all preconditions are met (paths exist, DB writable, etc.).
 """
 import os
-import sys
 from pathlib import Path
 from typing import List, Tuple
 

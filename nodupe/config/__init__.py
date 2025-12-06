@@ -24,11 +24,16 @@ except ImportError:
 
     class _YAMLShim:
         class YAMLError(Exception):
-            pass
+            """Raised on YAML/JSON parsing shim errors.
+
+            This mirrors PyYAML's YAMLError so callers can rely
+            on the same exception type when PyYAML is unavailable
+            and the code is using the JSON-based shim instead.
+            """
 
         @staticmethod
         def safe_load(text: str):
-            """Parse YAML/JSON text in a safe manner for environments without PyYAML.
+            """Parse YAML/JSON text safely without PyYAML.
 
             Args:
                 text: YAML or JSON text to parse
@@ -54,14 +59,20 @@ except ImportError:
 
 
 def ensure_config(path: str = "nodupe.yml", preset: str = "default") -> None:
-    """Create default configuration file if it doesn't exist.
+    """Write a default configuration file when no config exists.
+
+    The function uses the named preset (from `PRESETS`) to populate an
+    initial configuration at `path`. If the file already exists the
+    function is a no-op.
 
     Args:
-        path: Path to configuration file
-        preset: Preset name to use for initial config
+        path: Filesystem path where the configuration should be created.
+        preset: Name of the preset to use when generating the default
+            configuration.
     """
     p = Path(path)
     if not p.exists():
+        # Fallback to default locations if explicit path not found
         cfg = PRESETS.get(preset, PRESETS["default"])
         p.write_text(
             f"# Auto-generated config using '{preset}' preset. "
@@ -72,9 +83,20 @@ def ensure_config(path: str = "nodupe.yml", preset: str = "default") -> None:
 
 
 def load_config(path: str = "nodupe.yml") -> Dict[str, Any]:
-    """Load configuration.
+    """Load the configuration file and return it as a plain dict.
 
-    Returns a dict for backwards compatibility with existing code.
+    Behavior:
+        - Ensures a config file exists (via `ensure_config`).
+        - Loads YAML or JSON content if present and overlays user values
+          on top of the default preset values.
+        - Performs runtime environment tuning when the environment helper
+          is available.
+
+    Args:
+        path: Path to the configuration file to load.
+
+    Returns:
+        A plain dictionary containing the merged configuration values.
     """
     ensure_config(path)
     p = Path(path)
@@ -102,9 +124,14 @@ def load_config(path: str = "nodupe.yml") -> Dict[str, Any]:
 
 
 def load_config_object(path: str = "nodupe.yml") -> Config:
-    """Load configuration as Config object.
+    """Load configuration and convert it into a `Config` instance.
 
-    Returns immutable Config instance.
+    Args:
+        path: Path to the configuration file to load.
+
+    Returns:
+        An immutable `Config` instance representing the loaded
+        configuration.
     """
     cfg_dict = load_config(path)
     return Config.from_dict(cfg_dict)

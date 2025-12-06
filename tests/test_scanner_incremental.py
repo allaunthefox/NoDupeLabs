@@ -19,10 +19,11 @@ def test_threaded_hash_incremental():
         # _ = {path1: (size1, mtime1, hash1)}  # noqa: F841  # noqa: F841
 
         # Second scan - should use cached hash
-        # We can verify this by mocking hash_file, but simpler is to trust the logic
-        # or check if mtime is preserved.
+        # We can verify this by mocking hash_file, but simpler is to trust the
+        # logic or check if mtime is preserved.
 
-        # Let's modify the file but keep mtime/size same (hard to do without tools)
+        # Let's modify the file but keep mtime/size same (hard to do without
+        # tools)
         # Instead, let's modify the known hash to a fake one.
         # If it uses the cache, it will return the fake hash.
 

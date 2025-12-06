@@ -136,7 +136,12 @@ class ONNXBackend(BaseBackend):
             self._available = False
 
     def available(self) -> bool:
-        """Check if ONNX backend is available."""
+        """Indicate whether ONNX Runtime and a usable model are available.
+
+        Returns:
+            True when an ONNX Runtime session was successfully created and
+            a model file was found; otherwise False.
+        """
         return bool(self._available)
 
     def unavailable_reason(self) -> Optional[str]:
@@ -149,7 +154,19 @@ class ONNXBackend(BaseBackend):
         return self._unavailable_reason
 
     def predict(self, path: Path) -> Tuple[int, str]:
-        """Predict NSFW score using the ONNX model."""
+        """Run the ONNX model to compute a coarse NSFW score.
+
+        This method prepares an input image (or extracted video frame),
+        runs the ONNX inference session and maps the network's output
+        probability to a discrete score in the range 0..3.
+
+        Args:
+            path: Path to the image or video file to classify.
+
+        Returns:
+            Tuple of (score, reason) where `score` is 0..3 and `reason` is
+            a short status string useful for logging/diagnostics.
+        """
         # Offload heavy model I/O to ORT -> returns score 0-3
         # Implementation assumes the model accepts an image input
         # and returns a single float [0,1]
@@ -240,10 +257,19 @@ class ONNXBackend(BaseBackend):
             return 0, "onnx_predict_error"
 
     def compute_embedding(self, path: Path, dim: int = 16) -> List[float]:
-        """Attempt to produce an embedding using the ONNX model.
+        """Produce a numeric embedding using the ONNX model.
 
-        Our demo model may only produce a scalar; if so, fall back to the
-        CPU embedding.
+        When the model's output is vector-like it will be flattened and
+        trimmed/padded to `dim`. For scalar outputs the method falls
+        back to the CPU backend's heuristics to produce a deterministic
+        vector.
+
+        Args:
+            path: Path to the input media.
+            dim: Requested embedding dimensionality.
+
+        Returns:
+            A float list of length `dim` with embedding values.
         """
         try:
             # If the model returns a vector-like output use it

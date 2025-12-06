@@ -69,4 +69,6 @@ class Metrics:
         """
         with self._lock:
             self.path.parent.mkdir(parents=True, exist_ok=True)
-            self.path.write_text(json.dumps(self.data, indent=2), encoding="utf-8")
+            # Split arguments across lines to satisfy line-length checks
+            payload = json.dumps(self.data, indent=2)
+            self.path.write_text(payload, encoding="utf-8")

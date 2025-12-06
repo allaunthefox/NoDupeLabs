@@ -44,11 +44,31 @@ class CPUBackend(BaseBackend):
             self.has_pil = False
 
     def available(self) -> bool:
-        """CPU backend is always available."""
+        """Return True when this backend is available.
+
+        The CPU backend is a zero-dependency fallback and is always
+        considered available since it requires no optional runtime
+        dependencies.
+
+        Returns:
+            True if CPU backend can be used.
+        """
         return True
 
     def predict(self, path: Path) -> Tuple[int, str]:
-        """Predict NSFW score using simple heuristics."""
+        """Compute a lightweight NSFW score and provide a short reason.
+
+        The returned score is a small discrete value (0..3) useful for
+        coarse filtering in environments where machine-learning backends
+        are not available.
+
+        Args:
+            path: Filesystem path to the input media (image/video).
+
+        Returns:
+            A tuple of (score, reason) where `score` is an integer
+            and `reason` is a short string describing the heuristic taken.
+        """
         # Best-effort analysis: return (score, reason)
         try:
             if not self.has_pil:
@@ -71,10 +91,20 @@ class CPUBackend(BaseBackend):
         return 0, "cpu_neutral"
 
     def compute_embedding(self, path: Path, dim: int = 16) -> List[float]:
-        """Compute a small embedding vector using simple image statistics.
+        """Generate a deterministic embedding vector from the file.
 
-        Returns a fixed-length float list length=dim. If PIL missing, return
-        a lightweight fallback using file size and mtime.
+        The produced embedding is a fixed-length list of floats with
+        length `dim`. When image processing dependencies are available
+        (Pillow + numpy) the vector is derived from resized pixel data.
+        Otherwise, a simple deterministic fallback is derived from file
+        metadata to give a stable but coarse embedding.
+
+        Args:
+            path: Path to the input file.
+            dim: Desired dimensionality of the returned embedding.
+
+        Returns:
+            A list of `dim` floats representing the computed embedding.
         """
         out = [0.0] * dim
         try:

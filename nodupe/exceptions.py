@@ -29,7 +29,9 @@ class NoDupeError(Exception):
         super().__init__(message)
 
     def __str__(self) -> str:
-        """Return a human-friendly string for the error, including details if available."""
+        """Return a human-friendly string for the error, including details if
+        available.
+        """
         if self.details:
             return f"{self.message}: {self.details}"
         return self.message
@@ -37,12 +39,21 @@ class NoDupeError(Exception):
 
 # Configuration Errors
 class ConfigError(NoDupeError):
-    """Configuration-related errors."""
+    """Errors raised when the application encounters invalid or missing
+    configuration.
+
+    This is the base class for configuration-related exceptions and is
+    intended to be subclassed for specific error cases (eg. missing file,
+    invalid value).
+    """
     pass
 
 
 class ConfigNotFoundError(ConfigError):
-    """Configuration file not found."""
+    """Raised when the requested configuration file cannot be found.
+
+    Includes the path to the missing file in ``details`` for diagnostics.
+    """
 
     def __init__(self, path: Path):
         """Construct a ConfigNotFoundError for a missing file path.
@@ -58,7 +69,10 @@ class ConfigNotFoundError(ConfigError):
 
 
 class InvalidConfigError(ConfigError):
-    """Invalid configuration value."""
+    """Raised when a configuration key contains an invalid value.
+
+    Carries the key, attempted value and a human-readable reason.
+    """
 
     def __init__(self, key: str, value: str, reason: str):
         """Invalid configuration value error.
@@ -79,12 +93,20 @@ class InvalidConfigError(ConfigError):
 
 # Database Errors
 class DatabaseError(NoDupeError):
-    """Database-related errors."""
+    """Base class for errors interacting with the application's database.
+
+    Use this as a generic catch-all for database layer problems; more
+    specific subclasses exist for missing files or corruption.
+    """
     pass
 
 
 class DatabaseNotFoundError(DatabaseError):
-    """Database file not found."""
+    """Raised when the requested database file does not exist.
+
+    The problematic path is included as ``details`` and on the
+    exception instance as ``path``.
+    """
 
     def __init__(self, path: Path):
         """Database file not found error.
@@ -100,7 +122,10 @@ class DatabaseNotFoundError(DatabaseError):
 
 
 class DatabaseCorruptError(DatabaseError):
-    """Database is corrupted."""
+    """Raised when the database contents appear corrupted.
+
+    The constructor accepts a `reason` describing the corruption.
+    """
 
     def __init__(self, path: Path, reason: str):
         """Database corruption error with reason.
@@ -119,12 +144,19 @@ class DatabaseCorruptError(DatabaseError):
 
 # Scan Errors
 class ScanError(NoDupeError):
-    """Scanning-related errors."""
+    """Raised for problems discovered during directory scanning.
+
+    Scan-related issues (path not found, permission denied, etc.) inherit
+    from this class so they can be handled as a group when needed.
+    """
     pass
 
 
 class PathNotFoundError(ScanError):
-    """Scan path not found."""
+    """Raised when a scan operation targets a path that does not exist.
+
+    Includes the missing path in the exception details.
+    """
 
     def __init__(self, path: Path):
         """Raised when a scan path is not found.
@@ -140,7 +172,10 @@ class PathNotFoundError(ScanError):
 
 
 class PermissionDeniedError(ScanError):
-    """Permission denied when accessing path."""
+    """Raised when access to a scan path is denied by the OS.
+
+    The exception instance holds the denied path for troubleshooting.
+    """
 
     def __init__(self, path: Path):
         """Raised when permission to access `path` is denied.
@@ -157,12 +192,19 @@ class PermissionDeniedError(ScanError):
 
 # Apply Errors
 class ApplyError(NoDupeError):
-    """Apply/move operation errors."""
+    """Errors that occur while applying a deduplication or file-move plan.
+
+    This includes failures when moving files, writing checkpoints, or when
+    rollback operations fail.
+    """
     pass
 
 
 class CheckpointError(ApplyError):
-    """Checkpoint file error."""
+    """Errors related to checkpoint files used during apply/rollback.
+
+    Carries optional path information for the affected checkpoint.
+    """
 
     def __init__(self, message: str, path: Optional[Path] = None):
         """Raised for checkpoint-related errors during apply/rollback.
@@ -176,7 +218,11 @@ class CheckpointError(ApplyError):
 
 
 class RollbackError(ApplyError):
-    """Rollback operation failed."""
+    """Raised when a rollback operation fails or completes only partially.
+
+    The `partial_count` attribute indicates how many items were rolled
+    back before the failure occurred.
+    """
 
     def __init__(self, message: str, partial_count: int = 0):
         """Raised when a rollback operation fails or completes partially.
@@ -191,18 +237,23 @@ class RollbackError(ApplyError):
 
 # Similarity Errors
 class SimilarityError(NoDupeError):
-    """Similarity search errors."""
+    """Problems encountered while building or querying similarity indices.
+
+    Use this base class for general similarity/index related failures so
+    callers can produce consistent error handling for all backends.
+    """
     pass
 
 
 class IndexNotFoundError(SimilarityError):
-    """Similarity index not found."""
+    """Raised when a requested similarity index file is not present.
+
+    The exception carries the missing index file path as ``path``.
+    """
 
     def __init__(self, path: Path):
-        """Raised when a similarity index file is not found.
-
-        Args:
-            path: Path to the expected index location
+        """Raised when a scan operation times out (stall or max idle time
+        exceeded).
         """
         super().__init__(
             "Similarity index not found",
@@ -213,12 +264,20 @@ class IndexNotFoundError(SimilarityError):
 
 # AI Backend Errors
 class AIBackendError(NoDupeError):
-    """AI backend errors."""
+    """Errors produced by AI/ML backend integrations.
+
+    Encapsulates backend-specific failures such as missing models, failed
+    inference calls, or dependency issues.
+    """
     pass
 
 
 class ModelNotFoundError(AIBackendError):
-    """ML model file not found."""
+    """Raised when the specified ML model file cannot be located.
+
+    Contains the `model_name` and optionally a path where the loader
+    expected to find the model.
+    """
 
     def __init__(self, model_name: str, path: Optional[Path] = None):
         """Raised when the requested ML model file can't be found.
@@ -236,7 +295,11 @@ class ModelNotFoundError(AIBackendError):
 
 
 class InferenceError(AIBackendError):
-    """Error during ML inference."""
+    """Raised when an AI backend inference call fails for runtime reasons.
+
+    The `model` attribute provides an identifier of the model that failed
+    to run.
+    """
 
     def __init__(self, message: str, model: str = "unknown"):
         """Raised when an AI backend inference call fails.

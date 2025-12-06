@@ -30,7 +30,6 @@ def test_stalled_tasks_emit_eta(capsys, tmp_path, monkeypatch):
 
     # Run with small heartbeat to trigger progress warnings
     _ = list(  # noqa: F841
-        
         scanner.threaded_hash(
             [str(tmp_path)], [], workers=1,
             heartbeat_interval=0.02, stalled_timeout=0.1

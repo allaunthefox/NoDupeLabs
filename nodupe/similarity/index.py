@@ -30,12 +30,23 @@ from .backends import list_backends, get_factory, default_backend_name
 
 
 def make_index(dim: int, preferred: Optional[str] = None):
-    """Create an index instance using the preferred backend or the default.
+    """Create and return a similarity index instance.
 
-    preferred may be the backend module name (e.g. 'faiss_backend'
-    or 'bruteforce_backend').
-    If preferred is not available we fall back to the default backend
-    determined by `default_backend_name()`.
+    The function will attempt to use the named `preferred` backend. If
+    that backend is unavailable the implementation falls back to the
+    default backend determined by :func:`default_backend_name` and, if
+    necessary, to the first available backend.
+
+    Args:
+        dim: Dimensionality of the embeddings the index will store.
+        preferred: Optional backend name hint (eg. 'faiss_backend').
+
+    Returns:
+        A backend-specific index instance supporting an ``add`` method
+        and other backend-specific operations.
+
+    Raises:
+        RuntimeError: If no similarity backend factories are available.
     """
     names = list_backends()
     if not names:
@@ -62,11 +73,18 @@ def make_index(dim: int, preferred: Optional[str] = None):
 
 
 def save_index_to_file(index_obj: Any, path: str) -> None:
-    """Persist index to disk using backend-specific methods.
+    """Persist an index to disk using backend-specific logic.
 
-    File extensions:
-    - .index/.faiss -> FAISS index + ids
-    - .npz          -> brute-force npz
+    The method chooses a storage format based on the filename suffix and
+    delegates to the appropriate backend implementation.
+
+    Args:
+        index_obj: Backend index object or structure to persist.
+        path: Destination path where the index should be stored.
+
+    Raises:
+        RuntimeError: When the backend doesn't support the requested
+            storage operation or the file extension is not supported.
     """
     p = Path(path)
     ext = p.suffix.lower()
@@ -98,7 +116,21 @@ def save_index_to_file(index_obj: Any, path: str) -> None:
 
 
 def load_index_from_file(path: str):
-    """Load a similarity index from disk."""
+    """Load and return a similarity index from disk.
+
+    The loader will select a suitable backend based on the file
+    extension and call the backend-specific ``load`` function.
+
+    Args:
+        path: Path of the index file to load.
+
+    Returns:
+        A backend-specific index instance.
+
+    Raises:
+        RuntimeError: When the backend loader fails or the file extension
+            is unsupported.
+    """
     p = Path(path)
     ext = p.suffix.lower()
     if ext in ('.index', '.faiss'):
@@ -130,9 +162,15 @@ def load_index_from_file(path: str):
 def update_index_file_from_vectors(
     path: str, vectors: List[List[float]], ids: List[str]
 ) -> None:
-    """Load existing index file, append new vectors and ids, then save back.
+    """Append a collection of vectors/ids to an existing index file.
 
-    This supports the same file extensions as save/load: .index/.faiss and .npz
+    The function will load the existing index file, add the provided
+    vectors and ids, and then persist the updated index back to `path`.
+
+    Args:
+        path: Path to the existing index file.
+        vectors: Sequence of embedding vectors to append.
+        ids: Sequence of string identifiers corresponding to `vectors`.
     """
     # Load existing index (or raise)
     idx = load_index_from_file(path)
@@ -151,7 +189,9 @@ def update_index_from_db(
     (path, dim, vector, mtime) rows (same shape as
     nodupe.db.DB.get_all_embeddings).
 
-    Returns a dict { 'added': n_added, 'index_count': total_after }
+    Returns:
+        A mapping with statistics about the update: {'added': n_added,
+        'index_count': total_after}.
     """
     # load existing index
     idx_dim = None

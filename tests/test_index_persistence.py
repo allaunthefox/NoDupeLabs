@@ -2,12 +2,16 @@ import tempfile
 import pytest
 try:
     import numpy as np
+    has_numpy = True
 except ImportError:
-    np = None
+    np = None  # type: ignore
+    has_numpy = False
 # type: ignore # pylint: disable=import-error
-from nodupe.similarity import make_index, load_index_from_file, save_index_to_file
+from nodupe.similarity import (
+    make_index, load_index_from_file, save_index_to_file
+)
 
-pytestmark = pytest.mark.skipif(np is None, reason="numpy not available")
+pytestmark = pytest.mark.skipif(not has_numpy, reason="numpy not available")
 
 
 def test_bruteforce_save_load():
@@ -60,7 +64,7 @@ def test_bruteforce_save_load_jsonl():
         save_index_to_file(idx, p)
         # Validate jsonl has one JSON object per line with correct fields
         with open(p, 'r', encoding='utf-8') as fh:
-            lines = [l for l in fh if l.strip()]
+            lines = [line for line in fh if line.strip()]
         assert len(lines) == 3
         import json
         for line in lines:

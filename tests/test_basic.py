@@ -16,16 +16,16 @@ def test_validate_hash_algo():
 def test_categorize_file():
     # Images
     cat = categorize_file("image/jpeg", "photo.jpg")
-    assert cat["category"] == "image"
+    assert cat.category == "image"
 
     # Archives
     cat = categorize_file("application/zip", "backup.zip")
-    assert cat["category"] == "archive"
+    assert cat.category == "archive"
 
     # Text
     cat = categorize_file("text/plain", "readme.txt")
-    assert cat["category"] == "text"
+    assert cat.category == "text"
 
     # Unknown
     cat = categorize_file("application/octet-stream", "unknown.bin")
-    assert cat["category"] == "other"
+    assert cat.category == "other"

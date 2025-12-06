@@ -98,7 +98,7 @@ class ArchiveHandler:
 
         Raises:
             FileNotFoundError: If path doesn't exist
-        
+
         Example:
             >>> from pathlib import Path
             >>> handler = ArchiveHandler(Path('tests/fixtures/sample.zip'))
@@ -177,7 +177,6 @@ class ArchiveHandler:
         """
         dest = Path(dest)
         dest.mkdir(parents=True, exist_ok=True)
-        dest.mkdir(parents=True, exist_ok=True)
         if self.type == "zip":
             self._extract_zip(dest)
         elif self.type == "7z":
@@ -188,8 +187,6 @@ class ArchiveHandler:
             self._extract_tar(dest)
         else:
             raise ValueError(f"Unsupported archive type: {self.type}")
-
-        
 
     def _list_zip(self):
         """List contents of zip archive.
@@ -270,20 +267,20 @@ class ArchiveHandler:
         """
         if not HAS_RAR:
             raise ImportError("rarfile not installed")
+        results = []
         try:
-            results = []
             with rarfile.RarFile(self.path) as rf:
-                for info in rf.infolist():
+                for f in rf.infolist():
                     results.append({
-                        "path": info.filename,
-                        "size": info.file_size,
-                        "is_dir": info.isdir()
+                        "path": f.filename,
+                        "size": f.file_size,
+                        "is_dir": f.isdir()
                     })
-            return results
         except rarfile.PasswordRequired as e:
             raise PermissionError(f"Password required for {self.path}") from e
         except rarfile.RarExecError as e:
             raise OSError("External tool 'unrar' not found") from e
+        return results
 
     def _extract_rar(self, dest):
         """Extract rar archive to destination directory.
@@ -318,7 +315,9 @@ class ArchiveHandler:
         return results
 
     def _extract_tar(self, dest):
-        """Safely extract tar archive to destination, preventing path traversal.
+        """Safely extract tar archive to destination.
+
+        Prevents path traversal attacks.
 
         Args:
             dest: destination directory
@@ -327,10 +326,10 @@ class ArchiveHandler:
         """
         with tarfile.open(self.path, 'r:*') as tf:
             def is_within_directory(directory, target):
-                """Return True if `target` path is inside `directory`.
+                """Return True when target path lives under directory.
 
-                Used to protect against path traversal attacks when
-                extracting tar archives.
+                This helper is used to defend against path traversal
+                attacks while extracting tar archives.
                 """
                 abs_directory = os.path.abspath(directory)
                 abs_target = os.path.abspath(target)

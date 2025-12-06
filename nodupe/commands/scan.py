@@ -11,13 +11,8 @@ import os
 from pathlib import Path
 from typing import Dict
 
-from ..db import DB
-from ..logger import JsonlLogger
-from ..metrics import Metrics
 from ..utils.hashing import validate_hash_algo
-from ..ai.backends import choose_backend
-from ..plugins import pm
-from ..scan import ScanValidator, ScanOrchestrator
+from ..scan import ScanValidator
 
 
 def check_scan_requirements(roots: list, cfg: Dict) -> bool:
@@ -66,33 +61,20 @@ def cmd_scan(args, cfg: Dict) -> int:
     if not check_scan_requirements(args.root, cfg):
         return 1
 
-    # Create dependencies
-    db = DB(Path(cfg["db_path"]))
-    logger = JsonlLogger(Path(cfg["log_dir"]))
-    metrics = Metrics(Path(cfg["metrics_path"]))
-
+    # Validate hash algorithm
     try:
         hash_algo = validate_hash_algo(cfg.get("hash_algo", "sha512"))
     except ValueError as e:
         print(f"[fatal] Configuration error: {e}", file=sys.stderr)
         return 1
 
-    # Initialize AI backend
-    model_hint = cfg.get("ai", {}).get("model_path")
-    try:
-        backend = choose_backend(model_hint)
-    except Exception as e:
-        print(f"[scan][WARN] AI backend init failed: {e}", file=sys.stderr)
-        backend = None
+    # Initialize container with config
+    from ..container import get_container
+    container = get_container()
+    # Force config update if needed (container loads config lazily)
 
     # Create orchestrator (dependency injection!)
-    orchestrator = ScanOrchestrator(
-        db=db,
-        logger=logger,
-        metrics=metrics,
-        backend=backend,
-        plugin_manager=pm
-    )
+    orchestrator = container.get_scanner()
 
     # If CLI requested an explicit progress mode, expose it as env var
     if getattr(args, 'progress', None) is not None:
@@ -100,29 +82,57 @@ def cmd_scan(args, cfg: Dict) -> int:
 
     # Execute scan
     try:
+        # Extract arguments for ScanOrchestrator
+        roots = args.root
+        ignore = cfg.get("ignore_patterns", [])
+        workers = cfg.get("parallelism", 4)
+        follow_symlinks = cfg.get("follow_symlinks", False)
+        heartbeat_interval = cfg.get("heartbeat_interval", 10)
+        stall_timeout = cfg.get("stall_timeout", 300)
+        max_idle_time = cfg.get("max_idle_time", 60)
+        show_eta = cfg.get("show_eta", True)
+
+        # Execute scan
         results = orchestrator.scan(
-            roots=args.root,
+            roots=roots,
             hash_algo=hash_algo,
-            workers=cfg.get("parallelism", 4),
-            ignore_patterns=cfg.get("ignore_patterns", []),
-            follow_symlinks=cfg.get("follow_symlinks", False),
-            similarity_dim=int(cfg.get("similarity", {}).get("dim", 16)),
-            export_folder_meta=cfg.get("export_folder_meta", False),
-            meta_pretty=cfg.get("meta_pretty", False)
+            workers=workers,
+            ignore_patterns=ignore,
+            follow_symlinks=follow_symlinks,
+            heartbeat_interval=heartbeat_interval,
+            stall_timeout=stall_timeout,
+            max_idle_time=max_idle_time,
+            show_eta=show_eta
         )
 
         # Print summary
-        print(f"[scan] files={results['files_scanned']} "
-              f"bytes={results['bytes_scanned']} "
-              f"dur_s={results['duration_sec']:.1f} "
-              f"-> {cfg['db_path']}")
+        if not args.json:
+            print(
+                f"\nScan complete. "
+                f"Processed {results.get('processed', 0)} files."
+            )
+            print(f"Found {results.get('duplicates', 0)} duplicates.")
+            print(
+                f"Total size: "
+                f"{results.get('total_size', 0) / 1024 / 1024:.2f} MB"
+            )
+            print(f"Time taken: {results.get('duration', 0):.2f} seconds")
 
-        return 0
+            if results.get('errors'):
+                print(f"\nEncountered {len(results['errors'])} errors:")
+            for err in results['errors'][:10]:
+                print(f"  - {err}")
+            if len(results['errors']) > 10:
+                print(f"  ... and {len(results['errors']) - 10} more.")
 
     except KeyboardInterrupt:
         print("\n[SCAN] Interrupted by user")
         return 130
 
     except Exception as e:
-        print(f"[SCAN][ERROR] {e}")
-        return 1
+        print(f"Error during scan: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+    return 0

@@ -299,5 +299,6 @@ jobs:
 
       - name: Build docs
         run: |
-          sphinx-build -b html docs/sphinx docs/sphinx/_build || ( echo "Sphinx build failed" && exit 1 )
-          PY
+          sphinx-build -b html docs/sphinx docs/sphinx/_build || (
+            echo "Sphinx build failed" && exit 1
+          )

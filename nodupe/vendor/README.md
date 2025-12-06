@@ -4,7 +4,6 @@ This directory contains pre-packaged Python libraries to ensure basic operation 
 
 ## Contents
 
-- **tqdm**: Progress bars.
 - **PyYAML**: YAML configuration parsing.
 
 ## Usage
@@ -34,7 +33,7 @@ The project already includes a minimal set of vendored wheels (see `vendor_manif
 To update these libraries, run:
 
 ```bash
-pip install --target nodupe/vendor/libs --no-binary :all: tqdm PyYAML --upgrade
+pip install --target nodupe/vendor/libs --no-binary :all: PyYAML --upgrade
 ```
 
 Note: `jsonschema` is not vendored due to binary dependencies (rpds-py/Rust). The application will fall back to basic validation if it is missing.

@@ -23,10 +23,8 @@ Functions:
     - get_dep_summary: Get status of all checked dependencies
 
 Example:
-    >>> if check_dep("tqdm"):
-    ...     from tqdm import tqdm
-    ... else:
-    ...     tqdm = lambda x: x  # Fallback
+    >>> if check_dep("psutil"):
+    ...     import psutil
 """
 
 import subprocess
@@ -41,11 +39,6 @@ OPTIONAL_DEPS = {
         "package": "jsonschema",
         "feature": "JSON Schema validation",
         "fallback": "Basic structural validation only"
-    },
-    "tqdm": {
-        "package": "tqdm",
-        "feature": "Progress bars with ETA",
-        "fallback": "Periodic text progress updates"
     },
     "pandas": {
         "package": "pandas",

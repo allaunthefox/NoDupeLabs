@@ -8,7 +8,6 @@
     "psutil",
     "py7zr",
     "rarfile",
-    "tqdm",
     "xxhash",
     "zstandard"
   ],
@@ -41,7 +40,6 @@
     "rpds_py-0.30.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
     "sympy-1.14.0-py3-none-any.whl",
     "texttable-1.7.0-py2.py3-none-any.whl",
-    "tqdm-4.67.1-py3-none-any.whl",
     "vendor_manifest.json",
     "xxhash-3.6.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
     "zstandard-0.25.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl"

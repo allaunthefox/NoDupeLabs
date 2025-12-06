@@ -79,7 +79,10 @@ def test_process_file():
         # (path, size, mtime, hash, mime, context, algo, perms)
         assert res[0] == str(p)
         assert res[1] == 5
-        assert res[3] == "9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca72323c3d99ba5c11d7c7acc6e14b8c5da0c4663475c2e5c3adef46f73bcdec043"  # noqa: E501
+        assert res[3] == (
+            "9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca72"
+            "323c3d99ba5c11d7c7acc6e14b8c5da0c4663475c2e5c3adef46f73bcdec043"
+        )
         assert res[6] == "sha512"
 
 
@@ -111,15 +114,17 @@ def test_extract_representative_frame():
         # Use -progress pipe:1 so we can parse lightweight progress output
         cmd = [
             "ffmpeg", "-y", "-loop", "1", "-i", str(img), "-c:v", "libx264",
-            "-t", "1", "-pix_fmt", "yuv420p", "-progress", "pipe:1", "-nostats", str(
-                video)
+            "-t", "1", "-pix_fmt", "yuv420p", "-progress", "pipe:1",
+            "-nostats", str(video)
         ]
 
-        # Use the module-level run_ffmpeg_with_progress helper so tests share identical UI
+        # Use the module-level run_ffmpeg_with_progress helper so tests
+        # share identical UI
 
         ok = run_ffmpeg_with_progress(cmd, expected_duration=1.0, max_wait=12)
         if not ok:
-            # ffmpeg might not be available in CI — gracefully skip the rest of the test
+            # ffmpeg might not be available in CI — gracefully skip the rest
+            # of the test
             return
 
         frame = extract_representative_frame(video)
@@ -134,7 +139,8 @@ def test_extract_representative_frame():
 
 @pytest.mark.slow
 def test_video_embedding_cpu_backend():
-    # Ensure CPUBackend can compute embeddings for a video by using extracted frame
+    # Ensure CPUBackend can compute embeddings for a video by using extracted
+    # frame
     with tempfile.TemporaryDirectory() as td:
         td = Path(td)
         img = td / "in.png"
@@ -166,7 +172,8 @@ def _make_fake_proc(steps=3, rc=0, sleep=0.0):
             self.returncode = None
 
         def poll(self):
-            # On each call, increment; return None until we've seen `steps` calls.
+            # On each call, increment; return None until we've seen `steps`
+            # calls.
             if self._calls < steps:
                 self._calls += 1
                 return None
@@ -182,7 +189,9 @@ def _make_fake_proc(steps=3, rc=0, sleep=0.0):
     return FakeProc()
 
 
-def test_run_ffmpeg_probe_and_interactive_behavior(tmp_path, monkeypatch, capsys):
+def test_run_ffmpeg_probe_and_interactive_behavior(
+    tmp_path, monkeypatch, capsys
+):
     # Create a fake media file and ensure ffprobe is called to probe duration
     f = tmp_path / 'dummy.mp4'
     f.write_text('dummy')
@@ -205,14 +214,18 @@ def test_run_ffmpeg_probe_and_interactive_behavior(tmp_path, monkeypatch, capsys
     monkeypatch.setattr(subprocess, 'Popen', lambda *a, **k: fake)
 
     # Force interactive mode so we exercise the live updates path
-    ok = run_ffmpeg_with_progress(['ffmpeg', '-i', str(f)], expected_duration=None,
-                                  force_mode='interactive', probe_input_duration=True)
+    ok = run_ffmpeg_with_progress(
+        ['ffmpeg', '-i', str(f)], expected_duration=None,
+        force_mode='interactive', probe_input_duration=True
+    )
     assert ok is True
     # Confirm ffprobe was invoked
     assert 'ffprobe' in ' '.join(calls['cmd'])
 
 
-def test_run_ffmpeg_env_quiet_and_noninteractive(monkeypatch, tmp_path, capsys):
+def test_run_ffmpeg_env_quiet_and_noninteractive(
+    monkeypatch, tmp_path, capsys
+):
     # Create dummy file
     f = tmp_path / 'dummy2.mp4'
     f.write_text('x')
@@ -231,7 +244,9 @@ def test_run_ffmpeg_env_quiet_and_noninteractive(monkeypatch, tmp_path, capsys):
     monkeypatch.setenv('NO_DUPE_PROGRESS', 'quiet')
 
     ok = run_ffmpeg_with_progress(
-        ['ffmpeg', '-i', str(f)], expected_duration=None, probe_input_duration=True)
+        ['ffmpeg', '-i', str(f)], expected_duration=None,
+        probe_input_duration=True
+    )
     assert ok is True
     captured = capsys.readouterr()
     # Should have a single final progress line and not many updates
