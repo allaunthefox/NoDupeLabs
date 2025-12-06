@@ -484,7 +484,9 @@ def _choose_executor_type_for_test(
 
     # Use proper runtime detection for GIL-free Python
     from ..runtime import is_gil_disabled
-    if is_gil_disabled(): return "thread"
+
+    if is_gil_disabled():
+        return "thread"
 
     try:
         cpu = int(_os.cpu_count() or 1)
