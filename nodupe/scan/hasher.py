@@ -214,32 +214,43 @@ def threaded_hash(
                     # original processor implementation otherwise.
                     worker = process_file
                     try:
+                        # Prefer the facade's runtime patch when present.
+                        # Tests sometimes monkeypatch
+                        # nodupe.scanner.process_file so prefer the facade
+                        # when it differs from the canonical implementation.
                         from importlib import import_module
 
                         _scanner_mod = import_module("nodupe.scanner")
-                        _scanner_pf = getattr(_scanner_mod, "process_file", None)
+                        _scanner_pf = getattr(
+                            _scanner_mod, "process_file", None
+                        )
 
-                        # Acquire canonical original implementation so we
-                        # can detect which symbols have been patched at
-                        # runtime.
+                        # Detect the canonical original function so we
+                        # can tell whether a function has been patched.
                         try:
-                            _proc_mod = import_module("nodupe.scan.processor")
-                            _orig_pf = getattr(_proc_mod, "process_file", None)
+                            _proc_mod = import_module(
+                                "nodupe.scan.processor"
+                            )
+                            _orig_pf = getattr(
+                                _proc_mod, "process_file", None
+                            )
                         except Exception:
                             _orig_pf = None
 
-                        # Prefer process_file if it looks patched.
-                        if _orig_pf is not None and worker is not _orig_pf:
-                            pass  # worker already points to patched hasher.process_file
-                        elif _scanner_pf is not None and _orig_pf is not None and _scanner_pf is not _orig_pf:
-                            worker = _scanner_pf
-                        # else worker stays as the module-local process_file
+                        # If the module-local worker is still the original
+                        # implementation, prefer a patched function from
+                        # the facade if present.
+                        if _orig_pf is not None and worker is _orig_pf:
+                            if (
+                                _scanner_pf is not None
+                                and _orig_pf is not None
+                                and _scanner_pf is not _orig_pf
+                            ):
+                                worker = _scanner_pf
+                        # Otherwise keep the module-local 'process_file'.
                     except Exception:
-                        # Any import errors -> stick with local process_file
-                        pass
-                    except Exception:
-                        # Ignore failures to import the facade module — fall
-                        # back to the current module's process_file.
+                        # Any import errors or missing modules -> keep the
+                        # local process_file implementation.
                         pass
 
                     fut = ex.submit(worker, p, hash_algo, known_hash)
@@ -332,9 +343,11 @@ def threaded_hash(
                                 meta = getattr(f, '_submit_meta', None)
                                 if not meta:
                                     continue
-                                # _submit_meta format: (path, size, submit_time)
-                                # age should be computed from submit_time which
-                                # is the third tuple element (index 2).
+                                # _submit_meta format: (path, size,
+                                # submit_time)
+                                    # _submit_meta format is:
+                                    #   (path, size, submit_time)
+                                    # compute age using submit_time (index 2)
                                 age = now - meta[2]
                                 # if we have a per-task stall threshold,
                                 # surface it
