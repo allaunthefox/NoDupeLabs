@@ -14,6 +14,7 @@ import sys
 from .walker import iter_files
 from .processor import process_file
 
+
 def _choose_executor_type(executor_choice: str, workers_count: int) -> str:
     """Decide executor type (thread/process) for threaded_hash.
 
