@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 """Hashing pipeline utilities.
-Provides threaded_hash for high-throughput parallel hashing.
+Provides threaded_hash — a high-throughput parallel hashing pipeline.
 """
 from __future__ import annotations
 
