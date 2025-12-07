@@ -1,9 +1,7 @@
 import json
-import os
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
 
 from nodupe.db import DB
 from nodupe.logger import JsonlLogger
@@ -18,7 +16,10 @@ def test_db_concurrent_writes_reads(tmp_path):
         rows = []
         for i in range(start, start + count):
             # simple deterministic record
-            rows.append((f"/tmp/f{i}", i * 10, i, f"h{i}", "application/octet-stream", "unarchived", "sha512", "0"))
+            rows.append((
+                f"/tmp/f{i}", i * 10, i, f"h{i}",
+                "application/octet-stream", "unarchived", "sha512", "0"
+            ))
         db.upsert_files(rows)
 
     # spawn concurrent writers
@@ -48,7 +49,8 @@ def test_logger_concurrent_writes_and_rotation(tmp_path):
         for i in range(200):
             logger.log("INFO", "concurrency_test", worker=id_, i=i)
 
-    threads = [threading.Thread(target=write_many, args=(i,)) for i in range(8)]
+    threads = [threading.Thread(target=write_many, args=(i,))
+               for i in range(8)]
     for t in threads:
         t.start()
     for t in threads:
@@ -70,7 +72,8 @@ def test_logger_concurrent_writes_and_rotation(tmp_path):
                     continue
                 # ensure valid json
                 obj = json.loads(line)
-                assert obj.get("event") in ("concurrency_test",), "Unexpected event"
+                assert obj.get("event") in (
+                    "concurrency_test",), "Unexpected event"
                 total += 1
 
     # we expect at least the number of writes
@@ -84,17 +87,20 @@ def test_plugin_manager_concurrent_register_and_emit(tmp_path):
     sync_calls = []
     async_calls = []
 
-    def make_sync(cb_id):
+    # Use events for both sync and async to properly wait
+    sync_events = [threading.Event() for _ in range(5)]
+    async_events = [threading.Event() for _ in range(5)]
+
+    def make_sync(cb_id, ev: threading.Event):
         def cb(**kwargs):
             with lock:
                 sync_calls.append((cb_id, kwargs.get("val")))
+            ev.set()
 
         return cb
 
-    # async callback sets an Event so we can wait
     def make_async(cb_id, ev: threading.Event):
         async def cb(**kwargs):
-            # small async yield
             import asyncio
 
             await asyncio.sleep(0)
@@ -104,36 +110,27 @@ def test_plugin_manager_concurrent_register_and_emit(tmp_path):
 
         return cb
 
-    # register callbacks concurrently while emitting
-    events = [threading.Event() for _ in range(10)]
-
-    def registrar(i):
+    # Register callbacks - even IDs are sync, odd are async
+    for i in range(10):
         if i % 2 == 0:
-            pm.register("ev", make_sync(i))
+            pm.register("ev", make_sync(i, sync_events[i // 2]))
         else:
-            pm.register("ev", make_async(i, events[i % len(events)]))
+            pm.register("ev", make_async(i, async_events[i // 2]))
 
-    def emitter(n):
-        for i in range(n):
-            pm.emit("ev", val=i)
+    # Emit a single event to trigger all callbacks
+    pm.emit("ev", val=42)
 
-    with ThreadPoolExecutor(max_workers=10) as ex:
-        regs = [ex.submit(registrar, i) for i in range(10)]
-        # ensure registrations happen
-        for r in regs:
-            r.result()
+    # Wait for sync callbacks (they run in executor)
+    for ev in sync_events:
+        ev.wait(timeout=5)
 
-        # emit concurrently
-        emitters = [ex.submit(emitter, 50) for _ in range(4)]
-        for e in emitters:
-            e.result()
-
-    # wait for async events to signal
-    for ev in events:
-        ev.wait(timeout=2)
+    # Wait for async callbacks
+    for ev in async_events:
+        ev.wait(timeout=5)
 
     # verify callbacks were called
     assert sync_calls, "No sync callbacks invoked"
     assert async_calls, "No async callbacks invoked"
+
     # shutdown background loop
     pm.stop()

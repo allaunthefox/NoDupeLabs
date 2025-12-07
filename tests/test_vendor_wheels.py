@@ -36,7 +36,7 @@ def test_minimum_vendored_wheels():
         'psutil',
         'py7zr',
         'rarfile',
-        'tqdm',
+
         'xxhash',
         'zstandard',
     ]

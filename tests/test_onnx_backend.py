@@ -16,7 +16,9 @@ def test_onnx_backend_model_load_behavior():
     from nodupe.ai.backends.onnx import ONNXBackend
 
     model_path = root / 'nodupe' / 'models' / 'nsfw_small.onnx'
-    assert model_path.exists(), 'expected sample model to be present for this test'
+    assert model_path.exists(), (
+        'expected sample model to be present for this test'
+    )
 
     be = ONNXBackend(model_path)
 
@@ -26,4 +28,6 @@ def test_onnx_backend_model_load_behavior():
         assert be.unavailable_reason() is None
     else:
         r = be.unavailable_reason() or ''
-        assert r, 'backend is unavailable but returned no reason; expect diagnostics'
+        assert r, (
+            'backend is unavailable but returned no reason; expect diagnostics'
+        )

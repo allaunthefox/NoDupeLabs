@@ -5,11 +5,13 @@ import tempfile
 import pytest
 try:
     import numpy as np
+    has_numpy = True
 except ImportError:
-    np = None
+    np = None  # type: ignore
+    has_numpy = False
 from pathlib import Path
 
-pytestmark = pytest.mark.skipif(np is None, reason="numpy not available")
+pytestmark = pytest.mark.skipif(not has_numpy, reason="numpy not available")
 
 
 def test_update_npz_index_from_db():
@@ -35,7 +37,8 @@ def test_update_npz_index_from_db():
         # Update index file from DB
         res = update_index_from_db(str(index_path), db)
 
-        # After update, index should contain '/a.png', '/b.png' and '/c.png' (b was in DB too)
+        # After update, index should contain '/a.png', '/b.png' and '/c.png'
+        # (b was in DB too)
         idx2 = load_index_from_file(str(index_path))
         assert res["added"] >= 1
         assert isinstance(idx2.ids, list)

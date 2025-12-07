@@ -28,16 +28,21 @@ class FileRepository:
         self.conn = connection
 
     def upsert_files(self, records: Iterable[FileRecord]):
-
         """Insert or update file records.
 
         Args:
-            records: Iterable of (path, size, mtime, hash,
-                     mime, context, algo, perms) tuples
+            records: Iterable of tuples with the following shape:
+                (path, size, mtime, hash, mime, context, algo,
+                perms)
 
         Example:
-            >>> repo = FileRepository(DatabaseConnection(Path('/tmp/index.db')))
-            >>> rows = [('/a.jpg', 1024, 1600000000, 'h1', 'image/jpeg', 'unarchived', 'sha512', '0')]
+            >>> repo = FileRepository(
+            ...     DatabaseConnection(Path('/tmp/index.db'))
+            ... )
+            >>> rows = [(
+            ...     '/a.jpg', 1024, 1600000000, 'h1',
+            ...     'image/jpeg', 'unarchived', 'sha512', '0'
+            ... )]
             >>> repo.upsert_files(rows)
         """
         self.conn.executemany(

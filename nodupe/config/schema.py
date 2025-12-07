@@ -8,25 +8,36 @@ Uses dataclasses for immutability with frozen=True.
 """
 from dataclasses import dataclass, field
 from enum import Enum
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 
 class HashAlgorithm(Enum):
-    """Supported hash algorithms."""
+    """Supported content hashing algorithms used for deduplication.
+
+    Use these values when configuring the project's default hashing
+    algorithm. They map to algorithm identifiers emitted in manifest
+    metadata (e.g. "sha512").
+    """
     SHA256 = "sha256"
     SHA512 = "sha512"
     BLAKE2B = "blake2b"
 
 
 class DedupStrategy(Enum):
-    """Deduplication strategies."""
+    """Strategies for selecting files when duplicates are discovered."""
     CONTENT_HASH = "content_hash"
 
 
 @dataclass(frozen=True)
 class NSFWConfig:
-    """NSFW detection configuration."""
+    """Configuration options for NSFW detection and handling.
+
+    Fields:
+        enabled: Whether NSFW classification is enabled.
+        threshold: Score threshold for classifying content as NSFW.
+        auto_quarantine:
+            Whether to move or quarantine NSFW files automatically.
+    """
     enabled: bool = False
     threshold: int = 2
     auto_quarantine: bool = False
@@ -34,7 +45,14 @@ class NSFWConfig:
 
 @dataclass(frozen=True)
 class AIConfig:
-    """AI backend configuration."""
+    """Configuration for AI/ML backends.
+
+    Fields:
+        enabled: Controls whether AI features are used.
+            Accepted strings include 'auto', 'true' or 'false'.
+        backend: Preferred backend name (e.g., 'onnxruntime').
+        model_path: Default location of the model artifact.
+    """
     enabled: str = "auto"  # "auto", "true", "false"
     backend: str = "onnxruntime"
     model_path: str = "models/nsfw_small.onnx"
@@ -42,13 +60,24 @@ class AIConfig:
 
 @dataclass(frozen=True)
 class SimilarityConfig:
-    """Similarity search configuration."""
+    """Configuration related to similarity indexing.
+
+    Fields:
+        dim: Dimensionality of numeric embeddings used by
+            similarity indices.
+    """
     dim: int = 16
 
 
 @dataclass(frozen=True)
 class LoggingConfig:
-    """Logging configuration."""
+    """Logging-related configuration values.
+
+    Fields:
+        rotate_mb: Maximum MB per rotated log file.
+        keep: Number of rotated log files to retain.
+        level: Logging level (e.g., 'INFO', 'DEBUG').
+    """
     rotate_mb: int = 10
     keep: int = 7
     level: str = "INFO"
@@ -112,7 +141,19 @@ class Config:
             raise ValueError("parallelism must be >= 0")
 
     def get(self, key: str, default: Any = None) -> Any:
-        """Dict-like access for backwards compatibility."""
+        """Retrieve a configuration value using dict-like semantics.
+
+        This method mirrors the behaviour of ``dict.get`` for backwards
+        compatibility with older call-sites that treat the configuration
+        object like a mapping.
+
+        Args:
+            key: Name of the configuration attribute to retrieve.
+            default: Value to return when the attribute is not present.
+
+        Returns:
+            The attribute value when present, otherwise ``default``.
+        """
         return getattr(self, key, default)
 
     def __getitem__(self, key: str) -> Any:
@@ -126,7 +167,14 @@ class Config:
         return hasattr(self, key)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary."""
+        """Create a JSON-serializable mapping of the configuration.
+
+        Returns:
+            A dictionary containing all configuration values. Nested
+            datatypes are converted to plain Python containers
+            (eg. tuples -> lists, nested dict-like fields preserved
+            as dicts) so the result is safe to serialize to YAML/JSON.
+        """
         return {
             "hash_algo": self.hash_algo,
             "dedup_strategy": self.dedup_strategy,
@@ -162,17 +210,19 @@ class Config:
             New Config instance
         """
         # Convert ignore_patterns list to tuple for immutability
-        if "ignore_patterns" in data and isinstance(data["ignore_patterns"], list):
+        if ("ignore_patterns" in data
+                and isinstance(data["ignore_patterns"], list)):
             data = dict(data)  # Copy to avoid mutating input
             data["ignore_patterns"] = tuple(data["ignore_patterns"])
 
         # Filter to only known fields
         known_fields = {
-            "hash_algo", "dedup_strategy", "parallelism", "follow_symlinks",
-            "dry_run", "overwrite", "checkpoint", "db_path", "log_dir",
-            "metrics_path", "ignore_patterns", "nsfw", "ai", "similarity",
-            "logging", "export_folder_meta", "meta_format", "meta_pretty",
-            "meta_validate_schema", "auto_install_deps", "plugins_dir"
+            "hash_algo", "dedup_strategy", "parallelism",
+            "follow_symlinks", "dry_run", "overwrite", "checkpoint",
+            "db_path", "log_dir", "metrics_path", "ignore_patterns",
+            "nsfw", "ai", "similarity", "logging", "export_folder_meta",
+            "meta_format", "meta_pretty", "meta_validate_schema",
+            "auto_install_deps", "plugins_dir"
         }
 
         filtered = {k: v for k, v in data.items() if k in known_fields}

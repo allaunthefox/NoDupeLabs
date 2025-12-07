@@ -18,9 +18,8 @@ from typing import Any, Dict, List, Optional
 from collections import defaultdict
 
 from ..db import DB
-from ..logger import JsonlLogger
-from ..metrics import Metrics
-from ..scanner import threaded_hash
+from ..telemetry import Telemetry
+from .hasher import threaded_hash
 from ..ai.backends import BaseBackend
 from ..exporter import write_folder_meta
 
@@ -36,8 +35,7 @@ class ScanOrchestrator:
     def __init__(
         self,
         db: DB,
-        logger: JsonlLogger,
-        metrics: Metrics,
+        telemetry: Telemetry,
         backend: Optional[BaseBackend],
         plugin_manager: Any
     ):
@@ -45,14 +43,12 @@ class ScanOrchestrator:
 
         Args:
             db: Database for persistence
-            logger: Event logger
-            metrics: Metrics collector
+            telemetry: Unified telemetry (logger + metrics)
             backend: AI backend for embeddings (optional)
             plugin_manager: Plugin event dispatcher
         """
         self.db = db
-        self.logger = logger
-        self.metrics = metrics
+        self.telemetry = telemetry
         self.backend = backend
         self.pm = plugin_manager
 
@@ -65,7 +61,11 @@ class ScanOrchestrator:
         follow_symlinks: bool = False,
         similarity_dim: int = 16,
         export_folder_meta: bool = False,
-        meta_pretty: bool = False
+        meta_pretty: bool = False,
+        heartbeat_interval: float = 10.0,
+        stall_timeout: Optional[float] = None,
+        max_idle_time: Optional[float] = 300.0,
+        show_eta: bool = True
     ) -> Dict[str, Any]:
         """Execute complete scan workflow.
 
@@ -83,7 +83,7 @@ class ScanOrchestrator:
             Scan results summary
         """
         # Emit scan start event
-        self.logger.log("INFO", "scan_start", roots=roots)
+        self.telemetry.log("INFO", "scan_start", roots=roots)
         self.pm.emit("scan_start", roots=roots, db=self.db)
 
         # Get known files for incremental scan
@@ -102,7 +102,11 @@ class ScanOrchestrator:
             workers=workers,
             hash_algo=hash_algo,
             follow_symlinks=follow_symlinks,
-            known_files=known_files
+            known_files=known_files,
+            heartbeat_interval=heartbeat_interval,
+            stall_timeout=stall_timeout,
+            max_idle_time=max_idle_time,
+            show_eta=show_eta
         )
 
         files_batch = []
@@ -157,11 +161,20 @@ class ScanOrchestrator:
                                 vec = self.backend.compute_embedding(
                                     Path(p), dim=similarity_dim)
                                 embeddings_batch.append(
-                                    (p, vec, similarity_dim, int(mtime))
+                                    (
+                                        p, vec, similarity_dim,
+                                        int(mtime)
+                                    )
                                 )
                             except Exception as e:
-                                print(
-                                    f"[scan][WARN] embedding failed for {p}: {e}")
+                                # Use telemetry instead of print for warnings.
+                                # Keep lines short to satisfy flake8.
+                                self.telemetry.log(
+                                    "WARN",
+                                    "embedding_failed",
+                                    path=p,
+                                    error=str(e),
+                                )
 
                 # Flush batches
                 if len(files_batch) >= BATCH_SIZE:
@@ -181,8 +194,9 @@ class ScanOrchestrator:
                 embeddings_updated += len(embeddings_batch)
 
             if self.backend:
-                self.logger.log(
-                    "INFO", "embeddings_precomputed", updated=embeddings_updated
+                self.telemetry.log(
+                    "INFO", "embeddings_precomputed",
+                    updated=embeddings_updated
                 )
 
         except Exception as e:
@@ -192,9 +206,9 @@ class ScanOrchestrator:
         duration = time.time() - start_time
 
         # Record metrics
-        self.metrics.data["files_scanned"] = total_files
-        self.metrics.data["bytes_scanned"] = total_bytes
-        self.metrics.data["durations"]["scan_s"] = round(duration, 3)
+        self.telemetry.gauge("files_scanned", total_files)
+        self.telemetry.gauge("bytes_scanned", total_bytes)
+        self.telemetry.gauge("scan_duration_s", round(duration, 3))
 
         # Meta Export
         if export_folder_meta:
@@ -212,18 +226,18 @@ class ScanOrchestrator:
                     meta_count += 1
                 except Exception as e:
                     meta_errors += 1
-                    self.logger.log(
+                    self.telemetry.log(
                         "ERROR", "meta_export_failed",
                         directory=str(dir_path), error=str(e)
                     )
-            self.metrics.data["meta_exported"] = meta_count
-            self.metrics.data["meta_errors"] = meta_errors
+            self.telemetry.gauge("meta_exported", meta_count)
+            self.telemetry.gauge("meta_errors", meta_errors)
 
-        self.metrics.save()
+        self.telemetry.save()
 
         # Emit scan complete event
         self.pm.emit("scan_complete", records=[],
-                     duration=duration, metrics=self.metrics)
+                     duration=duration, telemetry=self.telemetry)
 
         return {
             "files_scanned": total_files,

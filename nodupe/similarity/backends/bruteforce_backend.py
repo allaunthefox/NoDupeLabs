@@ -53,7 +53,15 @@ class BruteForceIndex:
     def add(
         self, vectors: List[List[float]], ids: Optional[List[str]] = None
     ) -> None:
-        """Add vectors to the index."""
+        """Add vectors and optional identifiers to the index.
+
+        Args:
+            vectors: Sequence of vector lists (shape: N x dim) to append to
+                the index.
+            ids: Optional list of string ids to associate with the vectors.
+                If not provided, the index will generate integer-based
+                string ids sequentially.
+        """
         arr = np.asarray(vectors, dtype='float32')
         if arr.ndim != 2 or arr.shape[1] != self.dim:
             raise ValueError("Invalid vectors shape for brute-force")
@@ -73,7 +81,15 @@ class BruteForceIndex:
     def search(
         self, vector: List[float], k: int = 5
     ) -> List[Tuple[str, float]]:
-        """Search for k nearest neighbors."""
+        """Search the index for the k nearest neighbors to a query vector.
+
+        Args:
+            vector: Query vector of the same dimensionality as the index.
+            k: Number of neighbors to return.
+
+        Returns:
+            List of (id, distance) pairs sorted by nearest distance.
+        """
         if self.vectors.size == 0:
             return []
         q = np.asarray(vector, dtype='float32')
@@ -86,18 +102,39 @@ class BruteForceIndex:
 
 
 def create(dim: int):
-    """Create a new brute-force index with given dimension."""
+    """Create and return a new BruteForceIndex instance.
+
+    Args:
+        dim: Dimension of vectors that will be indexed.
+
+    Returns:
+        BruteForceIndex: An initialized, empty index ready for use.
+    """
     return BruteForceIndex(dim)
 
 
 def available() -> bool:
-    """Check if numpy is available for brute-force backend."""
+    """Return True if the brute-force backend's dependencies are present.
+
+    Returns:
+        bool: True when NumPy is importable and the backend can be used.
+    """
     return np is not None
 
 
 # Persistence helpers
 def load(path: str):
-    """Load index from file (.npz, .json, or .jsonl)."""
+    """Load a persisted index from disk.
+
+    Supports .npz, .json and .jsonl formats. Returns an initialized
+    BruteForceIndex populated with data from the provided file.
+
+    Args:
+        path: Path to the persisted index file.
+
+    Returns:
+        BruteForceIndex: Loaded index instance.
+    """
     # Support multiple persistence formats: .npz, .json, .jsonl
     p = Path(path)
     ext = p.suffix.lower()
@@ -169,7 +206,12 @@ def load(path: str):
 
 
 def save(index_obj, path: str):
-    """Save index to file (.npz, .json, or .jsonl)."""
+    """Persist an index to disk in one of the supported formats.
+
+    Args:
+        index_obj: Index instance exposing attributes 'vectors' and 'ids'.
+        path: Destination file path. Supported suffixes: .npz, .json, .jsonl
+    """
     # assume index_obj has attributes vectors and ids
     p = Path(path)
     ext = p.suffix.lower()
