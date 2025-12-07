@@ -6,6 +6,7 @@ Provides threaded_hash for high-throughput parallel hashing.
 """
 from __future__ import annotations
 
+
 import os as _os
 import time
 import concurrent.futures as futures
