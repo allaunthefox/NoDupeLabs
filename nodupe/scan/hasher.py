@@ -6,7 +6,6 @@ Provides threaded_hash for high-throughput parallel hashing.
 """
 from __future__ import annotations
 
-
 import os as _os
 import time
 import concurrent.futures as futures
@@ -14,7 +13,6 @@ from typing import Iterable, List, Optional
 import sys
 from .walker import iter_files
 from .processor import process_file
-
 
 def _choose_executor_type(executor_choice: str, workers_count: int) -> str:
     """Decide executor type (thread/process) for threaded_hash.
