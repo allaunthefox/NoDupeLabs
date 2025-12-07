@@ -61,6 +61,7 @@ def _choose_executor_type(executor_choice: str, workers_count: int) -> str:
 
     return "process"
 
+
 def threaded_hash(
     roots: Iterable[str], ignore: List[str], workers: int = 4,
     executor: str = "auto",
