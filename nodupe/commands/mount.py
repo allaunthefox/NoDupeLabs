@@ -22,11 +22,24 @@ Example:
 """
 
 from pathlib import Path
+from typing import Any, Dict
 from ..mount import mount_fs
 
 
-def cmd_mount(args, cfg):
+def cmd_mount(args: Any, cfg: Dict[str, Any]) -> int:
     """Mount the database as a FUSE filesystem.
+
+    This function exposes the deduplicated content database as a read-only
+    FUSE filesystem, allowing users to browse the file index as a virtual
+    directory structure. The filesystem provides access to all indexed files
+    with custom organization options.
+
+    The mount process:
+    1. Loads the SQLite database
+    2. Creates virtual filesystem structure
+    3. Mounts at the specified mountpoint
+    4. Provides read-only access to indexed files
+    5. Handles filesystem operations transparently
 
     Args:
         args: Argparse Namespace with attributes:
@@ -36,6 +49,27 @@ def cmd_mount(args, cfg):
 
     Returns:
         int: Exit code (0 for success)
+
+    Raises:
+        FileNotFoundError: If database file doesn't exist
+        PermissionError: If mountpoint can't be accessed
+        OSError: If FUSE mounting fails
+        Exception: For unexpected errors during mount
+
+    Example:
+        >>> from argparse import Namespace
+        >>> args = Namespace(mountpoint='/mnt/nodupe')
+        >>> cfg = {'db_path': 'nodupe.db'}
+        >>> exit_code = cmd_mount(args, cfg)
+        >>> print(f"Mount completed with exit code: {exit_code}")
+        0
+
+    Notes:
+        - Filesystem is read-only (no modifications allowed)
+        - Requires FUSE support on the operating system
+        - Mountpoint directory must exist and be accessible
+        - Filesystem remains mounted until unmounted
+        - Provides virtual views of file organization
     """
     mount_fs(Path(cfg["db_path"]), Path(args.mountpoint))
     return 0

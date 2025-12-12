@@ -27,14 +27,23 @@ Example:
 
 import csv
 from pathlib import Path
+from typing import Any, Dict
 from ..applier import apply_moves
 
 
-def cmd_apply(args, cfg):
+def cmd_apply(args: Any, cfg: Dict[str, Any]) -> int:
     """Execute deduplication plan.
 
-    Reads the plan CSV and performs the specified file operations.
-    Generates a checkpoint file to allow for future rollback.
+    This function reads the deduplication plan CSV and performs the specified
+    file operations. It generates a checkpoint file to allow for future rollback
+    and supports both dry-run mode (default) and actual file operations.
+
+    The function handles the complete workflow:
+    1. Parse the plan CSV file
+    2. Validate the operations
+    3. Execute moves (or simulate in dry-run mode)
+    4. Create checkpoint file for rollback capability
+    5. Report success/failure statistics
 
     Args:
         args: Argparse Namespace with attributes:
@@ -46,6 +55,28 @@ def cmd_apply(args, cfg):
 
     Returns:
         int: Exit code (0 for success, 1 for errors)
+
+    Raises:
+        FileNotFoundError: If plan file doesn't exist
+        PermissionError: If files can't be moved due to permissions
+        OSError: If file operations fail
+        Exception: For unexpected errors during execution
+
+    Example:
+        >>> from argparse import Namespace
+        >>> args = Namespace(plan='plan.csv', checkpoint='cp.json', force=False)
+        >>> cfg = {'dry_run': True}
+        >>> exit_code = cmd_apply(args, cfg)
+        [apply] {'moved': 15, 'errors': 0}
+        >>> print(f"Exit code: {exit_code}")
+        0
+
+    Notes:
+        - Dry-run mode is enabled by default (args.force=False)
+        - Checkpoint file is always created for rollback capability
+        - Exit code 0 indicates all operations completed successfully
+        - Exit code 1 indicates some operations failed
+        - Statistics are printed to stdout in JSON format
     """
     # Re-implement CSV reading here since applier expects list of dicts
     rows = []

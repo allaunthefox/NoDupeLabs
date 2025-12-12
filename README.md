@@ -95,34 +95,72 @@ and maintainable across changes:
 
 ## Installation
 
-NoDupeLabs is designed to be installed as a Python package.
+NoDupeLabs is designed to be installed as a Python package. Follow these clear, reproducible steps:
+
+### Standard Installation
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/allaunthefox/NoDupeLabs.git
 cd NoDupeLabs
 
-# Install in editable mode
+# 2. Create virtual environment (recommended)
+python -m venv .venv
+source .venv/bin/activate  # Linux/macOS
+# .venv\Scripts\activate  # Windows
+
+# 3. Install in editable mode
 pip install -e .
+```
+
+### Verify Installation
+
+```bash
+# Check that NoDupeLabs is installed correctly
+nodupe --help
+
+# You should see the help output with available commands
 ```
 
 ### Minimal/Offline Operation
 
 NoDupeLabs includes vendored copies of essential libraries (`PyYAML`) in `nodupe/vendor/libs`. If the system Python environment lacks these dependencies, the application will automatically use the bundled versions, ensuring basic functionality works out-of-the-box.
 
-If you want a reliable baseline runtime for ML inference (e.g. `onnxruntime`) we've added support for vendoring runtime wheels into `nodupe/vendor/libs` and a helper to install them into your environment.
-
-Quick install from vendored wheel (offline-friendly):
+#### Offline Installation Steps
 
 ```bash
-# Install all vendored wheels
+# 1. Install all vendored wheels (includes PyYAML, etc.)
 python scripts/install_vendored_wheels.py
 
-# Or install a specific vendored wheel (eg onnxruntime)
+# 2. Install specific vendored wheel (e.g., onnxruntime for AI features)
 python scripts/install_vendored_wheels.py --pattern onnxruntime
 
-# Alternatively (pure pip):
+# 3. Alternatively, use pip directly with vendored wheels
 python -m pip install --no-index --find-links nodupe/vendor/libs onnxruntime
+```
+
+### Development Installation
+
+For contributors who want to work on NoDupeLabs:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/allaunthefox/NoDupeLabs.git
+cd NoDupeLabs
+
+# 2. Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# 3. Install development dependencies
+pip install -r dev-requirements.txt
+
+# 4. Install NoDupeLabs in editable mode
+pip install -e .
+
+# 5. Verify development setup
+make test  # Run fast tests
+make lint  # Check code style
 ```
 
 ---
@@ -357,6 +395,204 @@ Quality checks run automatically on every commit:
 See [.github/workflows/ci.yml](.github/workflows/ci.yml) for details.
 
 ---
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### Installation Problems
+
+**Issue**: `pip install -e .` fails with dependency errors
+
+**Solution**:
+```bash
+# Ensure you have the latest pip and setuptools
+pip install --upgrade pip setuptools
+
+# Install dependencies manually first
+pip install PyYAML xxhash zstandard py7zr rarfile jsonschema
+
+# Then install NoDupeLabs
+pip install -e .
+```
+
+**Issue**: Missing optional dependencies (e.g., `pillow`, `psutil`)
+
+**Solution**:
+```bash
+# Install optional dependencies
+pip install pillow psutil
+
+# Or use the development requirements
+pip install -r dev-requirements.txt
+```
+
+#### Command Execution Issues
+
+**Issue**: `nodupe: command not found`
+
+**Solution**:
+```bash
+# Ensure you're using the virtual environment
+source .venv/bin/activate
+
+# Check Python path
+python -c "import nodupe; print(nodupe.__file__)"
+
+# Try running directly with Python
+python -m nodupe.cli --help
+```
+
+**Issue**: Permission denied errors
+
+**Solution**:
+```bash
+# Check directory permissions
+ls -la /path/to/your/directory
+
+# Fix permissions if needed
+chmod -R u+rw /path/to/your/directory
+```
+
+#### Scanning Problems
+
+**Issue**: Scanner hangs or is very slow
+
+**Solution**:
+```bash
+# Reduce parallelism
+nodupe scan --root /path/to/data --parallelism 2
+
+# Increase timeout settings
+# Edit nodupe.yml and set:
+# heartbeat_interval: 30
+# stall_timeout: 600
+# max_idle_time: 120
+```
+
+**Issue**: Files not being detected or processed
+
+**Solution**:
+```bash
+# Check ignore patterns
+cat nodupe.yml | grep ignore_patterns
+
+# Temporarily disable ignore patterns
+nodupe scan --root /path/to/data --ignore-patterns ""
+```
+
+#### Database Issues
+
+**Issue**: Database corruption or errors
+
+**Solution**:
+```bash
+# Backup existing database
+cp output/index.db output/index.db.backup
+
+# Delete and recreate database
+rm output/index.db
+nodupe scan --root /path/to/data
+```
+
+**Issue**: Database locked errors
+
+**Solution**:
+```bash
+# Ensure no other NoDupeLabs processes are running
+ps aux | grep nodupe
+
+# Wait for processes to complete or kill them
+# pkill -f nodupe
+
+# Try again with reduced parallelism
+nodupe scan --root /path/to/data --parallelism 1
+```
+
+#### AI/Similarity Features
+
+**Issue**: AI backend not available
+
+**Solution**:
+```bash
+# Install ONNX runtime
+pip install onnxruntime
+
+# Or use CPU backend (slower but works without ONNX)
+# Edit nodupe.yml and set:
+# ai:
+#   backend: cpu
+```
+
+**Issue**: Similarity search not working
+
+**Solution**:
+```bash
+# Ensure you have built the similarity index
+nodupe similarity build --out index.npz
+
+# Check that the index file exists
+ls -la index.npz
+
+# Try with different backend
+nodupe similarity build --out index.json
+```
+
+### Debugging Techniques
+
+#### Enable Verbose Logging
+
+```bash
+# Set environment variable for debug logging
+export NO_DUPE_DEBUG=1
+
+# Run command with verbose output
+nodupe scan --root /path/to/data --verbose
+```
+
+#### Check Configuration
+
+```bash
+# View current configuration
+cat nodupe.yml
+
+# Reset to default configuration
+rm nodupe.yml
+nodupe init --preset default
+```
+
+#### Manual Database Inspection
+
+```bash
+# Connect to SQLite database
+sqlite3 output/index.db
+
+# Check tables
+.tables
+
+# Query files
+SELECT * FROM files LIMIT 10;
+
+# Check schema
+.schema files
+```
+
+### Getting Help
+
+If you encounter issues not covered here:
+
+1. **Check logs**: Look in `output/logs/` for detailed error information
+2. **Review documentation**: Consult the [Beginner's Guide](docs/BEGINNERS_GUIDE.md)
+3. **Search issues**: Check GitHub issues for similar problems
+4. **Create issue**: Open a new GitHub issue with detailed information
+
+When reporting issues, please include:
+- NoDupeLabs version (`nodupe --version`)
+- Python version (`python --version`)
+- Operating system and version
+- Exact command you ran
+- Full error message or stack trace
+- Relevant log files
 
 ## License
 

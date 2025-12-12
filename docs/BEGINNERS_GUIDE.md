@@ -1,120 +1,236 @@
-# NoDupeLabs: Beginner's Guide
+# NoDupeLabs Beginner's Guide
 
-Welcome! This guide is written for someone who has never used this program before. It will walk you through setting up NoDupeLabs, scanning your files, and safely removing duplicates.
+This guide provides clear, step-by-step instructions for beginners to set up and use NoDupeLabs effectively.
 
-## 1. Prerequisites (What you need)
+## Table of Contents
 
-Before you start, you need a computer (Linux, macOS, or Windows) with a terminal (command prompt) and **Python 3.9 or newer** installed.
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Your First Scan](#your-first-scan)
+- [Finding Duplicates](#finding-duplicates)
+- [Removing Duplicates](#removing-duplicates)
+- [Undo Operations](#undo-operations)
+- [Advanced Tips](#advanced-tips)
+- [Getting Help](#getting-help)
 
-### How to check if you have Python:
-1.  Open your terminal (Terminal on macOS/Linux, PowerShell or Command Prompt on Windows).
-2.  Type the following command and press Enter:
-    ```bash
-    python3 --version
-    ```
-    *If that doesn't work, try `python --version`.*
-3.  If you see something like `Python 3.10.12`, you are ready! If you get an error, you need to install Python from [python.org](https://www.python.org/).
+## Prerequisites
 
----
+Before you start, ensure you have:
 
-## 2. Installation (Getting the program ready)
+- **Computer**: Linux, macOS, or Windows
+- **Terminal**: Command prompt or terminal application
+- **Python**: Version 3.9 or newer
 
-We need to download the code and tell your computer how to run it.
+### Check Python Installation
 
-1.  **Download the code**:
-    If you have `git` installed, run:
-    ```bash
-    git clone https://github.com/allaunthefox/NoDupeLabs.git
-    cd NoDupeLabs
-    ```
-    *Alternatively, you can download the ZIP file from GitHub, unzip it, and open your terminal in that folder.*
+```bash
+# Check Python version
+python3 --version
 
-2.  **Install the program**:
-    Run this command to install NoDupeLabs and its dependencies:
-    ```bash
-    pip install -e .
-    ```
-    *(Note: On some systems, you might need to use `pip3` instead of `pip`)*.
+# If that doesn't work, try:
+python --version
 
----
+# Expected output: Python 3.10.12 (or similar)
+# If you get an error, install Python from https://www.python.org/
+```
 
-## 3. Your First Scan (Cataloging your files)
+## Installation
 
-The first step is to let NoDupeLabs look at your files. It will create a "fingerprint" (hash) for every file to see if they are identical, even if they have different names.
+Follow these clear, reproducible steps to install NoDupeLabs:
 
-**Scenario**: You have a folder called `MyPhotos` that you want to check.
+### 1. Download the Code
 
-1.  Run the scan command:
-    ```bash
-    nodupe scan --root /path/to/MyPhotos
-    ```
-    *(Replace `/path/to/MyPhotos` with the actual location of your folder).*
+```bash
+# Clone repository using git
+git clone https://github.com/allaunthefox/NoDupeLabs.git
+cd NoDupeLabs
 
-2.  **What happens next?**
-    *   You will see a progress bar as it reads your files.
-    *   It creates a small file called `meta.json` inside every folder it scans. This file contains the catalog information.
-    *   It saves a master database to `output/index.db`.
+# Alternatively, download ZIP from GitHub and extract
+```
 
----
+### 2. Install NoDupeLabs
 
-## 4. Finding Duplicates (Creating a Plan)
+```bash
+# Install in editable mode
+pip install -e .
 
-Now that the program knows about your files, ask it to find the duplicates.
+# Note: Use pip3 instead of pip on some systems
+```
 
-1.  Run the plan command:
-    ```bash
-    nodupe plan --out my_cleanup_plan.csv
-    ```
+### 3. Verify Installation
 
-2.  **Review the Plan**:
-    *   This creates a file named `my_cleanup_plan.csv`.
-    *   **Open this file** in Excel, LibreOffice, or a text editor.
-    *   It lists all the files that are duplicates and marks which ones will be moved/deleted (`DELETE`) and which one will be kept (`KEEP`).
-    *   **Important**: If you don't like the plan, you can just delete the CSV file and nothing changes.
+```bash
+# Check installation
+nodupe --help
 
----
+# Expected: Help output with available commands
+```
 
-## 5. Removing Duplicates (Applying the Plan)
+## Your First Scan
 
-If you are happy with the plan, you can tell NoDupeLabs to execute it.
+Catalog your files by creating fingerprints (hashes) for duplicate detection.
 
-**Safety First**: By default, NoDupeLabs does **not** delete files. It moves them to a hidden folder called `.nodupe_duplicates` so you can recover them if needed.
+### Example: Scan Photos Folder
 
-1.  Run the apply command:
-    ```bash
-    nodupe apply --plan my_cleanup_plan.csv
-    ```
+```bash
+# Scan your photos folder
+nodupe scan --root /path/to/MyPhotos
 
-2.  **What happens?**
-    *   The program reads your CSV plan.
-    *   It moves the duplicate files out of your way.
-    *   It creates a "Checkpoint" file in `output/checkpoints/`. This is your "Undo" button.
+# Replace /path/to/MyPhotos with your actual folder location
+```
 
----
+### What Happens During Scan
 
-## 6. Oops! (How to Undo)
+- **Progress bar** shows scanning progress
+- **meta.json** files created in each folder (catalog information)
+- **Database** saved to `output/index.db` (master record)
 
-If you realize you made a mistake or the program moved a file you wanted to keep, you can undo the entire operation.
+## Finding Duplicates
 
-1.  Find your checkpoint file:
-    Look in the `output/checkpoints/` folder. You will see a file like `checkpoint_20251202_120000.json`.
+Generate a plan to identify and handle duplicate files.
 
-2.  Run the rollback command:
-    ```bash
-    nodupe rollback --checkpoint output/checkpoints/checkpoint_20251202_120000.json
-    ```
-    *(Replace the filename with the one you found).*
+### Create Deduplication Plan
 
-3.  **Result**: All files are moved back to their original locations.
+```bash
+# Generate CSV plan
+nodupe plan --out my_cleanup_plan.csv
 
----
+# This creates a file listing all duplicates
+```
 
-## 7. Advanced Tips
+### Review the Plan
 
-*   **Network Drives**: If you are scanning a network drive that might disconnect, don't worry. The scanner is smart enough to pause or skip errors without crashing.
-*   **Configuration**: There is a file called `nodupe.yml` created after your first run. You can open it with a text editor to change settings (like ignoring certain folders).
+```bash
+# Open the plan file
+# Use Excel, LibreOffice, or a text editor
 
----
+# Plan format:
+# - DELETE: Files to be moved
+# - KEEP: Files to be preserved
+# - You can delete the CSV file to cancel without changes
+```
 
-**Need Help?**
-If you get stuck, try running `nodupe --help` to see a list of available commands.
+## Removing Duplicates
+
+Execute the deduplication plan safely.
+
+### Apply the Plan
+
+```bash
+# Execute the plan
+nodupe apply --plan my_cleanup_plan.csv
+
+# Safety: Files are moved to .nodupe_duplicates folder (not deleted)
+```
+
+### What Happens During Application
+
+- **Files moved** to `.nodupe_duplicates` subdirectories
+- **Checkpoint created** in `output/checkpoints/` for undo capability
+- **Original files** preserved in hidden location
+
+## Undo Operations
+
+Recover files if you make a mistake.
+
+### Find Checkpoint File
+
+```bash
+# List checkpoint files
+ls output/checkpoints/
+
+# Example filename: checkpoint_20251202_120000.json
+```
+
+### Rollback Changes
+
+```bash
+# Undo the operation
+nodupe rollback --checkpoint output/checkpoints/checkpoint_20251202_120000.json
+
+# Replace filename with your actual checkpoint file
+```
+
+### Rollback Result
+
+- **All files** moved back to original locations
+- **No data loss** - complete recovery
+- **Safe operation** - can be repeated if needed
+
+## Advanced Tips
+
+### Network Drive Scanning
+
+```bash
+# Scan network drives safely
+nodupe scan --root /network/drive
+
+# Automatically handles disconnections and errors
+```
+
+### Custom Configuration
+
+```bash
+# Edit configuration file
+nano nodupe.yml
+
+# Common settings to customize:
+# - ignore_patterns: Add folders/files to ignore
+# - parallelism: Adjust worker threads
+# - hash_algo: Change hashing algorithm
+```
+
+### Configuration Example
+
+```yaml
+# nodupe.yml example
+hash_algo: sha512
+parallelism: 4
+ignore_patterns:
+  - ".git"
+  - "node_modules"
+  - "*.tmp"
+```
+
+## Getting Help
+
+### Command Help
+
+```bash
+# List all available commands
+nodupe --help
+
+# Get help for specific command
+nodupe scan --help
+```
+
+### Common Issues
+
+**Issue**: `nodupe: command not found`
+
+```bash
+# Solution: Ensure virtual environment is activated
+source .venv/bin/activate
+```
+
+**Issue**: Permission denied errors
+
+```bash
+# Solution: Check and fix permissions
+chmod -R u+rw /your/data/folder
+```
+
+### Additional Resources
+
+- [Advanced Usage Guide](ADVANCED_USAGE.md) for complex scenarios
+- [Integration Guides](INTEGRATION_GUIDES.md) for platform-specific examples
+- [Documentation Guide](DOCUMENTATION_GUIDE.md) for contribution standards
+
+## Conclusion
+
+This beginner's guide provides **clear, reproducible instructions** for getting started with NoDupeLabs. Follow the examples step-by-step to safely scan, identify, and remove duplicate files.
+
+**Next Steps**:
+- Try the [Advanced Usage Guide](ADVANCED_USAGE.md) for more complex scenarios
+- Explore [Integration Guides](INTEGRATION_GUIDES.md) for platform-specific examples
+- Review [Documentation Standards](DOCUMENTATION_GUIDE.md) if you want to contribute

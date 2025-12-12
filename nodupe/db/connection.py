@@ -3,8 +3,51 @@
 
 """Database connection management.
 
-Handles SQLite connection lifecycle, schema setup, and migrations.
-Provides low-level query execution.
+Handles SQLite connection lifecycle, schema setup, and migrations for NoDupeLabs.
+This module provides the core database infrastructure, managing connection pooling,
+transaction handling, and background writer processes for optimal performance.
+
+Key Features:
+    - SQLite connection management with WAL mode for concurrent access
+    - Automatic schema initialization and versioning
+    - Background writer support for non-blocking bulk operations
+    - Thread-safe operations with connection locking
+    - Schema migration capabilities for database evolution
+    - Comprehensive error handling and recovery
+
+Dependencies:
+    - sqlite3: Standard library SQLite database
+    - threading: Thread-safe connection management
+    - time: Timestamp and timeout handling
+    - textwrap: SQL query formatting
+    - typing: Type annotations for code safety
+
+Example:
+    >>> from pathlib import Path
+    >>> from nodupe.db.connection import DatabaseConnection
+    >>>
+    >>> # Initialize database connection
+    >>> conn = DatabaseConnection(Path('output/index.db'))
+    >>>
+    >>> # Execute a query
+    >>> cursor = conn.execute("SELECT COUNT(*) FROM files")
+    >>> count = cursor.fetchone()[0]
+    >>> print(f"Database contains {count} files")
+    >>>
+    >>> # Use background writer for bulk operations
+    >>> conn.start_writer(mode='auto', batch_size=200)
+    >>>
+    >>> # Perform bulk insert
+    >>> records = [('/file1.txt', 1024, 1600000000, 'hash1',
+    ...            'text/plain', 'unarchived', 'sha512', '0')]
+    >>> conn.executemany(
+    ...     "INSERT INTO files VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
+    ...     records
+    ... )
+    >>>
+    >>> # Clean up
+    >>> conn.stop_writer(flush=True)
+    >>> conn.close()
 """
 import sqlite3
 import threading

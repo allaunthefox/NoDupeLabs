@@ -25,8 +25,10 @@ from pathlib import Path
 def lint_tree(module_dir: Path) -> None:
     """Recursively check syntax of all Python files in directory.
 
-    Attempts to compile each .py file to detect syntax errors.
-    Raises SyntaxError immediately if any file is invalid.
+    This function performs comprehensive syntax checking by attempting
+    to compile each Python file in the specified directory tree. It
+    serves as a startup validation to ensure no corrupted or invalid
+    Python code is present in the codebase.
 
     Args:
         module_dir: Root directory to scan for .py files
@@ -34,6 +36,13 @@ def lint_tree(module_dir: Path) -> None:
     Raises:
         SyntaxError: If any file contains invalid syntax
         OSError: If file reading fails
+        UnicodeDecodeError: If file encoding is invalid
+
+    Example:
+        >>> from pathlib import Path
+        >>> from nodupe.bootstrap import lint_tree
+        >>> lint_tree(Path("./nodupe"))
+        # Raises SyntaxError if any invalid Python files are found
     """
     py_files = list(module_dir.rglob("*.py"))
     for p in py_files:

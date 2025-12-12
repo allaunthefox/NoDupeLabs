@@ -69,6 +69,15 @@ class ScanOrchestrator:
     ) -> Dict[str, Any]:
         """Execute complete scan workflow.
 
+        This method orchestrates the entire scanning process including:
+        - File discovery and validation
+        - Parallel file processing and hashing
+        - Database persistence
+        - AI embeddings computation (if backend available)
+        - Metadata export
+        - Telemetry and metrics collection
+        - Plugin notifications
+
         Args:
             roots: Root directories to scan
             hash_algo: Hash algorithm (sha256, sha512, etc.)
@@ -78,9 +87,33 @@ class ScanOrchestrator:
             similarity_dim: Dimension for embeddings
             export_folder_meta: Whether to export folder metadata
             meta_pretty: Whether to pretty-print metadata
+            heartbeat_interval: Interval for progress updates (seconds)
+            stall_timeout: Maximum time without progress before timeout
+            max_idle_time: Maximum idle time before worker shutdown
+            show_eta: Whether to show estimated time of completion
 
         Returns:
-            Scan results summary
+            Dictionary containing scan results summary with keys:
+            - files_scanned: Number of files processed
+            - bytes_scanned: Total bytes processed
+            - duration_sec: Scan duration in seconds
+            - files_per_sec: Processing rate
+
+        Raises:
+            FileNotFoundError: If root directories don't exist
+            PermissionError: If directories aren't accessible
+            sqlite3.Error: If database operations fail
+            Exception: For unexpected errors during scan
+
+        Example:
+            >>> orchestrator = ScanOrchestrator(db, telemetry, backend, pm)
+            >>> results = orchestrator.scan(
+            ...     roots=["/path/to/photos"],
+            ...     hash_algo="sha512",
+            ...     workers=4,
+            ...     ignore_patterns=[".git", "node_modules"]
+            ... )
+            >>> print(f"Scanned {results['files_scanned']} files")
         """
         # Emit scan start event
         self.telemetry.log("INFO", "scan_start", roots=roots)
@@ -109,8 +142,8 @@ class ScanOrchestrator:
             show_eta=show_eta
         )
 
-        files_batch = []
-        embeddings_batch = []
+        files_batch: List[tuple] = []
+        embeddings_batch: List[tuple] = []
         by_dir = defaultdict(list)
 
         total_files = 0
@@ -124,33 +157,40 @@ class ScanOrchestrator:
 
         try:
             for rec in iterator:
+                # rec is a tuple with (path, size, mtime, hash, mime, context, algo, perms)
+                path: str = rec[0]
+                size: int = rec[1]
+                mtime: int = rec[2]
+                file_hash: str = rec[3]
+                mime: str = rec[4]
+                context: str = rec[5]
+                algo: str = rec[6]
+                perms: str = rec[7]
+
                 total_files += 1
-                total_bytes += rec[1]
+                total_bytes += size
                 files_batch.append(rec)
 
                 # Collect for meta export if needed
                 if export_folder_meta:
-                    path_obj = Path(rec[0])
+                    path_obj = Path(path)
                     by_dir[path_obj.parent].append({
                         "name": path_obj.name,
-                        "size": rec[1],
-                        "mtime": rec[2],
-                        "file_hash": rec[3],
-                        "mime": rec[4],
-                        "context_tag": rec[5],
-                        "hash_algo": rec[6],
-                        "permissions": rec[7]
+                        "size": size,
+                        "mtime": mtime,
+                        "file_hash": file_hash,
+                        "mime": mime,
+                        "context_tag": context,
+                        "hash_algo": algo,
+                        "permissions": perms
                     })
 
                 # Embeddings logic
                 if self.backend:
-                    p = rec[0]
-                    mime = rec[4]
-                    mtime = rec[2]
                     if mime and (
                         mime.startswith("image/") or mime.startswith("video/")
                     ):
-                        existing = self.db.get_embedding(p)
+                        existing = self.db.get_embedding(path)
                         # Check if we need to compute (mtime or dim mismatch)
                         if not (
                             existing
@@ -159,10 +199,10 @@ class ScanOrchestrator:
                         ):
                             try:
                                 vec = self.backend.compute_embedding(
-                                    Path(p), dim=similarity_dim)
+                                    Path(path), dim=similarity_dim)
                                 embeddings_batch.append(
                                     (
-                                        p, vec, similarity_dim,
+                                        path, vec, similarity_dim,
                                         int(mtime)
                                     )
                                 )
@@ -172,7 +212,7 @@ class ScanOrchestrator:
                                 self.telemetry.log(
                                     "WARN",
                                     "embedding_failed",
-                                    path=p,
+                                    path=path,
                                     error=str(e),
                                 )
 

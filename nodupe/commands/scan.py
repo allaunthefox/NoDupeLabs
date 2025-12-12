@@ -3,27 +3,68 @@
 
 """Scan command implementation.
 
-Thin CLI wrapper that creates dependencies and delegates to
-ScanOrchestrator for actual work.
+This module provides the main entry point for the 'scan' command in the
+NoDupeLabs CLI. It serves as a thin wrapper that coordinates dependency
+injection, validates scan requirements, and delegates the actual scanning
+work to the ScanOrchestrator class.
+
+Key Features:
+    - Command-line interface for file scanning operations
+    - Pre-scan validation of directories and permissions
+    - Dependency injection container integration
+    - Parallel file discovery and processing
+    - Comprehensive error handling and user feedback
+    - Progress reporting and summary statistics
+
+Dependencies:
+    - Required: sys, os, pathlib, typing
+    - Internal: nodupe.scan, nodupe.container, nodupe.config
+
+Usage Example:
+    >>> from nodupe.commands.scan import cmd_scan
+    >>> from nodupe.config import load_config
+    >>> import argparse
+    >>> parser = argparse.ArgumentParser()
+    >>> parser.add_argument('--root', nargs='+', required=True)
+    >>> args = parser.parse_args(['--root', '/path/to/scan'])
+    >>> cfg = load_config()
+    >>> exit_code = cmd_scan(args, cfg)
+    >>> print(f"Scan completed with exit code: {exit_code}")
 """
 import sys
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Any
 
 from ..utils.hashing import validate_hash_algo
 from ..scan import ScanValidator
 
 
-def check_scan_requirements(roots: list, cfg: Dict) -> bool:
-    """Validate scan preconditions.
+def check_scan_requirements(roots: list[str], cfg: Dict[str, Any]) -> bool:
+    """Validate scan preconditions before execution.
+
+    This function checks that all required directories exist, have proper
+    permissions, and that the database and log directories are writable.
+    It uses ScanValidator to perform comprehensive validation of scan
+    requirements.
 
     Args:
-        roots: List of root paths
-        cfg: Configuration dict
+        roots: List of root paths to scan
+        cfg: Configuration dict containing paths and settings
 
     Returns:
-        True if valid, False if errors
+        True if all preconditions are valid, False if any errors are found
+
+    Raises:
+        FileNotFoundError: If required directories don't exist
+        PermissionError: If directories aren't accessible
+        ValueError: If configuration is invalid
+
+    Example:
+        >>> cfg = {"db_path": "nodupe.db", "log_dir": "logs"}
+        >>> is_valid = check_scan_requirements(["/path/to/scan"], cfg)
+        >>> if not is_valid:
+        ...     print("Scan requirements not met")
     """
     validator = ScanValidator()
 
@@ -47,15 +88,34 @@ def check_scan_requirements(roots: list, cfg: Dict) -> bool:
     return True
 
 
-def cmd_scan(args, cfg: Dict) -> int:
+def cmd_scan(args: Any, cfg: Dict[str, Any]) -> int:
     """Execute scan command.
 
+    This function serves as the main entry point for the scan command.
+    It validates preconditions, initializes dependencies, and orchestrates
+    the complete scan workflow including file discovery, hashing, and
+    metadata collection.
+
     Args:
-        args: Parsed CLI arguments
-        cfg: Configuration dict
+        args: Parsed CLI arguments from argparse
+        cfg: Configuration dict containing scan settings
 
     Returns:
-        Exit code (0 = success)
+        Exit code (0 = success, 1 = error, 130 = interrupted)
+
+    Raises:
+        KeyboardInterrupt: If user interrupts the scan
+        Exception: For unexpected errors during scan execution
+
+    Example:
+        >>> from nodupe.commands.scan import cmd_scan
+        >>> from nodupe.config import load_config
+        >>> import argparse
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument('--root', nargs='+', required=True)
+        >>> args = parser.parse_args(['--root', '/path/to/scan'])
+        >>> cfg = load_config()
+        >>> exit_code = cmd_scan(args, cfg)
     """
     # Validate preconditions
     if not check_scan_requirements(args.root, cfg):

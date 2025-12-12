@@ -24,14 +24,16 @@ Example:
 
 import sys
 from pathlib import Path
+from typing import Any, Dict
 from ..config import ensure_config
 
 
-def cmd_init(args, _cfg):
+def cmd_init(args: Any, _cfg: Dict[str, Any]) -> int:
     """Initialize configuration with a preset.
 
-    Creates a new 'nodupe.yml' configuration file in the current directory
-    using the specified preset.
+    This function creates a new 'nodupe.yml' configuration file in the current
+    directory using the specified preset. It handles both new configurations and
+    existing file scenarios with proper error handling and user feedback.
 
     Args:
         args: Argparse Namespace with attributes:
@@ -41,6 +43,21 @@ def cmd_init(args, _cfg):
 
     Returns:
         int: Exit code (0 for success, 1 for error)
+
+    Raises:
+        PermissionError: If file cannot be created due to permissions
+        OSError: If file operations fail
+        Exception: For unexpected errors during configuration generation
+
+    Example:
+        >>> from nodupe.commands.init import cmd_init
+        >>> import argparse
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument('--preset', default='default')
+        >>> parser.add_argument('--force', action='store_true')
+        >>> args = parser.parse_args(['--preset', 'minimal'])
+        >>> exit_code = cmd_init(args, {})
+        >>> print(f"Initialization completed with exit code: {exit_code}")
     """
     p = Path("nodupe.yml")
     if p.exists() and not args.force:

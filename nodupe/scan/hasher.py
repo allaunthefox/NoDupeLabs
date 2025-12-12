@@ -1,14 +1,49 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
-"""Hashing pipeline utilities.
-Provides threaded_hash — a high-throughput parallel hashing pipeline.
+"""Hashing pipeline utilities for NoDupeLabs.
+
+Provides high-performance parallel file hashing capabilities through the
+threaded_hash function. This module implements a producer-consumer pattern
+that efficiently discovers files, distributes hashing work across worker
+threads/processes, and yields results as they complete.
+
+Key Features:
+    - Producer-consumer architecture for efficient file processing
+    - Automatic executor selection (thread/process) based on system capabilities
+    - Support for both streaming and batch collection modes
+    - Progress tracking with ETA calculations and stall detection
+    - Incremental scanning with known file optimization
+    - Comprehensive error handling and timeout management
+
+Dependencies:
+    - concurrent.futures: Thread and process pool execution
+    - typing: Type annotations for code safety
+    - .walker: File discovery utilities
+    - .processor: File processing and metadata extraction
+
+Example:
+    >>> from nodupe.scan.hasher import threaded_hash
+    >>>
+    >>> # Basic usage - stream results
+    >>> roots = ['/path/to/files']
+    >>> ignore = ['.git', '*.tmp']
+    >>> result_generator = threaded_hash(roots, ignore, workers=4)
+    >>> for result in result_generator:
+    ...     path, size, mtime, hash_val, mime, context, algo, perms = result
+    ...     print(f"Hashed: {path} -> {hash_val}")
+    >>>
+    >>> # Batch mode - collect all results
+    >>> results, duration, total = threaded_hash(
+    ...     roots, ignore, workers=4, collect=True
+    ... )
+    >>> print(f"Processed {total} files in {duration:.2f} seconds")
 """
 from __future__ import annotations
 
 import os as _os
 import time
 import concurrent.futures as futures
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Optional, Dict
 import sys
 from .walker import iter_files
 from .processor import process_file
@@ -64,7 +99,7 @@ def threaded_hash(
     roots: Iterable[str], ignore: List[str], workers: int = 4,
     executor: str = "auto",
     hash_algo: str = "sha512", follow_symlinks: bool = False,
-    known_files: Optional[dict] = None,
+    known_files: Optional[Dict[str, tuple]] = None,
     heartbeat_interval: float = 10.0,
     stall_timeout: Optional[float] = None,
     # Backwards-compatible alias (some tests/older callers):
@@ -77,7 +112,7 @@ def threaded_hash(
     # When collect=True, return (list_of_results, duration_s, total_count).
     # When False, return a generator to stream results (original behavior).
     collect: bool = False,
-):
+) -> Iterable[tuple] | tuple[list[tuple], float, int]:
     """High-throughput threaded file hashing pipeline.
 
     threaded_hash implements a producer-consumer pattern over a

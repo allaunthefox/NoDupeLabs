@@ -7,11 +7,27 @@ This module provides the main entry point for the ``nodupe`` CLI.
 It coordinates bootstrapping, argument parsing, and command dispatch
 using focused classes for each concern.
 
+Key Features:
+    - CLI entry point and argument parsing
+    - Dependency injection container setup
+    - Command routing and execution
+    - Plugin management
+    - Configuration loading
+
+Dependencies:
+    - Required: sys, pathlib, argparse
+    - Optional: None
+
 Exit Codes:
     0: Success
     1: General error
     10: Startup linting failed
     130: Interrupted by user
+
+Usage Example:
+    >>> from nodupe.main import main
+    >>> exit_code = main(['scan', '--root', '/path/to/directory'])
+    >>> print(f"Command exited with code: {exit_code}")
 """
 import sys
 from pathlib import Path
@@ -35,7 +51,30 @@ __version__ = "0.1.0"
 
 
 def main(argv=None):
-    """Entry point for the nodupe CLI."""
+    """Entry point for the nodupe CLI.
+
+    This function serves as the main entry point for the NoDupeLabs CLI.
+    It orchestrates the complete workflow including bootstrapping,
+    configuration loading, plugin management, argument parsing, and
+    command execution.
+
+    Args:
+        argv: Optional list of command-line arguments. If None,
+              sys.argv[1:] is used.
+
+    Returns:
+        Exit code indicating success (0) or failure (non-zero)
+
+    Raises:
+        SystemExit: If command execution fails
+        Exception: For unexpected errors
+
+    Example:
+        >>> from nodupe.main import main
+        >>> exit_code = main(['scan', '--root', '/path/to/files'])
+        >>> if exit_code != 0:
+        ...     print("Command failed")
+    """
     # Bootstrap (deps + linting)
     bootstrapper = CLIBootstrapper()
     rc = bootstrapper.bootstrap()

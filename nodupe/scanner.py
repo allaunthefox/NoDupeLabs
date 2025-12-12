@@ -9,7 +9,24 @@ pipeline that discovers files on-disk, optionally skips files using a
 known-files cache, and computes file hashes and basic metadata in a
 bounded-thread pool.
 
+Key Features:
+    - Multi-threaded file discovery and processing
+    - Incremental scanning with known-files cache
+    - Parallel hashing with bounded thread pool
+    - Comprehensive file metadata extraction
+    - Backward compatibility facade for nodupe.scan
+
+Dependencies:
+    - Required: nodupe.scan package
+    - Optional: None
+
 Note: This module is now a facade for `nodupe.scan`.
+
+Usage Example:
+    >>> from nodupe.scanner import iter_files, process_file
+    >>> for file_path in iter_files("/path/to/directory"):
+    ...     record = process_file(file_path, "sha512")
+    ...     print(f"Processed: {record[0]}")
 """
 
 from __future__ import annotations

@@ -3,8 +3,50 @@
 
 """File repository for database operations.
 
-Handles all file-related queries and persistence operations.
-Abstracts SQL details from business logic.
+Handles all file-related queries and persistence operations for NoDupeLabs.
+This module provides a clean abstraction layer that separates SQL implementation
+details from business logic, enabling efficient storage and retrieval of file
+metadata used for deduplication and similarity analysis.
+
+Key Features:
+    - Atomic upsert operations for file metadata
+    - Efficient duplicate detection using hash-based grouping
+    - Memory-friendly iteration over large datasets
+    - Support for incremental scanning with known file optimization
+    - Comprehensive indexing for fast query performance
+
+Dependencies:
+    - sqlite3: Standard library SQLite database
+    - textwrap: SQL query formatting
+    - typing: Type annotations for code safety
+    - .connection: Database connection management
+
+Example:
+    >>> from pathlib import Path
+    >>> from nodupe.db.connection import DatabaseConnection
+    >>> from nodupe.db.files import FileRepository
+    >>>
+    >>> # Initialize repository
+    >>> conn = DatabaseConnection(Path('output/index.db'))
+    >>> repo = FileRepository(conn)
+    >>>
+    >>> # Store file records
+    >>> records = [(
+    ...     '/photo.jpg', 1024, 1600000000, 'hash123',
+    ...     'image/jpeg', 'unarchived', 'sha512', '0'
+    ... )]
+    >>> repo.upsert_files(records)
+    >>>
+    >>> # Find duplicates
+    >>> duplicates = repo.get_duplicates()
+    >>> print(f"Found {len(duplicates)} duplicate groups")
+    >>>
+    >>> # Iterate through all files
+    >>> for file_record in repo.iter_files():
+    ...     print(f"File: {file_record['path']}")
+    >>>
+    >>> # Clean up
+    >>> conn.close()
 """
 import textwrap
 from typing import Dict, Iterable, List, Tuple
@@ -69,8 +111,25 @@ class FileRepository:
     def get_duplicates(self) -> List[Tuple[str, str, str]]:
         """Find duplicate files by hash.
 
+        Identifies files with identical content by grouping records with the same
+        file hash, context tag, and hash algorithm. This is the core function used
+        for deduplication analysis in NoDupeLabs.
+
         Returns:
-            List of (hash, context, concatenated_paths) tuples
+            List of tuples in format (file_hash, context_tag, concatenated_paths)
+            where concatenated_paths contains pipe-separated file paths that share
+            the same hash and context.
+
+        Raises:
+            RuntimeError: If database connection is not available
+
+        Example:
+            >>> duplicates = repo.get_duplicates()
+            >>> for hash_val, context, paths in duplicates:
+            ...     file_paths = paths.split('|')
+            ...     print(f"Duplicate group {hash_val}: {len(file_paths)} files")
+            ...     for path in file_paths:
+            ...         print(f"  - {path}")
         """
         query = """
             SELECT file_hash, context_tag, GROUP_CONCAT(path, '|')

@@ -3,7 +3,49 @@
 
 """Embedding repository for vector storage.
 
-Handles storage and retrieval of file embeddings for similarity search.
+Handles storage and retrieval of file embeddings for similarity search in NoDupeLabs.
+This module provides efficient storage and retrieval of vector embeddings used for
+content-based similarity analysis, enabling features like finding visually similar
+images or semantically related content.
+
+Key Features:
+    - Efficient storage of high-dimensional vectors as JSON
+    - Atomic upsert operations for embedding records
+    - Batch operations for bulk embedding processing
+    - Memory-friendly iteration over large embedding datasets
+    - Automatic JSON serialization/deserialization of vector data
+
+Dependencies:
+    - json: Vector serialization/deserialization
+    - typing: Type annotations for code safety
+    - .connection: Database connection management
+
+Example:
+    >>> from pathlib import Path
+    >>> from nodupe.db.connection import DatabaseConnection
+    >>> from nodupe.db.embeddings import EmbeddingRepository
+    >>>
+    >>> # Initialize repository
+    >>> conn = DatabaseConnection(Path('output/index.db'))
+    >>> repo = EmbeddingRepository(conn)
+    >>>
+    >>> # Store embeddings
+    >>> embeddings = [
+    ...     ('/photo1.jpg', [0.1, 0.2, 0.3], 3, 1600000000),
+    ...     ('/photo2.jpg', [0.4, 0.5, 0.6], 3, 1600000001)
+    ... ]
+    >>> repo.upsert_embeddings(embeddings)
+    >>>
+    >>> # Retrieve an embedding
+    >>> embedding = repo.get_embedding('/photo1.jpg')
+    >>> print(f"Retrieved {embedding['dim']}-dimensional embedding")
+    >>>
+    >>> # Iterate through all embeddings
+    >>> for path, dim, vector, mtime in repo.get_all_embeddings():
+    ...     print(f"Embedding for {path}: {dim} dimensions")
+    >>>
+    >>> # Clean up
+    >>> conn.close()
 """
 import json
 from typing import Iterable, Optional, Tuple
@@ -23,7 +65,22 @@ class EmbeddingRepository:
         self.conn = connection
 
     def upsert_embedding(self, path: str, vector: list, dim: int, mtime: int):
-        """Insert or update single embedding."""
+        """Insert or update single embedding.
+
+        Convenience method for storing a single file embedding. Automatically
+        delegates to the batch upsert method for consistent handling.
+
+        Args:
+            path: File path associated with this embedding
+            vector: Numeric vector as list of floats representing the embedding
+            dim: Dimension of the embedding vector
+            mtime: Modification time of the file
+
+        Example:
+            >>> # Store a single embedding
+            >>> embedding_vector = [0.1, 0.2, 0.3, 0.4]
+            >>> repo.upsert_embedding('/photo.jpg', embedding_vector, 4, 1600000000)
+        """
         self.upsert_embeddings([(path, vector, dim, mtime)])
 
     def upsert_embeddings(

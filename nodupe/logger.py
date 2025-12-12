@@ -27,21 +27,53 @@ Example:
 """
 
 import json
+import queue
 import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 
 class JsonlLogger:
     """Structured logger writing to JSONL files with rotation.
+
+    This class implements a structured logging system that writes events to
+    newline-delimited JSON files. It supports automatic log rotation based on
+    file size and retention of a configurable number of log files for efficient
+    log management.
+
+    Key Features:
+        - Structured logging (JSON per line) for easy parsing and analysis
+        - Automatic rotation when log file exceeds size threshold
+        - Retention policy to delete old logs and manage disk space
+        - Thread-safe appending with optional background writer queue
+        - Atomic write operations for data integrity
 
     Attributes:
         log_dir (Path): Directory where logs are stored
         rotate_mb (int): Max size in MB before rotation
         keep (int): Number of rotated logs to keep
         current_log (Path): Path to the active log file
+        _use_queue (bool): Whether background writer thread is enabled
+        _queue (queue.Queue): Background writer queue (if enabled)
+        _worker (threading.Thread): Background writer thread (if enabled)
+        _stop_event (threading.Event): Stop signal for background writer
+        _lock (threading.RLock): Thread lock for safe concurrent access
+
+    Dependencies:
+        - json: Log serialization to JSON format
+        - pathlib: File and directory handling
+        - datetime: Timestamp generation for log entries
+        - threading: Thread-safe operations and background writing
+        - queue: Background writer queue (when enabled)
+
+    Example:
+        >>> from pathlib import Path
+        >>> from nodupe.logger import JsonlLogger
+        >>> logger = JsonlLogger(Path("logs"), rotate_mb=5, keep=3)
+        >>> logger.log("INFO", "scan_started", root="/data", files=1000)
+        >>> logger.stop()  # Clean shutdown for tests or CLI
     """
 
     def __init__(
@@ -167,13 +199,27 @@ class JsonlLogger:
         while len(logs) > self.keep:
             logs.pop(0).unlink()
 
-    def log(self, level: str, event: str, **kwargs):
+    def log(self, level: str, event: str, **kwargs: Any) -> None:
         """Write a log entry.
 
+        This method writes a structured log entry to the JSONL log file. It supports
+        both synchronous writing and background queuing for better performance. The log
+        entry includes timestamp, log level, event name, and additional structured data.
+
         Args:
-            level: Log level (e.g., "INFO", "ERROR")
-            event: Event name (e.g., "scan_start")
-            **kwargs: Additional structured data to include in the log entry
+            level: Log level (e.g., "INFO", "ERROR", "WARN", "DEBUG")
+            event: Event name (e.g., "scan_start", "file_processed")
+            **kwargs: Additional structured data to include in the log entry.
+                This can be any key-value pairs that provide context about the event.
+
+        Raises:
+            OSError: If log file cannot be written
+            Exception: For unexpected errors during logging
+
+        Example:
+            >>> logger = JsonlLogger(Path("logs"))
+            >>> logger.log("INFO", "scan_started", root="/data", files=1000)
+            >>> logger.log("ERROR", "file_failed", path="/bad/file.txt", error="permission_denied")
         """
         entry = {
             "ts": datetime.now(timezone.utc).isoformat(),

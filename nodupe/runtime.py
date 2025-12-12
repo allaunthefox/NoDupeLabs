@@ -5,6 +5,39 @@
 
 Detects Python 3.13+ features like free-threading, zstd compression,
 subinterpreters, and provides helpers for optimal execution strategy.
+This module enables NoDupeLabs to automatically adapt to different Python
+runtime environments and choose the most efficient execution strategies.
+
+Key Features:
+    - Automatic detection of GIL-free (free-threaded) Python builds
+    - Subinterpreter support detection for advanced concurrency
+    - Compression algorithm detection and selection
+    - Runtime optimization recommendations for different workloads
+    - Garbage collection tuning for performance optimization
+    - Comprehensive runtime information reporting
+
+Dependencies:
+    - sys: Python runtime information
+    - gc: Garbage collection tuning
+    - typing: Type annotations for code safety
+
+Example:
+    >>> from nodupe.runtime import get_runtime_info, get_optimal_executor
+    >>>
+    >>> # Get comprehensive runtime information
+    >>> runtime_info = get_runtime_info()
+    >>> print(f"Python version: {runtime_info['python_version']}")
+    >>> print(f"GIL disabled: {runtime_info['gil_disabled']}")
+    >>> print(f"Optimal executor: {runtime_info['optimal_executor']}")
+    >>>
+    >>> # Choose optimal execution strategy
+    >>> executor = get_optimal_executor()
+    >>> if executor == 'thread':
+    ...     print("Using threads for optimal performance (GIL-free)")
+    >>> elif executor == 'interpreter':
+    ...     print("Using subinterpreters for optimal performance")
+    >>> else:
+    ...     print("Using processes for optimal performance")
 """
 import gc
 import sys

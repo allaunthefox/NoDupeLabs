@@ -42,12 +42,37 @@ class FileProcessor:
     ) -> FileRecord:
         """Process a single file and return a metadata tuple.
 
+        This method handles all aspects of file processing including:
+        - File statistics (size, modification time)
+        - Hash computation (or reuse of known hash)
+        - MIME type detection
+        - Context detection (file category)
+        - Permission extraction
+
         Args:
             path: Path to the file to process
             known_hash: Optional pre-computed hash to skip re-hashing
 
         Returns:
-            Tuple: (path, size, mtime, hash, mime, context, algo, perms)
+            Tuple containing file metadata with elements:
+            - path: File path as string
+            - size: File size in bytes
+            - mtime: Modification timestamp as integer
+            - hash: File hash string
+            - mime: MIME type string
+            - context: Detected context/category string
+            - algo: Hash algorithm used
+            - perms: File permissions string
+
+        Raises:
+            FileNotFoundError: If file doesn't exist
+            PermissionError: If file can't be read
+            OSError: If file operations fail
+
+        Example:
+            >>> processor = FileProcessor("sha512")
+            >>> record = processor.process(Path("/path/to/file.txt"))
+            >>> print(f"File: {record[0]}, Hash: {record[3]}")
         """
         st = path.stat()
 
@@ -74,26 +99,38 @@ class FileProcessor:
 
 def process_file(
     p: Path, hash_algo: str, known_hash: Optional[str] = None
-
-
 ) -> Tuple[str, int, int, str, str, str, str, str]:
     """Process a single file and return a metadata tuple.
 
-    The returned tuple mirrors the values used in the rest of the
-    project and tests:
-
-    (path, size, mtime, hash, mime, context, algo, perms)
+    This standalone function processes individual files and returns
+    metadata in the standard format used throughout the project.
+    It's used by both the FileProcessor class and direct calls.
 
     Args:
-        p: Path to the file to process.
-        hash_algo: Hash algorithm name used by `hash_file`.
+        p: Path to the file to process
+        hash_algo: Hash algorithm name used by hash_file
         known_hash: Optional pre-computed hash to avoid re-hashing
-            (used by incremental scans where file size/mtime match).
+            (used by incremental scans where file size/mtime match)
 
     Returns:
-        A tuple with the file path (str), size (int), modification
-        timestamp (int), hash (str), mime (str), detected context
-        (str), the algorithm used (str), and permissions string (str).
+        Tuple containing file metadata with elements:
+        - path: File path as string
+        - size: File size in bytes
+        - mtime: Modification timestamp as integer
+        - hash: File hash string
+        - mime: MIME type string
+        - context: Detected context/category string
+        - algo: Hash algorithm used
+        - perms: File permissions string
+
+    Raises:
+        FileNotFoundError: If file doesn't exist
+        PermissionError: If file can't be read
+        OSError: If file operations fail
+
+    Example:
+        >>> record = process_file(Path("/path/to/file.txt"), "sha512")
+        >>> print(f"File: {record[0]}, Size: {record[1]} bytes")
     """
     st = p.stat()
 

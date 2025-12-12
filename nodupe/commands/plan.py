@@ -54,11 +54,12 @@ Notes:
 
 from pathlib import Path
 from datetime import datetime, timezone
+from typing import Any, Dict, List
 from ..db import DB
 from ..planner import ensure_unique, write_plan_csv
 
 
-def cmd_plan(args, cfg):
+def cmd_plan(args: Any, cfg: Dict[str, Any]) -> int:
     """Generate deduplication plan from database duplicates.
 
     Queries the database for duplicate file groups (by content hash and

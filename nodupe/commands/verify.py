@@ -28,14 +28,23 @@ Example:
 
 import json
 from pathlib import Path
+from typing import Any, Dict, List
 
 
-def cmd_verify(args, _cfg):
+def cmd_verify(args: Any, _cfg: Dict[str, Any]) -> int:
     """Verify that all files in a checkpoint exist at destination.
 
-    Reads the checkpoint JSON file created by the 'apply' command and
-    iterates through all recorded move operations. Checks if the
-    destination file exists on disk.
+    This function validates the integrity of a deduplication operation by
+    checking that all files moved during an 'apply' operation exist at their
+    expected destination paths. It provides a safety check before finalizing
+    or deleting original files.
+
+    The verification process:
+    1. Loads the checkpoint JSON file
+    2. Extracts all recorded move operations
+    3. Checks existence of each destination file
+    4. Reports missing files and overall status
+    5. Returns appropriate exit code
 
     Args:
         args: Argparse Namespace with attributes:
@@ -45,8 +54,27 @@ def cmd_verify(args, _cfg):
     Returns:
         int: Exit code (0 for success, 1 for failure/missing files)
 
-    Side Effects:
-        - Prints verification status to stdout
+    Raises:
+        FileNotFoundError: If checkpoint file doesn't exist
+        json.JSONDecodeError: If checkpoint file is malformed
+        PermissionError: If checkpoint file can't be read
+        OSError: If file operations fail
+
+    Example:
+        >>> from argparse import Namespace
+        >>> args = Namespace(checkpoint='.nodupe/checkpoints/cp_123.json')
+        >>> exit_code = cmd_verify(args, {})
+        [verify] Checking 15 moves in checkpoint...
+        [verify] OK. All destination files exist.
+        >>> print(f"Verification completed with exit code: {exit_code}")
+        0
+
+    Notes:
+        - Exit code 0 indicates all files are present
+        - Exit code 1 indicates missing files were found
+        - Used as a safety check before finalizing deduplication
+        - Reports detailed information about missing files
+        - Checkpoint files are stored in .nodupe/checkpoints/ by default
     """
     cp = Path(args.checkpoint)
     if not cp.exists():
