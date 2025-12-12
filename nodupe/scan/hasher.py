@@ -223,67 +223,22 @@ def threaded_hash(
                         except OSError:
                             pass   # Streaming mode
                     submit_time = time.time()
-                    # Split long lines in process_file calls.
-                    # The original code had `fut = ex.submit(...)`
-                    # The user's edit suggests `known_files.get(str(p))`
-                    # which is a tuple, but process_file expects a hash string.
-                    # Reverting to original logic for known_hash,
-                    # but splitting the submit call.
-                    # Resolve process_file at runtime from the public
-                    # `nodupe.scanner` facade if present so tests that
-                    # monkeypatch `nodupe.scanner.process_file` will
-                    # affect this worker function. Fall back to the
-                    # locally-imported `process_file` if needed.
-                    # Default to the process_file currently bound in this
-                    # module (which tests can patch by setting
-                    # nodupe.scan.hasher.process_file). Prefer a different
-                    # function if the public facade `nodupe.scanner` has a
-                    # distinct patched `process_file` value.
-                    # Prefer any runtime patch applied to this module's
-                    # 'process_file' (tests sometimes set
-                    # nodupe.scan.hasher.process_file). If not present,
-                    # prefer a runtime patch applied to the public facade
-                    # 'nodupe.scanner.process_file'. Fall back to the
-                    # original processor implementation otherwise.
+                    # Resolve process_file function for worker tasks
                     worker = process_file
                     try:
-                        # Prefer the facade's runtime patch when present.
-                        # Tests sometimes monkeypatch
-                        # nodupe.scanner.process_file so prefer the facade
-                        # when it differs from the canonical implementation.
                         from importlib import import_module
-
                         _scanner_mod = import_module("nodupe.scanner")
-                        _scanner_pf = getattr(
-                            _scanner_mod, "process_file", None
-                        )
-
-                        # Detect the canonical original function so we
-                        # can tell whether a function has been patched.
+                        _scanner_pf = getattr(_scanner_mod, "process_file", None)
                         try:
-                            _proc_mod = import_module(
-                                "nodupe.scan.processor"
-                            )
-                            _orig_pf = getattr(
-                                _proc_mod, "process_file", None
-                            )
+                            _proc_mod = import_module("nodupe.scan.processor")
+                            _orig_pf = getattr(_proc_mod, "process_file", None)
                         except Exception:
                             _orig_pf = None
-
-                        # If the module-local worker is still the original
-                        # implementation, prefer a patched function from
-                        # the facade if present.
                         if _orig_pf is not None and worker is _orig_pf:
-                            if (
-                                _scanner_pf is not None
-                                and _orig_pf is not None
-                                and _scanner_pf is not _orig_pf
-                            ):
+                            if (_scanner_pf is not None and _orig_pf is not None
+                                and _scanner_pf is not _orig_pf):
                                 worker = _scanner_pf
-                        # Otherwise keep the module-local 'process_file'.
                     except Exception:
-                        # Any import errors or missing modules -> keep the
-                        # local process_file implementation.
                         pass
 
                     fut = ex.submit(worker, p, hash_algo, known_hash)
@@ -497,39 +452,3 @@ def threaded_hash(
     results = list(gen)
     dur = time.time() - t0
     return results, dur, len(results)
-
-
-def _choose_executor_type_for_test(
-    executor_choice: str, workers_count: int
-) -> str:
-    """Expose threaded_hash auto selection logic for unit tests.
-
-    Note: This duplicates _choose_executor_type's heuristics and exists
-    so tests can monkeypatch os.cpu_count() and PYTHON_ENABLE_NOGIL and
-    verify the behavior deterministically.
-    """
-    import os as _os
-
-    if executor_choice == "thread":
-        return "thread"
-    if executor_choice == "process":
-        return "process"
-
-    # Use proper runtime detection for GIL-free Python
-    from ..runtime import is_gil_disabled
-
-    if is_gil_disabled():
-        return "thread"
-
-    try:
-        cpu = int(_os.cpu_count() or 1)
-    except Exception:
-        cpu = 1
-
-    if cpu <= 16:
-        return "thread"
-    if cpu < 32:
-        if workers_count >= max(2, cpu // 2):
-            return "process"
-        return "thread"
-    return "process"
