@@ -335,7 +335,7 @@ jobs:
 
       - name: Run Safety vulnerability scanner
         run: |
-          safety check --ignore 51457 --full-report || echo "Vulnerabilities found - check report above"
+          safety scan --ignore 51457 --full-report || echo "Vulnerabilities found - check report above"
 
       - name: Run Bandit security scanner
         run: |
