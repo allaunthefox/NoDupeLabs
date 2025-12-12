@@ -31,7 +31,7 @@ import json
 from pathlib import Path
 import threading
 from datetime import datetime, timezone
-from typing import Any, Dict
+from typing import Dict, Any
 
 
 class Metrics:
@@ -87,7 +87,7 @@ class Metrics:
             path: Path where metrics will be saved
         """
         self.path = Path(path)
-        self.data = {
+        self.data: Dict[str, Any] = {
             "last_run": datetime.now(timezone.utc).isoformat(),
             "files_scanned": 0,
             "bytes_scanned": 0,
@@ -104,9 +104,10 @@ class Metrics:
     def save(self) -> None:
         """Write current metrics to the JSON file.
 
-        This method persists the collected metrics to a JSON file at the specified
-        path. It automatically creates any necessary parent directories and uses
-        thread-safe operations to prevent data corruption in concurrent scenarios.
+        This method persists the collected metrics to a JSON file at the
+        specified path. It automatically creates any necessary parent
+        directories and uses thread-safe operations to prevent data
+        corruption in concurrent scenarios.
 
         The save process:
         1. Acquires thread lock for safe concurrent access
@@ -116,7 +117,8 @@ class Metrics:
         5. Releases the thread lock
 
         Raises:
-            OSError: If file cannot be written due to permissions or disk issues
+            OSError: If file cannot be written due to permissions or
+                disk issues
             json.JSONEncodeError: If metrics data cannot be serialized
             Exception: For unexpected errors during file operations
 
@@ -129,5 +131,5 @@ class Metrics:
         with self._lock:
             self.path.parent.mkdir(parents=True, exist_ok=True)
             # Split arguments across lines to satisfy line-length checks
-            payload = json.dumps(self.data, indent=2)
+            payload: str = json.dumps(self.data, indent=2)
             self.path.write_text(payload, encoding="utf-8")

@@ -4,7 +4,8 @@
 """File repository for database operations.
 
 Handles all file-related queries and persistence operations for NoDupeLabs.
-This module provides a clean abstraction layer that separates SQL implementation
+    This module provides a clean abstraction layer that separates SQL
+    implementation
 details from business logic, enabling efficient storage and retrieval of file
 metadata used for deduplication and similarity analysis.
 
@@ -49,7 +50,7 @@ Example:
     >>> conn.close()
 """
 import textwrap
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, Iterable, List, Tuple, Any
 
 from .connection import DatabaseConnection
 
@@ -111,13 +112,15 @@ class FileRepository:
     def get_duplicates(self) -> List[Tuple[str, str, str]]:
         """Find duplicate files by hash.
 
-        Identifies files with identical content by grouping records with the same
-        file hash, context tag, and hash algorithm. This is the core function used
+    Identifies files with identical content by grouping records with
+    the same file hash, context tag, and hash algorithm. This is the
+    core function used
         for deduplication analysis in NoDupeLabs.
 
         Returns:
-            List of tuples in format (file_hash, context_tag, concatenated_paths)
-            where concatenated_paths contains pipe-separated file paths that share
+            List of tuples in format (file_hash, context_tag,
+            concatenated_paths) where concatenated_paths contains
+            pipe-separated file paths that share
             the same hash and context.
 
         Raises:
@@ -127,7 +130,8 @@ class FileRepository:
             >>> duplicates = repo.get_duplicates()
             >>> for hash_val, context, paths in duplicates:
             ...     file_paths = paths.split('|')
-            ...     print(f"Duplicate group {hash_val}: {len(file_paths)} files")
+            ...     print(f"Duplicate group {hash_val}: {len(file_paths)} "
+            ...            f"files")
             ...     for path in file_paths:
             ...         print(f"  - {path}")
         """
@@ -139,7 +143,7 @@ class FileRepository:
         """
         return list(self.conn.execute(query))
 
-    def get_all(self) -> List[Dict]:
+    def get_all(self) -> List[Dict[str, Any]]:
         """Get all file records.
 
         Returns:
@@ -154,7 +158,7 @@ class FileRepository:
         for row in cursor:
             yield row
 
-    def iter_files(self):
+    def iter_files(self) -> Iterable[Dict[str, Any]]:
         """Iterate over all file records.
 
         Yields:

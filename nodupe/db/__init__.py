@@ -41,7 +41,7 @@ Example:
     >>> db.close()
 """
 from pathlib import Path
-from typing import Iterable, Tuple, List, Dict, Optional
+from typing import Any, Iterable, Tuple, List, Dict, Optional
 
 from .connection import DatabaseConnection
 from .files import FileRepository
@@ -51,10 +51,10 @@ from .embeddings import EmbeddingRepository
 class DB:
     """Database facade for NoDupeLabs.
 
-    Maintains backward compatibility with the original DB class while delegating
-    to specialized repositories for file metadata and embedding operations.
-    This class serves as the primary interface for all database operations in
-    NoDupeLabs, providing a unified API for data persistence.
+    Maintains backward compatibility with the original DB class while
+    delegating to specialized repositories for file metadata and embedding
+    operations. This class serves as the primary interface for all database
+    operations in NoDupeLabs, providing a unified API for data persistence.
 
     Attributes:
         connection: DatabaseConnection instance managing SQLite operations
@@ -85,8 +85,10 @@ class DB:
 
         Args:
             path: Path to SQLite database file
-            writer_mode: Optional background writer mode ('auto', 'thread', 'process')
-            writer_batch_size: Optional batch size for background writer operations
+            writer_mode: Optional background writer mode ('auto', 'thread',
+                'process')
+            writer_batch_size: Optional batch size for background writer
+                operations
 
         Raises:
             RuntimeError: If database connection cannot be established
@@ -97,7 +99,8 @@ class DB:
             >>> db = DB(Path('output/index.db'))
             >>>
             >>> # With background writer for performance
-            >>> db = DB(Path('output/index.db'), writer_mode='auto', writer_batch_size=200)
+            >>> db = DB(Path('output/index.db'), writer_mode='auto',
+            ...         writer_batch_size=200)
             >>>
             >>> # Using environment variables
             >>> import os
@@ -164,7 +167,7 @@ class DB:
         """
         return self.files.get_duplicates()
 
-    def get_all(self) -> List[Dict[str, any]]:
+    def get_all(self) -> List[Dict[str, Any]]:
         """Return a list of all file metadata records stored in the DB.
 
         Returns:
@@ -178,7 +181,7 @@ class DB:
         """
         return self.files.get_all()
 
-    def iter_files(self) -> Iterable[Dict[str, any]]:
+    def iter_files(self) -> Iterable[Dict[str, Any]]:
         """Return an iterator of all file metadata rows.
 
         Yields:
@@ -186,7 +189,8 @@ class DB:
             This is a memory-friendly iterator suitable for bulk processing.
 
         Returns:
-            Iterable[Dict[str, any]]: An iterator that yields file record mappings.
+            Iterable[Dict[str, any]]: An iterator that yields file record
+            mappings.
 
         Example:
             >>> for file_record in db.iter_files():
@@ -194,25 +198,27 @@ class DB:
         """
         return self.files.iter_files()
 
-    def get_known_files(self) -> Dict[str, any]:
+    def get_known_files(self) -> Iterable[Tuple[str, int, int, str]]:
         """Return a mapping of known files keyed by file path or hash.
 
         The precise mapping shape is implementation-defined but is typically
         used by scanners to quickly check which files are already known.
 
         Returns:
-            Dict[str, any]: A mapping with keys representing file path or
-            hash and values containing metadata used to identify known files.
+            Iterable[Tuple[str, int, int, str]]: An iterator that yields
+            tuples of (path, size, mtime, file_hash) for known files.
 
         Example:
             >>> known_files = db.get_known_files()
-            >>> if '/photo.jpg' in known_files:
-            ...     print("File already indexed")
+            >>> for path, size, mtime, file_hash in known_files:
+            ...     print(f"Known file: {path}")
         """
         return self.files.get_known_files()
 
     # Embedding operations delegated to EmbeddingRepository
-    def upsert_embedding(self, path: str, vector: List[float], dim: int, mtime: int):
+    def upsert_embedding(
+        self, path: str, vector: List[float], dim: int, mtime: int
+    ):
         """Insert or update a single vector embedding.
 
         Args:
@@ -228,7 +234,9 @@ class DB:
         """
         self.embeddings.upsert_embedding(path, vector, dim, mtime)
 
-    def upsert_embeddings(self, records: Iterable[Tuple[str, List[float], int, int]]):
+    def upsert_embeddings(
+        self, records: Iterable[Tuple[str, List[float], int, int]]
+    ):
         """Batch insert or update multiple embeddings.
 
         Args:
@@ -244,7 +252,7 @@ class DB:
         """
         self.embeddings.upsert_embeddings(records)
 
-    def get_embedding(self, path: str) -> Optional[Dict[str, any]]:
+    def get_embedding(self, path: str) -> Optional[Dict[str, Any]]:
         """Retrieve a single embedding record for the given path.
 
         Args:
@@ -258,7 +266,8 @@ class DB:
             >>> # Retrieve an embedding
             >>> embedding = db.get_embedding('/photo.jpg')
             >>> if embedding:
-            ...     print(f"Found embedding with {embedding['dim']} dimensions")
+            ...     print(f"Found embedding with {embedding['dim']} "
+            ...            f"dimensions")
         """
         return self.embeddings.get_embedding(path)
 
@@ -280,7 +289,9 @@ class DB:
         """
         return self.embeddings.get_all_embeddings()
 
-    def get_all_embeddings(self) -> Iterable[Tuple[str, int, List[float], int]]:
+    def get_all_embeddings(
+        self
+    ) -> Iterable[Tuple[str, int, List[float], int]]:
         """Compatibility alias for :py:meth:`iter_embeddings`.
 
         Returns:

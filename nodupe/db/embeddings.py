@@ -3,10 +3,10 @@
 
 """Embedding repository for vector storage.
 
-Handles storage and retrieval of file embeddings for similarity search in NoDupeLabs.
-This module provides efficient storage and retrieval of vector embeddings used for
-content-based similarity analysis, enabling features like finding visually similar
-images or semantically related content.
+Handles storage and retrieval of file embeddings for similarity search in
+NoDupeLabs. This module provides efficient storage and retrieval of vector
+embeddings used for content-based similarity analysis, enabling features
+like finding visually similar images or semantically related content.
 
 Key Features:
     - Efficient storage of high-dimensional vectors as JSON
@@ -79,7 +79,8 @@ class EmbeddingRepository:
         Example:
             >>> # Store a single embedding
             >>> embedding_vector = [0.1, 0.2, 0.3, 0.4]
-            >>> repo.upsert_embedding('/photo.jpg', embedding_vector, 4, 1600000000)
+            >>> repo.upsert_embedding('/photo.jpg', embedding_vector, 4,
+            ...                       1600000000)
         """
         self.upsert_embeddings([(path, vector, dim, mtime)])
 

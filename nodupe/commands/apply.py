@@ -27,7 +27,7 @@ Example:
 
 import csv
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 from ..applier import apply_moves
 
 
@@ -35,7 +35,8 @@ def cmd_apply(args: Any, cfg: Dict[str, Any]) -> int:
     """Execute deduplication plan.
 
     This function reads the deduplication plan CSV and performs the specified
-    file operations. It generates a checkpoint file to allow for future rollback
+    file operations. It generates a checkpoint file to allow for
+    future rollback
     and supports both dry-run mode (default) and actual file operations.
 
     The function handles the complete workflow:
@@ -64,7 +65,8 @@ def cmd_apply(args: Any, cfg: Dict[str, Any]) -> int:
 
     Example:
         >>> from argparse import Namespace
-        >>> args = Namespace(plan='plan.csv', checkpoint='cp.json', force=False)
+        >>> args = Namespace(plan='plan.csv', checkpoint='cp.json',
+        ...                  force=False)
         >>> cfg = {'dry_run': True}
         >>> exit_code = cmd_apply(args, cfg)
         [apply] {'moved': 15, 'errors': 0}
@@ -79,13 +81,13 @@ def cmd_apply(args: Any, cfg: Dict[str, Any]) -> int:
         - Statistics are printed to stdout in JSON format
     """
     # Re-implement CSV reading here since applier expects list of dicts
-    rows = []
+    rows: List[Dict[str, str]] = []
     with Path(args.plan).open("r", encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
             rows.append(row)
 
-    res = apply_moves(
+    res: Dict[str, int] = apply_moves(
         rows, Path(args.checkpoint),
         dry_run=(cfg["dry_run"] and not args.force)
     )

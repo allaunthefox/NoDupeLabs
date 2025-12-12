@@ -32,7 +32,8 @@ def cmd_init(args: Any, _cfg: Dict[str, Any]) -> int:
     """Initialize configuration with a preset.
 
     This function creates a new 'nodupe.yml' configuration file in the current
-    directory using the specified preset. It handles both new configurations and
+    directory using the specified preset. It handles both new
+    configurations and
     existing file scenarios with proper error handling and user feedback.
 
     Args:

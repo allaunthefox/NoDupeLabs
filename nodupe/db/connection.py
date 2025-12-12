@@ -3,9 +3,10 @@
 
 """Database connection management.
 
-Handles SQLite connection lifecycle, schema setup, and migrations for NoDupeLabs.
-This module provides the core database infrastructure, managing connection pooling,
-transaction handling, and background writer processes for optimal performance.
+Handles SQLite connection lifecycle, schema setup, and migrations for
+NoDupeLabs. This module provides the core database infrastructure,
+managing connection pooling, transaction handling, and background writer
+processes for optimal performance.
 
 Key Features:
     - SQLite connection management with WAL mode for concurrent access

@@ -27,12 +27,11 @@ Example:
 """
 
 import json
-import queue
 import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 
 class JsonlLogger:
@@ -202,15 +201,17 @@ class JsonlLogger:
     def log(self, level: str, event: str, **kwargs: Any) -> None:
         """Write a log entry.
 
-        This method writes a structured log entry to the JSONL log file. It supports
-        both synchronous writing and background queuing for better performance. The log
-        entry includes timestamp, log level, event name, and additional structured data.
+        This method writes a structured log entry to the JSONL log file. It
+        supports both synchronous writing and background queuing for better
+        performance. The log entry includes timestamp, log level, event name,
+        and additional structured data.
 
         Args:
             level: Log level (e.g., "INFO", "ERROR", "WARN", "DEBUG")
             event: Event name (e.g., "scan_start", "file_processed")
             **kwargs: Additional structured data to include in the log entry.
-                This can be any key-value pairs that provide context about the event.
+                This can be any key-value pairs that provide context about the
+                event.
 
         Raises:
             OSError: If log file cannot be written
@@ -219,7 +220,8 @@ class JsonlLogger:
         Example:
             >>> logger = JsonlLogger(Path("logs"))
             >>> logger.log("INFO", "scan_started", root="/data", files=1000)
-            >>> logger.log("ERROR", "file_failed", path="/bad/file.txt", error="permission_denied")
+            >>> logger.log("ERROR", "file_failed", path="/bad/file.txt",
+            ...           error="permission_denied")
         """
         entry = {
             "ts": datetime.now(timezone.utc).isoformat(),

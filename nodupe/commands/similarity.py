@@ -32,14 +32,15 @@ Example:
 
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
 from ..similarity.cli import build_index_from_db, find_near_duplicates
 
 
 def cmd_similarity_build(args: Any, cfg: Dict[str, Any]) -> int:
     """Build similarity index from database embeddings.
 
-    This function extracts all embeddings from the SQLite database and constructs
+    This function extracts all embeddings from the SQLite database
+    and constructs
     a searchable vector index for similarity search. It supports multiple index
     types (FAISS, Brute-force) based on the output file extension.
 
@@ -82,7 +83,9 @@ def cmd_similarity_build(args: Any, cfg: Dict[str, Any]) -> int:
         - Reports number of embeddings indexed
     """
     db_path = Path(cfg['db_path'])
-    res = build_index_from_db(db_path, dim=args.dim, out_path=args.out)
+    res: Dict[str, int] = build_index_from_db(
+        db_path, dim=args.dim, out_path=args.out
+    )
     print(f"[similarity] index_count={res['index_count']}")
     return 0
 
@@ -90,8 +93,9 @@ def cmd_similarity_build(args: Any, cfg: Dict[str, Any]) -> int:
 def cmd_similarity_query(args: Any, cfg: Dict[str, Any]) -> int:
     """Find similar files to a target file.
 
-    This function computes the embedding for a target file and queries the similarity
-    index for nearest neighbors. It supports finding near-duplicate files based on
+    This function computes the embedding for a target file and queries
+    the similarity index for nearest neighbors. It supports finding
+    near-duplicate files based on
     vector similarity using AI embeddings.
 
     The query process:
@@ -120,7 +124,8 @@ def cmd_similarity_query(args: Any, cfg: Dict[str, Any]) -> int:
 
     Example:
         >>> from argparse import Namespace
-        >>> args = Namespace(file='target.jpg', k=5, dim=128, index_file='index.faiss')
+        >>> args = Namespace(file='target.jpg', k=5, dim=128,
+        ...                  index_file='index.faiss')
         >>> cfg = {'db_path': 'nodupe.db'}
         >>> exit_code = cmd_similarity_query(args, cfg)
         0.012345 /path/to/similar1.jpg
@@ -137,7 +142,7 @@ def cmd_similarity_query(args: Any, cfg: Dict[str, Any]) -> int:
     """
     db_path = Path(cfg['db_path'])
     target = Path(args.file)
-    res = find_near_duplicates(
+    res: List[Tuple[str, float]] = find_near_duplicates(
         db_path, target, k=args.k, dim=args.dim, index_path=args.index_file
     )
     for path, score in res:
@@ -197,7 +202,9 @@ def cmd_similarity_update(args: Any, cfg: Dict[str, Any]) -> int:
     if not args.index_file:
         print("[similarity][update] --index-file is required", file=sys.stderr)
         return 2
-    res = _update(db_path, args.index_file, remove_missing=args.rebuild)
+    res: Dict[str, Optional[int]] = _update(
+        db_path, args.index_file, remove_missing=args.rebuild
+    )
     print(
         f"[similarity][update] added={res.get('added')} "
         f"index_count={res.get('index_count')}"

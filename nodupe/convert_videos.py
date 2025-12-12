@@ -10,7 +10,8 @@ functionality from the top-level script or provides a fallback implementation.
 
 Key Features:
     - Unified interface for video format conversion
-    - Automatic fallback to internal implementation when top-level script unavailable
+    - Automatic fallback to internal implementation when top-level script
+      unavailable
     - FFmpeg-based conversion with progress tracking
     - Error handling and user feedback
     - Compatibility with both source and installed package environments

@@ -27,8 +27,7 @@ Example:
 """
 
 import sys
-from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict
 from ..archiver import ArchiveHandler
 
 
@@ -85,8 +84,9 @@ def cmd_archive_extract(args: Any, _cfg: Dict[str, Any]) -> int:
     """Extract archive contents to a destination directory.
 
     This function extracts the contents of an archive file to the specified
-    destination directory. It supports multiple archive formats (zip, tar, rar, 7z)
-    and handles the extraction process with proper error handling and validation.
+    destination directory. It supports multiple archive formats (zip, tar,
+    rar, 7z) and handles the extraction process with proper error handling
+    and validation.
 
     Args:
         args: Argparse Namespace with attributes:

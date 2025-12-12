@@ -54,7 +54,7 @@ Notes:
 
 from pathlib import Path
 from datetime import datetime, timezone
-from typing import Any, Dict, List
+from typing import Any, Dict
 from ..db import DB
 from ..planner import ensure_unique, write_plan_csv
 

@@ -157,7 +157,8 @@ class ScanOrchestrator:
 
         try:
             for rec in iterator:
-                # rec is a tuple with (path, size, mtime, hash, mime, context, algo, perms)
+                # rec is a tuple with (path, size, mtime, hash, mime,
+                # context, algo, perms)
                 path: str = rec[0]
                 size: int = rec[1]
                 mtime: int = rec[2]

@@ -28,7 +28,7 @@ Example:
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 
 def cmd_verify(args: Any, _cfg: Dict[str, Any]) -> int:

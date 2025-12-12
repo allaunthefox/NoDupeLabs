@@ -9,7 +9,8 @@ threads/processes, and yields results as they complete.
 
 Key Features:
     - Producer-consumer architecture for efficient file processing
-    - Automatic executor selection (thread/process) based on system capabilities
+    - Automatic executor selection (thread/process) based on system
+      capabilities
     - Support for both streaming and batch collection modes
     - Progress tracking with ETA calculations and stall detection
     - Incremental scanning with known file optimization
@@ -228,15 +229,20 @@ def threaded_hash(
                     try:
                         from importlib import import_module
                         _scanner_mod = import_module("nodupe.scanner")
-                        _scanner_pf = getattr(_scanner_mod, "process_file", None)
+                        _scanner_pf = getattr(
+                            _scanner_mod, "process_file", None
+                        )
                         try:
                             _proc_mod = import_module("nodupe.scan.processor")
                             _orig_pf = getattr(_proc_mod, "process_file", None)
                         except Exception:
                             _orig_pf = None
                         if _orig_pf is not None and worker is _orig_pf:
-                            if (_scanner_pf is not None and _orig_pf is not None
-                                and _scanner_pf is not _orig_pf):
+                            if (
+                                _scanner_pf is not None
+                                and _orig_pf is not None
+                                and _scanner_pf is not _orig_pf
+                            ):
                                 worker = _scanner_pf
                     except Exception:
                         pass
