@@ -89,7 +89,7 @@ jobs:
           pytest -v -m "not slow and not integration" --cov=nodupe --cov-report=xml --cov-report=html
 
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always() # Upload coverage even if tests fail
         with:
           name: coverage-reports
@@ -342,7 +342,7 @@ jobs:
           bandit -r nodupe/ --format json -o bandit-results.json || echo "Security issues found - check report above"
 
       - name: Upload security reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-reports
@@ -380,7 +380,7 @@ jobs:
           cat outdated-dependencies.json || echo "No outdated dependencies found"
 
       - name: Upload dependency reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: dependency-reports
