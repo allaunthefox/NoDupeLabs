@@ -19,6 +19,7 @@ jobs:
         # matrix requires vendoring matching ABI wheels for each Python
         # version — follow-up work.
         python-version: ["3.13"]
+      fail-fast: false
 
     steps:
       - uses: actions/checkout@v4
