@@ -24,7 +24,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Cache pip dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v5
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt', 'setup.py') }}
@@ -40,7 +40,7 @@ jobs:
         pip install -e .
 
     - name: Cache pytest results
-      uses: actions/cache@v3
+      uses: actions/cache@v5
       with:
         path: .pytest_cache
         key: ${{ runner.os }}-pytest-${{ hashFiles('tests/', 'nodupe/') }}

@@ -21,7 +21,7 @@ jobs:
         python-version: "3.11"
 
     - name: Cache pip dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v5
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt', 'setup.py') }}
@@ -29,7 +29,7 @@ jobs:
           ${{ runner.os }}-pip-
 
     - name: Cache npm dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v5
       with:
         path: ~/.npm
         key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
@@ -45,7 +45,7 @@ jobs:
         pip install -e .
 
     - name: Cache linting results
-      uses: actions/cache@v3
+      uses: actions/cache@v5
       with:
         path: |
           .pylint.d
@@ -172,7 +172,7 @@ jobs:
         python-version: "3.11"
 
     - name: Cache pip dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v5
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
