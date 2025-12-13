@@ -55,9 +55,36 @@ For full functionality, the following GitHub secrets should be configured:
 - **Tag push (v*.*.*)**: Triggers deployment workflow
 - **Manual dispatch**: Can trigger deployment workflow
 
+## Strict Requirements Enforcement
+
+### 🔒 Pull Request Requirements (Before Merging to Main)
+
+**All of the following must pass for PR approval:**
+
+1. **Python Testing**: All tests must pass across Python 3.8-3.11
+2. **Code Quality Checks**:
+   - **Pylint**: Minimum score of 10/10, all checks enabled (except fixme/line-too-long)
+   - **Black**: Code formatting must be perfect
+   - **isort**: Import sorting must be perfect
+   - **mypy**: Strict type checking with no untyped definitions
+   - **Docstrings**: 100% coverage required for all public classes and functions
+3. **Comprehensive CI**: All parallel checks must pass
+4. **Branch Protection**: Requires admin approval and code owner reviews
+
+### 📋 Code Quality Standards
+
+- **Linting**: Zero tolerance for linting violations
+- **Formatting**: Perfect black/isort compliance required
+- **Type Checking**: Strict mypy enforcement with full type coverage
+- **Documentation**: 100% docstring coverage mandatory
+- **Testing**: All tests must pass with good coverage
+
 ## Best Practices
 
-1. **Commit Messages**: Use conventional commits for better CI integration
-2. **Branch Protection**: Enable branch protection on `main` to require CI passes
-3. **Code Reviews**: All pull requests should pass CI before merging
-4. **Version Tags**: Use semantic versioning for releases (v1.0.0, v2.1.0, etc.)
+1. **Run Locally First**: `pylint nodupe/ --fail-under=10.0 --enable=all`
+2. **Format Before Committing**: `black nodupe/ tests/ && isort nodupe/ tests/`
+3. **Type Check**: `mypy nodupe/ --strict`
+4. **Document Everything**: Ensure 100% docstring coverage
+5. **Test Thoroughly**: Run `pytest tests/ --cov=nodupe`
+6. **Branch Protection**: Configure `.github/settings.yml` for strict PR requirements
+7. **Version Tags**: Use semantic versioning for releases (v1.0.0, v2.1.0, etc.)

@@ -67,21 +67,21 @@ jobs:
         pip install markdownlint-cli>=0.32.0
         pip install -e .
 
-    - name: Run pylint
+    - name: Run pylint (strict mode)
       run: |
-        pylint nodupe/ --rcfile=.pylintrc
+        pylint nodupe/ --rcfile=.pylintrc --fail-under=10.0 --enable=all --disable=fixme,line-too-long
 
-    - name: Run black
+    - name: Run black (strict mode)
       run: |
-        black --check nodupe/ tests/
+        black --check --diff nodupe/ tests/
 
-    - name: Run isort
+    - name: Run isort (strict mode)
       run: |
-        isort --check nodupe/ tests/
+        isort --check --diff nodupe/ tests/
 
-    - name: Run mypy
+    - name: Run mypy (strict mode)
       run: |
-        mypy nodupe/ --ignore-missing-imports
+        mypy nodupe/ --ignore-missing-imports --strict --disallow-untyped-defs --disallow-incomplete-defs
 
     - name: Run markdownlint
       run: |
