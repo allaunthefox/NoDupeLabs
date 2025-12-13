@@ -1,0 +1,162 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+
+    - name: Run tests with pytest
+      run: |
+        pytest tests/ --cov=nodupe --cov-report=xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+
+    - name: Run pylint
+      run: |
+        pylint nodupe/ --disable=all --enable=missing-docstring,invalid-name,line-too-long,missing-module-docstring,missing-class-docstring,missing-function-docstring
+
+    - name: Run markdownlint
+      run: |
+        npx markdownlint "**/*.md" --ignore node_modules
+
+  docs:
+    name: Check Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+
+    - name: Check docstrings
+      run: |
+        python -c "
+        import ast
+        import os
+
+        def check_docstrings(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            try:
+                tree = ast.parse(content)
+
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.FunctionDef):
+                        if not ast.get_docstring(node):
+                            print(f'Missing docstring in function: {node.name} in {file_path}')
+                    elif isinstance(node, ast.ClassDef):
+                        if not ast.get_docstring(node):
+                            print(f'Missing docstring in class: {node.name} in {file_path}')
+                    elif isinstance(node, ast.Module):
+                        if not ast.get_docstring(node):
+                            print(f'Missing module docstring in: {file_path}')
+
+            except SyntaxError:
+                pass
+
+        # Check all Python files in nodupe directory
+        for root, dirs, files in os.walk('nodupe'):
+            for file in files:
+                if file.endswith('.py'):
+                    check_docstrings(os.path.join(root, file))
+        "
+
+  deploy:
+    name: Deploy
+    needs: [test, lint, docs]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+
+    - name: Build package
+      run: |
+        python setup.py sdist bdist_wheel
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        skip_existing: true
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: Release v${{ github.run_number }}
+        body: |
+          Automatic release created by GitHub Actions
+          Changes: ${{ github.event.head_commit.message }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
