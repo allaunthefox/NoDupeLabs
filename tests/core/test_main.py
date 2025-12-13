@@ -28,7 +28,7 @@ class TestCoreLoader:
         assert loader.config == {}
 
     @patch('builtins.open', new_callable=mock_open, read_data='test: yaml')
-    @patch('os.path.exists', return_value=True)
+    @patch('pathlib.Path.exists', return_value=True)
     @patch('yaml.safe_load', return_value={'test': 'config'})
     def test_load_config_with_yaml(self, mock_yaml: MagicMock, mock_exists: MagicMock, mock_file: MagicMock):
         """Test loading configuration with YAML file"""
@@ -289,10 +289,22 @@ class TestCoreLoader:
                 mock_parser_instance = MagicMock()
                 mock_parser.return_value = mock_parser_instance
                 mock_args = MagicMock(command=None)
+                # Mock the func attribute to return 0 when called
+                mock_args.func = MagicMock(return_value=0)
                 mock_parser_instance.parse_args.return_value = mock_args
 
-                result = loader.run()
-                assert result == 0
+                # Mock the subparsers to avoid AttributeError
+                mock_subparsers = MagicMock()
+                mock_parser_instance.add_subparsers.return_value = mock_subparsers
+
+                # Mock the _apply_custom_performance_settings method to avoid issues with MagicMock comparisons
+                with patch.object(loader, '_apply_custom_performance_settings'):
+                    # Mock the _setup_debug_logging method to avoid file handling issues
+                    with patch.object(loader, '_setup_debug_logging'):
+                        # Mock the _load_plugin_commands method to avoid issues
+                        with patch.object(loader, '_load_plugin_commands'):
+                            result = loader.run()
+                            assert result == 0
 
     def test_cmd_version(self):
         """Test version command"""

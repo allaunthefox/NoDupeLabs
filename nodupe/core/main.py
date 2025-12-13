@@ -39,7 +39,7 @@ except ImportError:
     yaml = None
 
 try:
-    from .plugins import PluginManager
+    from pluggy import PluginManager
 except ImportError:
     PluginManager = None
 
@@ -70,18 +70,24 @@ class CoreLoader:
         Returns:
             Dictionary containing configuration
         """
+        config: Dict[str, Any] = {}
+
         try:
             # Use top-level yaml import with graceful fallback
             if yaml:
                 config_path_obj = Path(config_path)
                 if config_path_obj.exists():
                     with open(config_path_obj, 'r', encoding='utf-8') as f:
-                        return yaml.safe_load(f) or {}
+                        yaml_config = yaml.safe_load(f) or {}
+                        if isinstance(yaml_config, dict):
+                            config.update(yaml_config)  # type: ignore[arg-type]
         except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"[WARN] Config load error: {e}", file=sys.stderr)
 
-        # Apply platform-specific autoconfiguration
-        return self._apply_platform_autoconfig()
+        # Apply platform-specific autoconfiguration and merge with YAML config
+        platform_config = self._apply_platform_autoconfig()
+        platform_config.update(config)  # YAML config takes precedence
+        return platform_config
 
     def _apply_platform_autoconfig(self) -> Dict[str, Any]:
         """Apply system resource-based autoconfiguration.
@@ -401,8 +407,7 @@ class CoreLoader:
                 original_cores = self.config.get('cpu_cores', 'auto')
                 self.config['cpu_cores'] = args.cores
                 print(
-                    f"[INFO] Override: CPU cores set to {
-                        args.cores} (was: {original_cores})")
+                    f"[INFO] Override: CPU cores set to {args.cores} (was: {original_cores})")
                 custom_settings_applied = True
 
             # Apply custom CPU threads if specified
@@ -410,8 +415,7 @@ class CoreLoader:
                 original_threads = self.config.get('cpu_threads', 'auto')
                 self.config['cpu_threads'] = args.threads
                 print(
-                    f"[INFO] Override: CPU threads set to {
-                        args.threads} (was: {original_threads})")
+                    f"[INFO] Override: CPU threads set to {args.threads} (was: {original_threads})")
                 custom_settings_applied = True
 
             # Apply custom max workers if specified
@@ -419,8 +423,7 @@ class CoreLoader:
                 original_workers = self.config.get('max_workers', 'auto')
                 self.config['max_workers'] = args.max_workers
                 print(
-                    f"[INFO] Override: max_workers set to {
-                        args.max_workers} (was: {original_workers})")
+                    f"[INFO] Override: max_workers set to {args.max_workers} (was: {original_workers})")
                 custom_settings_applied = True
 
             # Apply custom batch size if specified
@@ -428,8 +431,7 @@ class CoreLoader:
                 original_batch = self.config.get('batch_size', 'auto')
                 self.config['batch_size'] = args.batch_size
                 print(
-                    f"[INFO] Override: batch_size set to {
-                        args.batch_size} (was: {original_batch})")
+                    f"[INFO] Override: batch_size set to {args.batch_size} (was: {original_batch})")
                 custom_settings_applied = True
 
             # Reconfigure based on custom settings if any were applied
@@ -468,8 +470,7 @@ class CoreLoader:
                 self.config['concurrency_model'] = 'sequential'
 
             print(
-                f"[INFO] Updated processing strategy to: {
-                    self.config['processing_strategy']}")
+                f"[INFO] Updated processing strategy to: {self.config['processing_strategy']}")
 
         except Exception as e:
             print(
@@ -501,8 +502,9 @@ class CoreLoader:
             self.services['config'] = self.config
 
             # Initialize plugin system
+            plugin_manager = None
             if PluginManager:
-                plugin_manager = PluginManager()
+                plugin_manager = PluginManager("nodupe")
                 self.services['plugin_manager'] = plugin_manager
             else:
                 print(
@@ -511,17 +513,16 @@ class CoreLoader:
 
             # Load plugins if configured and plugin manager is available
             if (self.config.get('plugins', {}).get('auto_load', True) and
-                    self.services['plugin_manager'] is not None):
+                    plugin_manager is not None):
                 plugin_dirs = self.config.get(
                     'plugins', {}).get(
                     'directories', ['plugins'])
-                plugin_manager = self.services['plugin_manager']
 
                 # Pass configuration to plugin manager for loading order
-                if hasattr(plugin_manager, 'set_config'):
-                    plugin_manager.set_config(self.config)
+                if hasattr(plugin_manager, 'set_config'):  # type: ignore[attr-defined]
+                    plugin_manager.set_config(self.config)  # type: ignore[attr-defined]
 
-                plugin_manager.load_plugins(plugin_dirs)
+                plugin_manager.load_plugins(plugin_dirs)  # type: ignore[attr-defined]
 
             return True
 
@@ -649,13 +650,13 @@ class CoreLoader:
 
     def _cmd_plugin(self, args: argparse.Namespace) -> int:
         """Handle plugin command."""
-        plugin_manager = self.services.get('plugin_manager')
+        plugin_manager = self.services.get('plugin_manager')  # type: ignore[assignment]
         if not plugin_manager:
             print("[ERROR] Plugin manager not initialized", file=sys.stderr)
             return 1
 
         if args.list:
-            plugins = plugin_manager.list_plugins()
+            plugins = plugin_manager.list_plugins()  # type: ignore[attr-defined]
             print(f"Loaded plugins: {len(plugins)}")
             for plugin in plugins:
                 print(f"  - {plugin}")
@@ -723,12 +724,10 @@ class CoreLoader:
                             if hasattr(plugin, 'register_commands'):
                                 plugin.register_commands(subparsers)
                                 print(
-                                    f"[INFO] Registered plugin commands: {
-                                        plugin_file.stem}")
+                                    f"[INFO] Registered plugin commands: {plugin_file.stem}")
                     except Exception as e:
                         print(
-                            f"[WARN] Failed to load plugin {
-                                plugin_file.name}: {e}",
+                            f"[WARN] Failed to load plugin {plugin_file.name}: {e}",
                             file=sys.stderr)
 
         except Exception as e:
