@@ -55,7 +55,7 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+        token: ${{ secrets.CODECOV_TOKEN }}  # github-actions: allow-secret-access
         file: ./coverage.xml
         flags: unittests
         name: codecov-umbrella

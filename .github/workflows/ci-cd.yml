@@ -43,7 +43,7 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+        token: ${{ secrets.CODECOV_TOKEN }}  # github-actions: allow-secret-access
         file: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
@@ -187,7 +187,7 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        password: ${{ secrets.PYPI_API_TOKEN }}  # github-actions: allow-secret-access
         skip-existing: true
 
     - name: Create GitHub Release
