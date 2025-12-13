@@ -28,7 +28,7 @@ import warnings
 import numpy as np
 
 # Handle optional FAISS dependency
-# pyright: reportMissingImports=false, reportUnknownMemberType=false, reportUnknownVariableType=false, reportUnnecessaryComparison=false
+# pyright: reportMissingImports=false, reportUnknownMemberType=false, reportUnknownVariableType=false, reportUnnecessaryComparison=false  # pylint: disable=line-too-long
 try:
     import faiss
     # Import IndexFlatIP for type hints, but it may not be used directly

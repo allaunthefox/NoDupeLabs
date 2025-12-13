@@ -9,7 +9,9 @@ setup(
     package_dir={"": "."},
     include_package_data=True,
     install_requires=[
-        # Add your dependencies here
+        "toml>=0.10.0",
+        "psutil>=5.0.0",
+        "PyYAML>=6.0",
     ],
     python_requires=">=3.9",
     entry_points={

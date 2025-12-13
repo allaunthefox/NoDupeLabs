@@ -268,14 +268,14 @@ class NetworkManager:
         return self.storage_backend.delete_file(remote_path)
 
 # Module-level network manager
-_network_manager: Optional[NetworkManager] = None
+NETWORK_MANAGER: Optional[NetworkManager] = None
 
 def get_network_manager() -> NetworkManager:
     """Get the global network manager"""
-    global _network_manager
-    if _network_manager is None:
-        _network_manager = NetworkManager()
-    return _network_manager
+    global NETWORK_MANAGER
+    if NETWORK_MANAGER is None:
+        NETWORK_MANAGER = NetworkManager()
+    return NETWORK_MANAGER
 
 # Initialize manager on import
 get_network_manager()

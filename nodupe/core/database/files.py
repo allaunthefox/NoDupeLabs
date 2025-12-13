@@ -40,7 +40,8 @@ class FileRepository:
         """
         self.db = db_connection
 
-    def add_file(self, file_path: str, size: int, modified_time: int, hash_value: Optional[str] = None) -> Optional[int]:
+    def add_file(self, file_path: str, size: int, modified_time: int,
+                 hash_value: Optional[str] = None) -> Optional[int]:
         """Add file to database.
 
         Args:

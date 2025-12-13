@@ -1,2 +1,4 @@
 # Core production requirements
-# Add your production dependencies here
+toml>=0.10.0
+psutil>=5.0.0
+PyYAML>=6.0

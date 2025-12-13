@@ -162,14 +162,14 @@ def create_ml_backend(backend_type: str = "auto", **kwargs) -> MLBackend:
         raise ValueError(f"Unknown backend type: {backend_type}")
 
 # Module-level backend instance (lazy initialization)
-_ml_backend: Optional[MLBackend] = None
+ML_BACKEND: Optional[MLBackend] = None
 
 def get_ml_backend() -> MLBackend:
     """Get the global ML backend instance"""
-    global _ml_backend
-    if _ml_backend is None:
-        _ml_backend = create_ml_backend()
-    return _ml_backend
+    global ML_BACKEND
+    if ML_BACKEND is None:
+        ML_BACKEND = create_ml_backend()
+    return ML_BACKEND
 
 # Initialize backend on import
 get_ml_backend()

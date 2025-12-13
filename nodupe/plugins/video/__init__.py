@@ -366,14 +366,14 @@ class VideoBackendManager:
         return ""
 
 # Module-level backend manager
-_video_manager: Optional[VideoBackendManager] = None
+VIDEO_MANAGER: Optional[VideoBackendManager] = None
 
 def get_video_backend_manager() -> VideoBackendManager:
     """Get the global video backend manager"""
-    global _video_manager
-    if _video_manager is None:
-        _video_manager = VideoBackendManager()
-    return _video_manager
+    global VIDEO_MANAGER
+    if VIDEO_MANAGER is None:
+        VIDEO_MANAGER = VideoBackendManager()
+    return VIDEO_MANAGER
 
 # Initialize manager on import
 get_video_backend_manager()

@@ -299,14 +299,14 @@ def create_gpu_backend(backend_type: str = "auto", **kwargs) -> GPUBackend:
         raise ValueError(f"Unknown GPU backend type: {backend_type}")
 
 # Module-level backend instance
-_gpu_backend: Optional[GPUBackend] = None
+GPU_BACKEND: Optional[GPUBackend] = None
 
 def get_gpu_backend() -> GPUBackend:
     """Get the global GPU backend instance"""
-    global _gpu_backend
-    if _gpu_backend is None:
-        _gpu_backend = create_gpu_backend()
-    return _gpu_backend
+    global GPU_BACKEND
+    if GPU_BACKEND is None:
+        GPU_BACKEND = create_gpu_backend()
+    return GPU_BACKEND
 
 # Initialize backend on import
 get_gpu_backend()

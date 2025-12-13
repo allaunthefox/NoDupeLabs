@@ -21,7 +21,7 @@ import argparse
 from typing import Any
 
 # Plugin manager is injected by the core system
-pm: Any = None
+PM: Any = None
 
 class ApplyPlugin:
     """Apply plugin implementation.
@@ -39,9 +39,9 @@ class ApplyPlugin:
         self.description = "Apply actions to duplicate files"
 
         # Register plugin with manager
-        if pm:
-            pm.register_hook("apply_start", self._on_apply_start)
-            pm.register_hook("apply_complete", self._on_apply_complete)
+        if PM:
+            PM.register_hook("apply_start", self._on_apply_start)
+            PM.register_hook("apply_complete", self._on_apply_complete)
 
     def _on_apply_start(self, **kwargs: Any) -> None:
         """Handle apply start event."""
@@ -80,8 +80,8 @@ class ApplyPlugin:
             print(f"[PLUGIN] Executing apply command: {args.action}")
 
             # Emit apply start event
-            if pm:
-                pm.emit_event("apply_start", action=args.action)
+            if PM:
+                PM.emit_event("apply_start", action=args.action)
 
             # Here you would implement the actual apply logic
             # For now, we'll simulate an apply operation
@@ -93,8 +93,8 @@ class ApplyPlugin:
                 print(f"[PLUGIN] Processed {files_processed} files")
 
             # Emit apply complete event
-            if pm:
-                pm.emit_event("apply_complete", files_processed=files_processed)
+            if PM:
+                PM.emit_event("apply_complete", files_processed=files_processed)
 
             print(f"[PLUGIN] Apply completed: {files_processed} files processed")
             return 0

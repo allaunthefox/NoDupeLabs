@@ -595,14 +595,14 @@ class CommandManager:
         return cmd.execute(args)
 
 # Module-level command manager
-_command_manager: Optional[CommandManager] = None
+COMMAND_MANAGER: Optional[CommandManager] = None
 
 def get_command_manager() -> CommandManager:
     """Get the global command manager"""
-    global _command_manager
-    if _command_manager is None:
-        _command_manager = CommandManager()
-    return _command_manager
+    global COMMAND_MANAGER
+    if COMMAND_MANAGER is None:
+        COMMAND_MANAGER = CommandManager()
+    return COMMAND_MANAGER
 
 # Initialize manager on import
 get_command_manager()

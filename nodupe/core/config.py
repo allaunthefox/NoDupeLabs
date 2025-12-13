@@ -12,9 +12,11 @@ from typing import Dict, Any, Optional
 try:
     import toml
 except ImportError:
-    print("Error: toml package not found. Please install it with:")
-    print("pip install toml")
-    sys.exit(1)
+    # We'll handle the missing toml dependency gracefully in the class if needed,
+    # or let the import error propagate if it's a hard dependency for this module.
+    # For now, we will re-raise properly or handle it in __init__
+    toml = None
+
 
 class ConfigManager:
     """Configuration manager for NoDupeLabs that loads and manages TOML configuration files."""
@@ -24,26 +26,35 @@ class ConfigManager:
 
         Args:
             config_path: Path to the TOML configuration file. Defaults to 'pyproject.toml'.
+
+        Raises:
+            ImportError: If toml package is not installed.
+            FileNotFoundError: If configuration file is not found.
+            ValueError: If configuration file is invalid.
         """
+        if toml is None:
+            raise ImportError(
+                "toml package not found. Please install it with: pip install toml")
+
         self.config_path = config_path or "pyproject.toml"
         self.config: Dict[str, Any] = {}
         self._load_config()
 
     def _load_config(self) -> None:
         """Load the TOML configuration file."""
-        try:
-            if not os.path.exists(self.config_path):
-                raise FileNotFoundError(f"Configuration file {self.config_path} not found")
+        if not os.path.exists(self.config_path):
+            raise FileNotFoundError(
+                f"Configuration file {self.config_path} not found")
 
+        try:
             with open(self.config_path, 'r', encoding='utf-8') as f:
                 self.config = toml.load(f)
-
-            if 'tool' not in self.config or 'nodupe' not in self.config['tool']:
-                raise ValueError("Invalid configuration file: missing [tool.nodupe] section")
-
         except Exception as e:
-            print(f"Error loading configuration: {e}")
-            sys.exit(1)
+            raise ValueError(f"Error parsing TOML file: {e}") from e
+
+        if 'tool' not in self.config or 'nodupe' not in self.config['tool']:
+            raise ValueError(
+                "Invalid configuration file: missing [tool.nodupe] section")
 
     def get_nodupe_config(self) -> Dict[str, Any]:
         """Get the NoDupeLabs configuration section."""
@@ -91,16 +102,19 @@ class ConfigManager:
         Returns:
             True if configuration is valid, False otherwise
         """
-        required_sections = ['database', 'scan', 'similarity', 'performance', 'logging']
+        required_sections = ['database', 'scan',
+                             'similarity', 'performance', 'logging']
 
         nodupe_config = self.get_nodupe_config()
 
         for section in required_sections:
             if section not in nodupe_config:
-                print(f"Warning: Missing required configuration section: {section}")
+                print(
+                    f"Warning: Missing required configuration section: {section}")
                 return False
 
         return True
+
 
 def load_config() -> ConfigManager:
     """Load the NoDupeLabs configuration.
@@ -109,6 +123,7 @@ def load_config() -> ConfigManager:
         ConfigManager instance with loaded configuration
     """
     return ConfigManager()
+
 
 # Example usage and testing
 if __name__ == "__main__":
@@ -122,8 +137,10 @@ if __name__ == "__main__":
 
             # Display some key configuration values
             print("\n📋 NoDupeLabs Configuration Summary:")
-            print(f"Version: {config.get_config_value('nodupe', 'version', '1.0.0')}")
-            print(f"Description: {config.get_config_value('nodupe', 'description', 'NoDupeLabs')}")
+            print(
+                f"Version: {config.get_config_value('nodupe', 'version', '1.0.0')}")
+            print(
+                f"Description: {config.get_config_value('nodupe', 'description', 'NoDupeLabs')}")
 
             db_config = config.get_database_config()
             print(f"\n🗃️ Database Configuration:")
@@ -133,17 +150,24 @@ if __name__ == "__main__":
 
             scan_config = config.get_scan_config()
             print(f"\n🔍 Scan Configuration:")
-            print(f"  Min File Size: {scan_config.get('min_file_size', '1KB')}")
-            print(f"  Max File Size: {scan_config.get('max_file_size', '100MB')}")
-            print(f"  Default Extensions: {', '.join(scan_config.get('default_extensions', []))}")
-            print(f"  Exclude Directories: {', '.join(scan_config.get('exclude_dirs', []))}")
+            print(
+                f"  Min File Size: {scan_config.get('min_file_size', '1KB')}")
+            print(
+                f"  Max File Size: {scan_config.get('max_file_size', '100MB')}")
+            print(
+                f"  Default Extensions: {', '.join(scan_config.get('default_extensions', []))}")
+            print(
+                f"  Exclude Directories: {', '.join(scan_config.get('exclude_dirs', []))}")
 
             similarity_config = config.get_similarity_config()
             print(f"\n🎯 Similarity Configuration:")
-            print(f"  Default Backend: {similarity_config.get('default_backend', 'brute_force')}")
-            print(f"  Vector Dimensions: {similarity_config.get('vector_dimensions', 128)}")
+            print(
+                f"  Default Backend: {similarity_config.get('default_backend', 'brute_force')}")
+            print(
+                f"  Vector Dimensions: {similarity_config.get('vector_dimensions', 128)}")
             print(f"  Search K: {similarity_config.get('search_k', 10)}")
-            print(f"  Similarity Threshold: {similarity_config.get('similarity_threshold', 0.85)}")
+            print(
+                f"  Similarity Threshold: {similarity_config.get('similarity_threshold', 0.85)}")
 
             print("\n✅ Even Better TOML plugin setup complete!")
             print("💡 The plugin provides enhanced TOML support including:")
@@ -159,4 +183,5 @@ if __name__ == "__main__":
 
     except Exception as e:
         print(f"❌ Error loading configuration: {e}")
+        # Only exit 1 if running as script
         sys.exit(1)

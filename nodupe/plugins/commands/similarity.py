@@ -21,7 +21,7 @@ import argparse
 from typing import Any
 
 # Plugin manager is injected by the core system
-pm: Any = None
+PM: Any = None
 
 
 class SimilarityPlugin:
@@ -40,9 +40,9 @@ class SimilarityPlugin:
         self.description = "Find similar files using various metrics"
 
         # Register plugin with manager
-        if pm:
-            pm.register_hook("similarity_start", self._on_similarity_start)
-            pm.register_hook("similarity_complete",
+        if PM:
+            PM.register_hook("similarity_start", self._on_similarity_start)
+            PM.register_hook("similarity_complete",
                              self._on_similarity_complete)
 
     def _on_similarity_start(self, **kwargs: Any) -> None:
@@ -105,8 +105,8 @@ class SimilarityPlugin:
                 f"[PLUGIN] Executing similarity command: {args.metric} metric")
 
             # Emit similarity start event
-            if pm:
-                pm.emit_event("similarity_start", metric=args.metric)
+            if PM:
+                PM.emit_event("similarity_start", metric=args.metric)
 
             # Here you would implement the actual similarity logic
             # For now, we'll simulate a similarity search
@@ -116,8 +116,8 @@ class SimilarityPlugin:
                 f"[PLUGIN] Found {pairs_found} similar file pairs using {args.metric} metric")
 
             # Emit similarity complete event
-            if pm:
-                pm.emit_event("similarity_complete", pairs_found=pairs_found)
+            if PM:
+                PM.emit_event("similarity_complete", pairs_found=pairs_found)
 
             print(
                 f"[PLUGIN] Similarity search completed: {pairs_found} pairs found")
