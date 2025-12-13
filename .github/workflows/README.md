@@ -21,7 +21,8 @@ This directory contains the GitHub Actions workflows for the NoDupeLabs project.
   - isort import sorting checks
   - mypy type checking
   - Markdown linting
-  - Docstring coverage validation
+  - **100% docstring coverage requirement** (strict enforcement)
+  - Detailed docstring coverage reporting
 
 ### 3. Deployment (`deployment.yml`)
 - **Trigger**: Tag pushes (v*.*.*) and manual workflow dispatch

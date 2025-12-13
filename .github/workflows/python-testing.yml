@@ -26,7 +26,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements-dev.txt
+        pip install pytest>=7.0.0 pytest-cov>=4.0.0
+        pip install pylint>=2.15.0 black>=22.0.0 isort>=5.10.0 mypy>=0.990
+        pip install coverage>=6.0.0 codecov>=2.1.0
+        pip install markdownlint-cli>=0.32.0
         pip install -e .
 
     - name: Run pytest
