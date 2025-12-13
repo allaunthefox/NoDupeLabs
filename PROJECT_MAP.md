@@ -32,14 +32,16 @@ This document outlines the new modular architecture for NoDupeLabs with hard iso
 - `main.py` - Entry point with minimal dependencies
 - `cli/` - CLI parsing and routing
 - `container.py` - Service container for DI
-- `plugins/` - Plugin management system
+- `plugin_system/` - Plugin management system
 - `deps.py` - Dependency management with graceful fallback
+- `config.py` - Configuration loading
+- `loader.py` - Core loader
 
 **Dependencies**: Standard library only
 
 ### 2. Database Layer (Core)
 
-**Location**: `nodupe/core/plugins/db/`
+**Location**: `nodupe/core/database/`
 
 **Responsibilities**:
 
@@ -53,12 +55,16 @@ This document outlines the new modular architecture for NoDupeLabs with hard iso
 - `connection.py` - SQLite connection management with connection pooling
 - `files.py` - File repository with CRUD operations
 - `embeddings.py` - Embedding storage with model versioning
+- `schema.py` - Database schema management
+- `repository.py` - Repository pattern implementation
+- `transactions.py` - Transaction management
+- `indexing.py` - Indexing strategies
 
 **Dependencies**: sqlite3 (standard library)
 
 ### 3. File Processing (Core)
 
-**Location**: `nodupe/scan/`
+**Location**: `nodupe/core/scan/`
 
 **Responsibilities**:
 
@@ -73,12 +79,13 @@ This document outlines the new modular architecture for NoDupeLabs with hard iso
 - `processor.py` - File metadata extraction with duplicate detection
 - `hasher.py` - Cryptographic hashing with multiple algorithms
 - `progress.py` - Progress tracking with time estimation
+- `file_info.py` - File information utilities
 
 **Dependencies**: Standard library + hashlib
 
 ### 4. Utilities (Core)
 
-**Location**: `nodupe/utils/`
+**Location**: `nodupe/core/`
 
 **Responsibilities**:
 
@@ -86,12 +93,44 @@ This document outlines the new modular architecture for NoDupeLabs with hard iso
 - Hashing algorithms
 - Compression utilities
 - MIME type detection
+- Security and validation
+- Resource management
 
 **Key Components**:
 
 - `filesystem.py` - Path operations and MIME detection
-- `hashing.py` - Cryptographic hashing
 - `compression.py` - Compression with fallback
+- `mime_detection.py` - MIME type detection
+- `security.py` - Security utilities
+- `validators.py` - Validation utilities
+- `limits.py` - Resource limit management
+- `incremental.py` - Incremental processing
+- `parallel.py` - Parallel processing
+- `mmap_handler.py` - Memory-mapped file handling
+- `pools.py` - Resource pooling
+- `errors.py` - Error handling
+- `logging.py` - Logging utilities
+- `version.py` - Version management
+- `api.py` - Stable API definitions
+
+**Dependencies**: Standard library only
+
+### 11. Cache System (Core)
+
+**Location**: `nodupe/core/cache/`
+
+**Responsibilities**:
+
+- Hash caching
+- Query caching
+- Embedding caching
+- Cache management
+
+**Key Components**:
+
+- `hash_cache.py` - Hash cache implementation
+- `query_cache.py` - Query cache implementation
+- `embedding_cache.py` - Embedding cache implementation
 
 **Dependencies**: Standard library only
 
