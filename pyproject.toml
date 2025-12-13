@@ -1,0 +1,76 @@
+[tool.nodupe]
+# NoDupeLabs configuration
+version = "1.0.0"
+description = "Advanced duplicate file detection and management system"
+
+[tool.nodupe.database]
+# Database configuration
+path = "nodupe.db"
+timeout = 30.0
+journal_mode = "WAL"
+
+[tool.nodupe.scan]
+# Scan configuration
+min_file_size = "1KB"
+max_file_size = "100MB"
+default_extensions = ["jpg", "png", "pdf", "docx", "txt"]
+exclude_dirs = [".git", ".venv", "node_modules"]
+
+[tool.nodupe.similarity]
+# Similarity configuration
+default_backend = "brute_force"
+vector_dimensions = 128
+search_k = 10
+similarity_threshold = 0.85
+
+[tool.nodupe.performance]
+# Performance configuration
+max_workers = 8
+batch_size = 1000
+chunk_size = "4MB"
+
+[tool.nodupe.logging]
+# Logging configuration
+level = "INFO"
+file = "nodupe.log"
+max_size = "10MB"
+backup_count = 5
+
+[tool.pytest.ini_options]
+# Test configuration
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+python_classes = "Test*"
+
+[tool.black]
+# Code formatting
+line-length = 100
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+# Import sorting
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+
+[tool.mypy]
+# Type checking
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
