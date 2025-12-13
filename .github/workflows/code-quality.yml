@@ -20,6 +20,22 @@ jobs:
       with:
         python-version: "3.11"
 
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt', 'setup.py') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Cache npm dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -28,6 +44,16 @@ jobs:
         pip install coverage>=6.0.0 codecov>=2.1.0
         pip install markdownlint-cli>=0.32.0
         pip install -e .
+
+    - name: Cache linting results
+      uses: actions/cache@v3
+      with:
+        path: |
+          .pylint.d
+          .mypy_cache
+        key: ${{ runner.os }}-lint-${{ hashFiles('nodupe/', 'tests/') }}
+        restore-keys: |
+          ${{ runner.os }}-lint-
 
     - name: Run pylint (strict mode)
       run: |
@@ -145,6 +171,14 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
     - name: Install dependencies
       run: |

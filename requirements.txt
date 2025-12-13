@@ -1,0 +1,2 @@
+# Core production requirements
+# Add your production dependencies here

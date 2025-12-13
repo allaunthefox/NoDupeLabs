@@ -23,6 +23,14 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt', 'setup.py') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -31,6 +39,14 @@ jobs:
         pip install coverage>=6.0.0 codecov>=2.1.0
         pip install markdownlint-cli>=0.32.0
         pip install -e .
+
+    - name: Cache pytest results
+      uses: actions/cache@v3
+      with:
+        path: .pytest_cache
+        key: ${{ runner.os }}-pytest-${{ hashFiles('tests/', 'nodupe/') }}
+        restore-keys: |
+          ${{ runner.os }}-pytest-
 
     - name: Run pytest
       run: |
