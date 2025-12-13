@@ -11,7 +11,7 @@ setup(
     install_requires=[
         # Add your dependencies here
     ],
-    python_requires=">=3.10",
+    python_requires=">=3.9",
     entry_points={
         "console_scripts": [
             "nodupe=nodupe.core.main:main",
@@ -22,9 +22,10 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
-        "Programming Language :: Python :: 3.13",
+"Programming Language :: Python :: 3.9",
+"Programming Language :: Python :: 3.10",
+"Programming Language :: Python :: 3.11",
+"Programming Language :: Python :: 3.12",
+"Programming Language :: Python :: 3.13",
     ],
 )
