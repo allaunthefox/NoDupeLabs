@@ -1,6 +1,6 @@
-"""
-Plugin Base Class
-Abstract base class for all plugins
+"""Plugin Base Class.
+
+Abstract base class for all plugins.
 """
 
 from abc import ABC, abstractmethod
