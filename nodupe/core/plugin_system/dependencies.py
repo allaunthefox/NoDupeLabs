@@ -1,9 +1,8 @@
-"""
-Plugin Dependencies
+"""Plugin Dependencies
 Resolve plugin dependencies
 """
 
-from typing import List, Dict, Any
+from typing import List
 
 class PluginDependencies:
     """Resolve plugin dependencies"""

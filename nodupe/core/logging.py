@@ -1,6 +1,6 @@
-"""
-Logging Module
-Structured logging utilities
+"""Logging Module.
+
+Structured logging utilities.
 """
 
 import logging

@@ -1,6 +1,6 @@
-"""
-Security Module
-Path sanitization and validation
+"""Security Module.
+
+Path sanitization and validation.
 """
 
 import os

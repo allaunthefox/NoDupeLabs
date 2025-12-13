@@ -1,9 +1,9 @@
-"""
-Embedding Cache
-Cache ML embeddings
+"""Embedding Cache.
+
+Cache ML embeddings.
 """
 
-from typing import Dict, Any
+from typing import Any
 
 class EmbeddingCache:
     """Cache ML embeddings"""

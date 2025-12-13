@@ -1,9 +1,8 @@
-"""
-Hash Cache
-Cache file hashes based on path and modification time
+"""Hash Cache.
+
+Cache file hashes based on path and modification time.
 """
 
-from typing import Dict, Any
 from pathlib import Path
 
 class HashCache:

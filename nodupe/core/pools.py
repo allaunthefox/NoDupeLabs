@@ -1,6 +1,6 @@
-"""
-Pools Module
-Resource pooling utilities
+"""Pools Module.
+
+Resource pooling utilities.
 """
 
 class Pools:

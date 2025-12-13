@@ -1,9 +1,7 @@
-"""
-Database Schema
-Database schema definitions and migrations
-"""
+"""Database Schema.
 
-from typing import List, Dict, Any
+Database schema definitions and migrations.
+"""
 
 class DatabaseSchema:
     """Handle database schema management"""

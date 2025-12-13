@@ -1,9 +1,9 @@
-"""
-Database Repository
-Repository pattern for database operations
+"""Database Repository.
+
+Repository pattern for database operations.
 """
 
-from typing import List, Dict, Any
+from typing import Dict, Any
 
 class DatabaseRepository:
     """Database repository pattern"""

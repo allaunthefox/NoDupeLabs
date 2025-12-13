@@ -1,6 +1,6 @@
-"""
-Plugin System Module
-Core infrastructure for plugin management
+"""Plugin System Module.
+
+Core infrastructure for plugin management.
 """
 
 from .base import Plugin

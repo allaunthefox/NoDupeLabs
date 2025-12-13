@@ -1,6 +1,6 @@
-"""
-Compression Module
-File compression utilities
+"""Compression Module.
+
+File compression utilities.
 """
 
 class Compression:

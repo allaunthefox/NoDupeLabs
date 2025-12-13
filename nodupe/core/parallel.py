@@ -1,6 +1,6 @@
-"""
-Parallel Module
-Parallel processing utilities
+"""Parallel Module.
+
+Parallel processing utilities.
 """
 
 class Parallel:

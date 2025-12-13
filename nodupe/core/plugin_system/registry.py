@@ -1,19 +1,21 @@
-"""
-Plugin Registry
+"""Plugin Registry
 Singleton registry for managing plugins
 """
 
-from typing import Dict, List, Optional, Any
+from typing import List, Optional, Any
 from .base import Plugin
 
 class PluginRegistry:
     """Singleton registry for managing plugins"""
 
-    _instance = None
+    _instance: Optional['PluginRegistry'] = None
+    _plugins: dict[str, Plugin]
+    _initialized: bool
+    _container: Any
 
-    def __new__(cls):
+    def __new__(cls) -> 'PluginRegistry':
         if cls._instance is None:
-            cls._instance = super().__new__(cls)
+            cls._instance = super().__new__(cls)  # type: ignore
             cls._instance._plugins = {}
             cls._instance._initialized = False
         return cls._instance

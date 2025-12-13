@@ -1,6 +1,6 @@
-"""
-Filesystem Module
-Safe filesystem operations
+"""Filesystem Module.
+
+Safe filesystem operations.
 """
 
 from pathlib import Path

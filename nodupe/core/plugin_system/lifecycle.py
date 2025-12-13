@@ -1,9 +1,8 @@
-"""
-Plugin Lifecycle
+"""Plugin Lifecycle
 Manage plugin lifecycle hooks
 """
 
-from typing import List, Dict, Any
+from typing import Any
 
 class PluginLifecycle:
     """Manage plugin lifecycle events"""

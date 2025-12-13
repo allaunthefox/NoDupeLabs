@@ -1,5 +1,4 @@
-"""
-NoDupeLabs Network Plugins - Network and Distributed Features
+"""NoDupeLabs Network Plugins - Network and Distributed Features
 
 This module provides network-related functionality including remote storage,
 distributed processing, and cloud synchronization with graceful degradation.

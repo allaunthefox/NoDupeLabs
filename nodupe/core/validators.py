@@ -1,6 +1,6 @@
-"""
-Validators Module
-Input validation utilities
+"""Validators Module.
+
+Input validation utilities.
 """
 
 from typing import Any

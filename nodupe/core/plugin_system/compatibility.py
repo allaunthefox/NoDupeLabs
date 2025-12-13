@@ -1,9 +1,6 @@
-"""
-Plugin Compatibility
+"""Plugin Compatibility
 Check plugin compatibility and version requirements
 """
-
-from typing import List, Dict, Any
 
 class PluginCompatibility:
     """Check plugin compatibility"""

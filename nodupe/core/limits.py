@@ -1,6 +1,6 @@
-"""
-Limits Module
-Resource limit enforcement
+"""Limits Module.
+
+Resource limit enforcement.
 """
 
 class Limits:

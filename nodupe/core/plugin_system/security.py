@@ -1,9 +1,6 @@
-"""
-Plugin Security
+"""Plugin Security
 Permission and security management for plugins
 """
-
-from typing import List, Dict, Any
 
 class PluginSecurity:
     """Handle plugin security and permissions"""

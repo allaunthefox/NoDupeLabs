@@ -1,9 +1,9 @@
-"""
-Query Cache
-Cache database query results
+"""Query Cache.
+
+Cache database query results.
 """
 
-from typing import Dict, Any
+from typing import Any
 
 class QueryCache:
     """Cache database query results"""

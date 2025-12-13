@@ -1,18 +1,20 @@
-"""
-API Module
-API stability decorators and utilities
+"""API Module.
+
+API stability decorators and utilities.
 """
 
-from typing import Callable, Any
+from typing import Callable, Any, TypeVar
 
-def stable_api(func: Callable) -> Callable:
+T = TypeVar('T', bound=Callable[..., Any])
+
+def stable_api(func: T) -> T:
     """Mark a function as stable API"""
-    func._stable_api = True
+    func._stable_api = True  # type: ignore
     return func
 
-def deprecated(func: Callable) -> Callable:
+def deprecated(func: T) -> T:
     """Mark a function as deprecated"""
-    func._deprecated = True
+    func._deprecated = True  # type: ignore
     return func
 
 class API:

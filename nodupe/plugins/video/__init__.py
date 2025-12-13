@@ -1,5 +1,4 @@
-"""
-NoDupeLabs Video Plugins - Video Processing Backends
+"""NoDupeLabs Video Plugins - Video Processing Backends
 
 This module provides video processing backends with 5-tier graceful degradation
 for frame extraction, metadata analysis, and perceptual hashing.

@@ -1,5 +1,4 @@
-"""
-NoDupeLabs GPU Plugins - Hardware Acceleration Backends
+"""NoDupeLabs GPU Plugins - Hardware Acceleration Backends
 
 This module provides GPU acceleration backends for various compute-intensive
 operations with graceful degradation to CPU implementations.

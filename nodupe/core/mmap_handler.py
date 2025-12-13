@@ -1,6 +1,6 @@
-"""
-Memory-Mapped File Handler
-Handle memory-mapped files
+"""Memory-Mapped File Handler.
+
+Handle memory-mapped files.
 """
 
 class MMAPHandler:

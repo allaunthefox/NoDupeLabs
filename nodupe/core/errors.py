@@ -1,6 +1,6 @@
-"""
-Errors Module
-Custom exception hierarchy
+"""Errors Module.
+
+Custom exception hierarchy.
 """
 
 class NoDupeError(Exception):

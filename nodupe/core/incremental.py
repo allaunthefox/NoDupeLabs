@@ -1,6 +1,6 @@
-"""
-Incremental Module
-Incremental scanning support
+"""Incremental Module.
+
+Incremental scanning support.
 """
 
 class Incremental:

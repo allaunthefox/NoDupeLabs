@@ -1,9 +1,9 @@
-"""
-Database Transactions
-Transaction management for database operations
+"""Database Transactions.
+
+Transaction management for database operations.
 """
 
-from typing import List, Dict, Any
+from typing import Any
 
 class DatabaseTransactions:
     """Handle database transactions"""

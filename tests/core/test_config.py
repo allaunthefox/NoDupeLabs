@@ -82,8 +82,8 @@ class TestConfigManager:
             try:
                 config_manager = ConfigManager(f.name)
                 db_config = config_manager.get_database_config()
-                assert db_config['path'] == 'test.db'
-                assert db_config['timeout'] == 30
+                assert db_config.get('path') == 'test.db'
+                assert db_config.get('timeout') == 30
             finally:
                 os.unlink(f.name)
 

@@ -1,11 +1,10 @@
-"""
-NoDupeLabs ML Plugins - Machine Learning Backends
+"""NoDupeLabs ML Plugins - Machine Learning Backends
 
 This module provides ML backend implementations for embedding generation
 and other machine learning tasks with graceful degradation.
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Any
 import numpy as np
 import logging
 from abc import ABC, abstractmethod

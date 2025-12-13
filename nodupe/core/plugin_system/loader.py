@@ -1,9 +1,8 @@
-"""
-Plugin Loader
+"""Plugin Loader
 Dynamic plugin loading and management
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict
 from .base import Plugin
 
 class PluginLoader:

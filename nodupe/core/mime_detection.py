@@ -1,6 +1,6 @@
-"""
-MIME Detection Module
-MIME type detection using standard library
+"""MIME Detection Module.
+
+MIME type detection using standard library.
 """
 
 class MIMEDetection:

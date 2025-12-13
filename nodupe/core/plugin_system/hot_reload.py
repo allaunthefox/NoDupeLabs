@@ -1,9 +1,6 @@
-"""
-Plugin Hot Reload
+"""Plugin Hot Reload
 Support for hot reloading plugins during development
 """
-
-from typing import List, Dict, Any
 
 class PluginHotReload:
     """Handle plugin hot reloading"""

@@ -1,5 +1,4 @@
-"""
-NoDupeLabs Commands Plugins - CLI Command Implementations
+"""NoDupeLabs Commands Plugins - CLI Command Implementations
 
 This module provides command implementations for the NoDupeLabs CLI
 with proper argument validation, error handling, and result formatting.

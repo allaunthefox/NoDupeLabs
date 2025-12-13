@@ -1,5 +1,4 @@
-"""
-Plugin Discovery
+"""Plugin Discovery
 Find and identify available plugins
 """
 

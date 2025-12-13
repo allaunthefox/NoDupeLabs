@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-NoDupeLabs Configuration Manager using TOML
+"""NoDupeLabs Configuration Manager using TOML.
 
 This module provides configuration management for NoDupeLabs using TOML files.
 It leverages the Even Better TOML VSCode extension for enhanced TOML support.
@@ -18,13 +17,10 @@ except ImportError:
     sys.exit(1)
 
 class ConfigManager:
-    """
-    Configuration manager for NoDupeLabs that loads and manages TOML configuration files.
-    """
+    """Configuration manager for NoDupeLabs that loads and manages TOML configuration files."""
 
     def __init__(self, config_path: Optional[str] = None):
-        """
-        Initialize the configuration manager.
+        """Initialize the configuration manager.
 
         Args:
             config_path: Path to the TOML configuration file. Defaults to 'pyproject.toml'.
@@ -74,8 +70,7 @@ class ConfigManager:
         return self.get_nodupe_config().get('logging', {})
 
     def get_config_value(self, section: str, key: str, default: Any = None) -> Any:
-        """
-        Get a specific configuration value.
+        """Get a specific configuration value.
 
         Args:
             section: Configuration section (e.g., 'database', 'scan')
@@ -91,8 +86,7 @@ class ConfigManager:
             return default
 
     def validate_config(self) -> bool:
-        """
-        Validate the configuration file structure.
+        """Validate the configuration file structure.
 
         Returns:
             True if configuration is valid, False otherwise
@@ -109,8 +103,7 @@ class ConfigManager:
         return True
 
 def load_config() -> ConfigManager:
-    """
-    Load the NoDupeLabs configuration.
+    """Load the NoDupeLabs configuration.
 
     Returns:
         ConfigManager instance with loaded configuration

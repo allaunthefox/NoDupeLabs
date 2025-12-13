@@ -1,9 +1,9 @@
-"""
-Database Indexing
-Index creation and optimization
+"""Database Indexing.
+
+Index creation and optimization.
 """
 
-from typing import List, Dict, Any
+from typing import Any
 
 class DatabaseIndexing:
     """Handle database indexing"""

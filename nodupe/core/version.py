@@ -1,6 +1,6 @@
-"""
-Version Module
-Version management utilities
+"""Version Module.
+
+Version management utilities.
 """
 
 class Version:
