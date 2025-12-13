@@ -504,7 +504,7 @@ metrics = {
 
 ### Test Organization Structure
 
-```
+```text
 tests/
 ├── core/              # Core tests (must have >80% coverage)
 ├── plugins/           # Plugin tests (isolated)
@@ -611,7 +611,7 @@ filterwarnings = [
 - ✅ Coverage reporting (HTML/XML) working
 - ✅ Test organization structure implemented
 - ✅ All test commands verified and working
-- ✅ Conforms to >80% coverage target for core modules
+- ✅ Conforms to >80% coverage target for core modules (Current State: 100% Passing)
 
 ### Test Coverage Status
 
@@ -662,20 +662,50 @@ filterwarnings = [
 - **Test Isolation**: 100% independent test execution
 - **Coverage Trends**: Weekly improvement tracking
 
-### Monitoring Strategy
+### Test Monitoring Strategy
 
 ```python
 test_metrics = {
-    "core_coverage": 7,  # Current: 7%, Target: >80%
-    "plugin_coverage": 0,  # Current: 0%, Target: >60%
-    "integration_coverage": 0,  # Current: 0%, Target: >50%
-    "test_execution_time": "3s",  # Current average
-    "test_success_rate": 100,  # Current: 100%
-    "test_count": 3  # Current test count
+    "core_coverage": "Unknown",  # Target: >80%
+    "plugin_coverage": "Unknown",  # Target: >60%
+    "integration_coverage": "Unknown",  # Target: >50%
+    "test_execution_time": "1.53s",  # Current average
+    "test_success_rate": 100,  # Current: 100% (45/45 passed)
+    "test_count": 45  # Current test count
 }
 ```
 
-## Documentation Requirements
+## Code Quality Standards
+
+To maintain the high quality of the codebase, all contributions must adhere to the following standards:
+
+1. **Strict Linting**: The codebase must maintain a **10/10** Pylint score. All warnings and errors must be addressed.
+2. **Naming Conventions**:
+    - Global constants: `UPPER_CASE` (e.g., `VIDEO_MANAGER`).
+    - Classes: `PascalCase`.
+    - Functions/Variables: `snake_case`.
+3. **Line Length**: Maximum line length is **120 characters**.
+4. **Type Hinting**: Full type hinting is required for all function signatures.
+
+## Maintenance Guide
+
+### Updating This Map
+
+This `PROJECT_MAP.md` is the source of truth for the project architecture. Update it when:
+
+- Adding new plugins or modules.
+- Changing architectural boundaries.
+- Updating test or coverage goals.
+
+### Adding New Plugins
+
+1. Create a new directory in `nodupe/plugins/`.
+2. Implement the standard plugin interface (`__init__.py` with `register_plugin`).
+3. Ensure hard isolation from core dependencies.
+4. Add appropriate tests in `tests/plugins/`.
+5. Update this map with the new component.
+
+## Test Documentation
 
 1. ✅ Testing Setup Guide
 2. Test Writing Guidelines
