@@ -12,6 +12,7 @@ This directory contains the GitHub Actions workflows for the NoDupeLabs project.
   - Code coverage with pytest-cov
   - Codecov integration for coverage reporting
 
+
 ### 2. Code Quality Checks (`code-quality.yml`)
 - **Trigger**: Push and pull requests to `main` branch
 - **Purpose**: Enforce code quality standards
@@ -24,6 +25,7 @@ This directory contains the GitHub Actions workflows for the NoDupeLabs project.
   - **100% docstring coverage requirement** (strict enforcement)
   - Detailed docstring coverage reporting
 
+
 ### 3. Deployment (`deployment.yml`)
 - **Trigger**: Tag pushes (v*.*.*) and manual workflow dispatch
 - **Purpose**: Automated deployment to PyPI and GitHub Pages
@@ -31,6 +33,7 @@ This directory contains the GitHub Actions workflows for the NoDupeLabs project.
   - PyPI package deployment
   - Documentation deployment to GitHub Pages
   - Sequential deployment (docs after PyPI)
+
 
 ### 4. Comprehensive CI (`ci-comprehensive.yml`)
 - **Trigger**: Push and pull requests to `main` branch
@@ -41,12 +44,14 @@ This directory contains the GitHub Actions workflows for the NoDupeLabs project.
   - Integration tests
   - End-to-end validation
 
+
 ## Secrets Required
 
 For full functionality, the following GitHub secrets should be configured:
 
 - `CODECOV_TOKEN`: Codecov upload token
 - `PYPI_API_TOKEN`: PyPI API token for package deployment
+
 
 ## Workflow Triggers
 
@@ -56,6 +61,7 @@ For full functionality, the following GitHub secrets should be configured:
 - **Manual dispatch**: Can trigger deployment workflow
 
 ## Strict Requirements Enforcement
+
 
 ### 🔒 Pull Request Requirements (Before Merging to Main)
 
@@ -71,6 +77,7 @@ For full functionality, the following GitHub secrets should be configured:
 3. **Comprehensive CI**: All parallel checks must pass
 4. **Branch Protection**: Requires admin approval and code owner reviews
 
+
 ### 📋 Code Quality Standards
 
 - **Linting**: Zero tolerance for linting violations
@@ -78,6 +85,7 @@ For full functionality, the following GitHub secrets should be configured:
 - **Type Checking**: Strict mypy enforcement with full type coverage
 - **Documentation**: 100% docstring coverage mandatory
 - **Testing**: All tests must pass with good coverage
+
 
 ## Best Practices
 
