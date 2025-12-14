@@ -61,6 +61,58 @@ def initialize_database():
     """)
 ```
 
+### 📄 File Metadata Standards
+
+**File**: [`FILE_METADATA_STANDARDS.md`](FILE_METADATA_STANDARDS.md)
+
+**Purpose**: Defines metadata standards for file handling and processing
+
+**Contents**:
+- ISO metadata standards (Dublin Core, EXIF, ID3, ISO BMFF)
+- FIPS 180-4 hash algorithms
+- CSV (RFC 4180) and TSV (ISO/IEC 27032) support
+- File metadata extraction specifications
+- Metadata validation and normalization
+
+**Usage**:
+```python
+# Extract metadata following standards
+metadata = extract_file_metadata(file_path)
+# Returns standardized metadata dict
+```
+
+### 🧵 Python Threading Support
+
+**File**: [`PYTHON_THREADING.md`](PYTHON_THREADING.md)
+
+**Purpose**: Comprehensive guide to Python's modern threading and parallelism features
+
+**Contents**:
+- Python 3.12-3.14 threading evolution
+- Free-threaded mode (PEP 703) - GIL removal
+- Per-interpreter GIL (PEP 684)
+- Multiple interpreters module (PEP 734)
+- Concurrent execution patterns (threading, asyncio, futures)
+- Decision matrix for choosing concurrency models
+- Thread safety considerations
+- Best practices for parallel processing
+- NoDupeLabs implementation recommendations
+
+**Usage**:
+```python
+from concurrent.futures import InterpreterPoolExecutor
+
+# Python 3.14+ parallel execution with interpreters
+with InterpreterPoolExecutor(max_interpreters=4) as executor:
+    results = executor.map(process_file, files)
+
+# Or use free-threaded Python 3.13+
+import sys
+if sys.flags.gil == 0:
+    # Running without GIL - true parallel threading
+    pass
+```
+
 ## Specification Standards
 
 ### Versioning
