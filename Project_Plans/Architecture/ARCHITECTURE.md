@@ -4,6 +4,8 @@
 
 This document outlines the modular architecture for NoDupeLabs with hard isolation between the core loader/orchestrator and all other functions.
 
+**IMPORTANT**: This document reflects the **actual current implementation** as of 2025-12-13, not aspirational goals.
+
 ## Core Architecture Principles
 
 1. **Hard Isolation**: Core loader must be completely isolated from optional functionality
@@ -12,13 +14,25 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 4. **Dependency Injection**: Core services injected rather than hard-coded
 5. **Standard Library Fallback**: When all else fails, use pure Python standard library
 
+## Current Implementation Status
+
+### Legend
+
+- ✅ **IMPLEMENTED** - Fully functional with complete implementation
+- ⚠️ **PARTIAL** - Some functionality implemented, some stubbed
+- ❌ **STUBBED** - File exists but raises NotImplementedError
+- 🚧 **IN PROGRESS** - Active development
+
 ## Module Structure
 
 ### 1. Core Loader/Orchestrator (Mandatory)
 
 **Location**: `nodupe/core/`
 
+**Status**: ✅ **IMPLEMENTED** (Core functionality working)
+
 **Responsibilities**:
+
 - CLI entry point and argument parsing
 - Basic configuration loading
 - Core command routing
@@ -27,61 +41,90 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 - Error handling and graceful degradation
 
 **Key Components**:
-- `main.py` - Entry point with minimal dependencies
-- `cli/` - CLI parsing and routing
-- `container.py` - Service container for DI
-- `plugin_system/` - Plugin management system
-- `deps.py` - Dependency management with graceful fallback
-- `config.py` - Configuration loading
-- `loader.py` - Core loader
+
+- `main.py` - ✅ Entry point with minimal dependencies
+- `cli/` - ✅ CLI parsing and routing
+- `container.py` - ✅ Service container for DI
+- `config.py` - ✅ Configuration loading (TOML support)
+- `loader.py` - ✅ Core loader implementation
+- `plugins.py` - ✅ Plugin integration
+- `deps.py` - ✅ Dependency management with graceful fallback
+- `errors.py` - ✅ Error handling utilities
+- `plugin_system/` - ⚠️ **PARTIAL** (Base implemented, infrastructure stubbed)
+  - `base.py` - ✅ Abstract plugin interface (43 lines)
+  - `registry.py` - ✅ Plugin registry (62 lines)
+  - `loader.py` - ❌ Plugin loading (stub - NotImplementedError)
+  - `lifecycle.py` - ❌ Lifecycle hooks (stub - NotImplementedError)
+  - `discovery.py` - ❌ Plugin discovery (stub - NotImplementedError)
+  - `hot_reload.py` - ❌ Hot reload (stub - NotImplementedError)
+  - `security.py` - ❌ Security checks (stub - NotImplementedError)
+  - `dependencies.py` - ❌ Dependency resolution (stub - NotImplementedError)
+  - `compatibility.py` - ❌ Compatibility checks (stub - NotImplementedError)
 
 **Dependencies**: Standard library only
+
+**Notes**: Core loader works but plugin infrastructure is mostly stubbed.
 
 ### 2. Database Layer (Core)
 
 **Location**: `nodupe/core/database/`
 
+**Status**: ⚠️ **PARTIAL** (Files and connection work, rest stubbed)
+
 **Responsibilities**:
+
 - File metadata storage
 - Duplicate detection
 - Basic indexing
 - Transaction management
 
 **Key Components**:
-- `connection.py` - SQLite connection management with connection pooling
-- `files.py` - File repository with CRUD operations
-- `embeddings.py` - Embedding storage with model versioning
-- `schema.py` - Database schema management
-- `repository.py` - Repository pattern implementation
-- `transactions.py` - Transaction management
-- `indexing.py` - Indexing strategies
+
+- `connection.py` - ✅ SQLite connection management with pooling
+- `files.py` - ✅ File repository with CRUD operations (fully implemented)
+- `embeddings.py` - ✅ Embedding storage with model versioning
+- `schema.py` - ❌ Schema management (stub - NotImplementedError)
+- `repository.py` - ❌ Repository pattern (stub - NotImplementedError)
+- `transactions.py` - ❌ Transaction management (stub - NotImplementedError)
+- `indexing.py` - ❌ Indexing strategies (stub - NotImplementedError)
 
 **Dependencies**: sqlite3 (standard library)
+
+**Notes**: File CRUD operations are fully functional. Schema, transactions, and indexing need implementation.
 
 ### 3. File Processing (Core)
 
 **Location**: `nodupe/core/scan/`
 
+**Status**: ✅ **IMPLEMENTED** (Fully functional)
+
 **Responsibilities**:
+
 - File discovery and walking
 - Hashing and metadata extraction
 - Progress tracking
 - Incremental scanning
 
 **Key Components**:
-- `walker.py` - File system traversal with filtering and error handling
-- `processor.py` - File metadata extraction with duplicate detection
-- `hasher.py` - Cryptographic hashing with multiple algorithms
-- `progress.py` - Progress tracking with time estimation
-- `file_info.py` - File information utilities
+
+- `walker.py` - ✅ File system traversal (fully implemented)
+- `processor.py` - ✅ File metadata extraction (fully implemented)
+- `hasher.py` - ✅ Cryptographic hashing (multiple algorithms)
+- `progress.py` - ✅ Progress tracking with time estimation
+- `file_info.py` - ✅ File information utilities
 
 **Dependencies**: Standard library + hashlib
 
-### 4. Utilities (Core)
+**Notes**: Fully functional scanning system. Incremental scanning mentioned in docs but not yet implemented.
+
+### 4. Core Utilities
 
 **Location**: `nodupe/core/`
 
+**Status**: ❌ **MOSTLY STUBBED** (Most utilities not implemented)
+
 **Responsibilities**:
+
 - Filesystem operations
 - Hashing algorithms
 - Compression utilities
@@ -90,189 +133,155 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 - Resource management
 
 **Key Components**:
-- `filesystem.py` - Path operations and MIME detection
-- `compression.py` - Compression with fallback
-- `mime_detection.py` - MIME type detection
-- `security.py` - Security utilities
-- `validators.py` - Validation utilities
-- `limits.py` - Resource limit management
-- `incremental.py` - Incremental processing
-- `parallel.py` - Parallel processing
-- `mmap_handler.py` - Memory-mapped file handling
-- `pools.py` - Resource pooling
-- `errors.py` - Error handling
-- `logging.py` - Logging utilities
-- `version.py` - Version management
-- `api.py` - Stable API definitions
+
+- `filesystem.py` - ❌ Path operations (stub - NotImplementedError)
+- `compression.py` - ❌ Compression utilities (stub - NotImplementedError)
+- `mime_detection.py` - ❌ MIME detection (stub - NotImplementedError)
+- `security.py` - ❌ Security utilities (stub - NotImplementedError)
+- `validators.py` - ❌ Validation utilities (stub - NotImplementedError)
+- `limits.py` - ❌ Resource limits (stub - NotImplementedError)
+- `incremental.py` - ❌ Incremental processing (stub - NotImplementedError)
+- `parallel.py` - ❌ Parallel processing (stub - NotImplementedError)
+- `mmap_handler.py` - ❌ Memory-mapped files (stub - NotImplementedError)
+- `pools.py` - ❌ Resource pooling (stub - NotImplementedError)
+- `logging.py` - ❌ Logging utilities (stub - NotImplementedError)
+- `version.py` - ❌ Version management (stub - NotImplementedError)
+- `api.py` - ❌ API definitions (stub - NotImplementedError)
 
 **Dependencies**: Standard library only
+
+**Notes**: ⚠️ **CRITICAL GAP** - Most utility functions exist only as stubs!
 
 ### 5. Cache System (Core)
 
 **Location**: `nodupe/core/cache/`
 
+**Status**: ❌ **STUBBED** (All cache modules not implemented)
+
 **Responsibilities**:
+
 - Hash caching
 - Query caching
 - Embedding caching
 - Cache management
 
 **Key Components**:
-- `hash_cache.py` - Hash cache implementation
-- `query_cache.py` - Query cache implementation
-- `embedding_cache.py` - Embedding cache implementation
+
+- `hash_cache.py` - ❌ Hash cache (stub - NotImplementedError)
+- `query_cache.py` - ❌ Query cache (stub - NotImplementedError)
+- `embedding_cache.py` - ❌ Embedding cache (stub - NotImplementedError)
 
 **Dependencies**: Standard library only
 
+**Notes**: ⚠️ **NOT IMPLEMENTED** - Cache system exists only as stubs!
+
 ## Plugin Architecture
-
-### Plugin Interface
-
-```python
-class PluginInterface:
-    def register(self, event: str, callback: Callable):
-        """Register callback for event"""
-        pass
-
-    def emit(self, event: str, **kwargs):
-        """Emit event to all registered callbacks"""
-        pass
-
-    def load_plugins(self, paths: List[str]):
-        """Load plugins from specified paths"""
-        pass
-```
 
 ### Plugin Categories
 
+#### Commands Plugin (Implemented)
+
+**Location**: `nodupe/plugins/commands/`
+
+**Status**: ✅ **IMPLEMENTED** (3 commands working)
+
+- `__init__.py` - ✅ Command manager (613 lines, fully implemented)
+- `scan.py` - ✅ Scan command (113 lines)
+- `apply.py` - ✅ Apply command (115 lines)
+- `similarity.py` - ✅ Similarity command (143 lines)
+
+**Dependencies**: Core modules only
+
+**Notes**: Commands work via plugin manager integration.
+
 #### AI/ML Backends (Plugin)
+
 **Location**: `nodupe/plugins/ml/`
+
+**Status**: ❌ **EMPTY** (Only `__init__.py` exists)
+
+**Planned**:
+
 - NSFW classification
 - Embedding generation
 - Model management
-- Dependencies: Optional (Pillow, ONNX Runtime)
+
+**Dependencies**: Optional (Pillow, ONNX Runtime)
+
+**Notes**: Directory exists but no implementation.
 
 #### GPU Acceleration (Plugin)
+
 **Location**: `nodupe/plugins/gpu/`
+
+**Status**: ❌ **EMPTY** (Only `__init__.py` exists)
+
+**Planned**:
+
 - Hardware-accelerated computing
 - Large-scale operations
 - GPU fallback management
-- Dependencies: Highly optional (torch, tensorflow, pyopencl, wgpu)
+
+**Dependencies**: Highly optional (torch, tensorflow, pyopencl, wgpu)
+
+**Notes**: Directory exists but no implementation.
 
 #### Video Processing (Plugin)
+
 **Location**: `nodupe/plugins/video/`
+
+**Status**: ❌ **EMPTY** (Only `__init__.py` exists)
+
+**Planned**:
+
 - Video processing and analysis
 - Frame extraction
 - Perceptual hashing
 - Metadata extraction
-- Dependencies: Optional (ffmpeg, opencv-python, av, vidgear, wgpu)
+
+**Dependencies**: Optional (ffmpeg, opencv-python, av, vidgear, wgpu)
+
+**Notes**: Directory exists but no implementation.
 
 #### Network Features (Plugin)
+
 **Location**: `nodupe/plugins/network/`
+
+**Status**: ❌ **EMPTY** (Only `__init__.py` exists)
+
+**Planned**:
+
 - Remote storage
 - Distributed processing
 - Cloud synchronization
 - API server
-- Dependencies: Optional (boto3, google-cloud-storage, fastapi, requests)
+
+**Dependencies**: Optional (boto3, google-cloud-storage, fastapi, requests)
+
+**Notes**: Directory exists but no implementation.
 
 #### Similarity Search (Plugin)
+
 **Location**: `nodupe/plugins/similarity/`
+
+**Status**: ❌ **STUBBED** (Structure exists, all methods raise NotImplementedError)
+
+**Planned**:
+
 - Vector similarity search
 - Index management
 - Near-duplicate detection
 - Backend coordination
-- Dependencies: Optional (NumPy, FAISS, Annoy)
 
-#### Commands (Plugin)
-**Location**: `nodupe/plugins/commands/`
-- Command implementations
-- Argument validation
-- Error handling
-- Result formatting
-- Dependencies: Core modules only
+**Dependencies**: Optional (NumPy, FAISS, Annoy)
 
-### Plugin Loading Process
-
-1. Core loader discovers plugin directories
-2. Loads Python modules from plugin directories
-3. Injects plugin manager instance as `pm`
-4. Plugins register callbacks for events
-5. Core emits events during execution
-
-### Event System
-
-**Core Events**:
-- `startup` - Emitted when application starts
-- `shutdown` - Emitted when application exits
-- `scan_start` - Emitted when scan begins
-- `scan_complete` - Emitted when scan finishes
-- `file_processed` - Emitted for each processed file
-
-## Dependency Management
-
-### Dependency Categories
-
-1. **Core Dependencies**: Required for basic functionality
-   - Standard library modules
-   - SQLite (included with Python)
-
-2. **Optional Dependencies**: Enhance functionality but not required
-   - Pillow (image processing)
-   - ONNX Runtime (AI inference)
-   - NumPy (vector operations)
-   - FAISS (similarity search)
-   - PyTorch/TensorFlow (GPU acceleration)
-   - OpenCV (video processing)
-   - FFmpeg (video processing)
-   - Boto3 (AWS S3)
-   - FastAPI (API server)
-
-### Graceful Degradation Strategy
-
-1. **Check availability** of optional dependency
-2. **Attempt installation** if auto-install enabled
-3. **Fallback to alternative** implementation
-4. **Use standard library** as last resort
-5. **Log warnings** but continue execution
-
-## Error Handling
-
-### Error Categories
-
-1. **Fatal Errors**: Cannot continue execution
-   - Database corruption
-   - Configuration errors
-   - Critical file system errors
-
-2. **Recoverable Errors**: Continue with degraded functionality
-   - Missing optional dependencies
-   - Plugin loading failures
-   - Partial scan failures
-
-3. **Transient Errors**: Retry or skip
-   - Network timeouts
-   - Temporary file access issues
-   - Resource constraints
-
-### Error Handling Strategy
-
-```python
-try:
-    # Attempt operation with best available implementation
-    result = best_implementation()
-except ImportError:
-    try:
-        # Fallback to alternative implementation
-        result = fallback_implementation()
-    except Exception:
-        # Final fallback to standard library
-        result = stdlib_fallback()
-        log.warning("Using standard library fallback")
-```
+**Notes**: Interface defined but all methods raise NotImplementedError.
 
 ## Configuration
 
 ### Configuration Structure
+
+**Status**: ✅ **IMPLEMENTED** (TOML configuration working)
 
 ```toml
 # Core configuration (required)
@@ -285,51 +294,9 @@ log_file = "~/.nodupe/nodupe.log"
 [plugins]
 scan_dirs = ["nodupe/plugins"]
 auto_load = true
-
-# ML configuration
-[plugins.ml]
-backend = "auto"  # auto, onnx, cpu
-backend_priority = ["onnx", "cpu"]
-
-# GPU configuration
-[plugins.gpu]
-enabled = true
-backend = "auto"  # auto, cuda, metal, opencl, vulkan
-device_id = 0
-max_memory_mb = 4096
-
-# Video configuration
-[plugins.video]
-enabled = true
-backend = "auto"  # auto, vidgear, pyav, opencv, ffmpeg
-backend_priority = ["vidgear", "pyav", "opencv", "ffmpeg"]
-frames_per_video = 10
-hash_algorithm = "phash"
-use_gpu = true
-
-# Network configuration
-[plugins.network]
-enabled = false
-remote_storage = false
-
-# Similarity configuration
-[plugins.similarity]
-backend = "faiss"  # faiss, annoy, brute_force
-index_type = "ivf"
-
-# Cache configuration
-[cache]
-enable_hash_cache = true
-enable_query_cache = true
-enable_embedding_cache = true
-max_cache_size_mb = 1024
-
-# Performance configuration
-[performance]
-max_workers = 8
-use_mmap_for_large_files = true
-large_file_threshold_mb = 100
 ```
+
+**Notes**: TOML configuration system is functional.
 
 ## Code Quality Standards
 
@@ -337,11 +304,13 @@ All contributions must adhere to the following standards:
 
 1. **Strict Linting**: The codebase must maintain a **10/10** Pylint score
 2. **Naming Conventions**:
-   - Global constants: `UPPER_CASE` (e.g., `VIDEO_MANAGER`)
+   - Global constants: `UPPER_CASE`
    - Classes: `PascalCase`
    - Functions/Variables: `snake_case`
 3. **Line Length**: Maximum line length is **120 characters**
 4. **Type Hinting**: Full type hinting required for all function signatures
+
+**Current Status**: ✅ 10/10 Pylint maintained, 45/45 tests passing
 
 ## Testing Architecture
 
@@ -349,65 +318,110 @@ All contributions must adhere to the following standards:
 
 ```text
 tests/
-├── core/              # Core tests (must have >80% coverage)
+├── core/              # Core tests
 ├── plugins/           # Plugin tests (isolated)
-│   ├── commands/
-│   ├── gpu/
-│   ├── ml/
-│   ├── network/
-│   ├── similarity/
-│   └── video/
 └── integration/       # Integration tests
 ```
 
-### Test Isolation Strategy
+**Current Status**: ✅ 45 tests passing, ⚠️ 13% coverage (needs >60%)
 
-1. **Core Tests**: Run WITHOUT plugin dependencies
-2. **Plugin Tests**: Mock missing dependencies
-3. **Integration Tests**: Use real dependencies
-4. **Fixtures**: Provide database and file system isolation
+## Actual vs Documented Status
 
-## Monitoring and Metrics
+### What Actually Works
 
-### Core Metrics
+1. ✅ **Core loader and CLI** - Entry point and command routing
+2. ✅ **Configuration** - TOML config loading
+3. ✅ **File scanning** - FileWalker and FileProcessor
+4. ✅ **File hashing** - Multiple hash algorithms
+5. ✅ **Database CRUD** - File metadata storage
+6. ✅ **Command plugins** - scan, apply, similarity commands
+7. ✅ **Progress tracking** - Scan progress reporting
 
-- Plugin load success/failure rates
-- Fallback usage statistics
-- Dependency availability tracking
-- Error rates by category
-- Performance impact of fallback modes
+### What Needs Implementation
 
-### Monitoring Strategy
+1. ❌ **Plugin infrastructure** - Loader, lifecycle, discovery, hot reload, security
+2. ❌ **Database features** - Transactions, schema, indexing, repository pattern
+3. ❌ **Cache system** - All cache modules stubbed
+4. ❌ **Core utilities** - Most utility modules stubbed (15+ modules)
+5. ❌ **ML/AI plugins** - Empty directories
+6. ❌ **GPU plugins** - Empty directories
+7. ❌ **Video plugins** - Empty directories
+8. ❌ **Network plugins** - Empty directories
+9. ❌ **Similarity backend** - Stubbed interface only
 
-```python
-metrics = {
-    "plugins_loaded": 0,
-    "plugins_failed": 0,
-    "fallbacks_used": 0,
-    "dependencies_missing": [],
-    "errors_by_type": defaultdict(int)
-}
-```
+### Reality Check
 
-## Plugin Isolation Enforcement
+**Previous Documentation Claimed**:
 
-### Dependency Isolation Requirements
+- "Core architecture 95% complete"
+- "Plugin system 100% complete"
+- "Database layer 100% complete"
 
-1. `nodupe/core` must NEVER import from `nodupe/plugins`
-2. Plugins can only import from `nodupe/core`
-3. Plugins must NOT import from other plugins
-4. All dependencies must go through the DI container
+**Actual Status**:
 
-### Import Verification
+- ✅ **Core scanning**: 100% (works perfectly)
+- ⚠️ **Core utilities**: ~10% (mostly stubs)
+- ⚠️ **Database**: ~40% (CRUD works, transactions/schema/indexing stubbed)
+- ⚠️ **Plugin system**: ~30% (base + registry work, infrastructure stubbed)
+- ❌ **Cache system**: 0% (all stubs)
+- ❌ **ML/GPU/Video/Network plugins**: 0% (empty directories)
+- ✅ **Commands**: 100% (3 commands fully functional)
 
-- Automated import boundary checking in CI/CD
-- Dependency graph visualization
-- Pre-commit hooks to prevent violations
+**Honest Assessment**: ~35-40% of planned architecture actually implemented
+
+## Priority Implementation Needs
+
+### Critical (Blocking Basic Functionality)
+
+1. Implement plugin loader (currently stub)
+2. Implement database transactions
+3. Implement basic utilities (filesystem, logging, validators)
+4. Implement cache system
+
+### High Priority (Needed for Production)
+
+1. Plugin lifecycle management
+2. Plugin discovery and security
+3. Database schema management
+4. Resource management utilities
+
+### Medium Priority (Enhanced Features)
+
+1. ML/AI backends
+2. Similarity search backend
+3. Video processing
+4. Network features
+
+### Low Priority (Nice to Have)
+
+1. GPU acceleration
+2. Hot reload
+3. Advanced caching strategies
 
 ## Documentation Requirements
 
-1. Plugin Development Guide
-2. Dependency Management Guide
-3. Error Handling Best Practices
-4. Configuration Reference
-5. Migration Guide from Legacy
+1. ❌ Plugin Development Guide - NOT IMPLEMENTED
+2. ❌ Dependency Management Guide - NOT IMPLEMENTED
+3. ❌ Error Handling Best Practices - NOT IMPLEMENTED
+4. ⚠️ Configuration Reference - PARTIAL (TOML documented)
+5. ❌ Migration Guide from Legacy - NOT IMPLEMENTED
+
+**Status**: Documentation lags significantly behind even the partial implementation.
+
+## Conclusion
+
+The NoDupeLabs architecture has a **solid foundation** for file scanning and basic database operations, but much of the advanced plugin infrastructure and utility systems are **not yet implemented**. The core scanning functionality works well, but many supporting systems exist only as stubs.
+
+**Next Steps**:
+
+1. Implement stubbed core utilities (priority: filesystem, logging, validators)
+2. Implement plugin loader and lifecycle management
+3. Implement database transactions and schema management
+4. Implement cache system
+5. Then move to advanced features (ML, GPU, video, network)
+
+**Last Updated**: 2025-12-13
+
+**Maintainer**: NoDupeLabs Development Team
+
+**Status**: Active Development - Phase 2 (Core Isolation) - ~40% Complete
