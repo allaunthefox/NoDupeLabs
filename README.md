@@ -105,7 +105,7 @@ Contributions are welcome! Please see [Project_Plans/TODOS.md](Project_Plans/TOD
 
 The project includes a comprehensive automated CI/CD pipeline:
 
-- **Automated Testing**: Runs on Python 3.8, 3.9, 3.10, and 3.11
+- **Automated Testing**: Runs on Python 3.8, 3.9, 3.10, 3.11, 3.12, 3.13, and 3.14
 - **Code Quality**: Pylint, mypy type checking, black formatting, isort import sorting
 - **Coverage Reporting**: pytest with XML, HTML, and terminal coverage reports
 - **Security Scanning**: Automated security checks with bandit and safety

@@ -275,10 +275,10 @@ The project includes a comprehensive automated CI/CD pipeline implemented with G
 
 **Features**:
 
-- **Multi-Python Testing**: Tests run on Python 3.8, 3.9, 3.10, and 3.11
+- **Multi-Python Testing**: Tests run on Python 3.8, 3.9, 3.10, 3.11, 3.12, and 3.13
 - **Code Quality Gates**: 
-  - Pylint with 10.0 threshold (current: 9.97/10)
-  - Mypy strict type checking
+ - Pylint with 10.0 threshold (current: 9.97/10)
+ - Mypy strict type checking
   - Black formatting validation
   - isort import sorting validation
   - flake8 linting
