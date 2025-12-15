@@ -468,6 +468,185 @@ When using free-threaded Python, ensure:
 4. **Update Dependencies**: Ensure libraries are free-threading compatible
 5. **Monitor Performance**: 5-10% overhead acceptable for parallelism gains
 
+### NoDupeLabs Specific Best Practices
+
+#### GIL Detection and Adaptation
+- **Always detect GIL status** at runtime using `sys.flags.gil`
+- **Use RLock instead of Lock** when possible for better re-entrancy
+- **Adjust worker counts** based on free-threaded status (2x in free-threaded mode)
+- **Prefer InterpreterPoolExecutor** for CPU-bound tasks in Python 3.14+
+
+#### Code Examples for GIL-Aware Programming
+
+**Example 1: Adaptive Worker Count**
+```python
+import sys
+from multiprocessing import cpu_count
+
+def get_optimal_workers(task_type='cpu'):
+    cpu_cores = cpu_count()
+
+    if hasattr(sys, 'flags') and getattr(sys.flags, 'gil', 1) == 0:
+        # Free-threaded Python - can use more workers
+        if task_type == 'cpu':
+            return cpu_cores * 2
+        else:
+            return min(32, cpu_cores * 2)
+    else:
+        # Traditional GIL mode - be conservative
+        if task_type == 'cpu':
+            return min(32, cpu_cores)
+        else:
+            return min(32, cpu_cores * 2)
+```
+
+**Example 2: Smart Executor Selection**
+```python
+def smart_executor(func, items, task_type='cpu'):
+    import sys
+
+    major, minor = sys.version_info.major, sys.version_info.minor
+
+    if task_type == 'cpu':
+        if major >= 3 and minor >= 14:
+            # Use InterpreterPoolExecutor for Python 3.14+
+            from concurrent.futures import InterpreterPoolExecutor
+            with InterpreterPoolExecutor() as executor:
+                return list(executor.map(func, items))
+        elif hasattr(sys, 'flags') and getattr(sys.flags, 'gil', 1) == 0:
+            # Free-threaded Python - use threads
+            from concurrent.futures import ThreadPoolExecutor
+            with ThreadPoolExecutor() as executor:
+                return list(executor.map(func, items))
+        else:
+            # Traditional Python - use processes
+            from concurrent.futures import ProcessPoolExecutor
+            with ProcessPoolExecutor() as executor:
+                return list(executor.map(func, items))
+    else:  # I/O-bound
+        # Always use threads for I/O
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor() as executor:
+            return list(executor.map(func, items))
+```
+
+**Example 3: Free-Threaded Compatible Pool Creation**
+```python
+from nodupe.core.pools import Pools
+
+# Use optimized pool creation that adapts to Python version
+pool = Pools.create_pool_optimized(
+    factory=lambda: create_database_connection(),
+    max_size=10
+)
+
+# Or for worker pools
+worker_pool = Pools.create_worker_pool_optimized(
+    workers=4,
+    queue_size=100
+)
+```
+
+#### Thread Safety in Free-Threading Mode
+- **Always use proper synchronization** - don't assume GIL protection
+- **Test with both GIL and free-threaded modes** during development
+- **Use atomic operations** for simple counters and flags
+- **Prefer immutable data structures** when possible
+- **Implement proper cleanup** in context managers
+
+#### Performance Optimization Strategies
+- **For CPU-bound tasks**:
+  - Python 3.14+ → InterpreterPoolExecutor
+  - Free-threaded Python 3.13 → ThreadPoolExecutor
+  - Traditional Python → ProcessPoolExecutor
+- **For I/O-bound tasks**: Always use ThreadPoolExecutor
+- **For mixed workloads**: Use smart selection based on Python version and task type
+- **Pool sizing**: Double sizes in free-threaded mode for better resource utilization
+
+#### Worker Pool Optimizations
+- **Use optimized factory methods** - Use `Pools.create_worker_pool_optimized()` for automatic worker count scaling
+- **Check free-threaded status** - Worker pools automatically double worker counts in free-threaded mode
+- **Use RLock for better re-entrancy** - All pools now use RLock for improved free-threaded compatibility
+- **Adaptive worker counts** - `get_optimal_workers()` returns 2x workers in free-threaded mode
+
+#### Error Handling Considerations
+- **Concurrent exceptions** require more robust error handling
+- **Resource cleanup** must be thread-safe and atomic
+- **Timeout handling** should account for different execution models
+- **Logging** should include thread/interpreter context for debugging
+
+#### Complete Usage Example
+**Optimized Parallel Processing Pipeline:**
+```python
+from nodupe.core.parallel import Parallel, parallel_map
+from nodupe.core.pools import Pools
+
+def process_large_dataset(data_chunks):
+    """Process data chunks in parallel with automatic optimization."""
+
+    # Automatic executor selection based on Python version
+    if Parallel.is_free_threaded():
+        print(f"Free-threaded Python detected - using {Parallel.get_optimal_workers('cpu')} workers")
+        results = Parallel.smart_map(
+            func=process_chunk,
+            items=data_chunks,
+            task_type='cpu',
+            workers=Parallel.get_optimal_workers('cpu')
+        )
+    elif Parallel.supports_interpreter_pool():
+        print("Python 3.14+ detected - using InterpreterPoolExecutor")
+        results = Parallel.map_parallel(
+            func=process_chunk,
+            items=data_chunks,
+            use_interpreters=True,
+            workers=Parallel.get_optimal_workers('cpu')
+        )
+    else:
+        print("Traditional Python - using ProcessPoolExecutor")
+        results = Parallel.map_parallel(
+            func=process_chunk,
+            items=data_chunks,
+            use_processes=True,
+            workers=Parallel.get_optimal_workers('cpu')
+        )
+
+    return results
+
+def setup_optimized_pools():
+    """Create optimized pools based on Python version."""
+
+    # Optimized object pool
+    obj_pool = Pools.create_pool_optimized(
+        factory=lambda: create_processing_object(),
+        max_size=20
+    )
+
+    # Optimized connection pool (2x connections in free-threaded mode)
+    conn_pool = Pools.create_connection_pool_optimized(
+        connect_func=lambda: create_db_connection(),
+        max_connections=10
+    )
+
+    # Optimized worker pool (2x workers in free-threaded mode)
+    worker_pool = Pools.create_worker_pool_optimized(
+        workers=4,
+        queue_size=200
+    )
+
+    return obj_pool, conn_pool, worker_pool
+
+# Example usage
+if __name__ == "__main__":
+    # Set up optimized infrastructure
+    obj_pool, conn_pool, worker_pool = setup_optimized_pools()
+
+    # Process data with automatic optimization
+    data = load_large_dataset()
+    results = process_large_dataset(data)
+```
+
+These best practices ensure your NoDupeLabs code remains compatible across different Python versions while taking advantage of the latest threading innovations.
+
 ### Subinterpreters
 
 1. **Isolate Untrusted Code**: Great for plugin systems
@@ -486,86 +665,363 @@ When using free-threaded Python, ensure:
 
 ## 8. NoDupeLabs Implementation Recommendations
 
-Based on our parallel processing modules (`parallel.py`, `pools.py`), here are recommended updates:
+Based on our parallel processing modules (`parallel.py`, `pools.py`), here are the current implementations and recommendations:
 
-### Current Implementation
+### Current Implementation Status
 
-Our current implementation uses:
+Our current implementation now includes:
 - ✅ `ThreadPoolExecutor` for I/O-bound tasks
 - ✅ `ProcessPoolExecutor` for CPU-bound tasks
-- ✅ Thread-safe pools and queues
+- ✅ `InterpreterPoolExecutor` for Python 3.14+ CPU-bound tasks
+- ✅ Thread-safe pools and queues with RLock optimization
 - ✅ Proper resource cleanup with context managers
+- ✅ Smart executor selection with `smart_map()`
+- ✅ Free-threaded Python detection and adaptation
+- ✅ Optimized factory methods in `Pools` class
+
+### Pool Optimization Features
+
+**Object Pool Optimizations:**
+- ✅ `is_free_threaded` property for runtime detection
+- ✅ `get_optimal_pool_size()` method for adaptive sizing
+- ✅ RLock usage for better re-entrancy in free-threaded mode
+- ✅ `create_pool_optimized()` factory method with adaptive sizing
+
+**Connection Pool Optimizations:**
+- ✅ `is_free_threaded` property for runtime detection
+- ✅ `create_connection_pool_optimized()` factory method with 2x connection capacity in free-threaded mode
+
+**Worker Pool Optimizations:**
+- ✅ `is_free_threaded` property for runtime detection
+- ✅ `get_optimal_workers()` method for adaptive worker counts
+- ✅ RLock usage for better free-threaded compatibility
+- ✅ `create_worker_pool_optimized()` factory method with adaptive worker counts
+
+### Pool-Related Code Examples
+
+**Example 1: Optimized Pool Creation**
+```python
+from nodupe.core.pools import Pools
+
+# Use optimized factory methods that adapt to Python version
+object_pool = Pools.create_pool_optimized(
+    factory=lambda: create_cache_object(),
+    max_size=10
+)
+
+connection_pool = Pools.create_connection_pool_optimized(
+    connect_func=lambda: create_database_connection(),
+    max_connections=10
+)
+
+worker_pool = Pools.create_worker_pool_optimized(
+    workers=4,
+    queue_size=100
+)
+
+# Check if running in free-threaded mode
+if worker_pool.is_free_threaded:
+    print(f"Worker pool optimized for free-threaded Python with {worker_pool.get_optimal_workers()} workers")
+```
+
+**Example 2: Pool Size Adaptation**
+```python
+from nodupe.core.pools import ObjectPool
+
+# Create pool with adaptive sizing
+pool = ObjectPool(
+    factory=lambda: create_resource(),
+    max_size=10
+)
+
+# Get optimal size based on expected concurrent usage
+optimal_size = pool.get_optimal_pool_size(estimated_concurrent_usage=8)
+print(f"Optimal pool size for current Python version: {optimal_size}")
+```
+
+**Example 3: Runtime Pool Optimization**
+```python
+from nodupe.core.pools import Pools
+
+# Check the current threading model
+if Pools.is_free_threaded():
+    print("Running in free-threaded mode - pools will use enhanced threading")
+    # Pools automatically use more aggressive optimization strategies
+else:
+    print("Running with GIL - using traditional threading strategies")
+
+# Create appropriately sized pools
+pool = Pools.create_pool_optimized(
+    factory=lambda: create_worker_object(),
+    max_size=5  # Will be doubled to 10 in free-threaded mode
+)
+```
 
 ### Recommended Enhancements
 
-#### 1. Add Free-Threading Detection
+#### 1. NoDupeLabs Implementation Status
 
+The NoDupeLabs parallel processing modules have been updated with comprehensive support for modern Python threading:
+
+**Free-Threading Detection and Optimization:**
+- ✅ `Parallel.is_free_threaded()` - Detects free-threaded mode at runtime
+- ✅ `Parallel.get_python_version_info()` - Gets current Python version
+- ✅ `Parallel.supports_interpreter_pool()` - Checks for InterpreterPoolExecutor support
+- ✅ `Parallel.get_optimal_workers()` - Returns optimized worker counts based on Python version
+
+**Interpreter Pool Executor Support:**
+- ✅ `use_interpreters` parameter added to `process_in_parallel()`, `map_parallel()`, `map_parallel_unordered()`, `process_batches()`, and `reduce_parallel()` methods
+- ✅ Automatic selection via `smart_map()` function that intelligently chooses the best executor
+
+**Updated Code Examples:**
+
+**Example 1: Basic Interpreter Pool Usage**
 ```python
-import sys
+from nodupe.core.parallel import Parallel
 
-class Parallel:
-    @staticmethod
-    def is_free_threaded() -> bool:
-        """Check if running in free-threaded mode."""
-        return hasattr(sys, 'flags') and getattr(sys.flags, 'gil', 1) == 0
+# Explicit interpreter usage (Python 3.14+)
+results = Parallel.map_parallel(
+    func=cpu_intensive_task,
+    items=data,
+    use_interpreters=True,
+    workers=4
+)
 
-    @staticmethod
-    def get_optimal_workers() -> int:
-        """Get optimal worker count based on Python version."""
-        if Parallel.is_free_threaded():
-            # Free-threaded: use more threads for CPU work
-            return cpu_count() * 2
-        else:
-            # GIL present: conservative thread count
-            return min(32, cpu_count())
+# Smart execution that automatically chooses best executor
+results = Parallel.smart_map(
+    func=cpu_intensive_task,
+    items=data,
+    task_type='cpu',  # or 'io' for I/O-bound tasks
+    workers=4
+)
 ```
 
-#### 2. Add InterpreterPoolExecutor Support (Python 3.14+)
-
+**Example 2: Updated Convenience Functions**
 ```python
-from concurrent.futures import InterpreterPoolExecutor
+from nodupe.core.parallel import parallel_map, parallel_filter, parallel_starmap
 
-class Parallel:
-    @staticmethod
-    def map_with_interpreters(func, items, workers=None):
-        """Map using subinterpreters (Python 3.14+)."""
-        if sys.version_info >= (3, 14):
-            with InterpreterPoolExecutor(max_interpreters=workers) as executor:
-                return list(executor.map(func, items))
-        else:
-            # Fallback to ProcessPoolExecutor
-            return Parallel.map_parallel(func, items, workers, use_processes=True)
+# All convenience functions now support interpreter pools
+results = parallel_map(
+    func=process_item,
+    items=data,
+    use_processes=False,
+    use_interpreters=True  # Python 3.14+ only
+)
+
+filtered = parallel_filter(
+    predicate=is_duplicate,
+    items=files,
+    use_interpreters=True
+)
+
+results = parallel_starmap(
+    func=process_file_with_params,
+    args_list=param_tuples,
+    use_interpreters=True
+)
+
+**Example 3: Complete Interpreter Pool Usage Pattern**
+```python
+from nodupe.core.parallel import Parallel
+
+# Detect Python capabilities
+if Parallel.supports_interpreter_pool():
+    print("Using InterpreterPoolExecutor for maximum efficiency")
+    results = Parallel.map_parallel(
+        func=cpu_intensive_hash_calculation,
+        items=large_file_list,
+        use_interpreters=True,
+        workers=Parallel.get_optimal_workers('cpu')
+    )
+elif Parallel.is_free_threaded():
+    print("Using ThreadPoolExecutor in free-threaded mode")
+    results = Parallel.map_parallel(
+        func=cpu_intensive_hash_calculation,
+        items=large_file_list,
+        use_processes=False,
+        workers=Parallel.get_optimal_workers('cpu')
+    )
+else:
+    print("Using ProcessPoolExecutor with GIL")
+    results = Parallel.map_parallel(
+        func=cpu_intensive_hash_calculation,
+        items=large_file_list,
+        use_processes=True,
+        workers=Parallel.get_optimal_workers('cpu')
+    )
+
+# Or use the smart_map for automatic selection
+results = Parallel.smart_map(
+    func=cpu_intensive_hash_calculation,
+    items=large_file_list,
+    task_type='cpu'
+)
 ```
 
-#### 3. Smart Executor Selection
+### Parallel Processing API
+
+The NoDupeLabs project includes a comprehensive `Parallel` class that provides intelligent executor selection based on Python version and threading capabilities:
+
+#### Core Detection Methods
 
 ```python
-class Parallel:
-    @staticmethod
-    def smart_map(func, items, task_type='auto', workers=None):
-        """
-        Intelligently choose executor based on:
-        - Python version
-        - Task type (CPU/IO)
-        - Free-threading availability
-        """
-        if task_type == 'auto':
-            # Auto-detect based on function inspection
-            task_type = 'cpu' if is_cpu_bound(func) else 'io'
+from nodupe.core.parallel import Parallel
 
-        if task_type == 'cpu':
-            if sys.version_info >= (3, 14):
-                # Use InterpreterPoolExecutor
-                return map_with_interpreters(func, items, workers)
-            elif Parallel.is_free_threaded():
-                # Use threads in free-threaded mode
-                return map_parallel(func, items, workers, use_processes=False)
-            else:
-                # Use processes (traditional approach)
-                return map_parallel(func, items, workers, use_processes=True)
-        else:  # I/O-bound
-            # Always use threads for I/O
-            return map_parallel(func, items, workers, use_processes=False)
+# Check if running in free-threaded mode
+if Parallel.is_free_threaded():
+    print("Running in free-threaded mode")
+
+# Get Python version information
+major, minor = Parallel.get_python_version_info()
+
+# Check if InterpreterPoolExecutor is available (Python 3.14+)
+supports_interpreters = Parallel.supports_interpreter_pool()
+```
+
+#### Core Processing Methods
+
+**Process in Parallel:**
+```python
+# Basic usage
+results = Parallel.process_in_parallel(
+    func=worker_function,
+    items=data_list,
+    workers=4,
+    use_processes=False,  # Use threads
+    use_interpreters=True  # Python 3.14+ only
+)
+
+# With timeout
+results = Parallel.process_in_parallel(
+    func=worker_function,
+    items=data_list,
+    timeout=30.0
+)
+```
+
+**Map Operations:**
+```python
+# Parallel mapping with interpreter support
+results = Parallel.map_parallel(
+    func=processor,
+    items=data,
+    workers=6,
+    use_processes=False,
+    use_interpreters=True  # Use interpreters when available
+)
+
+# Unordered mapping (returns results as they complete)
+for result in Parallel.map_parallel_unordered(
+    func=processor,
+    items=data,
+    use_interpreters=True
+):
+    print(f"Result: {result}")
+```
+
+**Batch Processing:**
+```python
+# Process items in batches in parallel
+batch_results = Parallel.process_batches(
+    func=batch_processor,
+    items=large_dataset,
+    batch_size=100,
+    use_interpreters=True
+)
+```
+
+**Map-Reduce Operations:**
+```python
+def map_func(item):
+    # Process item and return intermediate result
+    return process_item(item)
+
+def reduce_func(a, b):
+    # Combine results
+    return combine_results(a, b)
+
+final_result = Parallel.reduce_parallel(
+    map_func=map_func,
+    reduce_func=reduce_func,
+    items=dataset,
+    use_interpreters=True,
+    initial=initial_value
+)
+```
+
+#### Smart Execution Methods
+
+**Automatic Executor Selection:**
+```python
+# Smart map automatically chooses the best executor based on Python version and task type
+results = Parallel.smart_map(
+    func=cpu_intensive_function,
+    items=data,
+    task_type='cpu',  # 'cpu' or 'io'
+    workers=Parallel.get_optimal_workers('cpu')
+)
+
+# Get optimal worker count based on system and Python version
+optimal_workers = Parallel.get_optimal_workers(task_type='cpu')
+```
+
+#### Convenience Functions
+
+All convenience functions now support interpreter pools:
+
+```python
+from nodupe.core.parallel import parallel_map, parallel_filter, parallel_partition, parallel_starmap
+
+# Parallel mapping with interpreter support
+results = parallel_map(
+    func=processor,
+    items=data,
+    use_interpreters=True
+)
+
+# Parallel filtering
+filtered = parallel_filter(
+    predicate=is_duplicate,
+    items=files,
+    use_interpreters=True
+)
+
+# Parallel partitioning
+cpu_items, io_items = parallel_partition(
+    predicate=is_cpu_intensive,
+    items=work_items,
+    use_interpreters=True
+)
+
+# Parallel starmapping for functions with multiple arguments
+results = parallel_starmap(
+    func=process_with_params,
+    args_list=[(arg1, arg2), (arg3, arg4)],
+    use_interpreters=True
+)
+
+#### Progress Tracking
+
+The `ParallelProgress` class provides thread-safe progress tracking for parallel operations:
+
+```python
+from nodupe.core.parallel import ParallelProgress
+
+# Create progress tracker
+progress = ParallelProgress(total=len(items))
+
+# Use in parallel operations with thread-safe increment
+def process_with_progress(item):
+    result = process_item(item)
+    progress.increment(success=True)  # Thread-safe increment
+    return result
+
+# Monitor progress in real-time
+import time
+while not progress.is_complete:
+    completed, failed, percentage = progress.get_progress()
+    print(f"Progress: {percentage:.1f}% ({completed} completed, {failed} failed)")
+    time.sleep(1)
 ```
 
 ### Version Compatibility Matrix
@@ -575,8 +1031,184 @@ class Parallel:
 | 3.12 | ProcessPoolExecutor | ThreadPoolExecutor |
 | 3.13 (normal) | ProcessPoolExecutor | ThreadPoolExecutor |
 | 3.13t (free-threaded) | ThreadPoolExecutor | ProcessPoolExecutor |
-| 3.14+ | InterpreterPoolExecutor | ProcessPoolExecutor |
+| 3.14+ | InterpreterPoolExecutor | ThreadPoolExecutor |
 | 3.14t+ (free-threaded) | ThreadPoolExecutor | InterpreterPoolExecutor |
+
+### Practical Usage Examples
+
+Here are complete working examples that demonstrate the new parallel processing capabilities:
+
+#### Example 1: Duplicate Detection with Parallel Processing
+
+```python
+from nodupe.core.parallel import Parallel, parallel_map
+import hashlib
+
+def calculate_file_hash(file_path):
+    """Calculate hash for a file."""
+    try:
+        with open(file_path, 'rb') as f:
+            return hashlib.md5(f.read()).hexdigest()
+    except Exception:
+        return None
+
+def find_duplicates(file_paths):
+    """Find duplicate files using parallel processing."""
+
+    if Parallel.supports_interpreter_pool():
+        # Python 3.14+: Use interpreter pools for maximum performance
+        hashes = parallel_map(
+            func=calculate_file_hash,
+            items=file_paths,
+            use_interpreters=True,
+            workers=Parallel.get_optimal_workers('cpu')
+        )
+    elif Parallel.is_free_threaded():
+        # Free-threaded Python: Use threads for CPU-bound work
+        hashes = parallel_map(
+            func=calculate_file_hash,
+            items=file_paths,
+            workers=Parallel.get_optimal_workers('cpu')
+        )
+    else:
+        # Traditional Python: Use processes to bypass GIL
+        hashes = parallel_map(
+            func=calculate_file_hash,
+            items=file_paths,
+            use_processes=True,
+            workers=Parallel.get_optimal_workers('cpu')
+        )
+
+    # Group files by hash to find duplicates
+    hash_to_files = {}
+    for path, hash_val in zip(file_paths, hashes):
+        if hash_val:
+            if hash_val not in hash_to_files:
+                hash_to_files[hash_val] = []
+            hash_to_files[hash_val].append(path)
+
+    return {h: files for h, files in hash_to_files.items() if len(files) > 1}
+```
+
+#### Example 2: Smart Executor Selection
+
+```python
+from nodupe.core.parallel import Parallel
+
+def process_large_dataset(data_items):
+    """Process a large dataset using smart execution."""
+
+    # Use smart_map for automatic executor selection
+    results = Parallel.smart_map(
+        func=process_item,
+        items=data_items,
+        task_type='cpu',  # or 'io' for I/O-bound tasks
+        workers=Parallel.get_optimal_workers('cpu')
+    )
+
+    return results
+
+def adaptive_batch_processing(large_dataset):
+    """Process large datasets in batches with adaptive parallelism."""
+
+    # Calculate optimal batch size based on Python capabilities
+    optimal_workers = Parallel.get_optimal_workers('cpu')
+    batch_size = max(10, len(large_dataset) // (optimal_workers * 2))
+
+    batch_results = Parallel.process_batches(
+        func=process_batch,
+        items=large_dataset,
+        batch_size=batch_size,
+        use_interpreters=True if Parallel.supports_interpreter_pool() else False
+    )
+
+    return batch_results
+```
+
+#### Example 3: Progress Tracking and Error Handling
+
+```python
+from nodupe.core.parallel import Parallel, ParallelProgress
+
+def robust_parallel_processing(items, processor_func):
+    """Process items with progress tracking and error handling."""
+
+    progress = ParallelProgress(total=len(items))
+    successful_results = []
+    failed_items = []
+
+    # Process in parallel with progress tracking
+    results_with_status = Parallel.process_in_parallel(
+        func=lambda item: (processor_func(item), item, True),  # (result, item, success)
+        items=items,
+        use_interpreters=True if Parallel.supports_interpreter_pool() else False
+    )
+
+    for result, item, success in results_with_status:
+        if success:
+            successful_results.append(result)
+            progress.increment(success=True)
+        else:
+            failed_items.append(item)
+            progress.increment(success=False)
+
+    return successful_results, failed_items
+```
+
+#### Example 4: Pool Optimization for Resource Management
+
+```python
+from nodupe.core.pools import Pools
+
+def setup_optimized_infrastructure():
+    """Set up optimized pools based on Python version."""
+
+    # Create optimized pools that adapt to free-threaded vs GIL-locked Python
+    worker_pool = Pools.create_worker_pool_optimized(
+        workers=4,
+        queue_size=100
+    )
+
+    connection_pool = Pools.create_connection_pool_optimized(
+        connect_func=create_db_connection,
+        max_connections=10
+    )
+
+    object_pool = Pools.create_pool_optimized(
+        factory=create_processing_object,
+        max_size=20
+    )
+
+    return worker_pool, connection_pool, object_pool
+```
+
+#### Optimization and Smart Execution Patterns
+
+The NoDupeLabs parallel module includes several optimization patterns that automatically adapt to the Python environment:
+
+**Automatic Worker Count Optimization:**
+```python
+# Get optimal worker count based on Python version and system capabilities
+optimal_cpu_workers = Parallel.get_optimal_workers(task_type='cpu')
+optimal_io_workers = Parallel.get_optimal_workers(task_type='io')
+
+# Workers are automatically doubled in free-threaded mode for better utilization
+print(f"Optimal CPU workers: {optimal_cpu_workers}")
+```
+
+**Smart Task Distribution:**
+```python
+def adaptive_processing_pipeline(data):
+    """Use smart execution for optimal performance."""
+
+    # Smart map automatically selects the best execution strategy
+    return Parallel.smart_map(
+        func=process_item,
+        items=data,
+        task_type='auto',  # Automatically detects CPU vs I/O bound
+        workers=Parallel.get_optimal_workers('cpu')
+    )
+```
 
 ---
 

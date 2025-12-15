@@ -8,12 +8,14 @@ Key Features:
     - Object pool for resource reuse
     - Pool lifecycle management
     - Thread-safe operations
+    - Free-threaded Python compatible
     - Standard library only (no external dependencies)
 
 Dependencies:
     - threading (standard library)
     - queue (standard library)
     - contextlib (standard library)
+    - sys (for GIL detection)
 """
 
 import threading
@@ -21,6 +23,7 @@ import queue
 from typing import Any, Callable, Optional, Generic, TypeVar, List
 from contextlib import contextmanager
 import time
+import sys
 
 
 class PoolError(Exception):
@@ -30,11 +33,20 @@ class PoolError(Exception):
 T = TypeVar('T')
 
 
+def _is_free_threaded() -> bool:
+    """Check if running in free-threaded mode (Python 3.13+ with --disable-gil).
+
+    Returns:
+        True if running in free-threaded mode, False otherwise
+    """
+    return hasattr(sys, 'flags') and getattr(sys.flags, 'gil', 1) == 0
+
+
 class ObjectPool(Generic[T]):
     """Generic object pool for resource reuse.
 
     Maintains a pool of reusable objects with automatic lifecycle management.
-    Thread-safe for concurrent access.
+    Thread-safe for concurrent access and free-threading compatible.
     """
 
     def __init__(
@@ -43,7 +55,8 @@ class ObjectPool(Generic[T]):
         max_size: int = 10,
         timeout: float = 5.0,
         reset_func: Optional[Callable[[T], None]] = None,
-        destroy_func: Optional[Callable[[T], None]] = None
+        destroy_func: Optional[Callable[[T], None]] = None,
+        use_rlock: bool = True  # Use RLock instead of Lock for better free-threaded compatibility
     ):
         """Initialize object pool.
 
@@ -53,6 +66,7 @@ class ObjectPool(Generic[T]):
             timeout: Timeout for acquiring objects
             reset_func: Function to reset object before reuse
             destroy_func: Function to destroy object when removing from pool
+            use_rlock: Use RLock instead of Lock for recursive locking in free-threaded mode
         """
         self.factory = factory
         self.max_size = max_size
@@ -62,8 +76,38 @@ class ObjectPool(Generic[T]):
 
         self._pool = queue.Queue(maxsize=max_size)
         self._active_count = 0
-        self._lock = threading.Lock()
+        self._lock = threading.RLock() if use_rlock else threading.Lock()
         self._closed = False
+        self._is_free_threaded = _is_free_threaded()
+
+    @property
+    def is_free_threaded(self) -> bool:
+        """Check if running in free-threaded mode.
+
+        Returns:
+            True if running in free-threaded mode, False otherwise
+        """
+        return self._is_free_threaded
+
+    def get_optimal_pool_size(self, estimated_concurrent_usage: Optional[int] = None) -> int:
+        """Get optimal pool size based on Python version and usage patterns.
+
+        Args:
+            estimated_concurrent_usage: Expected number of concurrent users
+
+        Returns:
+            Optimal pool size
+        """
+        if estimated_concurrent_usage is not None:
+            if self._is_free_threaded:
+                # In free-threaded mode, can support more concurrent usage
+                return max(self.max_size, estimated_concurrent_usage * 2)
+            else:
+                # With GIL, be more conservative
+                return max(self.max_size, estimated_concurrent_usage)
+        else:
+            # Use current max_size
+            return self.max_size
 
     def acquire(self, timeout: Optional[float] = None) -> T:
         """Acquire an object from the pool.
@@ -211,6 +255,7 @@ class ConnectionPool:
     """Database connection pool.
 
     Specialized pool for managing database connections.
+    Free-threading compatible with appropriate locking.
     """
 
     def __init__(
@@ -228,6 +273,7 @@ class ConnectionPool:
             timeout: Timeout for acquiring connection
             test_on_borrow: Test connection health before returning
         """
+        self._is_free_threaded = _is_free_threaded()
         self.connect_func = connect_func
         self.test_on_borrow = test_on_borrow
 
@@ -239,6 +285,15 @@ class ConnectionPool:
             reset_func=None,  # Connections don't need reset
             destroy_func=self._close_connection
         )
+
+    @property
+    def is_free_threaded(self) -> bool:
+        """Check if running in free-threaded mode.
+
+        Returns:
+            True if running in free-threaded mode, False otherwise
+        """
+        return self._is_free_threaded
 
     def _close_connection(self, conn: Any) -> None:
         """Close a database connection.
@@ -338,6 +393,7 @@ class WorkerPool:
     """Worker pool for task execution.
 
     Maintains a pool of worker threads for executing tasks.
+    Free-threading compatible with appropriate locking.
     """
 
     def __init__(self, workers: int = 4, queue_size: int = 100):
@@ -347,6 +403,7 @@ class WorkerPool:
             workers: Number of worker threads
             queue_size: Maximum queue size (0 = unlimited)
         """
+        self._is_free_threaded = _is_free_threaded()
         self.workers = workers
         self.queue_size = queue_size
 
@@ -357,7 +414,35 @@ class WorkerPool:
 
         self._threads: List[threading.Thread] = []
         self._running = False
-        self._lock = threading.Lock()
+        self._lock = threading.RLock() if self._is_free_threaded else threading.Lock()
+
+    @property
+    def is_free_threaded(self) -> bool:
+        """Check if running in free-threaded mode.
+
+        Returns:
+            True if running in free-threaded mode, False otherwise
+        """
+        return self._is_free_threaded
+
+    def get_optimal_workers(self, base_workers: Optional[int] = None) -> int:
+        """Get optimal number of workers based on Python version.
+
+        Args:
+            base_workers: Base number of workers (None = use self.workers)
+
+        Returns:
+            Optimal number of workers
+        """
+        if base_workers is None:
+            base_workers = self.workers
+
+        if self._is_free_threaded:
+            # In free-threaded mode, can use more workers efficiently
+            return base_workers * 2
+        else:
+            # With GIL, be more conservative
+            return base_workers
 
     def start(self) -> None:
         """Start worker threads."""
@@ -367,8 +452,11 @@ class WorkerPool:
 
             self._running = True
 
+            # Get optimal number of workers based on Python version
+            optimal_workers = self.get_optimal_workers()
+
             # Create and start worker threads
-            for i in range(self.workers):
+            for i in range(optimal_workers):
                 thread = threading.Thread(
                     target=self._worker,
                     name=f"Worker-{i}",
@@ -489,6 +577,15 @@ class Pools:
     """Factory class for creating various types of pools."""
 
     @staticmethod
+    def is_free_threaded() -> bool:
+        """Check if running in free-threaded mode.
+
+        Returns:
+            True if running in free-threaded mode, False otherwise
+        """
+        return _is_free_threaded()
+
+    @staticmethod
     def create_pool(
         factory: Callable[[], T],
         max_size: int = 10,
@@ -505,6 +602,30 @@ class Pools:
             ObjectPool instance
         """
         return ObjectPool(factory=factory, max_size=max_size, **kwargs)
+
+    @staticmethod
+    def create_pool_optimized(
+        factory: Callable[[], T],
+        max_size: int = 10,
+        **kwargs
+    ) -> ObjectPool[T]:
+        """Create a generic object pool optimized for current Python version.
+
+        Args:
+            factory: Function to create objects
+            max_size: Base maximum pool size (will be adjusted for free-threading)
+            **kwargs: Additional pool arguments
+
+        Returns:
+            ObjectPool instance optimized for current environment
+        """
+        is_free_threaded = _is_free_threaded()
+
+        # Adjust max_size based on threading mode if not explicitly set
+        if 'max_size' not in kwargs and is_free_threaded:
+            max_size = max_size * 2  # More capacity in free-threaded mode
+
+        return ObjectPool(factory=factory, max_size=max_size, use_rlock=True, **kwargs)
 
     @staticmethod
     def create_connection_pool(
@@ -529,6 +650,31 @@ class Pools:
         )
 
     @staticmethod
+    def create_connection_pool_optimized(
+        connect_func: Callable[[], Any],
+        max_connections: int = 10,
+        **kwargs
+    ) -> ConnectionPool:
+        """Create a connection pool optimized for current Python version.
+
+        Args:
+            connect_func: Function to create connections
+            max_connections: Base maximum connections (will be adjusted for free-threading)
+            **kwargs: Additional pool arguments
+
+        Returns:
+            ConnectionPool instance optimized for current environment
+        """
+        if _is_free_threaded():
+            # In free-threaded mode, can handle more concurrent connections
+            max_connections = max_connections * 2
+        return ConnectionPool(
+            connect_func=connect_func,
+            max_connections=max_connections,
+            **kwargs
+        )
+
+    @staticmethod
     def create_worker_pool(
         workers: int = 4,
         queue_size: int = 100
@@ -542,4 +688,23 @@ class Pools:
         Returns:
             WorkerPool instance
         """
+        return WorkerPool(workers=workers, queue_size=queue_size)
+
+    @staticmethod
+    def create_worker_pool_optimized(
+        workers: int = 4,
+        queue_size: int = 100
+    ) -> WorkerPool:
+        """Create a worker pool optimized for current Python version.
+
+        Args:
+            workers: Base number of worker threads (will be adjusted for free-threading)
+            queue_size: Maximum queue size
+
+        Returns:
+            WorkerPool instance optimized for current environment
+        """
+        if _is_free_threaded():
+            # In free-threaded mode, can use more workers efficiently
+            workers = workers * 2
         return WorkerPool(workers=workers, queue_size=queue_size)

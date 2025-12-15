@@ -33,8 +33,11 @@ class ConfigManager:
             ValueError: If configuration file is invalid.
         """
         if toml is None:
-            raise ImportError(
-                "toml package not found. Please install it with: pip install toml")
+            print("[WARN] toml package not found. Using default configuration.")
+            self.config = {}
+            # Verify if we should load defaults here or if main.py resource detection fills it in.
+            # self._load_config() # Can't load file without toml
+            return
 
         self.config_path = config_path or "pyproject.toml"
         self.config: Dict[str, Any] = {}

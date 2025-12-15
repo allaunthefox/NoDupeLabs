@@ -1,3 +1,7 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
+
 # NoDupeLabs Legacy System Reference
 
 ## Overview
@@ -217,7 +221,7 @@ pm.register("scan_complete", on_scan_complete)
 - Hash computation
 - Database population
 
-#### 3. `plan` - Duplicate Planning ⚠️ MISSING IN MODERN
+#### 3. `plan` - Duplicate Planning ✅ RESTORED IN MODERN
 - Duplicate detection
 - Action planning
 - CSV generation
@@ -229,7 +233,7 @@ pm.register("scan_complete", on_scan_complete)
 - Checkpoint creation
 - Change application
 
-#### 5. `verify` - Checkpoint Validation ⚠️ MISSING IN MODERN
+#### 5. `verify` - Checkpoint Validation ✅ IMPLEMENTED
 - Checkpoint validation
 - Filesystem verification
 - Integrity checking

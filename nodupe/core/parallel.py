@@ -5,6 +5,7 @@ Parallel processing utilities using standard library only.
 Key Features:
     - Process pool for CPU-bound tasks
     - Thread pool for I/O-bound tasks
+    - Interpreter pool for Python 3.14+ free-threaded tasks
     - Parallel map operations
     - Progress tracking
     - Error handling in parallel tasks
@@ -14,6 +15,7 @@ Dependencies:
     - multiprocessing (standard library)
     - concurrent.futures (standard library)
     - threading (standard library)
+    - sys (for GIL detection)
 """
 
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
@@ -21,6 +23,7 @@ from multiprocessing import cpu_count
 from typing import Callable, List, Any, Optional, Iterator, Tuple
 from functools import partial
 import threading
+import sys
 
 
 class ParallelError(Exception):
@@ -47,11 +50,40 @@ class Parallel:
             return 1  # Fallback to single core
 
     @staticmethod
+    def is_free_threaded() -> bool:
+        """Check if running in free-threaded mode (Python 3.13+ with --disable-gil).
+
+        Returns:
+            True if running in free-threaded mode, False otherwise
+        """
+        return hasattr(sys, 'flags') and getattr(sys.flags, 'gil', 1) == 0
+
+    @staticmethod
+    def get_python_version_info() -> Tuple[int, int]:
+        """Get current Python version as (major, minor) tuple.
+
+        Returns:
+            Tuple of (major, minor) version numbers
+        """
+        return (sys.version_info.major, sys.version_info.minor)
+
+    @staticmethod
+    def supports_interpreter_pool() -> bool:
+        """Check if current Python version supports InterpreterPoolExecutor.
+
+        Returns:
+            True if InterpreterPoolExecutor is available, False otherwise
+        """
+        major, minor = Parallel.get_python_version_info()
+        return major >= 3 and minor >= 14
+
+    @staticmethod
     def process_in_parallel(
         func: Callable,
         items: List[Any],
         workers: Optional[int] = None,
         use_processes: bool = False,
+        use_interpreters: bool = False,
         timeout: Optional[float] = None
     ) -> List[Any]:
         """Process items in parallel.
@@ -61,6 +93,7 @@ class Parallel:
             items: List of items to process
             workers: Number of workers (None = CPU count)
             use_processes: Use processes instead of threads
+            use_interpreters: Use interpreters instead of threads/processes (Python 3.14+)
             timeout: Maximum time per task in seconds
 
         Returns:
@@ -74,8 +107,18 @@ class Parallel:
             if workers is None:
                 workers = Parallel.get_cpu_count() if use_processes else min(32, len(items))
 
-            # Choose executor
-            executor_class = ProcessPoolExecutor if use_processes else ThreadPoolExecutor
+            # Choose executor based on options
+            if use_interpreters and Parallel.supports_interpreter_pool():
+                try:
+                    from concurrent.futures import InterpreterPoolExecutor
+                    executor_class = InterpreterPoolExecutor
+                except ImportError:
+                    # Fallback to ThreadPoolExecutor if InterpreterPoolExecutor not available
+                    executor_class = ThreadPoolExecutor
+            elif use_processes:
+                executor_class = ProcessPoolExecutor
+            else:
+                executor_class = ThreadPoolExecutor
 
             # Process in parallel
             with executor_class(max_workers=workers) as executor:
@@ -102,6 +145,7 @@ class Parallel:
         items: List[Any],
         workers: Optional[int] = None,
         use_processes: bool = False,
+        use_interpreters: bool = False,
         chunk_size: int = 1
     ) -> List[Any]:
         """Map function over items in parallel.
@@ -111,6 +155,7 @@ class Parallel:
             items: Items to map over
             workers: Number of workers
             use_processes: Use processes instead of threads
+            use_interpreters: Use interpreters instead of threads/processes (Python 3.14+)
             chunk_size: Items per chunk for process pool
 
         Returns:
@@ -124,12 +169,22 @@ class Parallel:
             if workers is None:
                 workers = Parallel.get_cpu_count() if use_processes else min(32, len(items))
 
-            # Choose executor
-            executor_class = ProcessPoolExecutor if use_processes else ThreadPoolExecutor
+            # Choose executor based on options
+            if use_interpreters and Parallel.supports_interpreter_pool():
+                try:
+                    from concurrent.futures import InterpreterPoolExecutor
+                    executor_class = InterpreterPoolExecutor
+                except ImportError:
+                    # Fallback to ThreadPoolExecutor if InterpreterPoolExecutor not available
+                    executor_class = ThreadPoolExecutor
+            elif use_processes:
+                executor_class = ProcessPoolExecutor
+            else:
+                executor_class = ThreadPoolExecutor
 
             # Map in parallel
             with executor_class(max_workers=workers) as executor:
-                if use_processes:
+                if use_interpreters or use_processes:
                     results = list(executor.map(func, items, chunksize=chunk_size))
                 else:
                     results = list(executor.map(func, items))
@@ -145,6 +200,7 @@ class Parallel:
         items: List[Any],
         workers: Optional[int] = None,
         use_processes: bool = False,
+        use_interpreters: bool = False,
         timeout: Optional[float] = None
     ) -> Iterator[Any]:
         """Map function over items in parallel, yielding results as completed.
@@ -154,6 +210,7 @@ class Parallel:
             items: Items to map over
             workers: Number of workers
             use_processes: Use processes instead of threads
+            use_interpreters: Use interpreters instead of threads/processes (Python 3.14+)
             timeout: Maximum time per task
 
         Yields:
@@ -167,8 +224,18 @@ class Parallel:
             if workers is None:
                 workers = Parallel.get_cpu_count() if use_processes else min(32, len(items))
 
-            # Choose executor
-            executor_class = ProcessPoolExecutor if use_processes else ThreadPoolExecutor
+            # Choose executor based on options
+            if use_interpreters and Parallel.supports_interpreter_pool():
+                try:
+                    from concurrent.futures import InterpreterPoolExecutor
+                    executor_class = InterpreterPoolExecutor
+                except ImportError:
+                    # Fallback to ThreadPoolExecutor if InterpreterPoolExecutor not available
+                    executor_class = ThreadPoolExecutor
+            elif use_processes:
+                executor_class = ProcessPoolExecutor
+            else:
+                executor_class = ThreadPoolExecutor
 
             # Submit all tasks
             with executor_class(max_workers=workers) as executor:
@@ -187,12 +254,111 @@ class Parallel:
             raise ParallelError(f"Parallel map failed: {e}") from e
 
     @staticmethod
+    def smart_map(
+        func: Callable,
+        items: List[Any],
+        task_type: str = 'auto',
+        workers: Optional[int] = None,
+        timeout: Optional[float] = None
+    ) -> List[Any]:
+        """Smart map that automatically chooses the best executor based on Python version and task type.
+
+        Args:
+            func: Function to map
+            items: Items to map over
+            task_type: 'cpu', 'io', or 'auto' - type of task
+            workers: Number of workers (None = auto-detect)
+            timeout: Maximum time per task
+
+        Returns:
+            List of results
+
+        Raises:
+            ParallelError: If mapping fails
+        """
+        # Auto-detect task type if needed
+        if task_type == 'auto':
+            # For now, assume CPU-bound if not specified
+            # In real implementation, you might inspect the function
+            import inspect
+            sig = inspect.signature(func)
+            task_type = 'cpu'  # Default assumption
+
+        # Determine best executor strategy
+        if task_type == 'cpu':
+            if Parallel.supports_interpreter_pool():
+                # Use InterpreterPoolExecutor for Python 3.14+
+                return Parallel.map_parallel(
+                    func=func,
+                    items=items,
+                    workers=workers,
+                    use_interpreters=True
+                )
+            elif Parallel.is_free_threaded():
+                # Use threads in free-threaded mode
+                return Parallel.map_parallel(
+                    func=func,
+                    items=items,
+                    workers=workers,
+                    use_processes=False
+                )
+            else:
+                # Use processes for traditional GIL-locked Python
+                return Parallel.map_parallel(
+                    func=func,
+                    items=items,
+                    workers=workers,
+                    use_processes=True
+                )
+        else:  # I/O-bound
+            # Always use threads for I/O-bound tasks
+            return Parallel.map_parallel(
+                func=func,
+                items=items,
+                workers=workers,
+                use_processes=False
+            )
+
+    @staticmethod
+    def get_optimal_workers(task_type: str = 'cpu') -> int:
+        """Get optimal number of workers based on system and Python version.
+
+        Args:
+            task_type: 'cpu' or 'io' - type of workload
+
+        Returns:
+            Optimal number of workers
+        """
+        try:
+            cpu_count = Parallel.get_cpu_count()
+        except Exception:
+            # Handle the exception gracefully and use fallback value
+            cpu_count = 1
+
+        if Parallel.is_free_threaded():
+            # In free-threaded mode, can use more threads efficiently
+            if task_type == 'cpu':
+                return cpu_count * 2
+            else:
+                return min(32, cpu_count * 2)
+        elif Parallel.supports_interpreter_pool():
+            # For interpreter pools, use CPU count as baseline
+            return cpu_count
+        else:
+            # Traditional GIL mode - be more conservative
+            if task_type == 'cpu':
+                return min(32, cpu_count)  # Avoid GIL contention with too many processes
+            else:
+                return min(32, cpu_count * 2)  # More I/O workers allowed
+
+    @staticmethod
     def process_batches(
         func: Callable,
         items: List[Any],
         batch_size: int,
         workers: Optional[int] = None,
-        use_processes: bool = False
+        use_processes: bool = False,
+        use_interpreters: bool = False
     ) -> List[Any]:
         """Process items in batches in parallel.
 
@@ -202,6 +368,7 @@ class Parallel:
             batch_size: Size of each batch
             workers: Number of workers
             use_processes: Use processes instead of threads
+            use_interpreters: Use interpreters instead of threads/processes (Python 3.14+)
 
         Returns:
             List of results from each batch
@@ -221,7 +388,8 @@ class Parallel:
                 func=func,
                 items=batches,
                 workers=workers,
-                use_processes=use_processes
+                use_processes=use_processes,
+                use_interpreters=use_interpreters
             )
 
         except Exception as e:
@@ -234,7 +402,8 @@ class Parallel:
         items: List[Any],
         initial: Any = None,
         workers: Optional[int] = None,
-        use_processes: bool = False
+        use_processes: bool = False,
+        use_interpreters: bool = False
     ) -> Any:
         """Parallel map-reduce operation.
 
@@ -245,6 +414,7 @@ class Parallel:
             initial: Initial value for reduction
             workers: Number of workers
             use_processes: Use processes instead of threads
+            use_interpreters: Use interpreters instead of threads/processes (Python 3.14+)
 
         Returns:
             Final reduced result
@@ -258,7 +428,8 @@ class Parallel:
                 func=map_func,
                 items=items,
                 workers=workers,
-                use_processes=use_processes
+                use_processes=use_processes,
+                use_interpreters=use_interpreters
             )
 
             # Reduce phase
@@ -333,7 +504,8 @@ def parallel_map(
     func: Callable,
     items: List[Any],
     workers: Optional[int] = None,
-    use_processes: bool = False
+    use_processes: bool = False,
+    use_interpreters: bool = False
 ) -> List[Any]:
     """Convenience function for parallel map.
 
@@ -342,18 +514,20 @@ def parallel_map(
         items: Items to map over
         workers: Number of workers
         use_processes: Use processes instead of threads
+        use_interpreters: Use interpreters instead of threads/processes (Python 3.14+)
 
     Returns:
         List of results
     """
-    return Parallel.map_parallel(func, items, workers, use_processes)
+    return Parallel.map_parallel(func, items, workers, use_processes, use_interpreters)
 
 
 def parallel_filter(
     predicate: Callable[[Any], bool],
     items: List[Any],
     workers: Optional[int] = None,
-    use_processes: bool = False
+    use_processes: bool = False,
+    use_interpreters: bool = False
 ) -> List[Any]:
     """Parallel filter operation.
 
@@ -362,6 +536,7 @@ def parallel_filter(
         items: Items to filter
         workers: Number of workers
         use_processes: Use processes instead of threads
+        use_interpreters: Use interpreters instead of threads/processes (Python 3.14+)
 
     Returns:
         Filtered list of items
@@ -370,7 +545,7 @@ def parallel_filter(
     def check_item(item):
         return (item, predicate(item))
 
-    results = Parallel.map_parallel(check_item, items, workers, use_processes)
+    results = Parallel.map_parallel(check_item, items, workers, use_processes, use_interpreters)
 
     # Filter based on predicate results
     return [item for item, keep in results if keep]
@@ -380,7 +555,8 @@ def parallel_partition(
     predicate: Callable[[Any], bool],
     items: List[Any],
     workers: Optional[int] = None,
-    use_processes: bool = False
+    use_processes: bool = False,
+    use_interpreters: bool = False
 ) -> Tuple[List[Any], List[Any]]:
     """Partition items based on predicate in parallel.
 
@@ -389,6 +565,7 @@ def parallel_partition(
         items: Items to partition
         workers: Number of workers
         use_processes: Use processes instead of threads
+        use_interpreters: Use interpreters instead of threads/processes (Python 3.14+)
 
     Returns:
         Tuple of (true_items, false_items)
@@ -397,7 +574,7 @@ def parallel_partition(
     def check_item(item):
         return (item, predicate(item))
 
-    results = Parallel.map_parallel(check_item, items, workers, use_processes)
+    results = Parallel.map_parallel(check_item, items, workers, use_processes, use_interpreters)
 
     # Partition based on predicate
     true_items = [item for item, result in results if result]
@@ -410,7 +587,8 @@ def parallel_starmap(
     func: Callable,
     args_list: List[Tuple],
     workers: Optional[int] = None,
-    use_processes: bool = False
+    use_processes: bool = False,
+    use_interpreters: bool = False
 ) -> List[Any]:
     """Parallel starmap operation (func with multiple arguments).
 
@@ -419,6 +597,7 @@ def parallel_starmap(
         args_list: List of argument tuples
         workers: Number of workers
         use_processes: Use processes instead of threads
+        use_interpreters: Use interpreters instead of threads/processes (Python 3.14+)
 
     Returns:
         List of results
@@ -433,4 +612,4 @@ def parallel_starmap(
     def wrapper(args):
         return func(*args)
 
-    return Parallel.map_parallel(wrapper, args_list, workers, use_processes)
+    return Parallel.map_parallel(wrapper, args_list, workers, use_processes, use_interpreters)

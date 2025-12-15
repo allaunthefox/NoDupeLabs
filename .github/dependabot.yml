@@ -1,58 +1,38 @@
-# Dependabot configuration for NoDupeLabs
 version: 2
 updates:
-
-  # Configuration for Python dependencies
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "daily"
-      time: "03:00"
-      timezone: "America/Chicago"
+      interval: "weekly"
     open-pull-requests-limit: 10
-    ignore:
-      # Ignore markdownlint-cli as it's not a Python package
-      - dependency-name: "markdownlint-cli"
-        versions: ["*"]
+    target-branch: "develop"
     labels:
       - "dependencies"
-      - "python"
       - "automated"
     commit-message:
-      prefix: "chore(deps):"
-      include: "scope"
-    milestone: 1
-
-  # Configuration for npm dependencies
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "04:00"
-      timezone: "America/Chicago"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "npm"
-      - "automated"
-    commit-message:
-      prefix: "chore(deps):"
-      include: "scope"
-    milestone: 1
-
-  # Configuration for GitHub Actions
+      prefix: "chore(deps)"
+      prefix-development: "chore(dev-deps)"
+    
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      time: "05:00"
-      timezone: "America/Chicago"
     open-pull-requests-limit: 5
+    target-branch: "develop"
     labels:
-      - "dependencies"
       - "github-actions"
       - "automated"
     commit-message:
-      prefix: "chore(ci):"
-      include: "scope"
-    milestone: 1
+      prefix: "ci(actions)"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    target-branch: "develop"
+    labels:
+      - "npm"
+      - "automated"
+    commit-message:
+      prefix: "chore(npm)"

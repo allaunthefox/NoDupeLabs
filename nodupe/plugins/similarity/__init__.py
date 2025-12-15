@@ -1,598 +1,402 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (c) 2025 Allaun
+"""Similarity Search Plugin for NoDupeLabs.
 
-"""Similarity search module for finding similar files using vector embeddings.
-
-This module provides the similarity search functionality for NoDupeLabs,
-allowing users to find similar files based on content embeddings.
+This module provides similarity search functionality using vector embeddings
+with multiple backend support and graceful degradation.
 
 Key Features:
-    - Vector similarity search
-    - Multiple backend support
-    - Index management
+    - Vector similarity search with multiple algorithms
+    - Multiple backend support (brute force, FAISS)
+    - Index management and persistence
     - Near-duplicate detection
-    - Graceful degradation
+    - Graceful degradation when optional dependencies missing
 
 Dependencies:
-    - typing (standard library)
-    - abc (standard library)
-    - numpy (optional, for brute-force backend)
+    - Standard library only (with optional NumPy and FAISS support)
 """
 
-from typing import List, Dict, Any, Optional, Tuple
-from abc import ABC, abstractmethod
 import json
 import pickle
 import warnings
+from typing import List, Dict, Any, Optional, Tuple
+from abc import ABC, abstractmethod
 
-import numpy as np
+try:
+    import numpy as np
+    NUMPY_AVAILABLE = True
+except ImportError:
+    np = None
+    NUMPY_AVAILABLE = False
 
-# Handle optional FAISS dependency
-# pyright: reportMissingImports=false, reportUnknownMemberType=false, reportUnknownVariableType=false, reportUnnecessaryComparison=false  # pylint: disable=line-too-long
 try:
     import faiss
-    # Import IndexFlatIP for type hints, but it may not be used directly
-    from faiss import IndexFlatIP  # type: ignore[attr-defined]
+    FAISS_AVAILABLE = True
 except ImportError:
-    import warnings
-    from typing import Any, List, Dict
-
-    # Type aliases for when FAISS is not available
-    class _FakeFaiss:
-        """Fake FAISS class for type safety when FAISS is not available."""
-        def __getattr__(self, name: str) -> Any:
-            """Get any attribute (returns None for all)."""
-            return None
-
-        def __call__(self, *args: Any, **kwargs: Any) -> Any:
-            """Allow calling fake FAISS methods."""
-            return None
-
-    class _FakeIndexFlatIP:
-        """Fake IndexFlatIP class for type safety when FAISS is not available."""
-        def __getattr__(self, name: str) -> Any:
-            """Get any attribute (returns None for all)."""
-            return None
-
-        def __call__(self, *args: Any, **kwargs: Any) -> Any:
-            """Allow calling fake FAISS methods."""
-            return None
-
-    faiss = _FakeFaiss()
-    IndexFlatIP = _FakeIndexFlatIP  # type: ignore[assignment]
+    faiss = None
+    FAISS_AVAILABLE = False
 
 
 class SimilarityBackend(ABC):
-    """Abstract base class for similarity search backends.
-
-    Responsibilities:
-    - Index management
-    - Similarity search
-    - Vector operations
-    - Graceful degradation
-    """
+    """Abstract base class for similarity search backends."""
 
     @abstractmethod
     def __init__(self, dimensions: int):
         """Initialize similarity backend.
-
+        
         Args:
             dimensions: Number of dimensions for vectors
         """
-        raise NotImplementedError
+        pass
 
     @abstractmethod
-    def add_vectors(self,
-                    vectors: List[List[float]],
-                    metadata: List[Dict[str,
-                                        Any]]) -> bool:
+    def add_vectors(self, vectors: List[List[float]], metadata: List[Dict[str, Any]]) -> bool:
         """Add vectors to the index.
-
+        
         Args:
             vectors: List of vectors to add
             metadata: List of metadata dictionaries
-
+            
         Returns:
             True if successful, False otherwise
         """
-        raise NotImplementedError
+        pass
 
     @abstractmethod
-    def search(self,
-               query_vector: List[float],
-               k: int = 5,
-               threshold: float = 0.8) -> List[Tuple[Dict[str,
-                                               Any],
-                                                     float]]:
+    def search(self, query_vector: List[float], k: int = 5, threshold: float = 0.8) -> List[Tuple[Dict[str, Any], float]]:
         """Search for similar vectors.
-
+        
         Args:
             query_vector: Query vector
             k: Number of results to return
             threshold: Similarity threshold
-
+            
         Returns:
             List of (metadata, similarity_score) tuples
         """
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def save_index(self, path: str) -> bool:
         """Save index to file.
-
+        
         Args:
             path: Path to save index
-
+            
         Returns:
             True if successful, False otherwise
         """
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def load_index(self, path: str) -> bool:
         """Load index from file.
-
+        
         Args:
             path: Path to load index from
-
+            
         Returns:
             True if successful, False otherwise
         """
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def get_index_size(self) -> int:
         """Get number of vectors in index.
-
+        
         Returns:
             Number of vectors in index
         """
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def clear_index(self) -> None:
         """Clear the index."""
-        raise NotImplementedError
+        pass
 
 
 class BruteForceBackend(SimilarityBackend):
-    """Brute-force similarity search backend using NumPy.
-
-    This backend uses NumPy for vector operations and provides
-    a simple brute-force search implementation.
-    """
+    """Brute-force similarity search using NumPy or standard library."""
 
     def __init__(self, dimensions: int):
         """Initialize brute-force backend.
-
+        
         Args:
             dimensions: Number of dimensions for vectors
         """
-        self.dimensions: int = dimensions
+        self.dimensions = dimensions
         self.vectors: List[List[float]] = []
         self.metadata: List[Dict[str, Any]] = []
 
-        self.np = np
-        self.use_numpy: bool = True
-
-    def add_vectors(self,
-                    vectors: List[List[float]],
-                    metadata: List[Dict[str,
-                                        Any]]) -> bool:
-        """Add vectors to the index.
-
-        Args:
-            vectors: List of vectors to add
-            metadata: List of metadata dictionaries
-
-        Returns:
-            True if successful, False otherwise
-        """
+    def add_vectors(self, vectors: List[List[float]], metadata: List[Dict[str, Any]]) -> bool:
+        """Add vectors to the index."""
         try:
-            # Validate input
             if len(vectors) != len(metadata):
                 warnings.warn("Vectors and metadata length mismatch")
                 return False
 
-            if len(vectors) == 0:
-                return True
-
-            # Validate dimensions
             for vector in vectors:
                 if len(vector) != self.dimensions:
-                    warnings.warn(
-                        f"Vector dimension mismatch: expected {self.dimensions}, got {len(vector)}")
+                    warnings.warn(f"Vector dimension mismatch: expected {self.dimensions}, got {len(vector)}")
                     return False
 
-            # Add vectors and metadata
-            self.vectors.extend(vectors)  # type: ignore[arg-type]
-            self.metadata.extend(metadata)  # type: ignore[arg-type]
-
+            self.vectors.extend(vectors)
+            self.metadata.extend(metadata)
             return True
-        except (ValueError, TypeError, AttributeError) as e:
-            warnings.warn(f"Failed to add vectors: {str(e)}")
+        except Exception as e:
+            warnings.warn(f"Failed to add vectors: {e}")
             return False
 
-    def search(self,
-               query_vector: List[float],
-               k: int = 5,
-               threshold: float = 0.8) -> List[Tuple[Dict[str,
-                                               Any],
-                                                     float]]:
-        """Search for similar vectors using brute-force approach.
-
-        Args:
-            query_vector: Query vector
-            k: Number of results to return
-            threshold: Similarity threshold
-
-        Returns:
-            List of (metadata, similarity_score) tuples
-        """
+    def search(self, query_vector: List[float], k: int = 5, threshold: float = 0.8) -> List[Tuple[Dict[str, Any], float]]:
+        """Search for similar vectors."""
         if len(self.vectors) == 0:
             return []
 
         if len(query_vector) != self.dimensions:
-            warnings.warn(
-                f"Query vector dimension mismatch: expected {
-                    self.dimensions}, got {
-                    len(query_vector)}")
+            warnings.warn(f"Query vector dimension mismatch: expected {self.dimensions}, got {len(query_vector)}")
             return []
 
         try:
             results = []
-
-            if self.use_numpy:
-                # Use NumPy for efficient vector operations
-                query_array = self.np.array(query_vector)
-                vectors_array = self.np.array(self.vectors)
-
+            
+            if NUMPY_AVAILABLE and np:
+                # Use NumPy for efficient computation
+                query_array = np.array(query_vector, dtype=np.float32)
+                vectors_array = np.array(self.vectors, dtype=np.float32)
+                
                 # Calculate cosine similarity
-                dot_products = self.np.dot(vectors_array, query_array)
-                query_norm = self.np.linalg.norm(query_array)
-                vector_norms = self.np.linalg.norm(vectors_array, axis=1)
-                similarities = dot_products / (vector_norms * query_norm)
-
+                dot_products = np.sum(vectors_array * query_array, axis=1)
+                query_norm = np.linalg.norm(query_array)
+                vector_norms = np.linalg.norm(vectors_array, axis=1)
+                
+                # Avoid division by zero
+                similarities = np.where(vector_norms == 0, 0, dot_products / (vector_norms * query_norm))
+                
                 # Get top k results
-                top_indices = self.np.argsort(similarities)[-k:][::-1]
-
+                top_indices = np.argsort(similarities)[-k:][::-1]
+                
                 for idx in top_indices:
                     similarity = similarities[idx]
                     if similarity >= threshold:
-                        results.append((self.metadata[idx], similarity))  # type: ignore[arg-type]
+                        results.append((self.metadata[idx], float(similarity)))
             else:
-                # Fallback to standard library implementation
+                # Fallback to standard library
                 for i, vector in enumerate(self.vectors):
                     # Calculate cosine similarity manually
                     dot_product = sum(v * q for v, q in zip(vector, query_vector))
-                    query_norm = sum(q**2 for q in query_vector)**0.5
-                    vector_norm = sum(v**2 for v in vector)**0.5
-
+                    query_norm = sum(q*q for q in query_vector)**0.5
+                    vector_norm = sum(v*v for v in vector)**0.5
+                    
                     if query_norm == 0 or vector_norm == 0:
                         similarity = 0.0
                     else:
                         similarity = dot_product / (query_norm * vector_norm)
-
+                    
                     if similarity >= threshold:
                         results.append((self.metadata[i], similarity))
-
+                
                 # Sort by similarity (descending)
-                results.sort(key=lambda x: x[1], reverse=True)  # type: ignore[arg-type, return-value]
-                results = results[:k]  # type: ignore[assignment]
+                results.sort(key=lambda x: x[1], reverse=True)
+                results = results[:k]
 
             return results
 
-        except (ValueError, TypeError, AttributeError, RuntimeError) as e:
-            warnings.warn(f"Similarity search failed: {str(e)}")
+        except Exception as e:
+            warnings.warn(f"Similarity search failed: {e}")
             return []
 
     def save_index(self, path: str) -> bool:
-        """Save index to file.
-
-        Args:
-            path: Path to save index
-
-        Returns:
-            True if successful, False otherwise
-        """
+        """Save index to file."""
         try:
-            # Save vectors and metadata
-            index_data: Dict[str, Any] = {
+            index_data = {
                 'vectors': self.vectors,
                 'metadata': self.metadata,
                 'dimensions': self.dimensions
             }
-
+            
             with open(path, 'wb') as f:
                 pickle.dump(index_data, f)
-
+            
             return True
-        except (IOError, OSError, pickle.PickleError) as e:
-            warnings.warn(f"Failed to save index: {str(e)}")
+        except Exception as e:
+            warnings.warn(f"Failed to save index: {e}")
             return False
 
     def load_index(self, path: str) -> bool:
-        """Load index from file.
-
-        Args:
-            path: Path to load index from
-
-        Returns:
-            True if successful, False otherwise
-        """
+        """Load index from file."""
         try:
             with open(path, 'rb') as f:
                 index_data = pickle.load(f)
 
-            # Validate dimensions
-            if index_data['dimensions'] != self.dimensions:
-                warnings.warn(
-                    f"Index dimension mismatch: expected {
-                        self.dimensions}, got {
-                        index_data['dimensions']}")
+            if index_data.get('dimensions') != self.dimensions:
+                warnings.warn(f"Index dimension mismatch: expected {self.dimensions}, got {index_data.get('dimensions')}")
                 return False
 
             self.vectors = index_data['vectors']
             self.metadata = index_data['metadata']
-
             return True
-        except (IOError, OSError, pickle.PickleError) as e:
-            warnings.warn(f"Failed to load index: {str(e)}")
+        except Exception as e:
+            warnings.warn(f"Failed to load index: {e}")
             return False
 
     def get_index_size(self) -> int:
-        """Get number of vectors in index.
-
-        Returns:
-            Number of vectors in index
-        """
+        """Get number of vectors in index."""
         return len(self.vectors)
 
     def clear_index(self) -> None:
         """Clear the index."""
-        self.vectors = []
-        self.metadata = []
+        self.vectors.clear()
+        self.metadata.clear()
 
 
 class FaissBackend(SimilarityBackend):
-    """FAISS similarity search backend.
-
-    This backend uses Facebook's FAISS library for efficient
-    similarity search on large datasets.
-    """
+    """FAISS similarity search backend for large-scale operations."""
 
     def __init__(self, dimensions: int):
         """Initialize FAISS backend.
-
+        
         Args:
             dimensions: Number of dimensions for vectors
         """
-        self.dimensions: int = dimensions
-        self.index: Optional[Any] = None
+        if not FAISS_AVAILABLE:
+            warnings.warn("FAISS not available, using fallback")
+            raise RuntimeError("FAISS is not available")
+        
+        self.dimensions = dimensions
+        self.index = faiss.IndexFlatIP(dimensions)
         self.metadata: List[Dict[str, Any]] = []
 
-        self.faiss = faiss
-        self.available: bool = True
-
-        # Create FAISS index
-        if faiss is not None and hasattr(faiss, 'IndexFlatIP'):
-            self.index = faiss.IndexFlatIP(dimensions)  # type: ignore[attr-defined]
-        else:
-            self.available = False
-            warnings.warn("FAISS not available, backend will not function")
-
-    def add_vectors(self,
-                    vectors: List[List[float]],
-                    metadata: List[Dict[str,
-                                        Any]]) -> bool:
-        """Add vectors to the index.
-
-        Args:
-            vectors: List of vectors to add
-            metadata: List of metadata dictionaries
-
-        Returns:
-            True if successful, False otherwise
-        """
-        if not self.available:
-            warnings.warn("FAISS backend not available")
+    def add_vectors(self, vectors: List[List[float]], metadata: List[Dict[str, Any]]) -> bool:
+        """Add vectors to the FAISS index."""
+        if not FAISS_AVAILABLE:
             return False
-
+            
         try:
-            # Validate input
             if len(vectors) != len(metadata):
                 warnings.warn("Vectors and metadata length mismatch")
                 return False
 
-            if len(vectors) == 0:
-                return True
-
-            # Validate dimensions
             for vector in vectors:
                 if len(vector) != self.dimensions:
-                    warnings.warn(
-                        f"Vector dimension mismatch: expected {
-                            self.dimensions}, got {
-                            len(vector)}")
+                    warnings.warn(f"Vector dimension mismatch: expected {self.dimensions}, got {len(vector)}")
                     return False
 
-            # Convert to numpy array
+            # Convert to numpy array and normalize for inner product
             vectors_array = np.array(vectors, dtype=np.float32)
-
-            # Add to FAISS index
-            if self.index is not None and hasattr(self.index, 'add'):
-                self.index.add(vectors_array)  # type: ignore[attr-defined]
-            self.metadata.extend(metadata)  # type: ignore[arg-type]
-
+            faiss.normalize_L2(vectors_array)
+            
+            # Add to index
+            self.index.add(vectors_array)
+            self.metadata.extend(metadata)
             return True
-        except (ValueError, TypeError, AttributeError, RuntimeError) as e:
-            warnings.warn(f"Failed to add vectors to FAISS index: {str(e)}")
+        except Exception as e:
+            warnings.warn(f"Failed to add vectors to FAISS: {e}")
             return False
 
-    def search(self,
-               query_vector: List[float],
-               k: int = 5,
-               threshold: float = 0.8) -> List[Tuple[Dict[str,
-                                               Any],
-                                                     float]]:
-        """Search for similar vectors using FAISS.
-
-        Args:
-            query_vector: Query vector
-            k: Number of results to return
-            threshold: Similarity threshold
-
-        Returns:
-            List of (metadata, similarity_score) tuples
-        """
-        if not self.available:
-            warnings.warn("FAISS backend not available")
+    def search(self, query_vector: List[float], k: int = 5, threshold: float = 0.8) -> List[Tuple[Dict[str, Any], float]]:
+        """Search for similar vectors using FAISS."""
+        if not FAISS_AVAILABLE or (self.index is not None and self.index.ntotal == 0):
             return []
 
         if len(query_vector) != self.dimensions:
-            warnings.warn(
-                f"Query vector dimension mismatch: expected {
-                    self.dimensions}, got {
-                    len(query_vector)}")
+            warnings.warn(f"Query vector dimension mismatch: expected {self.dimensions}, got {len(query_vector)}")
             return []
 
         try:
-            # Convert query to numpy array
+            # Convert and normalize query vector
             query_array = np.array([query_vector], dtype=np.float32)
-
-            # Search FAISS index
-            if self.index is not None and hasattr(self.index, 'search'):
-                distances, indices = self.index.search(query_array, k)  # type: ignore[attr-defined]
+            if faiss is not None:
+                faiss.normalize_L2(query_array)
+            
+            # Search
+            if self.index is not None:
+                scores, indices = self.index.search(query_array, k)
             else:
-                return []
-
-            results: List[Tuple[Dict[str, Any], float]] = []
-            for i, idx in enumerate(indices[0]):
+                scores, indices = np.array([[]], dtype=np.float32), np.array([[]], dtype=np.int32)
+            
+            results = []
+            for score, idx in zip(scores[0], indices[0]):
                 if idx >= 0 and idx < len(self.metadata):
-                    similarity = distances[0][i]
-                    if similarity >= threshold:
-                        results.append((self.metadata[idx], similarity))  # type: ignore[arg-type]
-
+                    if score >= threshold:
+                        results.append((self.metadata[idx], float(score)))
+            
             return results
-
-        except (ValueError, TypeError, AttributeError, RuntimeError) as e:
-            warnings.warn(f"FAISS search failed: {str(e)}")
+        except Exception as e:
+            warnings.warn(f"FAISS search failed: {e}")
             return []
 
     def save_index(self, path: str) -> bool:
-        """Save index to file.
-
-        Args:
-            path: Path to save index
-
-        Returns:
-            True if successful, False otherwise
-        """
-        if not self.available:
-            warnings.warn("FAISS backend not available")
+        """Save FAISS index to file."""
+        if not FAISS_AVAILABLE:
             return False
-
+            
         try:
             # Save FAISS index
-            if (self.faiss is not None and
-                hasattr(self.faiss, 'write_index') and
-                self.index is not None and
-                hasattr(self.index, 'add')):
-                try:
-                    # Use type narrowing with try/except
-                    if hasattr(self.faiss, 'write_index'):
-                        self.faiss.write_index(self.index, path)  # type: ignore[attr-defined]
-                except (AttributeError, TypeError):
-                    warnings.warn("FAISS write_index method failed")
-                    return False
-            else:
-                warnings.warn("FAISS write_index method not available")
-                return False
-
+            faiss.write_index(self.index, path)
+            
             # Save metadata separately
-            metadata_path = path + ".metadata.json"
-            with open(metadata_path, 'w', encoding='utf-8') as f:
+            metadata_path = f"{path}.metadata"
+            with open(metadata_path, 'w') as f:
                 json.dump(self.metadata, f)
-
+            
             return True
-        except (IOError, OSError, json.JSONDecodeError) as e:
-            warnings.warn(f"Failed to save FAISS index: {str(e)}")
+        except Exception as e:
+            warnings.warn(f"Failed to save FAISS index: {e}")
             return False
 
     def load_index(self, path: str) -> bool:
-        """Load index from file.
-
-        Args:
-            path: Path to load index from
-
-        Returns:
-            True if successful, False otherwise
-        """
-        if not self.available:
-            warnings.warn("FAISS backend not available")
+        """Load FAISS index from file."""
+        if not FAISS_AVAILABLE:
             return False
-
+            
         try:
             # Load FAISS index
-            if self.faiss is not None and hasattr(self.faiss, 'read_index'):
-                try:
-                    # Use type narrowing with try/except
-                    if hasattr(self.faiss, 'read_index'):
-                        self.index = self.faiss.read_index(path)  # type: ignore[attr-defined]
-                except (AttributeError, TypeError):
-                    warnings.warn("FAISS read_index method failed")
-                    return False
-            else:
-                warnings.warn("FAISS read_index method not available")
-                return False
-
+            if faiss is not None:
+                self.index = faiss.read_index(path)
+            
             # Load metadata
-            metadata_path = path + ".metadata.json"
-            with open(metadata_path, 'r', encoding='utf-8') as f:
+            metadata_path = f"{path}.metadata"
+            with open(metadata_path, 'r') as f:
                 self.metadata = json.load(f)
-
+            
             return True
-        except (IOError, OSError, json.JSONDecodeError) as e:
-            warnings.warn(f"Failed to load FAISS index: {str(e)}")
+        except Exception as e:
+            warnings.warn(f"Failed to load FAISS index: {e}")
             return False
 
     def get_index_size(self) -> int:
-        """Get number of vectors in index.
-
-        Returns:
-            Number of vectors in index
-        """
-        if not self.available:
-            return 0
-        if self.index is not None and hasattr(self.index, 'ntotal'):
-            return self.index.ntotal  # type: ignore[attr-defined]
-        return 0
+        """Get number of vectors in index."""
+        return self.index.ntotal if FAISS_AVAILABLE else 0
 
     def clear_index(self) -> None:
         """Clear the index."""
-        if self.available and self.index is not None and hasattr(self.index, 'reset'):
-            self.index.reset()  # type: ignore[attr-defined]
-            self.metadata = []
+        if FAISS_AVAILABLE and self.index is not None:
+            self.index.reset()
+            self.metadata.clear()
 
 
-class SimilaritySearchManager:
-    """Manager for similarity search backends.
-
-    Responsibilities:
-    - Backend selection and management
-    - Graceful fallback
-    - Index coordination
-    - Error handling
-    """
+class SimilarityManager:
+    """Manager for similarity search backends with graceful fallback."""
 
     def __init__(self):
-        """Initialize similarity search manager."""
+        """Initialize similarity manager."""
         self.backends: Dict[str, SimilarityBackend] = {}
         self.current_backend: Optional[SimilarityBackend] = None
+        
+        # Try to initialize available backends
+        try:
+            self.add_backend('bruteforce', BruteForceBackend(dimensions=512))
+            self.set_backend('bruteforce')
+        except Exception:
+            pass
+            
+        if FAISS_AVAILABLE:
+            try:
+                self.add_backend('faiss', FaissBackend(dimensions=512))
+            except Exception:
+                pass
 
     def add_backend(self, name: str, backend: SimilarityBackend) -> None:
         """Add a similarity backend.
-
+        
         Args:
             name: Backend name
             backend: Backend instance
@@ -601,10 +405,10 @@ class SimilaritySearchManager:
 
     def set_backend(self, name: str) -> bool:
         """Set the current backend.
-
+        
         Args:
             name: Backend name
-
+            
         Returns:
             True if successful, False otherwise
         """
@@ -615,10 +419,10 @@ class SimilaritySearchManager:
 
     def get_backend(self, name: str) -> Optional[SimilarityBackend]:
         """Get a backend by name.
-
+        
         Args:
             name: Backend name
-
+            
         Returns:
             Backend instance or None
         """
@@ -626,104 +430,108 @@ class SimilaritySearchManager:
 
     def get_current_backend(self) -> Optional[SimilarityBackend]:
         """Get the current backend.
-
+        
         Returns:
             Current backend instance or None
         """
         return self.current_backend
 
-    def add_vectors(self,
-                    vectors: List[List[float]],
-                    metadata: List[Dict[str,
-                                        Any]]) -> bool:
-        """Add vectors to the current backend.
-
-        Args:
-            vectors: List of vectors to add
-            metadata: List of metadata dictionaries
-
-        Returns:
-            True if successful, False otherwise
-        """
+    def add_vectors(self, vectors: List[List[float]], metadata: List[Dict[str, Any]]) -> bool:
+        """Add vectors to current backend."""
         if self.current_backend:
             return self.current_backend.add_vectors(vectors, metadata)
         return False
 
-    def search(self,
-               query_vector: List[float],
-               k: int = 5,
-               threshold: float = 0.8) -> List[Tuple[Dict[str,
-                                               Any],
-                                                     float]]:
-        """Search for similar vectors using current backend.
-
-        Args:
-            query_vector: Query vector
-            k: Number of results to return
-            threshold: Similarity threshold
-
-        Returns:
-            List of (metadata, similarity_score) tuples
-        """
+    def search(self, query_vector: List[float], k: int = 5, threshold: float = 0.8) -> List[Tuple[Dict[str, Any], float]]:
+        """Search for similar vectors."""
         if self.current_backend:
             return self.current_backend.search(query_vector, k, threshold)
         return []
 
     def save_index(self, path: str) -> bool:
-        """Save current backend index.
-
-        Args:
-            path: Path to save index
-
-        Returns:
-            True if successful, False otherwise
-        """
+        """Save current backend index."""
         if self.current_backend:
             return self.current_backend.save_index(path)
         return False
 
     def load_index(self, path: str) -> bool:
-        """Load index into current backend.
-
-        Args:
-            path: Path to load index from
-
-        Returns:
-            True if successful, False otherwise
-        """
+        """Load index into current backend."""
         if self.current_backend:
             return self.current_backend.load_index(path)
         return False
 
+    def get_index_size(self) -> int:
+        """Get current backend index size."""
+        if self.current_backend:
+            return self.current_backend.get_index_size()
+        return 0
 
-def create_similarity_manager() -> SimilaritySearchManager:
-    """Create and return a SimilaritySearchManager instance.
 
+def create_similarity_manager() -> SimilarityManager:
+    """Create and return a similarity manager instance.
+    
     Returns:
-        SimilaritySearchManager instance
+        SimilarityManager instance with available backends
     """
-    return SimilaritySearchManager()
+    return SimilarityManager()
 
 
-def create_brute_force_backend(dimensions: int) -> BruteForceBackend:
-    """Create and return a BruteForceBackend instance.
+from nodupe.core.plugin_system.base import Plugin
 
-    Args:
-        dimensions: Number of dimensions for vectors
+# Plugin interface for the system
+class SimilarityBackendPlugin(Plugin):
+    """Similarity search backend plugin."""
+    
+    name = "similarity_backend"
+    version = "1.0.0"
+    dependencies = []
+    
+    def __init__(self):
+        self.description = "Similarity search backend services"
+        self.manager = create_similarity_manager()
+    
+    def initialize(self, container: Any) -> None:
+        """Initialize the plugin."""
+        container.register_service('similarity_manager', self.manager)
+    
+    def shutdown(self) -> None:
+        """Shutdown the plugin."""
+        pass
+    
+    def get_capabilities(self) -> Dict[str, Any]:
+        """Get plugin capabilities."""
+        return {
+            'backends': list(self.manager.backends.keys()),
+            'supports_faiss': FAISS_AVAILABLE,
+            'supports_numpy': NUMPY_AVAILABLE
+        }
 
-    Returns:
-        BruteForceBackend instance
-    """
-    return BruteForceBackend(dimensions)
+
+def register_plugin():
+    """Register the similarity plugin."""
+    return SimilarityBackendPlugin()
 
 
-def create_faiss_backend(dimensions: int) -> FaissBackend:
-    """Create and return a FaissBackend instance.
-
-    Args:
-        dimensions: Number of dimensions for vectors
-
-    Returns:
-        FaissBackend instance
-    """
-    return FaissBackend(dimensions)
+if __name__ == "__main__":
+    # Example usage
+    print(f"NumPy available: {NUMPY_AVAILABLE}")
+    print(f"FAISS available: {FAISS_AVAILABLE}")
+    
+    # Create manager
+    manager = create_similarity_manager()
+    print(f"Available backends: {list(manager.backends.keys())}")
+    
+    # Test with brute force backend
+    if manager.set_backend('bruteforce'):
+        # Add some test vectors
+        vectors = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+        metadata = [{'id': 1, 'name': 'vector1'}, {'id': 2, 'name': 'vector2'}, {'id': 3, 'name': 'vector3'}]
+        
+        success = manager.add_vectors(vectors, metadata)
+        print(f"Added vectors: {success}")
+        print(f"Index size: {manager.get_index_size()}")
+        
+        # Search
+        query = [0.8, 0.1, 0.1]
+        results = manager.search(query, k=2, threshold=0.5)
+        print(f"Search results: {results}")

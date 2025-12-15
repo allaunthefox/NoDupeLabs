@@ -19,6 +19,7 @@ Dependencies:
 """
 
 from typing import Optional, List, Dict, Any
+import time
 from .connection import DatabaseConnection
 
 class FileRepository:
@@ -54,12 +55,13 @@ class FileRepository:
             File ID
         """
         try:
+            current_time = int(time.time())
             cursor = self.db.execute(
                 '''
-                INSERT INTO files (path, size, modified_time, hash)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO files (path, size, modified_time, hash, created_time, scanned_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 ''',
-                (file_path, size, modified_time, hash_value)
+                (file_path, size, modified_time, hash_value, modified_time, current_time, current_time)
             )
             return cursor.lastrowid
         except Exception as e:
@@ -87,9 +89,9 @@ class FileRepository:
                     'path': row[1],
                     'size': row[2],
                     'modified_time': row[3],
-                    'hash': row[4],
-                    'is_duplicate': bool(row[5]),
-                    'duplicate_of': row[6]
+                    'hash': row[8],
+                    'is_duplicate': bool(row[9]),
+                    'duplicate_of': row[10]
                 }
             return None
         except Exception as e:
@@ -117,9 +119,9 @@ class FileRepository:
                     'path': row[1],
                     'size': row[2],
                     'modified_time': row[3],
-                    'hash': row[4],
-                    'is_duplicate': bool(row[5]),
-                    'duplicate_of': row[6]
+                    'hash': row[8],
+                    'is_duplicate': bool(row[9]),
+                    'duplicate_of': row[10]
                 }
             return None
         except Exception as e:
@@ -198,9 +200,9 @@ class FileRepository:
                     'path': row[1],
                     'size': row[2],
                     'modified_time': row[3],
-                    'hash': row[4],
-                    'is_duplicate': bool(row[5]),
-                    'duplicate_of': row[6]
+                    'hash': row[8],
+                    'is_duplicate': bool(row[9]),
+                    'duplicate_of': row[10]
                 }
                 for row in cursor.fetchall()
             ]
@@ -228,9 +230,9 @@ class FileRepository:
                     'path': row[1],
                     'size': row[2],
                     'modified_time': row[3],
-                    'hash': row[4],
-                    'is_duplicate': bool(row[5]),
-                    'duplicate_of': row[6]
+                    'hash': row[8],
+                    'is_duplicate': bool(row[9]),
+                    'duplicate_of': row[10]
                 }
                 for row in cursor.fetchall()
             ]
@@ -252,9 +254,9 @@ class FileRepository:
                     'path': row[1],
                     'size': row[2],
                     'modified_time': row[3],
-                    'hash': row[4],
-                    'is_duplicate': bool(row[5]),
-                    'duplicate_of': row[6]
+                    'hash': row[8],
+                    'is_duplicate': bool(row[9]),
+                    'duplicate_of': row[10]
                 }
                 for row in cursor.fetchall()
             ]
@@ -297,9 +299,9 @@ class FileRepository:
                     'path': row[1],
                     'size': row[2],
                     'modified_time': row[3],
-                    'hash': row[4],
-                    'is_duplicate': bool(row[5]),
-                    'duplicate_of': row[6]
+                    'hash': row[8],
+                    'is_duplicate': bool(row[9]),
+                    'duplicate_of': row[10]
                 }
                 for row in cursor.fetchall()
             ]
@@ -323,9 +325,9 @@ class FileRepository:
                     'path': row[1],
                     'size': row[2],
                     'modified_time': row[3],
-                    'hash': row[4],
-                    'is_duplicate': bool(row[5]),
-                    'duplicate_of': row[6]
+                    'hash': row[8],
+                    'is_duplicate': bool(row[9]),
+                    'duplicate_of': row[10]
                 }
                 for row in cursor.fetchall()
             ]
@@ -372,21 +374,25 @@ class FileRepository:
             return 0
 
         try:
+            current_time = int(time.time())
             data = [
                 (
                     file_data['path'],
                     file_data['size'],
                     file_data['modified_time'],
-                    file_data.get('hash')
+                    file_data.get('hash'),
+                    file_data.get('created_time', file_data['modified_time']),
+                    current_time,
+                    current_time
                 )
                 for file_data in files
             ]
 
             self.db.executemany(
                 '''INSERT INTO files
-                (path, size, modified_time, hash)
-                VALUES (?, ?, ?, ?)''',
-                [tuple(item) for item in data]
+                (path, size, modified_time, hash, created_time, scanned_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                data
             )
             return len(files)
         except Exception as e:  # pylint: disable=broad-exception-caught

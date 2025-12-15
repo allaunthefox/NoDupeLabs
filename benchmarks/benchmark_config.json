@@ -1,0 +1,31 @@
+{
+  "benchmark_settings": {
+    "threading": {
+      "thread_counts": [1, 2, 4, 8, 16],
+      "file_count": 100,
+      "file_size_mb": 0.5,
+      "iterations": 3
+    },
+    "parallel_strategies": {
+      "strategies": [
+        {"name": "Sequential", "use_processes": false, "use_interpreters": false},
+        {"name": "Threading", "use_processes": false, "use_interpreters": false},
+        {"name": "Processing", "use_processes": true, "use_interpreters": false}
+      ],
+      "file_count": 50,
+      "file_size_mb": 1.0,
+      "iterations": 3,
+      "max_workers": 8
+    },
+    "test_files": {
+      "num_files": 50,
+      "size_mb": 1.0,
+      "duplicate_ratio": 0.1
+    },
+    "reporting": {
+      "output_dir": "benchmarks",
+      "threading_report_file": "threading_performance_report.md",
+      "parallel_report_file": "parallel_strategy_report.md"
+    }
+  }
+}

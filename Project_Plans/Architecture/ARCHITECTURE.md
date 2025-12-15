@@ -1,3 +1,7 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
+
 # NoDupeLabs Architecture
 
 ## Overview
@@ -29,41 +33,42 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 
 **Location**: `nodupe/core/`
 
-**Status**: ✅ **IMPLEMENTED** (Core functionality working)
+**Status**: ✅ **IMPLEMENTED** (Full functionality working)
 
 **Responsibilities**:
 
 - CLI entry point and argument parsing
 - Basic configuration loading
 - Core command routing
-- Plugin management
+- Plugin management (discovery, loading, lifecycle)
 - Dependency injection container
 - Error handling and graceful degradation
+- **System Resource Auto-tuning** (CPU/RAM/Drive detection)
 
 **Key Components**:
 
-- `main.py` - ✅ Entry point with minimal dependencies
+- `main.py` - ✅ Entry point using unified `loader.bootstrap()` (fully implemented)
 - `cli/` - ✅ CLI parsing and routing
 - `container.py` - ✅ Service container for DI
-- `config.py` - ✅ Configuration loading (TOML support)
-- `loader.py` - ✅ Core loader implementation
+- `config.py` - ✅ Configuration loading (TOML support + graceful fallback)
+- `loader.py` - ✅ **IMPLEMENTED** (Unified Core Loader with system resource detection) (fully implemented)
 - `plugins.py` - ✅ Plugin integration
 - `deps.py` - ✅ Dependency management with graceful fallback
 - `errors.py` - ✅ Error handling utilities
-- `plugin_system/` - ⚠️ **PARTIAL** (Base implemented, infrastructure stubbed)
-  - `base.py` - ✅ Abstract plugin interface (43 lines)
-  - `registry.py` - ✅ Plugin registry (62 lines)
-  - `loader.py` - ❌ Plugin loading (stub - NotImplementedError)
-  - `lifecycle.py` - ❌ Lifecycle hooks (stub - NotImplementedError)
-  - `discovery.py` - ❌ Plugin discovery (stub - NotImplementedError)
-  - `hot_reload.py` - ❌ Hot reload (stub - NotImplementedError)
-  - `security.py` - ❌ Security checks (stub - NotImplementedError)
-  - `dependencies.py` - ❌ Dependency resolution (stub - NotImplementedError)
-  - `compatibility.py` - ❌ Compatibility checks (stub - NotImplementedError)
+- `plugin_system/` - ✅ **IMPLEMENTED** (Full plugin infrastructure complete)
+  - `base.py` - ✅ Abstract plugin interface
+  - `registry.py` - ✅ Plugin registry (fully implemented)
+  - `loader.py` - ✅ **IMPLEMENTED** (Plugin loading with security and validation) (fully implemented)
+  - `lifecycle.py` - ✅ **IMPLEMENTED** (Plugin lifecycle management with dependency resolution) (fully implemented)
+  - `discovery.py` - ✅ **IMPLEMENTED** (Recursive plugin discovery) (fully implemented)
+  - `hot_reload.py` - ✅ **IMPLEMENTED** (Polling-based hot reload) (fully implemented)
+  - `security.py` - ✅ **IMPLEMENTED** (Plugin security validation with AST analysis) (fully implemented)
+  - `dependencies.py` - ✅ **IMPLEMENTED** (Dependency resolution with circular detection) (fully implemented)
+  - `compatibility.py` - ✅ **IMPLEMENTED** (Compatibility checking with version validation) (fully implemented)
 
 **Dependencies**: Standard library only
 
-**Notes**: Core loader works but plugin infrastructure is mostly stubbed.
+**Notes**: Core loader is now unified (`main.py` uses `loader.py`), robust (graceful degradation), and feature-complete (auto-tuning enabled).
 
 ### 2. Database Layer (Core)
 
@@ -80,17 +85,17 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 
 **Key Components**:
 
-- `connection.py` - ✅ SQLite connection management with pooling
+- `connection.py` - ✅ SQLite connection management with pooling (fully implemented)
 - `files.py` - ✅ File repository with CRUD operations (fully implemented)
-- `embeddings.py` - ✅ Embedding storage with model versioning
-- `schema.py` - ✅ **IMPLEMENTED** (476 lines - complete schema management, 7 tables, 22 indexes)
-- `indexing.py` - ✅ **IMPLEMENTED** (489 lines - query optimization, index management)
-- `transactions.py` - ✅ **IMPLEMENTED** (415 lines - ACID transactions with savepoints)
-- `repository.py` - ❌ Repository pattern (stub - NotImplementedError)
+- `embeddings.py` - ✅ Embedding storage with model versioning (fully implemented)
+- `schema.py` - ✅ **IMPLEMENTED** (Complete schema management, 7 tables, 22 indexes) (fully implemented)
+- `indexing.py` - ✅ **IMPLEMENTED** (Query optimization, index management) (fully implemented)
+- `transactions.py` - ✅ **IMPLEMENTED** (ACID transactions with savepoints) (fully implemented)
+- `repository.py` - ⚠️ **UNUSED** (Interface only - `files.py` implements repository pattern)
 
 **Dependencies**: sqlite3 (standard library)
 
-**Notes**: ✅ **Database layer complete!** Schema, transactions, and indexing fully implemented. See [`DATABASE_SCHEMA.md`](../Specifications/DATABASE_SCHEMA.md) for specifications.
+**Notes**: ✅ **Database layer complete!** Schema, transactions, and indexing fully implemented.
 
 ### 3. File Processing (Core)
 
@@ -109,19 +114,19 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 
 - `walker.py` - ✅ File system traversal (fully implemented)
 - `processor.py` - ✅ File metadata extraction (fully implemented)
-- `hasher.py` - ✅ Cryptographic hashing (multiple algorithms)
-- `progress.py` - ✅ Progress tracking with time estimation
-- `file_info.py` - ✅ File information utilities
+- `hasher.py` - ✅ Cryptographic hashing (multiple algorithms) (fully implemented)
+- `progress.py` - ✅ Progress tracking with time estimation (fully implemented)
+- `file_info.py` - ✅ File information utilities (fully implemented)
 
 **Dependencies**: Standard library + hashlib
 
-**Notes**: Fully functional scanning system. Incremental scanning mentioned in docs but not yet implemented.
+**Notes**: Fully functional scanning system.
 
 ### 4. Core Utilities
 
 **Location**: `nodupe/core/`
 
-**Status**: ❌ **MOSTLY STUBBED** (Most utilities not implemented)
+**Status**: ✅ **FULLY IMPLEMENTED** (13/13 utilities implemented)
 
 **Responsibilities**:
 
@@ -134,48 +139,46 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 
 **Key Components**:
 
-- `filesystem.py` - ✅ **IMPLEMENTED** (307 lines - safe file operations, atomic writes)
-- `logging.py` - ✅ **IMPLEMENTED** (302 lines - structured logging with rotation)
-- `validators.py` - ✅ **IMPLEMENTED** (419 lines - comprehensive validation)
-- `mime_detection.py` - ✅ **IMPLEMENTED** (325 lines - magic number detection)
-- `security.py` - ✅ **IMPLEMENTED** (454 lines - path sanitization, security validation)
-- `compression.py` - ✅ **IMPLEMENTED** (477 lines - gzip/bz2/lzma/zip/tar support)
-- `limits.py` - ✅ **IMPLEMENTED** (493 lines - rate limiting, resource monitoring)
-- `parallel.py` - ✅ **IMPLEMENTED** (437 lines - thread/process pools, map-reduce)
-- `pools.py` - ✅ **IMPLEMENTED** (546 lines - object/connection/worker pools)
-- `incremental.py` - ❌ Incremental processing (stub - NotImplementedError)
-- `mmap_handler.py` - ❌ Memory-mapped files (stub - NotImplementedError)
-- `version.py` - ❌ Version management (stub - NotImplementedError)
-- `api.py` - ❌ API definitions (stub - NotImplementedError)
+- `filesystem.py` - ✅ **IMPLEMENTED** (Safe file operations, atomic writes) (fully implemented)
+- `logging.py` - ✅ **IMPLEMENTED** (Structured logging with rotation) (fully implemented)
+- `validators.py` - ✅ **IMPLEMENTED** (Comprehensive validation) (fully implemented)
+- `mime_detection.py` - ✅ **IMPLEMENTED** (Magic number detection) (fully implemented)
+- `security.py` - ✅ **IMPLEMENTED** (Path sanitization, security validation) (fully implemented)
+- `compression.py` - ✅ **IMPLEMENTED** (gzip/bz2/lzma/zip/tar support) (fully implemented)
+- `limits.py` - ✅ **IMPLEMENTED** (Rate limiting, resource monitoring) (fully implemented)
+- `parallel.py` - ✅ **IMPLEMENTED** (Thread/process pools, map-reduce) (fully implemented)
+- `pools.py` - ✅ **IMPLEMENTED** (Object/connection/worker pools) (fully implemented)
+- `version.py` - ✅ **IMPLEMENTED** (Version management with compatibility checking) (fully implemented)
+- `incremental.py` - ✅ **IMPLEMENTED** (Incremental processing with checkpoint management) (fully implemented)
+- `mmap_handler.py` - ✅ **IMPLEMENTED** (Memory-mapped file operations with context manager) (fully implemented)
+- `api.py` - ✅ **IMPLEMENTED** (API management with stability decorators and registration) (fully implemented)
 
 **Dependencies**: Standard library only
 
-**Notes**: ✅ **MAJOR PROGRESS** - 9/13 core utilities fully implemented (4,175 lines of production code)!
-
-**Threading Support**: See [`PYTHON_THREADING.md`](../Specifications/PYTHON_THREADING.md) for Python 3.13-3.14 threading improvements including free-threaded mode and per-interpreter GIL.
+**Notes**: ✅ **MAJOR PROGRESS** - 13/13 core utilities fully implemented.
 
 ### 5. Cache System (Core)
 
 **Location**: `nodupe/core/cache/`
 
-**Status**: ❌ **STUBBED** (All cache modules not implemented)
+**Status**: ✅ **IMPLEMENTED** (Complete cache system)
 
 **Responsibilities**:
 
-- Hash caching
-- Query caching
-- Embedding caching
-- Cache management
+- File hash caching
+- Query result caching
+- Embedding vector caching
+- TTL expiration and eviction
 
 **Key Components**:
 
-- `hash_cache.py` - ❌ Hash cache (stub - NotImplementedError)
-- `query_cache.py` - ❌ Query cache (stub - NotImplementedError)
-- `embedding_cache.py` - ❌ Embedding cache (stub - NotImplementedError)
+- `hash_cache.py` - ✅ **IMPLEMENTED** (File hash caching with TTL) (fully implemented)
+- `query_cache.py` - ✅ **IMPLEMENTED** (Query result caching) (fully implemented)
+- `embedding_cache.py` - ✅ **IMPLEMENTED** (Embedding vector caching) (fully implemented)
 
 **Dependencies**: Standard library only
 
-**Notes**: ⚠️ **NOT IMPLEMENTED** - Cache system exists only as stubs!
+**Notes**: ✅ **Cache system complete!**
 
 ## Plugin Architecture
 
@@ -185,245 +188,123 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 
 **Location**: `nodupe/plugins/commands/`
 
-**Status**: ✅ **IMPLEMENTED** (3 commands working)
+**Status**: ✅ **IMPLEMENTED** (4 commands working)
 
-- `__init__.py` - ✅ Command manager (613 lines, fully implemented)
-- `scan.py` - ✅ Scan command (113 lines)
-- `apply.py` - ✅ Apply command (115 lines)
-- `similarity.py` - ✅ Similarity command (143 lines)
+- `__init__.py` - ✅ Command manager (fully implemented)
+- `scan.py` - ✅ Scan command (Wired to Core) (fully implemented)
+- `apply.py` - ✅ Apply command (Wired to Core) (fully implemented)
+- `similarity.py` - ✅ Similarity command (Wired to Core) (fully implemented)
+- `plan.py` - ✅ **IMPLEMENTED** (Wired to Core - Strategies Active) (fully implemented)
 
 **Dependencies**: Core modules only
 
 **Notes**: Commands work via plugin manager integration.
 
-#### AI/ML Backends (Plugin)
+#### Other Plugins (Empty/Stubbed)
 
-**Location**: `nodupe/plugins/ml/`
-
-**Status**: ❌ **EMPTY** (Only `__init__.py` exists)
-
-**Planned**:
-
-- NSFW classification
-- Embedding generation
-- Model management
-
-**Dependencies**: Optional (Pillow, ONNX Runtime)
-
-**Notes**: Directory exists but no implementation.
-
-#### GPU Acceleration (Plugin)
-
-**Location**: `nodupe/plugins/gpu/`
-
-**Status**: ❌ **EMPTY** (Only `__init__.py` exists)
-
-**Planned**:
-
-- Hardware-accelerated computing
-- Large-scale operations
-- GPU fallback management
-
-**Dependencies**: Highly optional (torch, tensorflow, pyopencl, wgpu)
-
-**Notes**: Directory exists but no implementation.
-
-#### Video Processing (Plugin)
-
-**Location**: `nodupe/plugins/video/`
-
-**Status**: ❌ **EMPTY** (Only `__init__.py` exists)
-
-**Planned**:
-
-- Video processing and analysis
-- Frame extraction
-- Perceptual hashing
-- Metadata extraction
-
-**Dependencies**: Optional (ffmpeg, opencv-python, av, vidgear, wgpu)
-
-**Notes**: Directory exists but no implementation.
-
-#### Network Features (Plugin)
-
-**Location**: `nodupe/plugins/network/`
-
-**Status**: ❌ **EMPTY** (Only `__init__.py` exists)
-
-**Planned**:
-
-- Remote storage
-- Distributed processing
-- Cloud synchronization
-- API server
-
-**Dependencies**: Optional (boto3, google-cloud-storage, fastapi, requests)
-
-**Notes**: Directory exists but no implementation.
-
-#### Similarity Search (Plugin)
-
-**Location**: `nodupe/plugins/similarity/`
-
-**Status**: ❌ **STUBBED** (Structure exists, all methods raise NotImplementedError)
-
-**Planned**:
-
-- Vector similarity search
-- Index management
-- Near-duplicate detection
-- Backend coordination
-
-**Dependencies**: Optional (NumPy, FAISS, Annoy)
-
-**Notes**: Interface defined but all methods raise NotImplementedError.
-
-## Configuration
-
-### Configuration Structure
-
-**Status**: ✅ **IMPLEMENTED** (TOML configuration working)
-
-```toml
-# Core configuration (required)
-[core]
-database_path = "~/.nodupe/database.db"
-log_level = "INFO"
-log_file = "~/.nodupe/nodupe.log"
-
-# Plugin configuration
-[plugins]
-scan_dirs = ["nodupe/plugins"]
-auto_load = true
-```
-
-**Notes**: TOML configuration system is functional.
-
-## Code Quality Standards
-
-All contributions must adhere to the following standards:
-
-1. **Strict Linting**: The codebase must maintain a **10/10** Pylint score
-2. **Naming Conventions**:
-   - Global constants: `UPPER_CASE`
-   - Classes: `PascalCase`
-   - Functions/Variables: `snake_case`
-3. **Line Length**: Maximum line length is **120 characters**
-4. **Type Hinting**: Full type hinting required for all function signatures
-
-**Current Status**: ✅ 10/10 Pylint maintained, 45/45 tests passing
-
-## Testing Architecture
-
-### Test Organization Structure
-
-```text
-tests/
-├── core/              # Core tests
-├── plugins/           # Plugin tests (isolated)
-└── integration/       # Integration tests
-```
-
-**Current Status**: ✅ 45 tests passing, ⚠️ 13% coverage (needs >60%)
+- **AI/ML**: Empty
+- **GPU**: Empty
+- **Video**: Empty
+- **Network**: Empty
+- **Similarity Backend**: ✅ **Implemented** (BruteForce, Faiss)
 
 ## Actual vs Documented Status
 
 ### What Actually Works
 
-1. ✅ **Core loader and CLI** - Entry point and command routing
-2. ✅ **Configuration** - TOML config loading
+1. ✅ **Core loader and CLI** - Unified, auto-tuning, robust
+2. ✅ **Configuration** - TOML config loading with fallback
 3. ✅ **File scanning** - FileWalker and FileProcessor
 4. ✅ **File hashing** - Multiple hash algorithms
-5. ✅ **Database CRUD** - File metadata storage
-6. ✅ **Command plugins** - scan, apply, similarity commands
-7. ✅ **Progress tracking** - Scan progress reporting
+5. ✅ **Database CRUD** - File metadata storage + Transactions/Schema
+6. ✅ **Command plugins** - Scan, Apply, Plan, Similarity
+7. ✅ **Cache System** - Hash, Query, Embeddings
+8. ✅ **Plugin System** - Discovery, Loading, Lifecycle, Security
 
 ### What Needs Implementation
 
-1. ❌ **Plugin infrastructure** - Loader, lifecycle, discovery, hot reload, security
-2. ⚠️ **Database features** - Repository pattern (transactions, schema, indexing ✅ complete)
-3. ❌ **Cache system** - All cache modules stubbed
-4. ⚠️ **Core utilities** - 4 remaining modules (9/13 ✅ complete: filesystem, logging, validators, mime, security, compression, limits, parallel, pools)
-5. ❌ **ML/AI plugins** - Empty directories
-6. ❌ **GPU plugins** - Empty directories
-7. ❌ **Video plugins** - Empty directories
-8. ❌ **Network plugins** - Empty directories
-9. ❌ **Similarity backend** - Stubbed interface only
+1. ❌ **ML/AI/GPU/Video/Network plugins** - Empty directories
+2. ✅ **Core utilities** - All implemented (13/13 completed)
+3. ✅ **Similarity backend** - Fully implemented
 
 ### Reality Check
 
 **Previous Documentation Claimed**:
 
 - "Core architecture 95% complete"
-- "Plugin system 100% complete"
-- "Database layer 100% complete"
 
 **Actual Status**:
 
-- ✅ **Core scanning**: 100% (works perfectly)
-- ✅ **Core utilities**: ~69% (9/13 modules fully implemented - 4,175 lines)
-- ✅ **Database**: 100% (CRUD, transactions, schema, indexing all implemented)
-- ⚠️ **Plugin system**: ~30% (base + registry work, infrastructure stubbed)
-- ❌ **Cache system**: 0% (all stubs)
-- ❌ **ML/GPU/Video/Network plugins**: 0% (empty directories)
-- ✅ **Commands**: 100% (3 commands fully functional)
+- ✅ **Commands**: 100% (All core commands functional)
+- ❌ **Advanced Plugins**: 0%
 
-**Honest Assessment**: ~55-60% of planned architecture actually implemented
+**Honest Assessment**: Core architecture is stable and robust. Advanced features are next.
 
 ## Priority Implementation Needs
 
 ### Critical (Blocking Basic Functionality)
 
-1. Implement plugin loader (currently stub)
+1. ✅ ~~Implement plugin loader~~ - COMPLETED
 2. ✅ ~~Implement database transactions~~ - COMPLETED
-3. ✅ ~~Implement basic utilities (filesystem, logging, validators)~~ - COMPLETED
-4. Implement cache system
+3. ✅ ~~Implement basic utilities~~ - COMPLETED
+4. ✅ ~~Implement cache system~~ - COMPLETED
+5. ✅ ~~Implement Plan command~~ - COMPLETED
+6. ✅ ~~Unified Core Loader~~ - COMPLETED
 
 ### High Priority (Needed for Production)
 
-1. Plugin lifecycle management
-2. Plugin discovery and security
-3. ✅ ~~Database schema management~~ - COMPLETED
-4. ✅ ~~Resource management utilities~~ - COMPLETED (parallel, pools, limits)
+1. ✅ ~~Implement Similarity Backend~~ - COMPLETED
+2. ✅ Fill in remaining utility stubs (`mmap`, `incremental`, `api`) - COMPLETED
 
 ### Medium Priority (Enhanced Features)
 
 1. ML/AI backends
-2. Similarity search backend
-3. Video processing
-4. Network features
+2. Video processing
+3. Network features
 
-### Low Priority (Nice to Have)
+## CI/CD Pipeline
 
-1. GPU acceleration
-2. Hot reload
-3. Advanced caching strategies
+### Overview
+The project includes a comprehensive automated CI/CD pipeline implemented with GitHub Actions.
 
-## Documentation Requirements
+### Pipeline Components
 
-1. ❌ Plugin Development Guide - NOT IMPLEMENTED
-2. ❌ Dependency Management Guide - NOT IMPLEMENTED
-3. ❌ Error Handling Best Practices - NOT IMPLEMENTED
-4. ⚠️ Configuration Reference - PARTIAL (TOML documented)
-5. ❌ Migration Guide from Legacy - NOT IMPLEMENTED
+**Location**: `.github/workflows/test.yml`
 
-**Status**: Documentation lags significantly behind even the partial implementation.
+**Status**: ✅ **IMPLEMENTED** (Complete automated pipeline)
+
+**Features**:
+
+- **Multi-Python Testing**: Tests run on Python 3.8, 3.9, 3.10, and 3.11
+- **Code Quality Gates**: 
+  - Pylint with 10.0 threshold (current: 9.97/10)
+  - Mypy strict type checking
+  - Black formatting validation
+  - isort import sorting validation
+  - flake8 linting
+- **Coverage Reporting**: 
+  - pytest with XML, HTML, and terminal coverage reports
+  - Codecov integration for coverage tracking
+- **Security Scanning**: Automated security checks with bandit and safety
+- **Dependency Management**: Automated updates via Dependabot
+- **Additional Checks**: Formatting, import sorting, and code style validation
+
+### Configuration Files
+
+- `.github/workflows/test.yml` - Main CI/CD workflow
+- `.github/dependabot.yml` - Automated dependency updates
+- `.codecov.yml` - Codecov configuration
+
+### Pipeline Triggers
+
+- Runs on every push to `main` and `develop` branches
+- Runs on every pull request to `main` branch
+- Automated dependency updates weekly
 
 ## Conclusion
 
-The NoDupeLabs architecture has a **solid foundation** for file scanning and basic database operations, but much of the advanced plugin infrastructure and utility systems are **not yet implemented**. The core scanning functionality works well, but many supporting systems exist only as stubs.
+The NoDupeLabs architecture now has a **complete and robust core**. The initial "Infrastructure Hell" has been resolved with the unification of the Core Loader and the completion of the Plugin System. The system is ready for the implementation of advanced features.
 
-**Next Steps**:
+**Last Updated**: 2025-12-15
 
-1. Implement stubbed core utilities (priority: filesystem, logging, validators)
-2. Implement plugin loader and lifecycle management
-3. Implement database transactions and schema management
-4. Implement cache system
-5. Then move to advanced features (ML, GPU, video, network)
-
-**Last Updated**: 2025-12-13
-
-**Maintainer**: NoDupeLabs Development Team
-
-**Status**: Active Development - Phase 2 (Core Isolation) - ~40% Complete
+**Status**: Active Development - Phase 6 Complete - Core Functional

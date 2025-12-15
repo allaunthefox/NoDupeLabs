@@ -1,0 +1,34 @@
+{
+  "timestamp": "2025-12-14T23:10:14.833329",
+  "command_args": {
+    "mode": "integrity",
+    "fast": false,
+    "verbose": true,
+    "repair": false
+  },
+  "summary": {
+    "total_checks": 0,
+    "total_errors": 0,
+    "total_warnings": 0
+  },
+  "details": {
+    "integrity": {
+      "checks": 0,
+      "errors": 0,
+      "warnings": 0,
+      "error_details": []
+    },
+    "consistency": {
+      "checks": 0,
+      "errors": 0,
+      "warnings": 0,
+      "error_details": []
+    },
+    "checksums": {
+      "checks": 0,
+      "errors": 0,
+      "warnings": 0,
+      "error_details": []
+    }
+  }
+}

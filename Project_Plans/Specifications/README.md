@@ -218,13 +218,15 @@ def validate_database_schema():
 
 ## Future Specifications
 
+### Implemented Interfaces
+1. **Plugin Interface**: Implemented in `nodupe.core.plugin_system`
+2. **Command Interface**: Implemented in `nodupe.core.commands`
+
 ### Planned Specifications
 
 1. **API Schema**: REST API specifications
-2. **Plugin Interface**: Plugin development specifications
-3. **Command Interface**: Command-line interface specifications
-4. **Event System**: Event emission and handling specifications
-5. **Error Codes**: Standardized error code specifications
+2. **Event System**: Event emission and handling specifications
+3. **Error Codes**: Standardized error code specifications
 
 ### Contribution
 

@@ -45,7 +45,10 @@ class DatabaseConnection:
         Args:
             db_path: Path to SQLite database file
         """
-        self.db_path = str(Path(db_path).absolute())
+        if db_path == ":memory:":
+            self.db_path = ":memory:"
+        else:
+            self.db_path = str(Path(db_path).absolute())
         self._local = threading.local()
 
     @classmethod
@@ -167,6 +170,10 @@ class DatabaseConnection:
             finally:
                 del self._local.connection
 
+    def __del__(self) -> None:
+        """Clean up database connection when object is destroyed."""
+        self.close()
+
     def initialize_database(self) -> None:
         """Initialize database schema if it doesn't exist."""
         conn = self.get_connection()
@@ -214,7 +221,7 @@ class DatabaseConnection:
         conn.execute(
             'CREATE INDEX IF NOT EXISTS idx_embeddings_model ON embeddings(model_version)')
 
-        self.commit()
+        conn.commit()
 
 
 def get_connection(db_path: str = "output/index.db") -> DatabaseConnection:
