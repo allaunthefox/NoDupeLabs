@@ -16,7 +16,7 @@ This directory contains detailed technical specifications for NoDupeLabs compone
 - Schema evolution policy**Usage**:
 
 ```toml
-# All configuration files must adhere to this schema
+# \# All configuration files must adhere to this schema
 [nodupe]
 version = "1.0.0"
 
@@ -37,7 +37,7 @@ log_level = "INFO"
 - Performance optimization techniques**Usage**:
 
 ```python
-# Database operations must follow this schema
+# \# Database operations must follow this schema
 def initialize_database():
 ```
 
@@ -66,9 +66,9 @@ size INTEGER NOT NULL,
 - Metadata validation and normalization**Usage**:
 
 ```python
-# Extract metadata following standards
+# \# Extract metadata following standards
 metadata = extract_file_metadata(file_path)
-# Returns standardized metadata dict
+# \# Returns standardized metadata dict
 ```
 
 ## 🧵 Python Threading Support**File** [`PYTHON_THREADING.md`](PYTHON_THREADING.md)**Purpose** Comprehensive guide to Python's modern threading and parallelism features**Contents**
@@ -88,22 +88,14 @@ from concurrent.futures import InterpreterPoolExecutor
 
 # Python 3.14+ parallel execution with interpreters
 with InterpreterPoolExecutor(max_interpreters=4) as executor:
+    results = executor.map(process_file, files)
 ```
 
-results = executor.map(process_file, files)
-
 ```text
-
 # Or use free-threaded Python 3.13+
 import sys
 if sys.flags.gil == 0:
-```
-
-### Running without GIL - true parallel threading
-
-pass
-
-```text
+    pass
 ```
 
 ## Specification Standards
@@ -157,7 +149,7 @@ raise ValidationError(f"Missing required section: {section}")
 
 ```
 
-# ### Validate core section
+### Validate core section
 
 core_fields = ['database_path', 'log_level', 'log_file']
 for field in core_fields:
@@ -175,9 +167,9 @@ raise ValidationError(f"Missing required field: core.{field}")
 
 ```
 
-# ### Validate field types and constraints
+### Validate field types and constraints
 
-# ... additional validation per schema
+... additional validation per schema
 
 ```text
 ```
@@ -196,7 +188,7 @@ cursor = conn.cursor()
 
 ```
 
-# ### Check required tables exist
+### Check required tables exist
 
 required_tables = [
 
@@ -228,9 +220,9 @@ raise DatabaseError(f"Missing required table: {table}")
 
 ```
 
-# ### Check required columns exist
+### Check required columns exist
 
-## ... additional validation per schema
+... additional validation per schema
 
 ```text
 ```
