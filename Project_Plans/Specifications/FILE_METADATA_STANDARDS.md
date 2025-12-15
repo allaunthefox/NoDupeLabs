@@ -8,7 +8,7 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 
 ### File Type Identification Standards
 
-#### MIME Types (RFC 6838)**Standard**: RFC 6838 - Media Type Specifications and Registration Procedures**Reference**: [RFC 6838](https://tools.ietf.org/html/rfc6838)**Implementation Requirements**:
+#### MIME Types (RFC 6838)**Standard** RFC 6838 - Media Type Specifications and Registration Procedures**Reference** [RFC 6838](https://tools.ietf.org/html/rfc6838)**Implementation Requirements**
 
 - Use IANA-registered MIME types
 - Follow RFC 6838 for media type registration
@@ -22,7 +22,7 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 - `audio/mpeg` - MP3 audio
 - `application/pdf` - PDF documents
 
-#### File Extensions (ISO/IEC 23001-4)**Standard**: ISO/IEC 23001-4:2018 - Information technology — MPEG systems technologies — Part 4: Codec configuration representation**Reference**: [ISO/IEC 23001-4](https://www.iso.org/standard/71041.html)**Implementation Requirements**:
+#### File Extensions (ISO/IEC 23001-4)**Standard** ISO/IEC 23001-4:2018 - Information technology — MPEG systems technologies — Part 4: Codec configuration representation**Reference** [ISO/IEC 23001-4](https://www.iso.org/standard/71041.html)**Implementation Requirements**
 
 - Use standard file extensions
 - Map extensions to MIME types correctly
@@ -30,7 +30,7 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 
 ### File Metadata Standards
 
-#### Dublin Core Metadata (ISO 15836-1:2017)**Standard**: ISO 15836-1:2017 - Dublin Core metadata element set**Reference**: [ISO 15836-1:2017](https://www.iso.org/standard/63555.html)**Required Metadata Elements**:
+#### Dublin Core Metadata (ISO 15836-1:2017)**Standard** ISO 15836-1:2017 - Dublin Core metadata element set**Reference** [ISO 15836-1:2017](https://www.iso.org/standard/63555.html)**Required Metadata Elements**
 
 | Element | Description | Standard |
 | --- | --- | --- | --- |
@@ -50,7 +50,7 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 | `coverage` | Extent or scope | DCMI |
 | `rights` | Rights management | DCMI |
 
-#### EXIF Metadata (ISO 12234-1)**Standard**: ISO 12234-1:2021 - Electronic still-picture imaging — Removable memory — Part 1: Basic removable memory model**Reference**: [ISO 12234-1:2021](https://www.iso.org/standard/75354.html)**Image Metadata Requirements**:
+#### EXIF Metadata (ISO 12234-1)**Standard** ISO 12234-1:2021 - Electronic still-picture imaging — Removable memory — Part 1: Basic removable memory model**Reference** [ISO 12234-1:2021](https://www.iso.org/standard/75354.html)**Image Metadata Requirements**
 
 | Property | Description | Standard |
 | --- | --- | --- | --- |
@@ -79,7 +79,7 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 | `DateTimeOriginal` | Original date/time | EXIF (ISO 8601) |
 | `DateTimeDigitized` | Digitization date/time | EXIF (ISO 8601) |
 
-#### Audio Metadata (ID3v2)**Standard**: ID3v2 - Audio metadata tagging**Reference**: [ID3v2 specification](https://id3.org/id3v2.4.0-structure)**Audio Metadata Requirements**:
+#### Audio Metadata (ID3v2)**Standard** ID3v2 - Audio metadata tagging**Reference** [ID3v2 specification](https://id3.org/id3v2.4.0-structure)**Audio Metadata Requirements**
 
 | Frame ID | Description | Standard |
 | --- | --- | --- | --- |
@@ -100,7 +100,7 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 | `TFLT` | File type | ID3v2 |
 | `TXXX` | User defined text information | ID3v2 |
 
-#### Video Metadata (ISO/IEC 14496-12)**Standard**: ISO/IEC 14496-12:2015 - Information technology — Coding of audio-visual objects — Part 12: ISO base media file format**Reference**: [ISO/IEC 14496-12](https://www.iso.org/standard/68566.html)**Video Metadata Requirements**:
+#### Video Metadata (ISO/IEC 14496-12)**Standard** ISO/IEC 14496-12:2015 - Information technology — Coding of audio-visual objects — Part 12: ISO base media file format**Reference** [ISO/IEC 14496-12](https://www.iso.org/standard/68566.html)**Video Metadata Requirements**
 
 | Property | Description | Standard |
 | --- | --- | --- | --- |
@@ -120,7 +120,7 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 
 ### File Hashing Standards
 
-#### Cryptographic Hash Functions (FIPS 180-4)**Standard**: FIPS 180-4 - Secure Hash Standard (SHS)**Reference**: [FIPS 180-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)**Supported Hash Algorithms**:
+#### Cryptographic Hash Functions (FIPS 180-4)**Standard** FIPS 180-4 - Secure Hash Standard (SHS)**Reference** [FIPS 180-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf)**Supported Hash Algorithms**
 
 | Algorithm | Output Size | Standard |
 | --- | --- | --- | --- |
@@ -137,7 +137,7 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 
 ### File System Metadata
 
-#### POSIX File Attributes**Standard**: IEEE 1003.1 (POSIX) - Portable Operating System Interface**Reference**: [IEEE 1003.1 (POSIX)](https://pubs.opengroup.org/onlinepubs/9699919799/)**File System Metadata Requirements**:
+#### POSIX File Attributes**Standard** IEEE 1003.1 (POSIX) - Portable Operating System Interface**Reference** [IEEE 1003.1 (POSIX)](https://pubs.opengroup.org/onlinepubs/9699919799/)**File System Metadata Requirements**
 
 | Attribute | Description | Standard |
 | --- | --- | --- | --- |
@@ -160,25 +160,29 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 
 #### File Scanning Process
 
-1.**File Identification**:
-   - Detect MIME type using RFC 6838 standards
-   - Verify file extension against ISO/IEC 23001-4
-   - Use magic number detection for file format validation
+1. **File Identification**
 
-1.**Metadata Extraction**:
-   - Extract standard metadata based on file type
-   - Follow domain-specific standards (EXIF, ID3, ISO BMFF)
-   - Validate metadata against relevant standards
+- Detect MIME type using RFC 6838 standards
+- Verify file extension against ISO/IEC 23001-4
+- Use magic number detection for file format validation
 
-1.**Metadata Storage**:
-   - Store metadata in standardized format
-   - Use JSON Schema Draft 7 for validation
-   - Support both JSON and JSON-L formats
+1. **Metadata Extraction**
 
-1.**Metadata Validation**:
-   - Validate against relevant ISO standards
-   - Ensure compliance with domain-specific requirements
-   - Provide validation reports
+- Extract standard metadata based on file type
+- Follow domain-specific standards (EXIF, ID3, ISO BMFF)
+- Validate metadata against relevant standards
+
+1. **Metadata Storage**
+
+- Store metadata in standardized format
+- Use JSON Schema Draft 7 for validation
+- Support both JSON and JSON-L formats
+
+1. **Metadata Validation**
+
+- Validate against relevant ISO standards
+- Ensure compliance with domain-specific requirements
+- Provide validation reports
 
 ### Metadata Format Specification
 
@@ -186,7 +190,7 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 
 ```json
 {
-  "file": {
+   "file": {
 ```
 
 "path": "/path/to/file.ext",
@@ -259,7 +263,7 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 }
 
 ```text
-  }
+   }
 }
 ```
 
@@ -277,19 +281,22 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 
 #### Metadata Extraction Libraries
 
-1.**Python**:
+1. **Python**:
+
    - `python-magic` for MIME type detection
    - `Pillow` for EXIF metadata
    - `mutagen` for audio metadata
    - `hachoir` for video metadata
 
-1.**JavaScript**:
+1. **JavaScript**:
+
    - `file-type` for MIME type detection
    - `exifr` for EXIF metadata
    - `music-metadata` for audio metadata
    - `strtok3` for video metadata
 
-1.**Validation**:
+1. **Validation**:
+
    - Use JSON Schema Draft 7 for validation
    - Implement standard-specific validation
    - Provide detailed error reporting
@@ -298,30 +305,33 @@ This document defines the file metadata standards that NoDupeLabs must follow wh
 
 #### Validation Process
 
-1.**Standard Compliance Check**:
+1. **Standard Compliance Check**:
+
    - Verify MIME types against IANA registry
    - Validate metadata against relevant ISO standards
    - Ensure hash algorithms follow FIPS standards
 
-1.**Format Validation**:
+1. **Format Validation**:
+
    - Validate JSON/JSON-L format compliance
    - Check schema compliance using JSON Schema
    - Verify timestamp formats (ISO 8601)
 
-1.**Domain-Specific Validation**:
+1. **Domain-Specific Validation**:
+
    - Validate EXIF metadata structure
    - Check ID3 tag format compliance
    - Verify ISO BMFF container format
 
 ### Tabular Data Standards
 
-#### CSV Format (RFC 4180)**Standard**: RFC 4180 - Common Format and MIME Type for Comma-Separated Values (CSV) Files**Reference**: [RFC 4180](https://tools.ietf.org/html/rfc4180)**Implementation Requirements**:
+#### CSV Format (RFC 4180)**Standard** RFC 4180 - Common Format and MIME Type for Comma-Separated Values (CSV) Files**Reference** [RFC 4180](https://tools.ietf.org/html/rfc4180)**Implementation Requirements**
 
 - Use comma as field separator
 - Use double quotes for fields containing special characters
 - Support CR+LF line endings
 - Handle embedded commas and quotes properly
-- Support header row for column names**CSV Format Specification**:
+- Support header row for column names**CSV Format Specification**
 
 ```text
 column1,column2,column3
@@ -329,13 +339,13 @@ column1,column2,column3
 "value with ""quotes""","value with, comma","value3"
 ```
 
-#### TSV Format (ISO/IEC 27032)**Standard**: ISO/IEC 27032:2012 - Information technology — Security techniques — Guidelines for cybersecurity**Reference**: [ISO/IEC 27032](https://www.iso.org/standard/56627.html)**Implementation Requirements**:
+#### TSV Format (ISO/IEC 27032)**Standard** ISO/IEC 27032:2012 - Information technology — Security techniques — Guidelines for cybersecurity**Reference** [ISO/IEC 27032](https://www.iso.org/standard/56627.html)**Implementation Requirements**
 
 - Use tab character (U+0009) as field separator
 - No special quoting required for basic values
 - Support CR+LF or LF line endings
 - Handle embedded tabs and newlines
-- Support header row for column names**TSV Format Specification**:
+- Support header row for column names**TSV Format Specification**
 
 ```text
 column1    column2    column3
@@ -345,19 +355,22 @@ value with    tab    value3
 
 ### Future Standards Integration
 
-1.**Additional Metadata Standards**:
+1. **Additional Metadata Standards**:
+
    - ISO 19115 for geospatial metadata
    - PREMIS for digital preservation metadata
    - METS for digital library metadata
 
-1.**Extended Format Support**:
+1. **Extended Format Support**:
+
    - XML metadata formats
    - RDF metadata formats
    - Linked Data formats
    - CSV format (RFC 4180)
    - TSV format (ISO/IEC 27032)
 
-1.**Automated Compliance**:
+1. **Automated Compliance**:
+
    - Automated metadata validation
    - Standard compliance reporting
    - Metadata quality metrics

@@ -6,7 +6,7 @@ This directory contains detailed technical specifications for NoDupeLabs compone
 
 ## Specification Documents
 
-### 📋 Configuration Schema**File**: [`TOML_SCHEMA.md`](TOML_SCHEMA.md)**Purpose**: Defines the exact schema rules for NoDupeLabs TOML configuration files**Contents**:
+### 📋 Configuration Schema**File** [`TOML_SCHEMA.md`](TOML_SCHEMA.md)**Purpose** Defines the exact schema rules for NoDupeLabs TOML configuration files**Contents**
 
 - Complete TOML configuration structure
 - Section-by-section specifications
@@ -25,7 +25,7 @@ database_path = "~/.nodupe/database.db"
 log_level = "INFO"
 ```
 
-## 🗃️ Database Schema**File**: [`DATABASE_SCHEMA.md`](DATABASE_SCHEMA.md)**Purpose**: Defines the exact database schema for NoDupeLabs SQLite database**Contents**:
+## 🗃️ Database Schema**File** [`DATABASE_SCHEMA.md`](DATABASE_SCHEMA.md)**Purpose** Defines the exact database schema for NoDupeLabs SQLite database**Contents**
 
 - Core tables (files, embeddings, relationships)
 - Plugin tables (plugins, plugin_config)
@@ -57,7 +57,7 @@ size INTEGER NOT NULL,
 ```text
 ```
 
-## 📄 File Metadata Standards**File**: [`FILE_METADATA_STANDARDS.md`](FILE_METADATA_STANDARDS.md)**Purpose**: Defines metadata standards for file handling and processing**Contents**:
+## 📄 File Metadata Standards**File** [`FILE_METADATA_STANDARDS.md`](FILE_METADATA_STANDARDS.md)**Purpose** Defines metadata standards for file handling and processing**Contents**
 
 - ISO metadata standards (Dublin Core, EXIF, ID3, ISO BMFF)
 - FIPS 180-4 hash algorithms
@@ -71,7 +71,7 @@ metadata = extract_file_metadata(file_path)
 # Returns standardized metadata dict
 ```
 
-## 🧵 Python Threading Support**File**: [`PYTHON_THREADING.md`](PYTHON_THREADING.md)**Purpose**: Comprehensive guide to Python's modern threading and parallelism features**Contents**:
+## 🧵 Python Threading Support**File** [`PYTHON_THREADING.md`](PYTHON_THREADING.md)**Purpose** Comprehensive guide to Python's modern threading and parallelism features**Contents**
 
 - Python 3.12-3.14 threading evolution
 - Free-threaded mode (PEP 703) - GIL removal
@@ -99,7 +99,7 @@ import sys
 if sys.flags.gil == 0:
 ```
 
-# Running without GIL - true parallel threading
+### Running without GIL - true parallel threading
 
 pass
 
@@ -157,7 +157,7 @@ raise ValidationError(f"Missing required section: {section}")
 
 ```
 
-# Validate core section
+# ### Validate core section
 
 core_fields = ['database_path', 'log_level', 'log_file']
 for field in core_fields:
@@ -175,7 +175,7 @@ raise ValidationError(f"Missing required field: core.{field}")
 
 ```
 
-# Validate field types and constraints
+# ### Validate field types and constraints
 
 # ... additional validation per schema
 
@@ -196,7 +196,7 @@ cursor = conn.cursor()
 
 ```
 
-# Check required tables exist
+# ### Check required tables exist
 
 required_tables = [
 
@@ -228,7 +228,7 @@ raise DatabaseError(f"Missing required table: {table}")
 
 ```
 
-# Check required columns exist
+# ### Check required columns exist
 
 ## ... additional validation per schema
 
