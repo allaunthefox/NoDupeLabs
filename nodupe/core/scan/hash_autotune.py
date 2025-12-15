@@ -66,8 +66,9 @@ class HashAutotuner:
                         hasher.update(data)
                         # Handle SHAKE algorithms that require length parameter
                         if algorithm_name.startswith('shake_'):
-                            # SHAKE algorithms need length parameter - use 32 bytes for consistency
-                            return hasher.hexdigest(32)
+                            # SHAKE algorithms require length parameter for both digest() and hexdigest()
+                            # Use hexdigest(32) for SHAKE - suppress Pylance warning as this is correct
+                            return hasher.hexdigest(32)  # type: ignore
                         else:
                             return hasher.hexdigest()
                     return hash_func
@@ -269,8 +270,8 @@ def create_autotuned_hasher(**kwargs: Any) -> Tuple[Any, Dict[str, Any]]:
     Returns:
         Tuple of (FileHasher instance, autotune results)
     """
-    from .hasher import FileHasher
     import hashlib
+    from .hasher import FileHasher  # Import at function level to avoid circular import
     
     autotune_results = autotune_hash_algorithm(**kwargs)
     
@@ -295,4 +296,5 @@ def create_autotuned_hasher(**kwargs: Any) -> Tuple[Any, Dict[str, Any]]:
     updated_results = autotune_results.copy()
     updated_results['optimal_algorithm'] = optimal_algorithm
     
-    return hasher, updated_results
+    result = (hasher, updated_results)  # type: ignore
+    return result

@@ -4,9 +4,9 @@ This directory contains the test suite for NoDupeLabs, using pytest as the testi
 
 ## Test Structure
 
-```
+```text
 tests/
-├── __init__.py          # Package initializer
+├──__init__.py          # Package initializer
 ├── conftest.py          # Test configuration and fixtures
 ├── test_basic.py        # Basic functionality tests
 ├── run_tests.py         # Test runner script
@@ -17,7 +17,7 @@ tests/
 
 ## Running Tests
 
-### Using pytest directly:
+### Using pytest directly
 
 ```bash
 # Run all tests
@@ -33,16 +33,16 @@ python -m pytest -v
 python -m pytest --cov=nodupe
 ```
 
-### Using the test runner:
+## Using the test runner
 
 ```bash
-# Run all tests
+## Run all tests
 python tests/run_tests.py
 
-# Run specific test file
+## Run specific test file
 python tests/run_tests.py tests/test_basic.py
 
-# Run with verbose output
+## Run with verbose output
 python tests/run_tests.py -v
 
 # Run specific test markers
@@ -56,7 +56,7 @@ python tests/run_tests.py --slow
 The following markers are available for test selection:
 
 - `unit`: Unit tests
-- `integration`: Integration tests  
+- `integration`: Integration tests
 - `slow`: Slow-running tests
 - `e2e`: End-to-end tests
 
@@ -72,10 +72,15 @@ The following markers are available for test selection:
 
 ```python
 def test_example(temp_dir):
-    # temp_dir is a Path object pointing to a temporary directory
-    test_file = temp_dir / "test.txt"
-    test_file.write_text("test content")
-    assert test_file.exists()
+```
+
+# temp_dir is a Path object pointing to a temporary directory
+
+test_file = temp_dir / "test.txt"
+test_file.write_text("test content")
+assert test_file.exists()
+
+```text
 ```
 
 ## Configuration
@@ -83,6 +88,7 @@ def test_example(temp_dir):
 Test configuration is defined in `pyproject.toml` under `[tool.pytest.ini_options]`.
 
 Key settings:
+
 - Test files: `test_*.py`
 - Test functions: `test_*`
 - Test classes: `Test*`

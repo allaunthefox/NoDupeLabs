@@ -28,7 +28,7 @@ class ServiceContainer:
     - Graceful degradation
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize service container."""
         self.services: Dict[str, Any] = {}
         self.factories: Dict[str, Callable[[], Any]] = {}

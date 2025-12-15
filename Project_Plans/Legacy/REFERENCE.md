@@ -1,6 +1,5 @@
----
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (c) 2025 Allaun
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright (c) 2025 Allaun -->
 
 # NoDupeLabs Legacy System Reference
 
@@ -15,16 +14,16 @@ This document provides comprehensive information about the legacy NoDupeLabs sys
 The legacy NoDupeLabs was organized as a monolithic application with these characteristics:
 
 1. **Tight Coupling**: Core functionality was tightly coupled with optional features
-2. **Direct Imports**: Modules directly imported from each other without clear boundaries
-3. **Limited Isolation**: No clear separation between core and plugin functionality
-4. **Dependency Management**: Optional dependencies were not gracefully handled
+1. **Direct Imports**: Modules directly imported from each other without clear boundaries
+1. **Limited Isolation**: No clear separation between core and plugin functionality
+1. **Dependency Management**: Optional dependencies were not gracefully handled
 
 ### Directory Structure
 
-```
+```yaml
 NoDupeLabs-Legacy/
 ├── nodupe/
-│   ├── __init__.py
+│   ├──__init__.py
 │   ├── main.py              # Entry point
 │   ├── scanner.py           # File scanning
 │   ├── planner.py           # Duplicate detection
@@ -51,20 +50,41 @@ NoDupeLabs-Legacy/
 
 The legacy plugin system provided basic event-based integration:
 
-**Plugin Manager Interface:**
+### Plugin Manager Interface
 ```python
 class LegacyPluginManager:
-    def register(self, event: str, callback: Callable):
-        """Register callback for event"""
-        pass
+```
 
-    def emit(self, event: str, **kwargs):
-        """Emit event to all registered callbacks"""
-        pass
+def register(self, event: str, callback: Callable):
 
-    def load_plugins(self, paths: List[str]):
-        """Load plugins from specified paths"""
-        pass
+```text
+"""Register callback for event"""
+pass
+```
+
+```text
+
+```
+
+def emit(self, event: str,**kwargs):
+
+```text
+"""Emit event to all registered callbacks"""
+pass
+```
+
+```text
+
+```
+
+def load_plugins(self, paths: List[str]):
+
+```python
+"""Load plugins from specified paths"""
+pass
+```
+
+```text
 ```
 
 ### Legacy Plugins
@@ -74,49 +94,74 @@ class LegacyPluginManager:
 **File**: `plugins/nsfw_logger.py`
 
 **Capabilities**:
+
 - Post-scan NSFW content analysis
 - Sample-based classification
 - Graceful error handling
 - Reporting of flagged content
 
 **Implementation Example**:
-```python
-def on_scan_complete(records=None, **kwargs):
-    try:
-        from nodupe.nsfw_classifier import NSFWClassifier
-        from nodupe.utils.filesystem import get_mime_safe
-        from pathlib import Path
-        c = NSFWClassifier(threshold=2)
-        # Sample up to 20 files for classification
-        sample = []
-        if records:
-            for r in records[:20]:
-                sample.append((r[0], r[4]))
 
-        res = c.batch_classify([(Path(p), m) for p, m in sample])
-        flagged = [p for p, v in res.items() if v['flagged']]
-        print(f"[plugins.nsfw_logger] sample flagged: {len(flagged)} / {len(sample)}")
-    except Exception as e:
-        print(f"[plugins.nsfw_logger] plugin failed gracefully: {e}")
+```python
+def on_scan_complete(records=None,**kwargs):
+```
+
+try:
+
+```python
+from nodupe.nsfw_classifier import NSFWClassifier
+from nodupe.utils.filesystem import get_mime_safe
+from pathlib import Path
+c = NSFWClassifier(threshold=2)
+# Sample up to 20 files for classification
+sample = []
+if records:
+```
+
+for r in records[:20]:
+    sample.append((r[0], r[4]))
+
+```text
+```
+
+```text
+
+```
+
+```text
+res = c.batch_classify([(Path(p), m) for p, m in sample])
+flagged = [p for p, v in res.items() if v['flagged']]
+print(f"[plugins.nsfw_logger] sample flagged: {len(flagged)} / {len(sample)}")
+```
+
+except Exception as e:
+
+```text
+print(f"[plugins.nsfw_logger] plugin failed gracefully: {e}")
+```
+
+```text
 
 pm.register("scan_complete", on_scan_complete)
 ```
 
-#### 2. Scan Reporter Plugin
+## 2. Scan Reporter Plugin
 
 **File**: `plugins/scan_reporter.py`
 
 **Capabilities**:
+
 - Scan progress reporting
 - Statistics collection
 - Performance metrics
 - Event-based reporting
 
-#### 3. Startup Logger Plugin
+### 3. Startup Logger Plugin
 
 **File**: `plugins/startup_logger.py`
 
 **Capabilities**:
+
 - System initialization logging
 - Environment detection
 - Configuration reporting
@@ -129,6 +174,7 @@ pm.register("scan_complete", on_scan_complete)
 **Module**: `nodupe/scanner.py`
 
 **Capabilities**:
+
 - Recursive directory traversal
 - File metadata extraction
 - Content hashing (SHA-512, BLAKE2b)
@@ -137,6 +183,7 @@ pm.register("scan_complete", on_scan_complete)
 - Progress tracking
 
 **Key Features**:
+
 - Multi-threaded scanning
 - File filtering and exclusion
 - Change detection
@@ -147,12 +194,14 @@ pm.register("scan_complete", on_scan_complete)
 **Module**: `nodupe/planner.py`
 
 **Capabilities**:
+
 - Duplicate identification
 - Action planning
 - Conflict resolution
 - Strategy configuration
 
 **Key Features**:
+
 - Content-based duplicate detection
 - Multiple resolution strategies
 - CSV action plan generation
@@ -163,12 +212,14 @@ pm.register("scan_complete", on_scan_complete)
 **Module**: `nodupe/applier.py`
 
 **Capabilities**:
+
 - Action plan execution
 - File management operations
 - Checkpoint creation
 - Rollback support
 
 **Key Features**:
+
 - Safe file operations
 - Transaction-like behavior
 - Checkpoint-based rollback
@@ -179,12 +230,14 @@ pm.register("scan_complete", on_scan_complete)
 **Module**: `nodupe/nsfw_classifier.py`
 
 **Capabilities**:
+
 - NSFW content detection
 - Multi-tier classification
 - Batch processing
 - Threshold configuration
 
 **Key Features**:
+
 - Filename pattern matching
 - Metadata analysis
 - AI-based classification
@@ -195,12 +248,14 @@ pm.register("scan_complete", on_scan_complete)
 **Module**: `nodupe/similarity/`
 
 **Capabilities**:
+
 - Vector similarity search
 - Index management
 - Near-duplicate detection
 - Multiple backend support
 
 **Key Features**:
+
 - Brute-force search
 - FAISS integration
 - Index persistence
@@ -211,53 +266,62 @@ pm.register("scan_complete", on_scan_complete)
 ### Command Reference
 
 #### 1. `init` - Configuration Initialization
+
 - Initialize configuration with presets
 - Configuration file generation
 - Preset selection (default, performance, paranoid, media, etc.)
 
 #### 2. `scan` - Directory Scanning
+
 - Directory scanning
 - Metadata extraction
 - Hash computation
 - Database population
 
 #### 3. `plan` - Duplicate Planning ✅ RESTORED IN MODERN
+
 - Duplicate detection
 - Action planning
 - CSV generation
 - Strategy configuration
 
 #### 4. `apply` - Action Execution
+
 - Action execution
 - File management
 - Checkpoint creation
 - Change application
 
 #### 5. `verify` - Checkpoint Validation ✅ IMPLEMENTED
+
 - Checkpoint validation
 - Filesystem verification
 - Integrity checking
 - Pre-rollback validation
 
 #### 6. `rollback` - Change Reversal ⚠️ MISSING IN MODERN
+
 - Change reversal
 - File restoration
 - Checkpoint-based recovery
 - State restoration
 
 #### 7. `similarity` - Similarity Search
+
 - Similarity index management
 - Vector search
 - Near-duplicate finding
 - Index persistence
 
 #### 8. `archive` - Archive Management ⚠️ MISSING IN MODERN
+
 - Archive inspection
 - Archive extraction
 - Archive management
 - Format support (ZIP, TAR, etc.)
 
 #### 9. `mount` - Virtual Filesystem ⚠️ MISSING IN MODERN
+
 - FUSE filesystem mounting
 - Database browsing
 - Virtual filesystem
@@ -265,11 +329,8 @@ pm.register("scan_complete", on_scan_complete)
 
 ## Legacy Configuration System
 
-### Configuration File Format
+### Configuration File Format**File**: `nodupe.yml`**Structure**:
 
-**File**: `nodupe.yml`
-
-**Structure**:
 ```yaml
 hash_algo: sha512
 dedup_strategy: content_hash
@@ -286,23 +347,23 @@ ignore_patterns:
 
 ### Configuration Features
 
-1. **Hash Algorithm Selection**: SHA-512, BLAKE2b, SHA-256
-2. **Parallelism Control**: Auto-detection or manual configuration
-3. **Dry Run Mode**: Safe testing without changes
-4. **NSFW Detection**: Configurable sensitivity
-5. **Ignore Patterns**: File/directory exclusion
-6. **Environment Auto-Tuning**: Desktop, NAS, Cloud, Container
+1.**Hash Algorithm Selection**: SHA-512, BLAKE2b, SHA-256
+1.**Parallelism Control**: Auto-detection or manual configuration
+1.**Dry Run Mode**: Safe testing without changes
+1.**NSFW Detection**: Configurable sensitivity
+1.**Ignore Patterns**: File/directory exclusion
+1.**Environment Auto-Tuning**: Desktop, NAS, Cloud, Container
 
 ### Environment Presets
 
-- **default**: Balanced settings
-- **performance**: Speed-optimized
-- **paranoid**: Maximum safety
-- **media**: Media file optimized
-- **desktop**: Desktop environment
-- **nas**: NAS/server optimized
-- **cloud**: Cloud storage optimized
-- **container**: Containerized deployment
+-**default**: Balanced settings
+-**performance**: Speed-optimized
+-**paranoid**: Maximum safety
+-**media**: Media file optimized
+-**desktop**: Desktop environment
+-**nas**: NAS/server optimized
+-**cloud**: Cloud storage optimized
+-**container**: Containerized deployment
 
 ## Legacy Metadata Format
 
@@ -312,45 +373,53 @@ ignore_patterns:
 {
   "spec": "nodupe_meta_v1",
   "generated_at": "2025-12-02T12:00:00Z",
-  "summary": {
-    "files_total": 15,
-    "bytes_total": 10485760,
-    "categories": {"image": 10, "text": 5},
-    "topics": ["vacation", "beach"],
-    "keywords": ["2025", "summer"]
+ "summary": {
+```
+
+"files_total": 15,
+"bytes_total": 10485760,
+"categories": {"image": 10, "text": 5},
+"topics": ["vacation", "beach"],
+"keywords": ["2025", "summer"]
+
+```text
   },
   "entries": [
-    {
-      "name": "photo.jpg",
-      "size": 204800,
-      "mtime": 1730090400,
-      "file_hash": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
-      "hash_algo": "sha512",
-      "mime": "image/jpeg",
-      "category": "image",
-      "subtype": "photo",
-      "topic": "vacation"
-    }
+```
+
+{
+  "name": "photo.jpg",
+  "size": 204800,
+  "mtime": 1730090400,
+  "file_hash": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+  "hash_algo": "sha512",
+  "mime": "image/jpeg",
+  "category": "image",
+  "subtype": "photo",
+  "topic": "vacation"
+}
+
+```text
   ]
 }
 ```
 
 ### Metadata Features
 
-1. **Self-Describing**: Contains schema version and generation timestamp
-2. **Comprehensive**: File details, hashes, categories, and topics
-3. **Machine-Readable**: Standard JSON format
-4. **Long-Lived**: Designed for archive preservation
-5. **Verifiable**: Hash-based integrity checking
+1.**Self-Describing**: Contains schema version and generation timestamp
+1.**Comprehensive**: File details, hashes, categories, and topics
+1.**Machine-Readable**: Standard JSON format
+1.**Long-Lived**: Designed for archive preservation
+1.**Verifiable**: Hash-based integrity checking
 
 ## Legacy Quality and Testing
 
 ### Quality Standards
 
-1. **Type Checking**: MyPy with Python 3.9+ compatibility
-2. **Linting**: Flake8 for PEP 8 compliance
-3. **Docstring Coverage**: 100% enforced with Interrogate
-4. **Testing**: Comprehensive test suite with unit/integration/slow markers
+1.**Type Checking**: MyPy with Python 3.9+ compatibility
+1.**Linting**: Flake8 for PEP 8 compliance
+1.**Docstring Coverage**: 100% enforced with Interrogate
+1.**Testing**: Comprehensive test suite with unit/integration/slow markers
 
 ### Testing Commands
 
@@ -371,15 +440,12 @@ interrogate -vv nodupe/ --fail-under 100
 
 ### Dependency Management
 
-1. **Auto-Install**: Automatic dependency installation at runtime
-2. **Graceful Degradation**: Fallback to standard library
-3. **Vendoring**: Bundled libraries for offline operation
+1.**Auto-Install**: Automatic dependency installation at runtime
+1.**Graceful Degradation**: Fallback to standard library
+1.**Vendoring**: Bundled libraries for offline operation
 
-### Vendored Libraries
+### Vendored Libraries**Location**: `nodupe/vendor/libs`**Contents**:
 
-**Location**: `nodupe/vendor/libs`
-
-**Contents**:
 - PyYAML
 - ONNX Runtime
 - Other essential libraries
@@ -398,66 +464,66 @@ python scripts/install_vendored_wheels.py --pattern onnxruntime
 
 ### Robust Features
 
-1. **Comprehensive File Processing**: Advanced scanning and metadata extraction
-2. **Sophisticated Duplicate Detection**: Multiple strategies and algorithms
-3. **Powerful Similarity Search**: Vector-based near-duplicate detection
-4. **Flexible Configuration**: Environment-aware auto-tuning
-5. **Self-Describing Metadata**: Long-lived archive preservation
-6. **Extensive Testing**: High code quality standards
+1.**Comprehensive File Processing**: Advanced scanning and metadata extraction
+1.**Sophisticated Duplicate Detection**: Multiple strategies and algorithms
+1.**Powerful Similarity Search**: Vector-based near-duplicate detection
+1.**Flexible Configuration**: Environment-aware auto-tuning
+1.**Self-Describing Metadata**: Long-lived archive preservation
+1.**Extensive Testing**: High code quality standards
 
 ### Proven Capabilities
 
-1. **Large-Scale Processing**: Handles thousands of files efficiently
-2. **Multi-Format Support**: Images, videos, archives, documents
-3. **Advanced Detection**: NSFW classification, MIME type detection
-4. **Safety Features**: Read-only detection, integrity verification
-5. **Recovery Mechanisms**: Checkpoint-based rollback system
-6. **Cross-Platform**: Works on desktop, NAS, cloud, and containers
+1.**Large-Scale Processing**: Handles thousands of files efficiently
+1.**Multi-Format Support**: Images, videos, archives, documents
+1.**Advanced Detection**: NSFW classification, MIME type detection
+1.**Safety Features**: Read-only detection, integrity verification
+1.**Recovery Mechanisms**: Checkpoint-based rollback system
+1.**Cross-Platform**: Works on desktop, NAS, cloud, and containers
 
 ## Legacy System Limitations
 
 ### Architectural Challenges
 
-1. **Tight Coupling**: Difficult to modify or extend components
-2. **Limited Isolation**: Plugin failures could affect core system
-3. **Dependency Management**: Complex dependency resolution
-4. **Testing Complexity**: Hard to test components in isolation
-5. **Documentation Maintenance**: Manual documentation updates
-6. **Performance Bottlenecks**: Limited optimization opportunities
+1.**Tight Coupling**: Difficult to modify or extend components
+1.**Limited Isolation**: Plugin failures could affect core system
+1.**Dependency Management**: Complex dependency resolution
+1.**Testing Complexity**: Hard to test components in isolation
+1.**Documentation Maintenance**: Manual documentation updates
+1.**Performance Bottlenecks**: Limited optimization opportunities
 
 ### Technical Debt
 
-1. **Monolithic Codebase**: Large, complex modules
-2. **Global State**: Shared variables and state
-3. **Direct Imports**: Circular dependency risks
-4. **Limited Extensibility**: Hard to add new features
-5. **Maintenance Challenges**: Complex refactoring required
-6. **Scalability Issues**: Performance limitations at scale
+1.**Monolithic Codebase**: Large, complex modules
+1.**Global State**: Shared variables and state
+1.**Direct Imports**: Circular dependency risks
+1.**Limited Extensibility**: Hard to add new features
+1.**Maintenance Challenges**: Complex refactoring required
+1.**Scalability Issues**: Performance limitations at scale
 
 ## Migration Insights
 
 ### Features to Preserve
 
-1. **Planner Module**: Critical for duplicate detection
-2. **Rollback System**: Essential safety feature
-3. **Verify Command**: Integrity checking capability
-4. **Archive Support**: Handle compressed files
-5. **Environment Auto-tuning**: Optimize for different deployments
+1.**Planner Module**: Critical for duplicate detection
+1.**Rollback System**: Essential safety feature
+1.**Verify Command**: Integrity checking capability
+1.**Archive Support**: Handle compressed files
+1.**Environment Auto-tuning**: Optimize for different deployments
 
 ### Features to Modernize
 
-1. **Plugin Architecture**: Implement hard isolation
-2. **Dependency Injection**: Replace direct imports
-3. **Configuration Format**: YAML → TOML migration
-4. **Error Handling**: Enhanced graceful degradation
-5. **Testing Infrastructure**: Better isolation and coverage
+1.**Plugin Architecture**: Implement hard isolation
+1.**Dependency Injection**: Replace direct imports
+1.**Configuration Format**: YAML → TOML migration
+1.**Error Handling**: Enhanced graceful degradation
+1.**Testing Infrastructure**: Better isolation and coverage
 
 ### Features to Deprecate
 
-1. **Virtual Filesystem (FUSE)**: Low usage, high complexity
-2. **Vendored Dependencies**: Use modern package management
-3. **Global State**: Replace with service containers
-4. **Direct Module Imports**: Use dependency injection
+1.**Virtual Filesystem (FUSE)**: Low usage, high complexity
+1.**Vendored Dependencies**: Use modern package management
+1.**Global State**: Replace with service containers
+1.**Direct Module Imports**: Use dependency injection
 
 ## Conclusion
 

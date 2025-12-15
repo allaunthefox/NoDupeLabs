@@ -7,8 +7,8 @@ including DatabaseConnection, FileRepository, and related functionality.
 import pytest
 import tempfile
 import os
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from typing import List, Dict, Any
+from unittest.mock import Mock
 import sqlite3
 
 from nodupe.core.database.connection import DatabaseConnection
@@ -68,8 +68,11 @@ class TestDatabaseConnection:
             _init_full_schema(db)
             
             # Execute a simple query
-            cursor = db.execute("INSERT INTO files (path, size, modified_time, created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)", 
-                               ("test.txt", 100, 12345, 12345, 12345, 12345))
+            cursor = db.execute(
+                "INSERT INTO files (path, size, modified_time, "
+                "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)", 
+                ("test.txt", 100, 12345, 12345, 12345, 12345)
+            )
             assert cursor is not None
             
             cursor = db.execute("SELECT * FROM files WHERE path = ?", ("test.txt",))
@@ -109,7 +112,8 @@ class TestDatabaseConnection:
             ]
             
             cursor = db.executemany(
-                "INSERT INTO files (path, size, modified_time, created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                "INSERT INTO files (path, size, modified_time, "
+                "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
                 [tuple(item) for item in data]
             )
             assert cursor is not None
@@ -128,8 +132,11 @@ class TestDatabaseConnection:
             db.get_connection()
             _init_full_schema(db)
             
-            db.execute("INSERT INTO files (path, size, modified_time, created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)", 
-                      ("test.txt", 100, 12345, 12345, 12345, 12345))
+            db.execute(
+                "INSERT INTO files (path, size, modified_time, "
+                "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?)", 
+                ("test.txt", 100, 12345, 12345, 12345, 12345)
+            )
             
             # Verify it's there
             cursor = db.execute("SELECT COUNT(*) FROM files")
@@ -141,8 +148,11 @@ class TestDatabaseConnection:
             assert cursor.fetchone()[0] == 0
             
             # Insert again and commit
-            db.execute("INSERT INTO files (path, size, modified_time, created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)", 
-                      ("test.txt", 100, 12345, 12345, 12345, 12345))
+            db.execute(
+                "INSERT INTO files (path, size, modified_time, "
+                "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?)", 
+                ("test.txt", 100, 12345, 12345, 12345, 12345)
+            )
             db.commit()
             
             cursor = db.execute("SELECT COUNT(*) FROM files")
@@ -155,13 +165,13 @@ class TestDatabaseConnection:
         """Test connection closing functionality."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            original_conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             
             # Close should clear the connection
             db.close()
             
             # Getting connection after close should work
-            new_conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             
             # Close should have cleaned up properly
             db.close()
@@ -280,7 +290,7 @@ class TestFileRepository:
         """Test getting a file by path."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
@@ -299,7 +309,7 @@ class TestFileRepository:
         """Test updating file data."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
@@ -322,13 +332,13 @@ class TestFileRepository:
         """Test updating with invalid fields."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
             
             file_id = repo.add_file("test.txt", 100, 12345, "abc123")
-            assert file_id is not None  # Ensure file was added successfully
+            assert file_id is not None # Ensure file was added successfully
             
             # Update with no valid fields should return False
             success = repo.update_file(file_id, invalid_field="test")
@@ -338,14 +348,14 @@ class TestFileRepository:
         """Test marking a file as duplicate."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
             
             # Add two files
             original_id = repo.add_file("original.txt", 100, 12345, "abc123")
-            duplicate_id = repo.add_file("duplicate.txt", 100, 12346, "abc123")
+            duplicate_id = repo.add_file("duplicate.txt", 10, 12346, "abc123")
             assert original_id is not None # Ensure files were added successfully
             assert duplicate_id is not None
             
@@ -363,7 +373,7 @@ class TestFileRepository:
         """Test finding files with same hash."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
@@ -387,7 +397,7 @@ class TestFileRepository:
         """Test finding files with same size."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
@@ -408,7 +418,7 @@ class TestFileRepository:
         """Test getting all files."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
@@ -427,7 +437,7 @@ class TestFileRepository:
         """Test deleting a file."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
@@ -448,7 +458,7 @@ class TestFileRepository:
         """Test getting duplicate files."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
@@ -474,13 +484,13 @@ class TestFileRepository:
         """Test getting original (non-duplicate) files."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
             
             # Add files and mark some as duplicates
-            original_id = repo.add_file("original.txt", 100, 12345, "hash1")
+            original_id = repo.add_file("original.txt", 10, 12345, "hash1")
             dup_id = repo.add_file("dup.txt", 10, 12346, "hash1")
             assert original_id is not None  # Ensure files were added successfully
             assert dup_id is not None
@@ -496,7 +506,7 @@ class TestFileRepository:
         """Test counting total files."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
@@ -512,14 +522,14 @@ class TestFileRepository:
         """Test counting duplicate files."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
             
             # Add files and mark one as duplicate
-            original_id = repo.add_file("original.txt", 100, 12345, "hash1")
-            dup_id = repo.add_file("dup.txt", 100, 12346, "hash1")
+            original_id = repo.add_file("original.txt", 10, 12345, "hash1")
+            dup_id = repo.add_file("dup.txt", 10, 12346, "hash1")
             assert original_id is not None  # Ensure files were added successfully
             assert dup_id is not None
             
@@ -531,12 +541,12 @@ class TestFileRepository:
         """Test batch adding multiple files."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)
             
-            files_data = [
+            files_data: List[Dict[str, Any]] = [
                 {"path": "file1.txt", "size": 100, "modified_time": 12345},
                 {"path": "file2.txt", "size": 200, "modified_time": 12346},
                 {"path": "file3.txt", "size": 300, "modified_time": 12347}
@@ -553,7 +563,7 @@ class TestFileRepository:
         """Test clearing all files."""
         with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
-            conn = db.get_connection()
+            _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
             
             repo = FileRepository(db)

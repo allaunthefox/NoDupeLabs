@@ -1,12 +1,9 @@
----
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (c) 2025 Allaun
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright (c) 2025 Allaun -->
 
 # NoDupeLabs
 
-> **A Modern, Modular, and Robust File Deduplication and Organization Framework.**
-
-![Status](https://img.shields.io/badge/Status-Active-success)
+>**A Modern, Modular, and Robust File Deduplication and Organization Framework.**![Status](https://img.shields.io/badge/Status-Active-success)
 ![Completion](https://img.shields.io/badge/Completion-95%25-green)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![License](https://img.shields.io/badge/License-Apache--2.0-blue)
@@ -17,24 +14,24 @@ NoDupeLabs is a sophisticated tool for scanning, analyzing, and organizing large
 
 The Core Refactor is complete. The system is robust, modular, and ready for use.
 
-- **Core System**: ✅ 100% (Loader, Configuration, DI, Logging)
-- **Core Utilities**: ✅ 100% (13/13 modules fully implemented)
-- **Scanning**: ✅ 100% (Fast, multi-threaded, resilient)
-- **Similarity**: ✅ 100% (Vector-based backend & CLI)
-- **Planning**: ✅ 100% (Duplicate detection & resolution strategies)
-- **Plugins**: ✅ 100% (Isolated, secure, auto-discovering)
-- **Commands**: ✅ 100% (Scan, Apply, Plan, Similarity, Verify, Version all implemented)
-- **Testing**: ✅ 85% (144 tests collected, 134+ tests passing, including hash autotuning)
+-**Core System**: ✅ 100% (Loader, Configuration, DI, Logging)
+-**Core Utilities**: ✅ 100% (13/13 modules fully implemented)
+-**Scanning**: ✅ 100% (Fast, multi-threaded, resilient)
+-**Similarity**: ✅ 100% (Vector-based backend & CLI)
+-**Planning**: ✅ 100% (Duplicate detection & resolution strategies)
+-**Plugins**: ✅ 100% (Isolated, secure, auto-discovering)
+-**Commands**: ✅ 100% (Scan, Apply, Plan, Similarity, Verify, Version all implemented)
+-**Testing**: ✅ 85% (144 tests collected, 134+ tests passing, including hash autotuning)
 
 ## ✨ Key Features
 
-- **Blazing Fast Scanning**: optimized file walker with multiple hashing algorithms (MD5, SHA256, SHAKE, BLAKE2, xxHash, etc.) with automatic algorithm selection.
-- **Smart Duplicate Detection**: Not just exact matches—finds similar images and files using vector embeddings.
-- **Safe & Secure**: "Plan First, Apply Later" philosophy. No files are deleted without your explicit approval.
-- **Plugin Architecture**: Hard isolation ensures a crashing plugin never takes down the main app.
-- **Modern Stack**: Built with Python 3.9+, Type Hinting, TOML configuration, and SQLite.
-- **Hash Algorithm Autotuning**: Automatically selects the optimal hash algorithm based on system characteristics and performance benchmarks.
-- **File Integrity Verification**: Comprehensive verification system to ensure file and database consistency.
+-**Blazing Fast Scanning**: optimized file walker with multiple hashing algorithms (MD5, SHA256, SHAKE, BLAKE2, xxHash, etc.) with automatic algorithm selection.
+-**Smart Duplicate Detection**: Not just exact matches—finds similar images and files using vector embeddings.
+-**Safe & Secure**: "Plan First, Apply Later" philosophy. No files are deleted without your explicit approval.
+-**Plugin Architecture**: Hard isolation ensures a crashing plugin never takes down the main app.
+-**Modern Stack**: Built with Python 3.9+, Type Hinting, TOML configuration, and SQLite.
+-**Hash Algorithm Autotuning**: Automatically selects the optimal hash algorithm based on system characteristics and performance benchmarks.
+-**File Integrity Verification**: Comprehensive verification system to ensure file and database consistency.
 
 ## 📦 Installation
 
@@ -50,43 +47,57 @@ pip install -r requirements.txt
 ## 🛠️ Usage
 
 ### 1. Initialize
+
 Set up your configuration and database.
+
 ```bash
 python -m nodupe.core.main init
 ```
 
 ### 2. Scan
+
 Scan a directory to build the file index.
+
 ```bash
 python -m nodupe.core.main scan /path/to/your/files
 ```
 
 ### 3. Plan
+
 Analyze the index to find duplicates and generate a plan.
+
 ```bash
 python -m nodupe.core.main plan
 ```
 
 ### 4. Verify
+
 Verify file integrity and database consistency with detailed output.
+
 ```bash
 python -m nodupe.core.main verify --mode all --output verification_report.json
 ```
 
 ### 5. Similarity Support
+
 Find near-duplicates (images/text).
+
 ```bash
 python -m nodupe.core.main similarity --backend bruteforce
 ```
 
 ### 6. Apply
+
 Execute the generated plan (move/delete duplicates).
+
 ```bash
 python -m nodupe.core.main apply plan_timestamp.json
 ```
 
 ### 7. Version
+
 Show version information.
+
 ```bash
 python -m nodupe.core.main version
 ```
@@ -105,11 +116,11 @@ Contributions are welcome! Please see [Project_Plans/TODOS.md](Project_Plans/TOD
 
 The project includes a comprehensive automated CI/CD pipeline:
 
-- **Automated Testing**: Runs on Python 3.8, 3.9, 3.10, 3.11, 3.12, 3.13, and 3.14
-- **Code Quality**: Pylint, mypy type checking, black formatting, isort import sorting
-- **Coverage Reporting**: pytest with XML, HTML, and terminal coverage reports
-- **Security Scanning**: Automated security checks with bandit and safety
-- **Dependency Management**: Automated dependency updates via Dependabot
-- **Codecov Integration**: Coverage reports uploaded to Codecov for tracking
+-**Automated Testing**: Runs on Python 3.8, 3.9, 3.10, 3.11, 3.12, 3.13, and 3.14
+-**Code Quality**: Pylint, mypy type checking, black formatting, isort import sorting
+-**Coverage Reporting**: pytest with XML, HTML, and terminal coverage reports
+-**Security Scanning**: Automated security checks with bandit and safety
+-**Dependency Management**: Automated dependency updates via Dependabot
+-**Codecov Integration**: Coverage reports uploaded to Codecov for tracking
 
 The pipeline runs automatically on every push and pull request to ensure code quality and test coverage standards are maintained.

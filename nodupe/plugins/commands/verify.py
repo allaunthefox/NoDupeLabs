@@ -23,16 +23,35 @@ Dependencies:
 import argparse
 import hashlib
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 from nodupe.core.plugin_system.base import Plugin
 from nodupe.core.database.files import FileRepository
 from nodupe.core.database.connection import DatabaseConnection
 
 
 class VerifyPlugin(Plugin):
-    """Verify plugin implementation."""
+    """Verify plugin implementation.
     
-    def __init__(self):
+    This plugin provides integrity verification functionality to check
+    the consistency and integrity of processed files and database state.
+    It ensures that file operations were completed successfully and
+    that no corruption occurred during processing.
+    
+    The plugin offers three verification modes:
+    - Integrity: Checks file existence and basic properties
+    - Consistency: Verifies database relationships and constraints
+    - Checksums: Validates file hashes against stored values
+    - All: Runs all verification modes
+    
+    Key Features:
+        - Multi-mode verification (integrity, consistency, checksums)
+        - Fast verification option for quick checks
+        - Repair functionality for detected issues
+        - Detailed output and logging
+        - Progress tracking
+    """
+    
+    def __init__(self) -> None:
         """Initialize verify plugin."""
         self.description = "Verify file integrity and database consistency"
     
@@ -47,7 +66,7 @@ class VerifyPlugin(Plugin):
         return "1.0.0"
     
     @property
-    def dependencies(self) -> list[str]:
+    def dependencies(self) -> List[str]:
         """List of plugin dependencies."""
         return ["database"]
         
@@ -111,10 +130,16 @@ class VerifyPlugin(Plugin):
         from typing import TypedDict
         
         class VerificationResult(TypedDict):
+            """Typed dictionary for verification results.
+            
+            Contains the results of a verification operation including
+            counts of checks performed, errors found, warnings, and
+            detailed error information.
+            """
             checks: int
             errors: int
             warnings: int
-            error_details: list
+            error_details: List[Any]
         
         try:
             print(f"[PLUGIN] Executing verify command: {args.mode} mode")
@@ -187,7 +212,7 @@ class VerifyPlugin(Plugin):
                     total_warnings += mode_results['warnings']
             
             # 4. Report results
-            print(f"\n[PLUGIN] Verification Summary:")
+            print("\n[PLUGIN] Verification Summary:")
             for mode, stats in results.items():
                 if stats['checks'] > 0:
                     print(f" {mode.title()}: {stats['checks']} checks, "
@@ -202,7 +227,7 @@ class VerifyPlugin(Plugin):
                     print("[PLUGIN] Repair mode enabled - this would attempt to fix issues")
                     # TODO: Implement repair functionality in future
             else:
-                print(f"[PLUGIN] ✅ All verification checks passed!")
+                print("[PLUGIN] ✅ All verification checks passed!")
                 
             # Output detailed results to file if requested
             if args.output:
@@ -243,9 +268,9 @@ class VerifyPlugin(Plugin):
                 'repair': args.repair
             },
             'summary': {
-                'total_checks': sum(r['checks'] for r in results.values()),  # type: ignore
-                'total_errors': sum(r['errors'] for r in results.values()),  # type: ignore
-                'total_warnings': sum(r['warnings'] for r in results.values())  # type: ignore
+                'total_checks': sum(r['checks'] for r in results.values()),
+                'total_errors': sum(r['errors'] for r in results.values()),
+                'total_warnings': sum(r['warnings'] for r in results.values())
             },
             'details': {}
         }
@@ -420,7 +445,7 @@ class VerifyPlugin(Plugin):
 verify_plugin = VerifyPlugin()
 
 # Register plugin with core system
-def register_plugin():
+def register_plugin() -> VerifyPlugin:
     """Register plugin with core system."""
     return verify_plugin
 

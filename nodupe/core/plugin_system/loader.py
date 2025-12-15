@@ -127,7 +127,7 @@ class PluginLoader:
             # Filter out __init__.py files as they're not plugins
             python_files = [f for f in python_files if f.name != '__init__.py']
 
-            loaded_plugins = []
+            loaded_plugins: List[Type[Plugin]] = []
             for file_path in python_files:
                 try:
                     plugin_class = self.load_plugin_from_file(file_path)
@@ -176,8 +176,8 @@ class PluginLoader:
     def instantiate_plugin(
         self,
         plugin_class: Type[Plugin],
-        *args,
-        **kwargs
+        *args: Any,
+        **kwargs: Any
     ) -> Plugin:
         """Instantiate a plugin class.
 
