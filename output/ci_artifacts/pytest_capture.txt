@@ -1,0 +1,49 @@
+......................................F................................. [ 25%]
+...............................................................
+=================================== FAILURES ===================================
+_________________ TestConfigManager.test_load_config_function __________________
+
+self = <tests.core.test_config.TestConfigManager object at 0x7fe68ee15db0>
+
+    def test_load_config_function(self):
+        """Test the load_config function"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.toml', delete=False) as f:
+            f.write('[tool.nodupe]\ndatabase = {"path": "test.db"}')
+            f.flush()
+            f.close()
+    
+        try:
+>           config_manager = load_config()
+                             ^^^^^^^^^^^^^
+
+tests/core/test_config.py:291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/core/test_config.py:318: in load_config
+    return ConfigManager()
+           ^^^^^^^^^^^^^^^
+nodupe/core/config.py:44: in __init__
+    self._load_config()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <nodupe.core.config.ConfigManager object at 0x7fe68eaaaf10>
+
+    def _load_config(self) -> None:
+        """Load the TOML configuration file."""
+        if not os.path.exists(self.config_path):
+>           raise FileNotFoundError(
+                f"Configuration file {self.config_path} not found")
+E           FileNotFoundError: Configuration file pyproject.toml not found
+
+nodupe/core/config.py:49: FileNotFoundError
+=============================== warnings summary ===============================
+tests/core/test_compression.py::TestCompression::test_extract_archive_tar_gz
+  /home/allaun/Workspace/NoDupeLabs/nodupe/core/compression.py:415: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
+    tf.extractall(output_dir)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/core/test_config.py::TestConfigManager::test_load_config_function
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/home/allaun/Workspace/NoDupeLabs/nodupe/core/scan/hash_autotune.py:66: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+1 failed, 134 passed, 1 warning in 2.83s

@@ -1,0 +1,159 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nodupe"
+version = "1.0.0"
+description = "Advanced duplicate file detection and management system"
+authors = [
+    {name = "NoDupeLabs", email = "your.email@example.com"},
+]
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.1",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[tool.nodupe]
+# NoDupeLabs configuration
+version = "1.0.0"
+description = "Advanced duplicate file detection and management system"
+
+[tool.nodupe.database]
+# Database configuration
+path = "nodupe.db"
+timeout = 30.0
+journal_mode = "WAL"
+
+[tool.nodupe.scan]
+# Scan configuration
+min_file_size = "1KB"
+max_file_size = "100MB"
+default_extensions = ["jpg", "png", "pdf", "docx", "txt"]
+exclude_dirs = [".git", ".venv", "node_modules"]
+
+[tool.nodupe.similarity]
+# Similarity configuration
+default_backend = "brute_force"
+vector_dimensions = 128
+search_k = 10
+similarity_threshold = 0.85
+
+[tool.nodupe.performance]
+# Performance configuration
+max_workers = 8
+batch_size = 1000
+chunk_size = "4MB"
+
+[tool.nodupe.logging]
+# Logging configuration
+level = "INFO"
+file = "nodupe.log"
+max_size = "10MB"
+backup_count = 5
+
+[tool.pytest.ini_options]
+# Test configuration
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+python_classes = "Test*"
+addopts = """
+    --cov=nodupe
+    --cov-report=term-missing
+    --cov-report=html:htmlcov
+    --cov-report=xml:coverage.xml
+    --cov-fail-under=80
+    --cov-branch
+    -n auto
+    -v
+    --tb=short
+    --durations=20
+    --color=yes
+    --junitxml=test_results.xml
+"""
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "e2e: marks tests as end-to-end tests",
+    "performance: marks tests as performance tests",
+    "stress: marks tests as stress tests",
+]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]
+
+[tool.coverage.run]
+source = ["nodupe"]
+branch = true
+parallel = true
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+    "*/conftest.py",
+    "*/setup.py",
+    "*/__main__.py",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+title = "NoDupeLabs Test Coverage Report"
+
+[tool.pytest-cov]
+context = "continuous_integration"
+
+[tool.black]
+# Code formatting
+line-length = 100
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+# Import sorting
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+
+[tool.mypy]
+# Type checking
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
