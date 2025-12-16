@@ -275,14 +275,14 @@ class Parallel:
             with executor_class(max_workers=workers) as executor:
                 if use_processes and prefer_batches:
                     try:
-                        batch_size = max(1, len(items) // (max(1, workers) * 64))
+                        batch_size = max(1, len(items) // (max(1, workers) * 256))
                     except Exception:
                         batch_size = 1
 
                     if batch_size <= 1:
                         # Fallback to chunksize mapping if batches would be size 1
                         try:
-                            chunksize = max(1, len(items) // (max(1, workers) * 256))
+                            chunksize = max(1, len(items) // (max(1, workers) * 1024))
                         except Exception:
                             chunksize = 1
                         for result in executor.map(func, items, chunksize=chunksize):
@@ -298,7 +298,7 @@ class Parallel:
                     # Auto-balance chunksize: smaller chunks reduce per-task overhead but increase scheduling;
                     # use a conservative factor to amortize pickling/IPC work.
                     try:
-                        chunksize = max(1, len(items) // (max(1, workers) * 256))
+                        chunksize = max(1, len(items) // (max(1, workers) * 1024))
                     except Exception:
                         chunksize = 1
                     for result in executor.map(func, items, chunksize=chunksize):
