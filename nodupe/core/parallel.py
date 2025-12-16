@@ -24,11 +24,20 @@ from typing import Callable, List, Any, Optional, Iterator, Tuple
 from functools import partial
 import threading
 import sys
+import time
+import logging
 
+def _process_batch_worker(func_and_batch):
+    """Worker that processes a batch of items with a provided function.
+
+    Accepts a (func, batch) tuple so the callable is a top-level object and can be
+    pickled for ProcessPoolExecutor.
+    """
+    func, batch = func_and_batch
+    return [func(x) for x in batch]
 
 class ParallelError(Exception):
     """Parallel processing error"""
-
 
 class Parallel:
     """Handle parallel processing operations.
@@ -120,16 +129,28 @@ class Parallel:
             else:
                 executor_class = ThreadPoolExecutor
 
-            # Process in parallel
+            # Process in parallel (instrumented)
             with executor_class(max_workers=workers) as executor:
+                start_submit = time.time()
                 futures = [executor.submit(func, item) for item in items]
+                submit_end = time.time()
+                logging.getLogger(__name__).debug(
+                    "Submitted %d tasks in %.3fs", len(futures), submit_end - start_submit
+                )
+
                 results = []
 
-                for future in futures:
+                for idx, future in enumerate(futures):
                     try:
+                        t0 = time.time()
                         result = future.result(timeout=timeout)
+                        t1 = time.time()
+                        logging.getLogger(__name__).debug(
+                            "Task %d completed in %.3fs", idx, t1 - t0
+                        )
                         results.append(result)
                     except Exception as e:
+                        logging.getLogger(__name__).exception("Task %d failed", idx)
                         raise ParallelError(f"Task failed: {e}") from e
 
                 return results
@@ -201,7 +222,9 @@ class Parallel:
         workers: Optional[int] = None,
         use_processes: bool = False,
         use_interpreters: bool = False,
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
+        prefer_map: bool = True,
+        prefer_batches: bool = True
     ) -> Iterator[Any]:
         """Map function over items in parallel, yielding results as completed.
 
@@ -212,6 +235,8 @@ class Parallel:
             use_processes: Use processes instead of threads
             use_interpreters: Use interpreters instead of threads/processes (Python 3.14+)
             timeout: Maximum time per task
+            prefer_map: When True, prefer executor.map for process pools (lower per-task overhead)
+            prefer_batches: When True, prefer batch-processing (coarse batches) for process pools
 
         Yields:
             Results as they complete
@@ -223,6 +248,15 @@ class Parallel:
             # Determine number of workers
             if workers is None:
                 workers = Parallel.get_cpu_count() if use_processes else min(32, len(items))
+
+            # For process pools, avoid oversubscription: cap workers to (cpu_count - 1) if possible
+            if use_processes:
+                try:
+                    cpu = Parallel.get_cpu_count()
+                    workers = min(workers, max(1, cpu - 1))
+                except Exception:
+                    # keep provided workers if cpu count fails
+                    pass
 
             # Choose executor based on options
             if use_interpreters and Parallel.supports_interpreter_pool():
@@ -237,16 +271,70 @@ class Parallel:
             else:
                 executor_class = ThreadPoolExecutor
 
-            # Submit all tasks
+            # Submit tasks; for process pools prefer executor.map or batch mapping to reduce overhead
             with executor_class(max_workers=workers) as executor:
-                futures = [executor.submit(func, item) for item in items]
-
-                # Yield results as they complete
-                for future in as_completed(futures, timeout=timeout):
+                if use_processes and prefer_batches:
                     try:
-                        yield future.result()
-                    except Exception as e:
-                        raise ParallelError(f"Task failed: {e}") from e
+                        batch_size = max(1, len(items) // (max(1, workers) * 64))
+                    except Exception:
+                        batch_size = 1
+
+                    if batch_size <= 1:
+                        # Fallback to chunksize mapping if batches would be size 1
+                        try:
+                            chunksize = max(1, len(items) // (max(1, workers) * 256))
+                        except Exception:
+                            chunksize = 1
+                        for result in executor.map(func, items, chunksize=chunksize):
+                            yield result
+                    else:
+                        # Map batches using a top-level helper so callables are picklable
+                        batches = [items[i:i + batch_size] for i in range(0, len(items), batch_size)]
+                        paired = [(func, b) for b in batches]
+                        for batch_result in executor.map(_process_batch_worker, paired):
+                            for r in batch_result:
+                                yield r
+                elif use_processes and prefer_map:
+                    # Auto-balance chunksize: smaller chunks reduce per-task overhead but increase scheduling;
+                    # use a conservative factor to amortize pickling/IPC work.
+                    try:
+                        chunksize = max(1, len(items) // (max(1, workers) * 256))
+                    except Exception:
+                        chunksize = 1
+                    for result in executor.map(func, items, chunksize=chunksize):
+                        yield result
+                else:
+                    # Use bounded submission for threads or when prefer_map is False for processes
+                    it = iter(items)
+                    futures = set()
+
+                    # Submit initial batch up to worker count
+                    try:
+                        for _ in range(min(workers, len(items))):
+                            futures.add(executor.submit(func, next(it)))
+                    except StopIteration:
+                        pass
+
+                    # Iterate, yielding as futures complete and submitting new tasks
+                    while futures:
+                        for future in as_completed(futures, timeout=timeout):
+                            try:
+                                result = future.result()
+                                yield result
+                            except Exception as e:
+                                raise ParallelError(f"Task failed: {e}") from e
+                            finally:
+                                # Remove completed future and submit next item if available
+                                try:
+                                    futures.remove(future)
+                                except KeyError:
+                                    pass
+
+                                try:
+                                    nxt = next(it)
+                                    futures.add(executor.submit(func, nxt))
+                                except StopIteration:
+                                    pass
 
         except Exception as e:
             if isinstance(e, ParallelError):
@@ -451,7 +539,6 @@ class Parallel:
                 raise
             raise ParallelError(f"Map-reduce failed: {e}") from e
 
-
 class ParallelProgress:
     """Track progress of parallel operations."""
 
@@ -499,7 +586,6 @@ class ParallelProgress:
         with self._lock:
             return (self.completed + self.failed) >= self.total
 
-
 def parallel_map(
     func: Callable,
     items: List[Any],
@@ -520,7 +606,6 @@ def parallel_map(
         List of results
     """
     return Parallel.map_parallel(func, items, workers, use_processes, use_interpreters)
-
 
 def parallel_filter(
     predicate: Callable[[Any], bool],
@@ -549,7 +634,6 @@ def parallel_filter(
 
     # Filter based on predicate results
     return [item for item, keep in results if keep]
-
 
 def parallel_partition(
     predicate: Callable[[Any], bool],
@@ -581,7 +665,6 @@ def parallel_partition(
     false_items = [item for item, result in results if not result]
 
     return (true_items, false_items)
-
 
 def parallel_starmap(
     func: Callable,
