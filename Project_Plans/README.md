@@ -153,6 +153,36 @@ Project_Plans/
 
 ---
 
+## Batching & Parallel Instrumentation
+
+This project includes runtime knobs and lightweight instrumentation to improve and measure performance of parallel execution (reduce per-item process overhead) and to aid tuning.
+
+- Environment variables (runtime knobs)
+  - `NODUPE_BATCH_DIVISOR` — integer (default: 256). Used to compute batch_size = max(1, len(items) // (workers * batch_divisor)).
+  - `NODUPE_CHUNK_FACTOR` — integer (default: 1024). Used to compute chunksize for map-based submissions.
+  - `NODUPE_BATCH_LOG` — enable per-batch debug timing logs when set (e.g., `1`).
+
+- Behavior summary
+  - When using a process-based executor and batching is enabled, work is grouped into batches and a top-level batch worker processes lists of items to reduce pickling/IPC/scheduling overhead.
+  - If computed batch_size <= 1 the implementation falls back to per-item map (with a computed chunksize).
+  - The original public API surface is preserved; batching is a runtime coarsening strategy.
+
+- Running the deterministic micro-benchmark (local tuning)
+  - Example:
+```bash
+# run the micro-benchmark and print median timings
+NODUPE_BATCH_DIVISOR=256 NODUPE_CHUNK_FACTOR=1024 pytest tests/core/test_parallel_microbenchmark.py -q -s
+```
+  - Try varying knobs (e.g. `NODUPE_BATCH_DIVISOR=512`, `NODUPE_CHUNK_FACTOR=2048`) and compare medians to select production defaults.
+
+- Artifacts and CI
+  - Local instrumentation outputs and CI artifacts (pytest logs, coverage.xml) are stored in `output/ci_artifacts/`.
+  - When opening a PR that includes batching changes, attach `output/ci_artifacts` to help reviewers reproduce performance comparisons.
+
+- Tuning guidance
+  - Run the micro-benchmark across a set of knob values on your CI-like environment and choose defaults minimizing the median runtime.
+  - If CI enforces style/type checks, run formatters and linters before pushing tuned defaults.
+
 ## How to Use This Documentation
 
 ### For New Contributors
