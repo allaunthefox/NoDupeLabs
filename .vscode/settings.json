@@ -1,0 +1,25 @@
+{
+    "problems.exclude": {
+        "**/.github/workflows/*.yml": {
+            "when": "always",
+            "patterns": [
+                {
+                    "regexp": ".*(CODECOV_TOKEN|PYPI_API_TOKEN).*",
+                    "message": ".*Context access might be invalid.*"
+                }
+            ]
+        }
+    },
+    "yaml.schemas": {
+        "https://json.schemastore.org/github-workflow.json": "/.github/workflows/*.yml"
+    },
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "CodeGPT.apiKey": "DeepSeek",
+    "deepseek.model.name": "deepseek-coder:1.3b",
+    "deepseek.ollama.host": "https://api.deepseek.com",
+    "deepseek.api.key": "REPLACE_WITH_DEEPSEEK_API_KEY"
+}
