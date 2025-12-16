@@ -18,7 +18,8 @@ Dependencies:
     - sys (for GIL detection)
 """
 
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from multiprocessing import cpu_count
 from typing import Callable, List, Any, Optional, Iterator, Tuple
 from functools import partial
@@ -339,7 +340,7 @@ class Parallel:
 
                     # Iterate, yielding as futures complete and submitting new tasks
                     while futures:
-                        for future in as_completed(futures, timeout=timeout):
+                        for future in concurrent.futures.as_completed(futures, timeout=timeout):
                             try:
                                 result = future.result()
                                 yield result

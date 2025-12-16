@@ -17,9 +17,5 @@
         "tests"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "CodeGPT.apiKey": "DeepSeek",
-    "deepseek.model.name": "deepseek-coder:1.3b",
-    "deepseek.ollama.host": "https://api.deepseek.com",
-    "deepseek.api.key": "REPLACE_WITH_DEEPSEEK_API_KEY"
+    "python.testing.pytestEnabled": true
 }
