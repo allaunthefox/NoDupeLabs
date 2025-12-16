@@ -11,11 +11,11 @@ import json
 import csv
 import os
 from abc import ABC, abstractmethod
-from pathlib import Path
 from dataclasses import dataclass
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class CommandResult:
@@ -25,33 +25,30 @@ class CommandResult:
     data: Optional[Any] = None
     error: Optional[Exception] = None
 
+
 class Command(ABC):
     """Abstract base class for commands"""
 
     @abstractmethod
     def get_name(self) -> str:
         """Get command name"""
-        pass
 
     @abstractmethod
     def get_description(self) -> str:
         """Get command description"""
-        pass
 
     @abstractmethod
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         """Add command arguments to parser"""
-        pass
 
     @abstractmethod
     def validate_args(self, args: argparse.Namespace) -> CommandResult:
         """Validate command arguments"""
-        pass
 
     @abstractmethod
     def execute(self, args: argparse.Namespace) -> CommandResult:
         """Execute command"""
-        pass
+
 
 class ScanCommand(Command):
     """Scan directories for duplicates"""
@@ -66,17 +63,17 @@ class ScanCommand(Command):
         """Add scan command arguments"""
         parser.add_argument('paths', nargs='+', help='Directories to scan')
         parser.add_argument('--min-size', type=int, default=1024,
-                          help='Minimum file size in bytes')
+                            help='Minimum file size in bytes')
         parser.add_argument('--max-size', type=int, default=100*1024*1024,
-                          help='Maximum file size in bytes')
+                            help='Maximum file size in bytes')
         parser.add_argument('--extensions', nargs='+',
-                          help='File extensions to include')
+                            help='File extensions to include')
         parser.add_argument('--exclude', nargs='+',
-                          help='Directories to exclude')
+                            help='Directories to exclude')
         parser.add_argument('--verbose', '-v', action='store_true',
-                          help='Verbose output')
+                            help='Verbose output')
         parser.add_argument('--output', choices=['text', 'json', 'csv'],
-                          default='text', help='Output format')
+                            default='text', help='Output format')
 
     def validate_args(self, args: argparse.Namespace) -> CommandResult:
         """Validate scan command arguments"""
@@ -196,6 +193,7 @@ class ScanCommand(Command):
 
         return '\n'.join(output)
 
+
 class ApplyCommand(Command):
     """Apply actions to duplicates"""
 
@@ -208,15 +206,15 @@ class ApplyCommand(Command):
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         """Add apply command arguments"""
         parser.add_argument('action', choices=['delete', 'move', 'copy', 'symlink', 'list'],
-                          help='Action to apply')
+                            help='Action to apply')
         parser.add_argument('--input', required=True,
-                          help='Input file (JSON or CSV from scan command)')
+                            help='Input file (JSON or CSV from scan command)')
         parser.add_argument('--target-dir',
-                          help='Target directory for move/copy/symlink actions')
+                            help='Target directory for move/copy/symlink actions')
         parser.add_argument('--dry-run', action='store_true',
-                          help='Show what would be done without actually doing it')
+                            help='Show what would be done without actually doing it')
         parser.add_argument('--verbose', '-v', action='store_true',
-                          help='Verbose output')
+                            help='Verbose output')
 
     def validate_args(self, args: argparse.Namespace) -> CommandResult:
         """Validate apply command arguments"""
@@ -330,20 +328,23 @@ class ApplyCommand(Command):
                     result['success'] = True
 
                 elif args.action == 'move':
-                    target_path = os.path.join(args.target_dir, os.path.basename(file_info.get('path')))
+                    target_path = os.path.join(
+                        args.target_dir, os.path.basename(file_info.get('path')))
                     os.rename(file_info.get('path'), target_path)
                     result['message'] = f"Moved {file_info.get('path')} to {target_path}"
                     result['success'] = True
 
                 elif args.action == 'copy':
-                    target_path = os.path.join(args.target_dir, os.path.basename(file_info.get('path')))
+                    target_path = os.path.join(
+                        args.target_dir, os.path.basename(file_info.get('path')))
                     import shutil
                     shutil.copy2(file_info.get('path'), target_path)
                     result['message'] = f"Copied {file_info.get('path')} to {target_path}"
                     result['success'] = True
 
                 elif args.action == 'symlink':
-                    target_path = os.path.join(args.target_dir, os.path.basename(file_info.get('path')))
+                    target_path = os.path.join(
+                        args.target_dir, os.path.basename(file_info.get('path')))
                     os.symlink(file_info.get('path'), target_path)
                     result['message'] = f"Created symlink from {file_info.get('path')} to {target_path}"
                     result['success'] = True
@@ -379,6 +380,7 @@ class ApplyCommand(Command):
 
         return '\n'.join(output)
 
+
 class SimilarityCommand(Command):
     """Find similar files using similarity search"""
 
@@ -393,15 +395,15 @@ class SimilarityCommand(Command):
         parser.add_argument('query_file', help='Query file to find similar files for')
         parser.add_argument('--database', help='Database file containing file vectors')
         parser.add_argument('--k', type=int, default=5,
-                          help='Number of similar files to return')
+                            help='Number of similar files to return')
         parser.add_argument('--threshold', type=float, default=0.8,
-                          help='Similarity threshold (0-1)')
+                            help='Similarity threshold (0-1)')
         parser.add_argument('--backend', choices=['brute_force', 'faiss', 'annoy'],
-                          default='brute_force', help='Similarity backend')
+                            default='brute_force', help='Similarity backend')
         parser.add_argument('--output', choices=['text', 'json', 'csv'],
-                          default='text', help='Output format')
+                            default='text', help='Output format')
         parser.add_argument('--verbose', '-v', action='store_true',
-                          help='Verbose output')
+                            help='Verbose output')
 
     def validate_args(self, args: argparse.Namespace) -> CommandResult:
         """Validate similarity command arguments"""
@@ -550,6 +552,7 @@ class SimilarityCommand(Command):
 
             return '\n'.join(output)
 
+
 class CommandManager:
     """Manage available commands"""
 
@@ -594,8 +597,10 @@ class CommandManager:
         # Execute command
         return cmd.execute(args)
 
+
 # Module-level command manager
 COMMAND_MANAGER: Optional[CommandManager] = None
+
 
 def get_command_manager() -> CommandManager:
     """Get the global command manager"""
@@ -603,6 +608,7 @@ def get_command_manager() -> CommandManager:
     if COMMAND_MANAGER is None:
         COMMAND_MANAGER = CommandManager()
     return COMMAND_MANAGER
+
 
 # Initialize manager on import
 get_command_manager()

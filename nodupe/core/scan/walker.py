@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Callable
 import time
 
+
 class FileWalker:
     """File system walker for directory traversal.
 
@@ -172,6 +173,7 @@ class FileWalker:
             'total_time': elapsed,
             'average_files_per_second': self._file_count / elapsed if elapsed > 0 else 0
         }
+
 
 def create_file_walker() -> FileWalker:
     """Create and return a FileWalker instance.

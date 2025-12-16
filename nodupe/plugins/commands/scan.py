@@ -18,7 +18,7 @@ Dependencies:
     - Core modules
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 import argparse
 import time
 from nodupe.core.plugin_system.base import Plugin
@@ -27,33 +27,32 @@ from nodupe.core.scan.walker import FileWalker
 from nodupe.core.database.files import FileRepository
 from nodupe.core.database.connection import DatabaseConnection
 
+
 class ScanPlugin(Plugin):
     """Scan plugin implementation."""
-    
+
     name = "scan"
     version = "1.0.0"
     dependencies = []
-    
+
     def __init__(self):
         """Initialize scan plugin."""
         self.description = "Scan directories for duplicate files"
-        
+
     def initialize(self, container: Any) -> None:
         """Initialize the plugin."""
-        pass
-        
+
     def shutdown(self) -> None:
         """Shutdown the plugin."""
-        pass
-        
+
     def get_capabilities(self) -> Dict[str, Any]:
         """Get plugin capabilities."""
         return {'commands': ['scan']}
-    
+
     def _on_scan_start(self, **kwargs: Any) -> None:
         """Handle scan start event."""
         print(f"[PLUGIN] Scan started: {kwargs.get('path', 'unknown')}")
-    
+
     def _on_scan_complete(self, **kwargs: Any) -> None:
         """Handle scan complete event."""
         print(f"[PLUGIN] Scan completed: {kwargs.get('files_processed', 0)} files processed")
@@ -71,7 +70,7 @@ class ScanPlugin(Plugin):
 
     def execute_scan(self, args: argparse.Namespace) -> int:
         """Execute scan command.
-        
+
         Args:
             args: Command arguments including injected 'container'
         """
@@ -84,7 +83,7 @@ class ScanPlugin(Plugin):
             if not container:
                 print("[ERROR] Dependency container not available")
                 return 1
-            
+
             db_connection = container.get_service('database')
             if not db_connection:
                 print("[ERROR] Database service not available")
@@ -95,7 +94,7 @@ class ScanPlugin(Plugin):
 
             # 2. Setup components
             file_repo = FileRepository(db_connection)
-            
+
             # Setup filter
             def file_filter(info: Dict[str, Any]) -> bool:
                 if args.min_size and info['size'] < args.min_size:
@@ -112,29 +111,30 @@ class ScanPlugin(Plugin):
             # Setup progress callback
             def progress_callback(p: Dict[str, Any]) -> None:
                 if args.verbose:
-                    print(f"\rScanning... {p['files_processed']} files ({p['files_per_second']:.1f} f/s)", end="", flush=True)
+                    print(
+                        f"\rScanning... {p['files_processed']} files ({p['files_per_second']:.1f} f/s)", end="", flush=True)
 
             # 3. Process Execution
             walker = FileWalker()
             processor = FileProcessor(walker)
-            
+
             all_processed_files = []
-            
+
             for path in args.paths:
                 print(f"[PLUGIN] Scanning directory: {path}")
                 self._on_scan_start(path=path)
-                
+
                 # Process files
                 results = processor.process_files(
                     root_path=path,
                     file_filter=file_filter,
                     on_progress=progress_callback
                 )
-                
+
                 if results:
                     print(f"\n[PLUGIN] Found {len(results)} files in {path}")
                     all_processed_files.extend(results)
-                    
+
                     # 4. Save to Database
                     print("[PLUGIN] Saving to database...")
                     count = file_repo.batch_add_files(results)
@@ -143,23 +143,23 @@ class ScanPlugin(Plugin):
                     print(f"\n[PLUGIN] No files found in {path}")
 
             # 5. Detect Duplicates (In-Database)
-            # The FileProcessor detects duplicates in the *returned list*, but global 
+            # The FileProcessor detects duplicates in the *returned list*, but global
             # duplicates need DB query.
             # processor.detect_duplicates(all_processed_files) # Local check
-            
+
             # Use Repository to check for existing duplicates across DB?
-            # Current `files.py` handles storage. Duplicate detection usually implies 
+            # Current `files.py` handles storage. Duplicate detection usually implies
             # updating the `is_duplicate` flag.
             # Let's run a simple duplicate marking based on hash collision in the DB.
-            # The `FileRepository` doesn't have a specific `mark_all_duplicates` method, 
+            # The `FileRepository` doesn't have a specific `mark_all_duplicates` method,
             # but we can implement a quick check or leave it for the `plan` command.
             # Generally `scan` populates DB, `plan` analyzes it.
             # But the user expects "Scan" to find duplicates.
-            
+
             elapsed = time.time() - start_time
             print(f"\n[PLUGIN] Scan complete in {elapsed:.2f}s")
             print(f"[PLUGIN] Total files processed: {len(all_processed_files)}")
-            
+
             self._on_scan_complete(files_processed=len(all_processed_files))
             return 0
 
@@ -170,13 +170,17 @@ class ScanPlugin(Plugin):
                 traceback.print_exc()
             return 1
 
+
 # Create plugin instance when module is loaded
 scan_plugin = ScanPlugin()
 
 # Register plugin with core system
+
+
 def register_plugin():
     """Register plugin with core system."""
     return scan_plugin
+
 
 # Export plugin interface
 __all__ = ['scan_plugin', 'register_plugin']

@@ -157,3 +157,36 @@ warn_unused_configs = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
 check_untyped_defs = true
+
+[tool.pylint.main]
+# Files or directories to be skipped
+ignore = ["tests", "node_modules", ".git"]
+
+[tool.pylint.messages_control]
+# Disable specific warnings that are impractical to fix
+disable = [
+    "C0301",  # line-too-long (handled by black)
+    "W0718",  # broad-exception-caught (intentional for graceful degradation)
+    "R0902",  # too-many-instance-attributes
+    "R0903",  # too-few-public-methods
+    "R0912",  # too-many-branches
+    "R0913",  # too-many-arguments
+    "R0914",  # too-many-locals
+    "R0915",  # too-many-statements
+    "R0911",  # too-many-return-statements
+    "R1702",  # too-many-nested-blocks
+    "C0415",  # import-outside-toplevel (used for optional deps)
+    "W0621",  # redefined-outer-name
+    "W0107",  # unnecessary-pass (used in ABC stubs)
+    "W1203",  # logging-fstring-interpolation
+]
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.design]
+max-args = 10
+max-locals = 25
+max-branches = 20
+max-statements = 75
+

@@ -30,7 +30,7 @@ __version__ = str(__version_info__)
 
 def get_version() -> str:
     """Get the current application version.
-    
+
     Returns:
         Current version string (e.g., "1.0.0")
     """
@@ -39,7 +39,7 @@ def get_version() -> str:
 
 def get_version_info() -> VersionInfo:
     """Get detailed version information.
-    
+
     Returns:
         VersionInfo tuple containing major, minor, micro, releaselevel, and serial
     """
@@ -48,10 +48,10 @@ def get_version_info() -> VersionInfo:
 
 def check_python_version(min_version: tuple = (3, 9)) -> bool:
     """Check if current Python version meets minimum requirements.
-    
+
     Args:
         min_version: Minimum required Python version as (major, minor) tuple
-        
+
     Returns:
         True if current Python version meets requirements, False otherwise
     """
@@ -61,7 +61,7 @@ def check_python_version(min_version: tuple = (3, 9)) -> bool:
 
 def get_python_version() -> str:
     """Get current Python version string.
-    
+
     Returns:
         Python version string (e.g., "3.9.7")
     """
@@ -70,7 +70,7 @@ def get_python_version() -> str:
 
 def get_python_version_info() -> tuple[int, int, int]:
     """Get current Python version information.
-    
+
     Returns:
         Tuple containing (major, minor, micro) version numbers
     """
@@ -79,24 +79,24 @@ def get_python_version_info() -> tuple[int, int, int]:
 
 def is_compatible_version(version_str: str, min_version: str) -> bool:
     """Check if a version string is compatible with minimum version.
-    
+
     Args:
         version_str: Version string to check (e.g., "1.2.3")
         min_version: Minimum required version string (e.g., "1.0.0")
-        
+
     Returns:
         True if version_str is >= min_version, False otherwise
     """
     try:
         version_parts = [int(x) for x in version_str.split(".")]
         min_parts = [int(x) for x in min_version.split(".")]
-        
+
         # Pad with zeros if needed
         while len(version_parts) < 3:
             version_parts.append(0)
         while len(min_parts) < 3:
             min_parts.append(0)
-            
+
         return tuple(version_parts) >= tuple(min_parts)
     except (ValueError, AttributeError):
         return False
@@ -104,10 +104,10 @@ def is_compatible_version(version_str: str, min_version: str) -> bool:
 
 def parse_version(version_str: str) -> Optional[VersionInfo]:
     """Parse a version string into VersionInfo object.
-    
+
     Args:
         version_str: Version string to parse (e.g., "1.2.3")
-        
+
     Returns:
         VersionInfo object or None if parsing fails
     """
@@ -115,15 +115,15 @@ def parse_version(version_str: str) -> Optional[VersionInfo]:
         parts = version_str.split(".")
         if len(parts) < 3:
             return None
-            
+
         major = int(parts[0])
         minor = int(parts[1])
         micro = int(parts[2])
-        
+
         # Handle pre-release versions like "1.0.0a1" or "1.0.0b2"
         releaselevel = "final"
         serial = 0
-        
+
         if len(parts) > 3:
             # Handle version with pre-release info
             extra = "".join(parts[3:])
@@ -151,7 +151,7 @@ def parse_version(version_str: str) -> Optional[VersionInfo]:
                 micro = int(micro_part.split("rc")[0])
                 releaselevel = "candidate"
                 serial = int(micro_part.split("rc")[1])
-        
+
         return VersionInfo(major, minor, micro, releaselevel, serial)
     except (ValueError, IndexError):
         return None
@@ -159,10 +159,10 @@ def parse_version(version_str: str) -> Optional[VersionInfo]:
 
 def format_version_info(version_info: VersionInfo) -> str:
     """Format VersionInfo object as a readable string.
-    
+
     Args:
         version_info: VersionInfo object to format
-        
+
     Returns:
         Formatted version string
     """
@@ -183,12 +183,12 @@ PYTHON_MIN_VERSION_STR = f"{PYTHON_MIN_VERSION[0]}.{PYTHON_MIN_VERSION[1]}"
 
 def get_system_info() -> dict[str, str | VersionInfo | tuple[int, int] | tuple[int, int, int]]:
     """Get comprehensive system and version information.
-    
+
     Returns:
         Dictionary containing version and system information
     """
     import platform
-    
+
     return {
         "app_version": get_version(),
         "app_version_info": get_version_info(),
@@ -205,12 +205,12 @@ def get_system_info() -> dict[str, str | VersionInfo | tuple[int, int] | tuple[i
 
 def check_compatibility() -> dict[str, bool | str | list[str]]:
     """Check overall compatibility status.
-    
+
     Returns:
         Dictionary with compatibility status information
     """
     python_ok = check_python_version(PYTHON_MIN_VERSION)
-    
+
     return {
         "python_compatible": python_ok,
         "version": get_version(),

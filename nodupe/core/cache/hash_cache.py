@@ -52,7 +52,7 @@ class HashCache:
         self.max_size = max_size
         self.ttl_seconds = ttl_seconds
         self.enable_persistence = enable_persistence
-        
+
         # Cache storage: path -> (hash_value, mtime, timestamp)
         self._cache: OrderedDict[str, Tuple[str, float, float]] = OrderedDict()
         self._lock = threading.RLock()
@@ -74,13 +74,13 @@ class HashCache:
         """
         with self._lock:
             path_str = str(file_path)
-            
+
             if path_str not in self._cache:
                 self._stats['misses'] += 1
                 return None
 
             hash_value, stored_mtime, timestamp = self._cache[path_str]
-            
+
             # Check if entry is expired
             if time.time() - timestamp > self.ttl_seconds:
                 del self._cache[path_str]
@@ -112,7 +112,7 @@ class HashCache:
         """
         with self._lock:
             path_str = str(file_path)
-            
+
             try:
                 mtime = file_path.stat().st_mtime
             except OSError:
@@ -127,10 +127,10 @@ class HashCache:
             # Store with current timestamp
             timestamp = time.time()
             self._cache[path_str] = (hash_value, mtime, timestamp)
-            
+
             # Move to end to mark as most recently used
             self._cache.move_to_end(path_str, last=True)
-            
+
             self._stats['insertions'] += 1
 
     def invalidate(self, file_path: Path) -> bool:
@@ -167,7 +167,7 @@ class HashCache:
         with self._lock:
             removed_count = 0
             current_time = time.time()
-            
+
             # Collect keys to remove
             keys_to_remove = []
             for path_str, (hash_value, stored_mtime, timestamp) in self._cache.items():
@@ -204,8 +204,8 @@ class HashCache:
             stats['size'] = len(self._cache)
             stats['capacity'] = self.max_size
             stats['hit_rate'] = (
-                stats['hits'] / (stats['hits'] + stats['misses']) 
-                if (stats['hits'] + stats['misses']) > 0 
+                stats['hits'] / (stats['hits'] + stats['misses'])
+                if (stats['hits'] + stats['misses']) > 0
                 else 0.0
             )
             return stats
@@ -246,7 +246,7 @@ class HashCache:
         """
         with self._lock:
             self.max_size = new_max_size
-            
+
             # Remove excess entries from the beginning (LRU)
             while len(self._cache) > self.max_size:
                 self._cache.popitem(last=False)
@@ -266,7 +266,7 @@ class HashCache:
                 usage += len(hash_value.encode('utf-8'))  # Hash
                 usage += 16  # Two floats (mtime, timestamp)
                 usage += 50  # Overhead per entry
-            
+
             return usage
 
 

@@ -55,12 +55,12 @@ class API:
 
     @staticmethod
     def register_api(
-        endpoint_name: str, 
-        func: Callable[..., Any], 
+        endpoint_name: str,
+        func: Callable[..., Any],
         metadata: Optional[Dict[str, Any]] = None
     ) -> None:
         """Register API endpoint with metadata
-        
+
         Args:
             endpoint_name: Name of the API endpoint
             func: Function to register
@@ -72,10 +72,10 @@ class API:
     @staticmethod
     def get_endpoint(endpoint_name: str) -> Optional[Callable[..., Any]]:
         """Get registered API endpoint
-        
+
         Args:
             endpoint_name: Name of the endpoint to retrieve
-            
+
         Returns:
             Registered function or None if not found
         """
@@ -84,7 +84,7 @@ class API:
     @staticmethod
     def list_endpoints() -> List[str]:
         """List all registered API endpoints
-        
+
         Returns:
             List of endpoint names
         """
@@ -93,10 +93,10 @@ class API:
     @staticmethod
     def get_metadata(endpoint_name: str) -> Optional[Dict[str, Any]]:
         """Get metadata for an API endpoint
-        
+
         Args:
             endpoint_name: Name of the endpoint
-            
+
         Returns:
             Metadata dictionary or None if endpoint not found
         """
@@ -105,12 +105,12 @@ class API:
     @staticmethod
     def validate_api_call(endpoint_name: str, *args: Any, **kwargs: Any) -> bool:
         """Validate API call before execution
-        
+
         Args:
             endpoint_name: Name of the endpoint to call
             *args: Positional arguments
             **kwargs: Keyword arguments
-            
+
         Returns:
             True if call is valid, False otherwise
         """
@@ -128,12 +128,12 @@ class API:
     @staticmethod
     def call_endpoint(endpoint_name: str, *args: Any, **kwargs: Any) -> Any:
         """Call registered API endpoint safely
-        
+
         Args:
             endpoint_name: Name of the endpoint to call
             *args: Positional arguments for the function
             **kwargs: Keyword arguments for the function
-            
+
         Returns:
             Result of the function call
         """
@@ -148,11 +148,11 @@ class API:
 
 
 def api_endpoint(
-    endpoint_name: str, 
+    endpoint_name: str,
     metadata: Optional[Dict[str, Any]] = None
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to register a function as an API endpoint
-    
+
     Args:
         endpoint_name: Name of the API endpoint
         metadata: Additional metadata about the endpoint
@@ -165,7 +165,7 @@ def api_endpoint(
 
 def validate_args(**validators: Callable[[Any], bool]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to add argument validators to API functions
-    
+
     Args:
         **validators: Dictionary of argument names to validator functions
     """

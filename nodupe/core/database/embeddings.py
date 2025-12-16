@@ -21,6 +21,7 @@ from typing import Optional, List, Dict, Any
 import pickle
 from .connection import DatabaseConnection
 
+
 class EmbeddingRepository:
     """Embedding repository for database operations.
 
@@ -356,6 +357,7 @@ class EmbeddingRepository:
         except Exception as e:
             print(f"[ERROR] Failed to clear all embeddings: {e}")
             raise
+
 
 def get_embedding_repository(db_path: str = "output/index.db") -> EmbeddingRepository:
     """Get embedding repository instance.

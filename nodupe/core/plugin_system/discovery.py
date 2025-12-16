@@ -24,7 +24,7 @@ class PluginDiscoveryError(Exception):
 
 class PluginInfo:
     """Plugin metadata information."""
-    
+
     def __init__(
         self,
         name: str,
@@ -43,7 +43,7 @@ class PluginInfo:
         self.dependencies = dependencies if dependencies is not None else []
         self.type = type
         self.enabled = True
-    
+
     def __repr__(self) -> str:
         return f"PluginInfo(name='{self.name}', version='{self.version}', path='{self.path}')"
 
@@ -91,7 +91,7 @@ class PluginDiscovery:
                 pattern = file_pattern
 
             python_files = list(directory.glob(pattern))
-            
+
             discovered_plugins = []
             for file_path in python_files:
                 try:
@@ -160,11 +160,11 @@ class PluginDiscovery:
                 plugins = self.discover_plugins_in_directory(
                     directory, recursive, f"{plugin_name}.py"
                 )
-                
+
                 for plugin in plugins:
                     if plugin.name == plugin_name:
                         return plugin
-                
+
                 # Also check for plugin as directory with __init__.py
                 plugin_dir = directory / plugin_name
                 if plugin_dir.exists() and (plugin_dir / "__init__.py").exists():
@@ -228,10 +228,10 @@ class PluginDiscovery:
 
             # Look for common plugin metadata patterns
             metadata = self._parse_metadata(content)
-            
+
             # Use filename as default name if not found in metadata
             name = metadata.get('name', file_path.stem)
-            
+
             # Validate that this looks like a plugin file
             if not self._looks_like_plugin(content):
                 return None
@@ -260,26 +260,26 @@ class PluginDiscovery:
             Dictionary of parsed metadata
         """
         metadata = {}
-        
+
         # Look for common metadata patterns
         lines = content.split('\n')
-        
+
         for line in lines:
             line = line.strip()
-            
+
             # Look for assignment patterns
             if '=' in line and not line.startswith('#'):
                 parts = line.split('=', 1)
                 if len(parts) == 2:
                     key = parts[0].strip()
                     value = parts[1].strip()
-                    
+
                     # Clean up value
                     if value.startswith('"') and value.endswith('"'):
                         value = value[1:-1]
                     elif value.startswith("'") and value.endswith("'"):
                         value = value[1:-1]
-                    
+
                     # Map common metadata keys
                     if key in ['__version__', 'VERSION', 'version']:
                         metadata['version'] = value
@@ -305,13 +305,13 @@ class PluginDiscovery:
         """
         # Look for plugin-related keywords
         content_lower = content.lower()
-        
+
         # Simple keyword checks
         has_imports = 'import' in content
         has_class = 'class' in content
-        has_methods = ('def ' in content and 
-                      any(keyword in content_lower for keyword in ['initialize', 'shutdown', 'get_capabilities']))
-        
+        has_methods = ('def ' in content and
+                       any(keyword in content_lower for keyword in ['initialize', 'shutdown', 'get_capabilities']))
+
         return has_imports and has_class and has_methods
 
     def validate_plugin_file(self, file_path: Path) -> bool:

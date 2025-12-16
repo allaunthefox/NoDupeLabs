@@ -5,6 +5,7 @@ Singleton registry for managing plugins
 from typing import List, Optional, Any
 from .base import Plugin
 
+
 class PluginRegistry:
     """Singleton registry for managing plugins"""
 

@@ -78,20 +78,20 @@ class DependencyResolver:
         Returns:
             True if dependency was removed, False if not found
         """
-        if (plugin_name in self._dependencies and 
-            dependency_name in self._dependencies[plugin_name]):
+        if (plugin_name in self._dependencies and
+                dependency_name in self._dependencies[plugin_name]):
             self._dependencies[plugin_name].remove(dependency_name)
-            
+
             # Update reverse dependencies
-            if (dependency_name in self._dependents and 
-                plugin_name in self._dependents[dependency_name]):
+            if (dependency_name in self._dependents and
+                    plugin_name in self._dependents[dependency_name]):
                 self._dependents[dependency_name].remove(plugin_name)
-            
+
             # Reset resolution status
             self._resolutions.clear()
             self._resolved_order.clear()
             return True
-        
+
         return False
 
     def get_dependencies(self, plugin_name: str) -> List[str]:
@@ -131,7 +131,7 @@ class DependencyResolver:
             for plugin in plugins:
                 deps = set(self._dependencies.get(plugin, []))
                 all_deps.update(deps)
-            
+
             missing = all_deps - set(plugins)
             if missing:
                 return ResolutionStatus.MISSING, []
@@ -142,10 +142,10 @@ class DependencyResolver:
 
             # Perform topological sort
             ordered_plugins = self._topological_sort(plugins)
-            
+
             if not ordered_plugins:
                 return ResolutionStatus.UNRESOLVED, []
-            
+
             return ResolutionStatus.RESOLVED, ordered_plugins
 
         except Exception as e:
@@ -163,7 +163,7 @@ class DependencyResolver:
         # Build dependency graph for the specific plugins
         graph = {}
         plugin_set = set(plugins)
-        
+
         for plugin in plugins:
             deps = [dep for dep in self._dependencies.get(plugin, []) if dep in plugin_set]
             graph[plugin] = deps
@@ -207,7 +207,7 @@ class DependencyResolver:
         # Build dependency graph
         graph = {}
         plugin_set = set(plugins)
-        
+
         for plugin in plugins:
             deps = [dep for dep in self._dependencies.get(plugin, []) if dep in plugin_set]
             graph[plugin] = deps
@@ -281,7 +281,7 @@ class DependencyResolver:
         """
         required_deps = getattr(plugin, 'dependencies', [])
         missing_deps = [dep for dep in required_deps if dep not in available_plugins]
-        
+
         return len(missing_deps) == 0, missing_deps
 
     def get_dependency_tree(self, plugin_name: str) -> Dict[str, Any]:
@@ -296,23 +296,23 @@ class DependencyResolver:
         def build_tree(name: str, visited: Set[str] = None) -> Dict[str, Any]:
             if visited is None:
                 visited = set()
-            
+
             if name in visited:
                 return {"name": name, "circular": True, "dependencies": {}}
-            
+
             visited.add(name)
-            
+
             deps = self._dependencies.get(name, [])
             tree = {
                 "name": name,
                 "dependencies": {}
             }
-            
+
             for dep in deps:
                 tree["dependencies"][dep] = build_tree(dep, visited.copy())
-            
+
             return tree
-        
+
         return build_tree(plugin_name)
 
     def get_all_dependencies(self, plugin_name: str) -> Set[str]:
@@ -332,10 +332,10 @@ class DependencyResolver:
             current = to_process.pop(0)
             if current in processed:
                 continue
-            
+
             processed.add(current)
             deps = self._dependencies.get(current, [])
-            
+
             for dep in deps:
                 if dep not in all_deps:
                     all_deps.add(dep)

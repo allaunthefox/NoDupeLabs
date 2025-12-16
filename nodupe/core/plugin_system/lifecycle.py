@@ -72,35 +72,35 @@ class PluginLifecycleManager:
         """
         try:
             plugin_name = plugin.name
-            
+
             # Check if plugin is already initialized
             current_state = self._plugin_states.get(plugin_name, PluginState.UNLOADED)
             if current_state == PluginState.INITIALIZED:
                 return True  # Already initialized
-            
+
             # Set state to initializing
             self._plugin_states[plugin_name] = PluginState.INITIALIZING
-            
+
             # Store dependencies if provided
             if dependencies is not None:
                 self._plugin_dependencies[plugin_name] = dependencies
-            
+
             # Check dependency availability
             if not self._check_dependencies(plugin_name):
                 self._plugin_states[plugin_name] = PluginState.ERROR
                 raise PluginLifecycleError(
                     f"Dependencies not satisfied for plugin {plugin_name}"
                 )
-            
+
             # Store container reference
             self._plugin_containers[plugin_name] = container
-            
+
             # Initialize the plugin
             plugin.initialize(container)
-            
+
             # Set state to initialized
             self._plugin_states[plugin_name] = PluginState.INITIALIZED
-            
+
             return True
 
         except Exception as e:
@@ -163,15 +163,15 @@ class PluginLifecycleManager:
         try:
             # Get all plugins from registry
             plugins = self.registry.get_plugins()
-            
+
             # Sort plugins by dependency order
             ordered_plugins = self._sort_plugins_by_dependencies(plugins)
-            
+
             # Initialize each plugin
             for plugin in ordered_plugins:
                 if not self.initialize_plugin(plugin, container):
                     raise PluginLifecycleError(f"Failed to initialize plugin {plugin.name}")
-            
+
             return True
 
         except Exception as e:
@@ -188,7 +188,7 @@ class PluginLifecycleManager:
         try:
             # Get all plugins from registry
             plugins = self.registry.get_plugins()
-            
+
             # Shutdown in reverse dependency order
             for plugin in reversed(plugins):
                 try:
@@ -196,7 +196,7 @@ class PluginLifecycleManager:
                 except PluginLifecycleError:
                     # Continue shutting down other plugins even if one fails
                     continue
-            
+
             return True
 
         except Exception as e:
@@ -277,12 +277,12 @@ class PluginLifecycleManager:
             True if all dependencies are satisfied
         """
         dependencies = self._plugin_dependencies.get(plugin_name, [])
-        
+
         for dep_name in dependencies:
             dep_state = self._plugin_states.get(dep_name, PluginState.UNLOADED)
             if dep_state != PluginState.INITIALIZED:
                 return False
-        
+
         return True
 
     def _sort_plugins_by_dependencies(self, plugins: List[Plugin]) -> List[Plugin]:
@@ -297,17 +297,17 @@ class PluginLifecycleManager:
         # Build dependency graph
         graph = {}
         plugin_names = {plugin.name: plugin for plugin in plugins}
-        
+
         for plugin in plugins:
             deps = self._plugin_dependencies.get(plugin.name, [])
             # Only include dependencies that are in our plugin list
             graph[plugin.name] = [dep for dep in deps if dep in plugin_names]
-        
+
         # Topological sort
         result = []
         visited = set()
         temp_visited = set()
-        
+
         def visit(node):
             if node in temp_visited:
                 raise PluginLifecycleError(f"Circular dependency detected: {node}")
@@ -318,11 +318,11 @@ class PluginLifecycleManager:
                 temp_visited.remove(node)
                 visited.add(node)
                 result.append(plugin_names[node])
-        
+
         for plugin in plugins:
             if plugin.name not in visited:
                 visit(plugin.name)
-        
+
         return result
 
 

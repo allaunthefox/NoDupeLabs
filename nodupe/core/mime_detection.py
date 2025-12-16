@@ -50,9 +50,9 @@ class MIMEDetection:
 
         # Audio
         (0, b'ID3', 'audio/mpeg'),      # MP3 with ID3
-        (0, b'\xFF\xFB', 'audio/mpeg'), # MP3
-        (0, b'\xFF\xF3', 'audio/mpeg'), # MP3
-        (0, b'\xFF\xF2', 'audio/mpeg'), # MP3
+        (0, b'\xFF\xFB', 'audio/mpeg'),  # MP3
+        (0, b'\xFF\xF3', 'audio/mpeg'),  # MP3
+        (0, b'\xFF\xF2', 'audio/mpeg'),  # MP3
         (0, b'RIFF', 'audio/wav'),      # Need to check for 'WAVE' at offset 8
         (0, b'fLaC', 'audio/flac'),
         (0, b'OggS', 'audio/ogg'),

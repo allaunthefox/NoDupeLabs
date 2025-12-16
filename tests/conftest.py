@@ -9,7 +9,8 @@ from typing import Generator, Dict, Any, Optional, Callable
 import sqlite3
 import pytest  # type: ignore
 from unittest.mock import MagicMock, patch
-import nodupe.core.container as container
+import nodupe.core.container as container_module
+from nodupe.core.container import ServiceContainer
 import nodupe.core.config as config
 from nodupe.core.database.connection import DatabaseConnection
 from nodupe.core.plugin_system.registry import PluginRegistry
@@ -273,9 +274,9 @@ def resource_pool() -> Generator[Any, None, None]:
 ## Container and Dependency Injection Fixtures
 
 @pytest.fixture(scope="function")
-def test_container() -> Generator[container.ServiceContainer, None, None]:
+def test_container() -> Generator[ServiceContainer, None, None]:
     """Create a test container with basic services."""
-    cont = container.ServiceContainer()
+    cont = ServiceContainer()
 
     # Register basic services
     cont.register_service("config", mock_config())
@@ -285,7 +286,7 @@ def test_container() -> Generator[container.ServiceContainer, None, None]:
     yield cont
 
 @pytest.fixture(scope="function")
-def container_with_mocks(test_container: container.ServiceContainer) -> Generator[container.ServiceContainer, None, None]:
+def container_with_mocks(test_container: ServiceContainer) -> Generator[ServiceContainer, None, None]:
     """Create a container with mock services for testing."""
     # Add mock services
     test_container.register_service("mock_service", MagicMock())

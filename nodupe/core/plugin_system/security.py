@@ -129,16 +129,16 @@ class PluginSecurity:
         """
         try:
             tree = ast.parse(code)
-            
+
             # Create a fake Path for validation
             fake_path = Path(source_name)
-            
+
             self._check_dangerous_constructs(tree, fake_path)
             self._check_dangerous_imports(tree, fake_path)
             self._check_additional_security_issues(tree, fake_path)
-            
+
             return True
-            
+
         except Exception:
             return False
 
@@ -225,7 +225,7 @@ class PluginSecurity:
         """
         visitor = SecurityASTVisitor()
         visitor.visit(tree)
-        
+
         if visitor.dangerous_nodes:
             dangerous_list = ', '.join(visitor.dangerous_nodes)
             raise PluginSecurityError(

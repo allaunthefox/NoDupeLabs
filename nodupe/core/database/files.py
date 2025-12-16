@@ -22,6 +22,7 @@ from typing import Optional, List, Dict, Any
 import time
 from .connection import DatabaseConnection
 
+
 class FileRepository:
     """File repository for database operations.
 
@@ -407,6 +408,7 @@ class FileRepository:
         except Exception as e:
             print(f"[ERROR] Failed to clear all files: {e}")
             raise
+
 
 def get_file_repository(db_path: str = "output/index.db") -> FileRepository:
     """Get file repository instance.

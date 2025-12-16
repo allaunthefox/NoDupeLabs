@@ -23,6 +23,7 @@ import time
 from typing import Dict, Any, Optional, Callable
 import threading
 
+
 class ProgressTracker:
     """Progress tracker for file processing operations.
 
@@ -217,6 +218,7 @@ class ProgressTracker:
                 f"Items: {items}/{total} | "
                 f"Time: {elapsed:.1f}s (remaining: {remaining:.1f}s) | "
                 f"Errors: {errors}")
+
 
 def create_progress_tracker() -> ProgressTracker:
     """Create and return a ProgressTracker instance.

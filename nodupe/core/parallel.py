@@ -22,12 +22,12 @@ import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from multiprocessing import cpu_count
 from typing import Callable, List, Any, Optional, Iterator, Tuple
-from functools import partial
 import threading
 import sys
 import time
 import logging
 import os
+
 
 def _process_batch_worker(func_and_batch):
     """Worker that processes a batch of items with a provided function.
@@ -38,8 +38,10 @@ def _process_batch_worker(func_and_batch):
     func, batch = func_and_batch
     return [func(x) for x in batch]
 
+
 class ParallelError(Exception):
     """Parallel processing error"""
+
 
 class Parallel:
     """Handle parallel processing operations.
@@ -301,7 +303,8 @@ class Parallel:
                             yield result
                     else:
                         # Map batches using a top-level helper so callables are picklable
-                        batches = [items[i:i + batch_size] for i in range(0, len(items), batch_size)]
+                        batches = [items[i:i + batch_size]
+                                   for i in range(0, len(items), batch_size)]
                         paired = [(func, b) for b in batches]
                         prev = time.time()
                         for batch_result in executor.map(_process_batch_worker, paired):
@@ -311,7 +314,8 @@ class Parallel:
                             if batch_logging:
                                 try:
                                     logging.getLogger(__name__).debug(
-                                        "batch size=%d processed in %.3fs", len(batch_result), duration
+                                        "batch size=%d processed in %.3fs", len(
+                                            batch_result), duration
                                     )
                                 except Exception:
                                     pass
@@ -562,6 +566,7 @@ class Parallel:
                 raise
             raise ParallelError(f"Map-reduce failed: {e}") from e
 
+
 class ParallelProgress:
     """Track progress of parallel operations."""
 
@@ -609,6 +614,7 @@ class ParallelProgress:
         with self._lock:
             return (self.completed + self.failed) >= self.total
 
+
 def parallel_map(
     func: Callable,
     items: List[Any],
@@ -629,6 +635,7 @@ def parallel_map(
         List of results
     """
     return Parallel.map_parallel(func, items, workers, use_processes, use_interpreters)
+
 
 def parallel_filter(
     predicate: Callable[[Any], bool],
@@ -657,6 +664,7 @@ def parallel_filter(
 
     # Filter based on predicate results
     return [item for item, keep in results if keep]
+
 
 def parallel_partition(
     predicate: Callable[[Any], bool],
@@ -688,6 +696,7 @@ def parallel_partition(
     false_items = [item for item, result in results if not result]
 
     return (true_items, false_items)
+
 
 def parallel_starmap(
     func: Callable,

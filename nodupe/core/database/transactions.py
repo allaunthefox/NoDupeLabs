@@ -16,7 +16,7 @@ Dependencies:
 """
 
 import sqlite3
-from typing import Any, Optional, Callable
+from typing import Any, Callable
 from contextlib import contextmanager
 from enum import Enum
 

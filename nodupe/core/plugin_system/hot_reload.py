@@ -23,18 +23,19 @@ from typing import Dict, Optional, Any
 from .loader import PluginLoader
 from .lifecycle import PluginLifecycleManager
 
+
 class PluginHotReload:
     """Handle plugin hot reloading via file polling.
-    
+
     Monitors plugin files for changes and triggers reload sequence:
     Shutdown -> Unload -> Reload Code -> Instantiate -> Register -> Initialize
     """
 
     def __init__(
-        self, 
-        loader: PluginLoader, 
-        lifecycle: PluginLifecycleManager, 
-        container: Any, 
+        self,
+        loader: PluginLoader,
+        lifecycle: PluginLifecycleManager,
+        container: Any,
         poll_interval: float = 1.0
     ):
         """Initialize hot reload manager.
@@ -49,7 +50,7 @@ class PluginHotReload:
         self.lifecycle = lifecycle
         self.container = container
         self.poll_interval = poll_interval
-        
+
         self._watched_plugins: Dict[str, Dict[str, Any]] = {}
         self._stop_event = threading.Event()
         self._thread: Optional[threading.Thread] = None
@@ -65,7 +66,7 @@ class PluginHotReload:
         """
         if not plugin_path.exists():
             return
-        
+
         with self._lock:
             try:
                 self._watched_plugins[plugin_name] = {
@@ -80,11 +81,11 @@ class PluginHotReload:
         """Start the hot reload polling thread."""
         if self._thread is not None:
             return
-        
+
         self._stop_event.clear()
         self._thread = threading.Thread(
-            target=self._poll_loop, 
-            name="PluginHotReloadThread", 
+            target=self._poll_loop,
+            name="PluginHotReloadThread",
             daemon=True
         )
         self._thread.start()
@@ -104,7 +105,7 @@ class PluginHotReload:
         """Main polling loop running in background thread."""
         while not self._stop_event.is_set():
             time.sleep(self.poll_interval)
-            
+
             # Create a safe copy of items to iterate
             with self._lock:
                 items = list(self._watched_plugins.items())
@@ -113,26 +114,26 @@ class PluginHotReload:
                 # Check if we should stop mid-iteration
                 if self._stop_event.is_set():
                     break
-                    
+
                 path = info['path']
                 last_mtime = info['mtime']
-                
+
                 try:
                     # Check file modification time
                     current_mtime = path.stat().st_mtime
-                    
+
                     # If modified more recently than last check
                     if current_mtime > last_mtime:
                         self.logger.info(f"Detected change in plugin {name}, reloading...")
-                        
+
                         # Perform reload
                         self._reload_plugin(name, path)
-                        
+
                         # Update mtime
                         with self._lock:
                             if name in self._watched_plugins:
                                 self._watched_plugins[name]['mtime'] = current_mtime
-                                
+
                 except FileNotFoundError:
                     self.logger.warning(f"Plugin file {path} disappeared, stopping watch")
                     with self._lock:
@@ -153,10 +154,10 @@ class PluginHotReload:
             shutdown_success = self.lifecycle.shutdown_plugin(name)
             if not shutdown_success:
                 self.logger.warning(f"Plugin {name} was not running or failed to shutdown")
-            
+
             # 2. Unload from loader (clears sys.modules cache)
             self.loader.unload_plugin(name)
-            
+
             # 3. Re-load from file
             self.logger.info(f"Reloading plugin {name} from {path}...")
             plugin_class = self.loader.load_plugin_from_file(path)
@@ -166,16 +167,16 @@ class PluginHotReload:
 
             # 4. Instantiate
             plugin_instance = self.loader.instantiate_plugin(plugin_class)
-            
+
             # 5. Register
             self.loader.register_loaded_plugin(plugin_instance, path)
-            
+
             # 6. Initialize
             self.logger.info(f"Initializing plugin {name}...")
-            # Note: We re-use the original container. 
+            # Note: We re-use the original container.
             # Dependencies are assumed to be satisfied as we don't unload valid dependencies.
             success = self.lifecycle.initialize_plugin(plugin_instance, self.container)
-            
+
             if success:
                 self.logger.info(f"Plugin {name} hot reloaded successfully")
             else:

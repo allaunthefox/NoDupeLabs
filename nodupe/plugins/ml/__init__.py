@@ -4,13 +4,15 @@ This module provides ML backend implementations for embedding generation
 and other machine learning tasks with graceful degradation.
 """
 
-from typing import List, Optional, Any
-import numpy as np
 import logging
 from abc import ABC, abstractmethod
+from typing import List, Optional, Any
+
+import numpy as np
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
 
 class MLBackend(ABC):
     """Abstract base class for ML backends"""
@@ -18,17 +20,15 @@ class MLBackend(ABC):
     @abstractmethod
     def is_available(self) -> bool:
         """Check if this backend is available"""
-        pass
 
     @abstractmethod
     def generate_embeddings(self, data: List[Any]) -> List[List[float]]:
         """Generate embeddings for input data"""
-        pass
 
     @abstractmethod
     def get_embedding_dimensions(self) -> int:
         """Get the dimensionality of embeddings produced by this backend"""
-        pass
+
 
 class CPUBackend(MLBackend):
     """CPU-based ML backend using pure NumPy (always available)"""
@@ -69,6 +69,7 @@ class CPUBackend(MLBackend):
     def get_embedding_dimensions(self) -> int:
         """Get embedding dimensionality"""
         return self.dimensions
+
 
 class ONNXBackend(MLBackend):
     """ONNX Runtime backend for ML inference"""
@@ -125,6 +126,7 @@ class ONNXBackend(MLBackend):
         """Get embedding dimensionality"""
         return self.dimensions
 
+
 def create_ml_backend(backend_type: str = "auto", **kwargs) -> MLBackend:
     """
     Create an ML backend instance with graceful degradation
@@ -161,8 +163,10 @@ def create_ml_backend(backend_type: str = "auto", **kwargs) -> MLBackend:
     else:
         raise ValueError(f"Unknown backend type: {backend_type}")
 
+
 # Module-level backend instance (lazy initialization)
 ML_BACKEND: Optional[MLBackend] = None
+
 
 def get_ml_backend() -> MLBackend:
     """Get the global ML backend instance"""
@@ -170,6 +174,7 @@ def get_ml_backend() -> MLBackend:
     if ML_BACKEND is None:
         ML_BACKEND = create_ml_backend()
     return ML_BACKEND
+
 
 # Initialize backend on import
 get_ml_backend()

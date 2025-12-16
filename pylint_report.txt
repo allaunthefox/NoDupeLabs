@@ -1,0 +1,1445 @@
+************* Module nodupe.core.api
+nodupe/core/api.py:58:27: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/api.py:59:33: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/api.py:151:23: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/api.py:166:0: C0301: Line too long (109/100) (line-too-long)
+nodupe/core/api.py:24:4: W0212: Access to a protected member _stable_api of a client class (protected-access)
+nodupe/core/api.py:25:4: W0212: Access to a protected member _api_level of a client class (protected-access)
+nodupe/core/api.py:31:4: W0212: Access to a protected member _beta_api of a client class (protected-access)
+nodupe/core/api.py:32:4: W0212: Access to a protected member _api_level of a client class (protected-access)
+nodupe/core/api.py:38:4: W0212: Access to a protected member _experimental_api of a client class (protected-access)
+nodupe/core/api.py:39:4: W0212: Access to a protected member _api_level of a client class (protected-access)
+nodupe/core/api.py:45:4: W0212: Access to a protected member _deprecated of a client class (protected-access)
+nodupe/core/api.py:46:4: W0212: Access to a protected member _api_level of a client class (protected-access)
+************* Module nodupe.core.compression
+nodupe/core/compression.py:47:8: W0622: Redefining built-in 'format' (redefined-builtin)
+nodupe/core/compression.py:64:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+nodupe/core/compression.py:85:8: W0622: Redefining built-in 'format' (redefined-builtin)
+nodupe/core/compression.py:100:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+nodupe/core/compression.py:121:8: W0622: Redefining built-in 'format' (redefined-builtin)
+nodupe/core/compression.py:195:8: W0622: Redefining built-in 'format' (redefined-builtin)
+nodupe/core/compression.py:192:4: R0912: Too many branches (15/12) (too-many-branches)
+nodupe/core/compression.py:282:8: W0622: Redefining built-in 'format' (redefined-builtin)
+nodupe/core/compression.py:279:4: R0912: Too many branches (14/12) (too-many-branches)
+nodupe/core/compression.py:360:8: W0622: Redefining built-in 'format' (redefined-builtin)
+nodupe/core/compression.py:357:4: R0912: Too many branches (15/12) (too-many-branches)
+nodupe/core/compression.py:449:8: W0622: Redefining built-in 'format' (redefined-builtin)
+nodupe/core/compression.py:27:0: W0611: Unused BytesIO imported from io (unused-import)
+************* Module nodupe.core.config
+nodupe/core/config.py:55:8: W0621: Redefining name 'e' from outer scope (line 187) (redefined-outer-name)
+nodupe/core/config.py:99:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/config.py:187:11: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/config.py:149:18: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+nodupe/core/config.py:155:18: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+nodupe/core/config.py:166:18: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+************* Module nodupe.core.errors
+nodupe/core/errors.py:8:4: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/core/errors.py:12:4: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/core/errors.py:16:4: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/core/errors.py:20:4: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/core/errors.py:24:4: W0107: Unnecessary pass statement (unnecessary-pass)
+************* Module nodupe.core.incremental
+nodupe/core/incremental.py:19:23: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:20:40: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:40:32: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:41:18: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:56:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:59:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:75:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:78:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:81:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:93:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:104:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:120:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:124:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/incremental.py:38:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+nodupe/core/incremental.py:60:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+nodupe/core/incremental.py:106:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+************* Module nodupe.core.limits
+nodupe/core/limits.py:53:16: C0415: Import outside toplevel (resource) (import-outside-toplevel)
+nodupe/core/limits.py:56:16: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+nodupe/core/limits.py:65:25: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+nodupe/core/limits.py:123:16: C0415: Import outside toplevel (resource) (import-outside-toplevel)
+nodupe/core/limits.py:125:16: W0612: Unused variable 'soft' (unused-variable)
+nodupe/core/limits.py:125:22: W0612: Unused variable 'hard' (unused-variable)
+nodupe/core/limits.py:152:20: C0415: Import outside toplevel (resource) (import-outside-toplevel)
+nodupe/core/limits.py:153:26: W0612: Unused variable 'hard' (unused-variable)
+************* Module nodupe.core.loader
+nodupe/core/loader.py:65:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:68:105: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:68:0: C0301: Line too long (105/100) (line-too-long)
+nodupe/core/loader.py:84:0: C0301: Line too long (103/100) (line-too-long)
+nodupe/core/loader.py:85:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:125:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:128:0: C0301: Line too long (111/100) (line-too-long)
+nodupe/core/loader.py:129:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:161:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:217:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:280:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:452:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:459:20: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:469:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:472:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:476:0: C0301: Line too long (101/100) (line-too-long)
+nodupe/core/loader.py:479:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:482:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:487:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:492:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:497:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:501:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:503:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/loader.py:41:0: R0902: Too many instance attributes (9/7) (too-many-instance-attributes)
+nodupe/core/loader.py:61:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
+nodupe/core/loader.py:154:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:56:4: R0912: Too many branches (16/12) (too-many-branches)
+nodupe/core/loader.py:56:4: R0915: Too many statements (54/50) (too-many-statements)
+nodupe/core/loader.py:182:8: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:193:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:195:8: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:244:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/loader.py:215:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:220:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:226:39: E1102: validate_method is not callable (not-callable)
+nodupe/core/loader.py:227:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:232:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:242:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:245:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:277:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:389:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/loader.py:364:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/loader.py:383:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/loader.py:372:24: R1723: Unnecessary "elif" after "break", remove the leading "el" from "elif" (no-else-break)
+nodupe/core/loader.py:390:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:328:4: R0912: Too many branches (13/12) (too-many-branches)
+nodupe/core/loader.py:341:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
+nodupe/core/loader.py:394:4: R0912: Too many branches (13/12) (too-many-branches)
+nodupe/core/loader.py:504:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/loader.py:483:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:484:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:485:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:486:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:491:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:505:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/loader.py:507:12: C0415: Import outside toplevel (scan.hasher.FileHasher) (import-outside-toplevel)
+************* Module nodupe.core.logging
+nodupe/core/logging.py:39:4: R0913: Too many arguments (7/5) (too-many-arguments)
+************* Module nodupe.core.main
+nodupe/core/main.py:56:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/main.py:129:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/main.py:143:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/main.py:179:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/main.py:183:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/main.py:88:24: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/main.py:90:24: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/main.py:118:20: C0415: Import outside toplevel (traceback) (import-outside-toplevel)
+nodupe/core/main.py:165:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/main.py:168:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/main.py:171:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/main.py:26:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+************* Module nodupe.core.mime_detection
+nodupe/core/mime_detection.py:197:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
+nodupe/core/mime_detection.py:187:4: R0911: Too many return statements (7/6) (too-many-return-statements)
+************* Module nodupe.core.mmap_handler
+nodupe/core/mmap_handler.py:31:0: C0303: Trailing whitespace (trailing-whitespace)
+************* Module nodupe.core.parallel
+nodupe/core/parallel.py:286:0: C0301: Line too long (101/100) (line-too-long)
+nodupe/core/parallel.py:304:0: C0301: Line too long (101/100) (line-too-long)
+nodupe/core/parallel.py:314:0: C0301: Line too long (103/100) (line-too-long)
+nodupe/core/parallel.py:321:0: C0301: Line too long (110/100) (line-too-long)
+nodupe/core/parallel.py:375:0: C0301: Line too long (104/100) (line-too-long)
+nodupe/core/parallel.py:60:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/parallel.py:92:4: R0913: Too many arguments (6/5) (too-many-arguments)
+nodupe/core/parallel.py:92:4: R0914: Too many local variables (19/15) (too-many-locals)
+nodupe/core/parallel.py:124:20: C0415: Import outside toplevel (concurrent.futures.InterpreterPoolExecutor) (import-outside-toplevel)
+nodupe/core/parallel.py:166:4: R0913: Too many arguments (6/5) (too-many-arguments)
+nodupe/core/parallel.py:198:20: C0415: Import outside toplevel (concurrent.futures.InterpreterPoolExecutor) (import-outside-toplevel)
+nodupe/core/parallel.py:221:4: R0913: Too many arguments (8/5) (too-many-arguments)
+nodupe/core/parallel.py:221:4: R0914: Too many local variables (30/15) (too-many-locals)
+nodupe/core/parallel.py:253:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/parallel.py:257:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/parallel.py:269:23: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/parallel.py:276:20: C0415: Import outside toplevel (concurrent.futures.InterpreterPoolExecutor) (import-outside-toplevel)
+nodupe/core/parallel.py:291:27: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/parallel.py:298:31: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/parallel.py:316:39: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/parallel.py:325:27: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/parallel.py:221:4: R0912: Too many branches (33/12) (too-many-branches)
+nodupe/core/parallel.py:221:4: R0915: Too many statements (86/50) (too-many-statements)
+nodupe/core/parallel.py:394:12: C0415: Import outside toplevel (inspect) (import-outside-toplevel)
+nodupe/core/parallel.py:400:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+nodupe/core/parallel.py:373:8: W0613: Unused argument 'timeout' (unused-argument)
+nodupe/core/parallel.py:395:12: W0612: Unused variable 'sig' (unused-variable)
+nodupe/core/parallel.py:444:12: W0621: Redefining name 'cpu_count' from outer scope (line 23) (redefined-outer-name)
+nodupe/core/parallel.py:445:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/parallel.py:451:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+nodupe/core/parallel.py:460:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+nodupe/core/parallel.py:466:4: R0913: Too many arguments (6/5) (too-many-arguments)
+nodupe/core/parallel.py:510:4: R0913: Too many arguments (7/5) (too-many-arguments)
+nodupe/core/parallel.py:25:0: W0611: Unused partial imported from functools (unused-import)
+************* Module nodupe.core.pools
+nodupe/core/pools.py:45:0: R0902: Too many instance attributes (10/7) (too-many-instance-attributes)
+nodupe/core/pools.py:52:4: R0913: Too many arguments (7/5) (too-many-arguments)
+nodupe/core/pools.py:102:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+nodupe/core/pools.py:149:12: W0707: Consider explicitly re-raising using 'except Exception as exc' and 'raise PoolError(f'Pool exhausted, timeout after {timeout}s') from exc' (raise-missing-from)
+nodupe/core/pools.py:165:23: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/pools.py:184:23: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/pools.py:222:23: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/pools.py:307:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/pools.py:325:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/pools.py:440:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+nodupe/core/pools.py:482:23: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/pools.py:516:12: W0707: Consider explicitly re-raising using 'except Exception as exc' and 'raise PoolError('Worker queue is full') from exc' (raise-missing-from)
+************* Module nodupe.core.security
+nodupe/core/security.py:163:24: W0707: Consider explicitly re-raising using 'except ValueError as exc' and 'raise SecurityError(f'Path {resolved} is outside allowed directory {allowed_resolved}') from exc' (raise-missing-from)
+nodupe/core/security.py:117:4: R0912: Too many branches (16/12) (too-many-branches)
+nodupe/core/security.py:442:16: C0415: Import outside toplevel (datetime.datetime) (import-outside-toplevel)
+************* Module nodupe.core.validators
+nodupe/core/validators.py:416:34: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+************* Module nodupe.core.version
+nodupe/core/version.py:93:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/version.py:99:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/version.py:118:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/version.py:122:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/version.py:126:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/version.py:154:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/version.py:174:0: C0301: Line too long (116/100) (line-too-long)
+nodupe/core/version.py:191:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/version.py:213:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/version.py:169:4: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+nodupe/core/version.py:190:4: C0415: Import outside toplevel (platform) (import-outside-toplevel)
+************* Module nodupe.core.cache.embedding_cache
+nodupe/core/cache/embedding_cache.py:56:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:82:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:114:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:117:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:132:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:171:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:197:65: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:198:56: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:239:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:259:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:277:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:281:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:287:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:316:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:346:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:350:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:352:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/embedding_cache.py:174:28: W0612: Unused variable 'embedding' (unused-variable)
+nodupe/core/cache/embedding_cache.py:254:33: W0612: Unused variable 'timestamp' (unused-variable)
+nodupe/core/cache/embedding_cache.py:25:0: W0611: Unused import hashlib (unused-import)
+nodupe/core/cache/embedding_cache.py:26:0: W0611: Unused import array (unused-import)
+************* Module nodupe.core.cache.hash_cache
+nodupe/core/cache/hash_cache.py:55:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/hash_cache.py:77:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/hash_cache.py:83:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/hash_cache.py:115:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/hash_cache.py:130:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/hash_cache.py:133:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/hash_cache.py:170:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/hash_cache.py:207:65: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/hash_cache.py:208:56: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/hash_cache.py:249:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/hash_cache.py:269:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/hash_cache.py:173:27: W0612: Unused variable 'hash_value' (unused-variable)
+nodupe/core/cache/hash_cache.py:264:39: W0612: Unused variable 'stored_mtime' (unused-variable)
+nodupe/core/cache/hash_cache.py:264:53: W0612: Unused variable 'timestamp' (unused-variable)
+************* Module nodupe.core.cache.query_cache
+nodupe/core/cache/query_cache.py:53:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/query_cache.py:76:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/query_cache.py:82:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/query_cache.py:92:0: C0301: Line too long (106/100) (line-too-long)
+nodupe/core/cache/query_cache.py:102:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/query_cache.py:111:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/query_cache.py:114:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/query_cache.py:173:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/query_cache.py:199:65: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/query_cache.py:200:56: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/query_cache.py:242:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/query_cache.py:267:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/query_cache.py:282:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/query_cache.py:176:28: W0612: Unused variable 'result' (unused-variable)
+nodupe/core/cache/query_cache.py:263:16: W0702: No exception type(s) specified (bare-except)
+nodupe/core/cache/query_cache.py:257:36: W0612: Unused variable 'timestamp' (unused-variable)
+nodupe/core/cache/query_cache.py:284:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+************* Module nodupe.core.cache.__init__
+nodupe/core/cache/__init__.py:19:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/cache/__init__.py:23:0: C0303: Trailing whitespace (trailing-whitespace)
+************* Module nodupe.core.database.connection
+nodupe/core/database/connection.py:118:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+************* Module nodupe.core.database.embeddings
+nodupe/core/database/embeddings.py:42:0: C0301: Line too long (114/100) (line-too-long)
+************* Module nodupe.core.database.files
+nodupe/core/database/files.py:61:0: C0301: Line too long (105/100) (line-too-long)
+nodupe/core/database/files.py:64:0: C0301: Line too long (103/100) (line-too-long)
+************* Module nodupe.core.database.indexing
+nodupe/core/database/indexing.py:62:0: C0301: Line too long (103/100) (line-too-long)
+nodupe/core/database/indexing.py:63:0: C0301: Line too long (101/100) (line-too-long)
+nodupe/core/database/indexing.py:66:0: C0301: Line too long (109/100) (line-too-long)
+nodupe/core/database/indexing.py:67:0: C0301: Line too long (109/100) (line-too-long)
+nodupe/core/database/indexing.py:68:0: C0301: Line too long (114/100) (line-too-long)
+nodupe/core/database/indexing.py:69:0: C0301: Line too long (119/100) (line-too-long)
+nodupe/core/database/indexing.py:113:4: R0913: Too many arguments (6/5) (too-many-arguments)
+************* Module nodupe.core.database.repository_interface
+nodupe/core/database/repository_interface.py:62:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/database/repository_interface.py:70:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/database/repository_interface.py:74:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/database/repository_interface.py:77:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/database/repository_interface.py:80:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/database/repository_interface.py:107:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/database/repository_interface.py:115:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/database/repository_interface.py:118:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/database/repository_interface.py:138:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/database/repository_interface.py:140:0: C0303: Trailing whitespace (trailing-whitespace)
+************* Module nodupe.core.database.schema
+nodupe/core/database/schema.py:151:0: C0301: Line too long (101/100) (line-too-long)
+nodupe/core/database/schema.py:152:0: C0301: Line too long (101/100) (line-too-long)
+nodupe/core/database/schema.py:153:0: C0301: Line too long (106/100) (line-too-long)
+nodupe/core/database/schema.py:154:0: C0301: Line too long (111/100) (line-too-long)
+nodupe/core/database/schema.py:197:16: W0612: Unused variable 'table_name' (unused-variable)
+nodupe/core/database/schema.py:312:30: C0201: Consider iterating the dictionary directly instead of calling .keys() (consider-iterating-dictionary)
+************* Module nodupe.core.database.transactions
+nodupe/core/database/transactions.py:19:0: W0611: Unused Optional imported from typing (unused-import)
+************* Module nodupe.core.plugin_system.base
+nodupe/core/plugin_system/base.py:16:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/core/plugin_system/base.py:22:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/core/plugin_system/base.py:28:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/core/plugin_system/base.py:33:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/core/plugin_system/base.py:38:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/core/plugin_system/base.py:43:8: W0107: Unnecessary pass statement (unnecessary-pass)
+************* Module nodupe.core.plugin_system.compatibility
+nodupe/core/plugin_system/compatibility.py:115:0: C0301: Line too long (113/100) (line-too-long)
+nodupe/core/plugin_system/compatibility.py:150:0: C0301: Line too long (115/100) (line-too-long)
+nodupe/core/plugin_system/compatibility.py:185:0: C0301: Line too long (110/100) (line-too-long)
+nodupe/core/plugin_system/compatibility.py:130:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/plugin_system/compatibility.py:85:4: R0911: Too many return statements (8/6) (too-many-return-statements)
+nodupe/core/plugin_system/compatibility.py:157:4: R0914: Too many local variables (22/15) (too-many-locals)
+nodupe/core/plugin_system/compatibility.py:157:4: R0912: Too many branches (21/12) (too-many-branches)
+nodupe/core/plugin_system/compatibility.py:157:4: R0915: Too many statements (52/50) (too-many-statements)
+nodupe/core/plugin_system/compatibility.py:297:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/plugin_system/compatibility.py:288:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+nodupe/core/plugin_system/compatibility.py:336:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+nodupe/core/plugin_system/compatibility.py:361:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+************* Module nodupe.core.plugin_system.dependencies
+nodupe/core/plugin_system/dependencies.py:81:49: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:84:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:86:55: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:89:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:94:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:134:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:145:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:148:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:166:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:210:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:284:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:299:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:302:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:304:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:310:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:313:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:315:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:335:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/dependencies.py:338:0: C0303: Trailing whitespace (trailing-whitespace)
+************* Module nodupe.core.plugin_system.discovery
+nodupe/core/plugin_system/discovery.py:27:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:46:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:94:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:163:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:167:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:231:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:234:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:263:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:266:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:269:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:276:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:282:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:308:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:312:44: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:313:0: C0301: Line too long (114/100) (line-too-long)
+nodupe/core/plugin_system/discovery.py:314:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/discovery.py:25:0: R0902: Too many instance attributes (8/7) (too-many-instance-attributes)
+nodupe/core/plugin_system/discovery.py:28:4: R0913: Too many arguments (8/5) (too-many-arguments)
+nodupe/core/plugin_system/discovery.py:36:8: W0622: Redefining built-in 'type' (redefined-builtin)
+nodupe/core/plugin_system/discovery.py:25:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+nodupe/core/plugin_system/discovery.py:249:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/plugin_system/discovery.py:356:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/plugin_system/discovery.py:317:4: R0911: Too many return statements (7/6) (too-many-return-statements)
+************* Module nodupe.core.plugin_system.hot_reload
+nodupe/core/plugin_system/hot_reload.py:34:13: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:35:29: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:36:42: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:37:23: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:52:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:68:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:83:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:86:35: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:87:41: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:107:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:116:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:119:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:123:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:127:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:130:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:135:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:156:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:159:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:169:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:172:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:175:53: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:178:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/hot_reload.py:26:0: R0902: Too many instance attributes (9/7) (too-many-instance-attributes)
+nodupe/core/plugin_system/hot_reload.py:75:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/plugin_system/hot_reload.py:77:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/plugin_system/hot_reload.py:140:23: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/plugin_system/hot_reload.py:126:24: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/plugin_system/hot_reload.py:137:20: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/plugin_system/hot_reload.py:141:20: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/plugin_system/hot_reload.py:184:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/plugin_system/hot_reload.py:152:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/plugin_system/hot_reload.py:155:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/plugin_system/hot_reload.py:161:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/plugin_system/hot_reload.py:164:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/plugin_system/hot_reload.py:174:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/plugin_system/hot_reload.py:180:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/plugin_system/hot_reload.py:182:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/core/plugin_system/hot_reload.py:185:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+************* Module nodupe.core.plugin_system.lifecycle
+nodupe/core/plugin_system/lifecycle.py:75:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:80:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:83:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:87:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:94:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:97:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:100:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:103:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:166:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:169:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:174:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:191:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:199:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:280:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:285:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:300:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:305:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:310:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:321:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:325:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/lifecycle.py:137:19: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module nodupe.core.plugin_system.loader
+nodupe/core/plugin_system/loader.py:126:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/loader.py:232:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/loader.py:238:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/loader.py:241:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/loader.py:281:42: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/loader.py:282:44: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/loader.py:306:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/loader.py:204:8: W0613: Unused argument 'plugin_path' (unused-argument)
+nodupe/core/plugin_system/loader.py:324:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/plugin_system/loader.py:313:23: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module nodupe.core.plugin_system.registry
+nodupe/core/plugin_system/registry.py:53:19: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module nodupe.core.plugin_system.security
+nodupe/core/plugin_system/security.py:132:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/security.py:135:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/security.py:139:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/security.py:141:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/security.py:228:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/plugin_system/security.py:102:16: W0707: Consider explicitly re-raising using 'raise PluginSecurityError(f'Invalid Python syntax: {e}') from e' (raise-missing-from)
+nodupe/core/plugin_system/security.py:142:15: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module nodupe.core.scan.file_info
+nodupe/core/scan/file_info.py:10:0: R0903: Too few public methods (1/2) (too-few-public-methods)
+nodupe/core/scan/file_info.py:6:0: W0611: Unused import os (unused-import)
+************* Module nodupe.core.scan.hasher
+nodupe/core/scan/hasher.py:47:0: C0301: Line too long (111/100) (line-too-long)
+nodupe/core/scan/hasher.py:80:0: C0301: Line too long (104/100) (line-too-long)
+nodupe/core/scan/hasher.py:121:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/scan/hasher.py:174:15: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module nodupe.core.scan.hash_autotune
+nodupe/core/scan/hash_autotune.py:3:0: C0301: Line too long (108/100) (line-too-long)
+nodupe/core/scan/hash_autotune.py:44:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:53:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:57:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:62:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:69:0: C0301: Line too long (105/100) (line-too-long)
+nodupe/core/scan/hash_autotune.py:70:0: C0301: Line too long (103/100) (line-too-long)
+nodupe/core/scan/hash_autotune.py:75:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:79:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:87:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:102:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:106:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:108:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:115:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:120:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:122:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:123:72: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:137:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:139:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:141:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:144:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:147:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:149:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:171:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:172:60: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:184:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:188:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:191:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:194:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:199:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:203:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:205:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:206:0: C0301: Line too long (106/100) (line-too-long)
+nodupe/core/scan/hash_autotune.py:216:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:220:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:228:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:232:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:236:59: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:250:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:253:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:275:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:277:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:281:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:283:82: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:285:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:292:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:294:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:298:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/core/scan/hash_autotune.py:13:8: C0415: Import outside toplevel (importlib.util) (import-outside-toplevel)
+nodupe/core/scan/hash_autotune.py:15:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+nodupe/core/scan/hash_autotune.py:16:12: C0415: Import outside toplevel (blake3) (import-outside-toplevel)
+nodupe/core/scan/hash_autotune.py:25:8: C0415: Import outside toplevel (importlib.util) (import-outside-toplevel)
+nodupe/core/scan/hash_autotune.py:27:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+nodupe/core/scan/hash_autotune.py:28:12: C0415: Import outside toplevel (xxhash) (import-outside-toplevel)
+nodupe/core/scan/hash_autotune.py:77:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/scan/hash_autotune.py:68:24: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+nodupe/core/scan/hash_autotune.py:166:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/scan/hash_autotune.py:206:43: W0613: Unused argument 'file_size_threshold' (unused-argument)
+nodupe/core/scan/hash_autotune.py:273:4: W0621: Redefining name 'hashlib' from outer scope (line 7) (redefined-outer-name)
+nodupe/core/scan/hash_autotune.py:273:4: W0404: Reimport 'hashlib' (imported line 7) (reimported)
+nodupe/core/scan/hash_autotune.py:273:4: C0415: Import outside toplevel (hashlib) (import-outside-toplevel)
+nodupe/core/scan/hash_autotune.py:274:4: C0415: Import outside toplevel (hasher.FileHasher) (import-outside-toplevel)
+************* Module nodupe.core.scan.processor
+nodupe/core/scan/processor.py:178:0: C0301: Line too long (103/100) (line-too-long)
+nodupe/core/scan/processor.py:81:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/scan/processor.py:111:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/scan/processor.py:210:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/core/scan/processor.py:24:0: W0611: Unused Tuple imported from typing (unused-import)
+************* Module nodupe.core.scan.progress
+nodupe/core/scan/progress.py:137:0: C0301: Line too long (102/100) (line-too-long)
+nodupe/core/scan/progress.py:26:0: R0902: Too many instance attributes (9/7) (too-many-instance-attributes)
+************* Module nodupe.core.scan.walker
+nodupe/core/scan/walker.py:47:0: C0301: Line too long (101/100) (line-too-long)
+nodupe/core/scan/walker.py:124:0: C0301: Line too long (102/100) (line-too-long)
+nodupe/core/scan/walker.py:82:27: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module nodupe.plugins.commands.apply
+nodupe/plugins/commands/apply.py:30:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:34:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:38:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:42:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:46:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:50:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:54:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:83:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:94:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:102:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:111:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:113:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:126:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:143:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:146:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:161:0: C0301: Line too long (102/100) (line-too-long)
+nodupe/plugins/commands/apply.py:162:0: C0301: Line too long (139/100) (line-too-long)
+nodupe/plugins/commands/apply.py:174:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/apply.py:41:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/apply.py:45:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/apply.py:75:4: R0914: Too many local variables (18/15) (too-many-locals)
+nodupe/plugins/commands/apply.py:188:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/apply.py:177:23: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/apply.py:81:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
+nodupe/plugins/commands/apply.py:81:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
+nodupe/plugins/commands/apply.py:191:16: C0415: Import outside toplevel (traceback) (import-outside-toplevel)
+nodupe/plugins/commands/apply.py:75:4: R0912: Too many branches (25/12) (too-many-branches)
+nodupe/plugins/commands/apply.py:75:4: R0915: Too many statements (74/50) (too-many-statements)
+nodupe/plugins/commands/apply.py:20:0: W0611: Unused List imported from typing (unused-import)
+nodupe/plugins/commands/apply.py:20:0: W0611: Unused Optional imported from typing (unused-import)
+nodupe/plugins/commands/apply.py:24:0: W0611: Unused FilesystemError imported from nodupe.core.filesystem (unused-import)
+************* Module nodupe.plugins.commands.plan
+nodupe/plugins/commands/plan.py:42:53: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:69:86: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:86:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:92:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:95:0: W0311: Bad indentation. Found 17 spaces, expected 16 (bad-indentation)
+nodupe/plugins/commands/plan.py:96:0: W0311: Bad indentation. Found 17 spaces, expected 16 (bad-indentation)
+nodupe/plugins/commands/plan.py:97:0: W0311: Bad indentation. Found 17 spaces, expected 16 (bad-indentation)
+nodupe/plugins/commands/plan.py:98:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:102:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:106:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:114:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:117:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:123:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:125:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:137:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:140:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:142:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:146:0: W0311: Bad indentation. Found 21 spaces, expected 20 (bad-indentation)
+nodupe/plugins/commands/plan.py:147:0: W0311: Bad indentation. Found 21 spaces, expected 20 (bad-indentation)
+nodupe/plugins/commands/plan.py:148:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:154:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:158:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:165:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:176:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:179:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:181:0: C0301: Line too long (124/100) (line-too-long)
+nodupe/plugins/commands/plan.py:183:0: C0301: Line too long (105/100) (line-too-long)
+nodupe/plugins/commands/plan.py:187:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/plan.py:19:0: C0413: Import "from nodupe.core.plugin_system.base import Plugin" should be placed at the top of the module (wrong-import-position)
+nodupe/plugins/commands/plan.py:39:25: W0621: Redefining name 'container' from outer scope (line 14) (redefined-outer-name)
+nodupe/plugins/commands/plan.py:44:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/plan.py:48:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/plan.py:74:4: R0914: Too many local variables (20/15) (too-many-locals)
+nodupe/plugins/commands/plan.py:88:12: W0621: Redefining name 'container' from outer scope (line 14) (redefined-outer-name)
+nodupe/plugins/commands/plan.py:188:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/plan.py:90:16: W0404: Reimport 'container' (imported line 14) (reimported)
+nodupe/plugins/commands/plan.py:90:16: C0415: Import outside toplevel (nodupe.core.container.container) (import-outside-toplevel)
+nodupe/plugins/commands/plan.py:96:17: C0415: Import outside toplevel (nodupe.core.database.connection.DatabaseConnection) (import-outside-toplevel)
+nodupe/plugins/commands/plan.py:99:12: C0415: Import outside toplevel (nodupe.core.database.files.FileRepository) (import-outside-toplevel)
+nodupe/plugins/commands/plan.py:111:38: C0321: More than one statement on a single line (multiple-statements)
+nodupe/plugins/commands/plan.py:112:44: C0321: More than one statement on a single line (multiple-statements)
+nodupe/plugins/commands/plan.py:146:21: E1101: Instance of 'FileRepository' has no 'mark_as_original' member (no-member)
+nodupe/plugins/commands/plan.py:177:17: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+nodupe/plugins/commands/plan.py:74:4: R0912: Too many branches (15/12) (too-many-branches)
+nodupe/plugins/commands/plan.py:74:4: R0915: Too many statements (55/50) (too-many-statements)
+nodupe/plugins/commands/plan.py:120:16: W0612: Unused variable 'file_hash' (unused-variable)
+nodupe/plugins/commands/plan.py:10:0: W0611: Unused List imported from typing (unused-import)
+nodupe/plugins/commands/plan.py:10:0: W0611: Unused Optional imported from typing (unused-import)
+nodupe/plugins/commands/plan.py:13:0: W0611: Unused import sys (unused-import)
+nodupe/plugins/commands/plan.py:14:0: W0611: Unused container imported from nodupe.core.container (unused-import)
+************* Module nodupe.plugins.commands.scan
+nodupe/plugins/commands/scan.py:32:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:36:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:40:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:44:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:48:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:52:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:56:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:87:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:98:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:115:0: C0301: Line too long (126/100) (line-too-long)
+nodupe/plugins/commands/scan.py:120:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:122:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:126:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:133:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:137:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:146:85: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:149:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:151:85: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:154:88: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:158:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:162:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/scan.py:43:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/scan.py:47:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/scan.py:72:4: R0914: Too many local variables (17/15) (too-many-locals)
+nodupe/plugins/commands/scan.py:166:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/scan.py:169:16: C0415: Import outside toplevel (traceback) (import-outside-toplevel)
+nodupe/plugins/commands/scan.py:21:0: W0611: Unused List imported from typing (unused-import)
+nodupe/plugins/commands/scan.py:21:0: W0611: Unused Optional imported from typing (unused-import)
+************* Module nodupe.plugins.commands.similarity
+nodupe/plugins/commands/similarity.py:61:0: C0301: Line too long (106/100) (line-too-long)
+nodupe/plugins/commands/similarity.py:97:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:104:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:107:0: W0311: Bad indentation. Found 17 spaces, expected 16 (bad-indentation)
+nodupe/plugins/commands/similarity.py:109:0: W0311: Bad indentation. Found 17 spaces, expected 16 (bad-indentation)
+nodupe/plugins/commands/similarity.py:110:0: W0311: Bad indentation. Found 17 spaces, expected 16 (bad-indentation)
+nodupe/plugins/commands/similarity.py:111:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:114:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:117:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:121:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:123:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:125:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:130:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:138:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:144:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:146:64: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:149:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:152:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:158:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:160:0: C0301: Line too long (111/100) (line-too-long)
+nodupe/plugins/commands/similarity.py:160:0: W0311: Bad indentation. Found 17 spaces, expected 16 (bad-indentation)
+nodupe/plugins/commands/similarity.py:162:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:165:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:168:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/similarity.py:45:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/similarity.py:49:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/similarity.py:93:4: R0914: Too many local variables (21/15) (too-many-locals)
+nodupe/plugins/commands/similarity.py:102:16: W0621: Redefining name 'global_container' from outer scope (line 28) (redefined-outer-name)
+nodupe/plugins/commands/similarity.py:169:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/similarity.py:102:16: W0404: Reimport 'container' (imported line 28) (reimported)
+nodupe/plugins/commands/similarity.py:102:16: C0415: Import outside toplevel (nodupe.core.container.container) (import-outside-toplevel)
+nodupe/plugins/commands/similarity.py:109:17: C0415: Import outside toplevel (nodupe.core.database.connection.DatabaseConnection) (import-outside-toplevel)
+nodupe/plugins/commands/similarity.py:113:12: C0415: Import outside toplevel (nodupe.core.database.files.FileRepository) (import-outside-toplevel)
+nodupe/plugins/commands/similarity.py:135:32: C0321: More than one statement on a single line (multiple-statements)
+nodupe/plugins/commands/similarity.py:136:42: C0321: More than one statement on a single line (multiple-statements)
+nodupe/plugins/commands/similarity.py:95:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
+nodupe/plugins/commands/similarity.py:163:18: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+nodupe/plugins/commands/similarity.py:172:16: C0415: Import outside toplevel (traceback) (import-outside-toplevel)
+nodupe/plugins/commands/similarity.py:93:4: R0912: Too many branches (14/12) (too-many-branches)
+nodupe/plugins/commands/similarity.py:28:0: W0611: Unused container imported from nodupe.core.container as global_container (unused-import)
+************* Module nodupe.plugins.commands.verify
+nodupe/plugins/commands/verify.py:53:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:57:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:62:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:67:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:72:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:76:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:80:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:84:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:88:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:96:0: C0301: Line too long (110/100) (line-too-long)
+nodupe/plugins/commands/verify.py:131:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:143:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:147:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:153:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:160:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:167:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:173:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:176:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:180:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:191:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:202:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:213:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:220:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:223:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:231:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:236:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:241:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:251:0: C0301: Line too long (116/100) (line-too-long)
+nodupe/plugins/commands/verify.py:261:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:277:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:285:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:289:0: C0301: Line too long (103/100) (line-too-long)
+nodupe/plugins/commands/verify.py:292:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:296:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:300:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:307:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:320:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:330:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:333:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:337:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:340:0: C0301: Line too long (105/100) (line-too-long)
+nodupe/plugins/commands/verify.py:343:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:347:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:350:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:356:0: C0301: Line too long (110/100) (line-too-long)
+nodupe/plugins/commands/verify.py:365:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:371:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:380:0: C0301: Line too long (114/100) (line-too-long)
+nodupe/plugins/commands/verify.py:381:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:384:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:388:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:391:0: C0301: Line too long (103/100) (line-too-long)
+nodupe/plugins/commands/verify.py:394:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:398:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:402:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:409:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:412:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:417:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:422:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:427:0: C0301: Line too long (102/100) (line-too-long)
+nodupe/plugins/commands/verify.py:428:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:433:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:436:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:440:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/commands/verify.py:228:21: W0511: TODO: Implement repair functionality in future (fixme)
+nodupe/plugins/commands/verify.py:75:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/verify.py:79:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/verify.py:124:4: R0914: Too many local variables (16/15) (too-many-locals)
+nodupe/plugins/commands/verify.py:130:8: C0415: Import outside toplevel (typing.TypedDict) (import-outside-toplevel)
+nodupe/plugins/commands/verify.py:244:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/verify.py:247:16: C0415: Import outside toplevel (traceback) (import-outside-toplevel)
+nodupe/plugins/commands/verify.py:124:4: R0912: Too many branches (16/12) (too-many-branches)
+nodupe/plugins/commands/verify.py:124:4: R0915: Too many statements (60/50) (too-many-statements)
+nodupe/plugins/commands/verify.py:259:8: C0415: Import outside toplevel (json) (import-outside-toplevel)
+nodupe/plugins/commands/verify.py:260:8: C0415: Import outside toplevel (datetime.datetime) (import-outside-toplevel)
+nodupe/plugins/commands/verify.py:334:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/verify.py:385:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/verify.py:344:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
+nodupe/plugins/commands/verify.py:340:4: R0912: Too many branches (14/12) (too-many-branches)
+nodupe/plugins/commands/verify.py:437:15: W0718: Catching too general exception Exception (broad-exception-caught)
+************* Module nodupe.plugins.commands.__init__
+nodupe/plugins/commands/__init__.py:333:0: C0301: Line too long (104/100) (line-too-long)
+nodupe/plugins/commands/__init__.py:339:0: C0301: Line too long (104/100) (line-too-long)
+nodupe/plugins/commands/__init__.py:346:0: C0301: Line too long (104/100) (line-too-long)
+nodupe/plugins/commands/__init__.py:348:0: C0301: Line too long (104/100) (line-too-long)
+nodupe/plugins/commands/__init__.py:417:0: C0325: Unnecessary parens after 'not' keyword (superfluous-parens)
+nodupe/plugins/commands/__init__.py:514:0: C0301: Line too long (109/100) (line-too-long)
+************* Module nodupe.plugins.commands
+nodupe/plugins/commands/__init__.py:34:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/__init__.py:39:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/__init__.py:44:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/__init__.py:49:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/__init__.py:54:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/commands/__init__.py:110:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/__init__.py:117:4: R0914: Too many local variables (16/15) (too-many-locals)
+nodupe/plugins/commands/__init__.py:168:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/__init__.py:120:12: E0401: Unable to import 'nodupe.scan.walker' (import-error)
+nodupe/plugins/commands/__init__.py:120:12: C0415: Import outside toplevel (nodupe.scan.walker.FileWalker) (import-outside-toplevel)
+nodupe/plugins/commands/__init__.py:120:12: E0611: No name 'scan' in module 'nodupe' (no-name-in-module)
+nodupe/plugins/commands/__init__.py:121:12: E0401: Unable to import 'nodupe.scan.processor' (import-error)
+nodupe/plugins/commands/__init__.py:121:12: C0415: Import outside toplevel (nodupe.scan.processor.FileProcessor) (import-outside-toplevel)
+nodupe/plugins/commands/__init__.py:121:12: E0611: No name 'scan' in module 'nodupe' (no-name-in-module)
+nodupe/plugins/commands/__init__.py:122:12: E0401: Unable to import 'nodupe.scan.hasher' (import-error)
+nodupe/plugins/commands/__init__.py:122:12: C0415: Import outside toplevel (nodupe.scan.hasher.FileHasher) (import-outside-toplevel)
+nodupe/plugins/commands/__init__.py:122:12: E0611: No name 'scan' in module 'nodupe' (no-name-in-module)
+nodupe/plugins/commands/__init__.py:145:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/commands/__init__.py:127:12: W0612: Unused variable 'hasher' (unused-variable)
+nodupe/plugins/commands/__init__.py:249:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/__init__.py:282:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/__init__.py:302:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/__init__.py:293:21: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+nodupe/plugins/commands/__init__.py:296:21: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+nodupe/plugins/commands/__init__.py:300:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/commands/__init__.py:303:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/commands/__init__.py:355:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/__init__.py:340:20: C0415: Import outside toplevel (shutil) (import-outside-toplevel)
+nodupe/plugins/commands/__init__.py:435:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/__init__.py:483:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/commands/__init__.py:445:12: E0401: Unable to import 'nodupe.similarity' (import-error)
+nodupe/plugins/commands/__init__.py:445:12: C0415: Import outside toplevel (nodupe.similarity.create_brute_force_backend, nodupe.similarity.create_similarity_manager) (import-outside-toplevel)
+nodupe/plugins/commands/__init__.py:445:12: E0611: No name 'similarity' in module 'nodupe' (no-name-in-module)
+nodupe/plugins/commands/__init__.py:452:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/commands/__init__.py:463:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/commands/__init__.py:494:8: C0415: Import outside toplevel (hashlib) (import-outside-toplevel)
+nodupe/plugins/commands/__init__.py:516:8: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+nodupe/plugins/commands/__init__.py:570:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/commands/__init__.py:602:4: W0603: Using the global statement (global-statement)
+************* Module nodupe.plugins.gpu.__init__
+nodupe/plugins/gpu/__init__.py:105:0: C0301: Line too long (109/100) (line-too-long)
+nodupe/plugins/gpu/__init__.py:106:0: C0301: Line too long (102/100) (line-too-long)
+nodupe/plugins/gpu/__init__.py:108:0: C0301: Line too long (106/100) (line-too-long)
+************* Module nodupe.plugins.gpu
+nodupe/plugins/gpu/__init__.py:8:0: E0401: Unable to import 'numpy' (import-error)
+nodupe/plugins/gpu/__init__.py:21:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/gpu/__init__.py:26:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/gpu/__init__.py:31:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/gpu/__init__.py:36:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/gpu/__init__.py:68:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/gpu/__init__.py:69:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/gpu/__init__.py:79:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/gpu/__init__.py:80:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/gpu/__init__.py:113:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/gpu/__init__.py:97:12: C0415: Import outside toplevel (torch) (import-outside-toplevel)
+nodupe/plugins/gpu/__init__.py:108:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/gpu/__init__.py:114:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/gpu/__init__.py:143:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/gpu/__init__.py:128:12: C0415: Import outside toplevel (torch) (import-outside-toplevel)
+nodupe/plugins/gpu/__init__.py:128:12: E0401: Unable to import 'torch' (import-error)
+nodupe/plugins/gpu/__init__.py:144:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/gpu/__init__.py:162:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/gpu/__init__.py:156:12: C0415: Import outside toplevel (torch) (import-outside-toplevel)
+nodupe/plugins/gpu/__init__.py:156:12: E0401: Unable to import 'torch' (import-error)
+nodupe/plugins/gpu/__init__.py:163:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/gpu/__init__.py:196:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/gpu/__init__.py:180:12: C0415: Import outside toplevel (torch) (import-outside-toplevel)
+nodupe/plugins/gpu/__init__.py:197:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/gpu/__init__.py:223:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/gpu/__init__.py:211:12: C0415: Import outside toplevel (torch) (import-outside-toplevel)
+nodupe/plugins/gpu/__init__.py:211:12: E0401: Unable to import 'torch' (import-error)
+nodupe/plugins/gpu/__init__.py:224:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/gpu/__init__.py:242:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/gpu/__init__.py:236:12: C0415: Import outside toplevel (torch) (import-outside-toplevel)
+nodupe/plugins/gpu/__init__.py:236:12: E0401: Unable to import 'torch' (import-error)
+nodupe/plugins/gpu/__init__.py:243:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/gpu/__init__.py:264:4: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+nodupe/plugins/gpu/__init__.py:282:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/gpu/__init__.py:280:20: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/gpu/__init__.py:306:4: W0603: Using the global statement (global-statement)
+nodupe/plugins/gpu/__init__.py:9:0: C0411: standard import "import logging" should be placed before "import numpy as np" (wrong-import-order)
+nodupe/plugins/gpu/__init__.py:10:0: C0411: standard import "from abc import ABC, abstractmethod" should be placed before "import numpy as np" (wrong-import-order)
+************* Module nodupe.plugins.ml
+nodupe/plugins/ml/__init__.py:11:0: E0401: Unable to import 'numpy' (import-error)
+nodupe/plugins/ml/__init__.py:22:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/ml/__init__.py:27:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/ml/__init__.py:32:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/ml/__init__.py:65:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/ml/__init__.py:66:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/ml/__init__.py:96:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/ml/__init__.py:85:12: C0415: Import outside toplevel (onnxruntime) (import-outside-toplevel)
+nodupe/plugins/ml/__init__.py:91:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/ml/__init__.py:97:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/ml/__init__.py:119:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/ml/__init__.py:120:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/ml/__init__.py:113:16: W0612: Unused variable 'item' (unused-variable)
+nodupe/plugins/ml/__init__.py:142:4: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+nodupe/plugins/ml/__init__.py:149:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/ml/__init__.py:170:4: W0603: Using the global statement (global-statement)
+************* Module nodupe.plugins.network
+nodupe/plugins/network/__init__.py:23:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/network/__init__.py:28:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/network/__init__.py:33:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/network/__init__.py:38:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/network/__init__.py:43:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/network/__init__.py:75:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/network/__init__.py:61:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:72:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:76:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:98:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/network/__init__.py:84:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:95:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:99:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:111:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/network/__init__.py:112:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:126:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/network/__init__.py:119:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+nodupe/plugins/network/__init__.py:121:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:124:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:127:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:143:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/network/__init__.py:140:16: C0415: Import outside toplevel (boto3) (import-outside-toplevel)
+nodupe/plugins/network/__init__.py:140:16: E0401: Unable to import 'boto3' (import-error)
+nodupe/plugins/network/__init__.py:142:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:144:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:150:12: C0415: Import outside toplevel (boto3) (import-outside-toplevel)
+nodupe/plugins/network/__init__.py:150:12: W0611: Unused import boto3 (unused-import)
+nodupe/plugins/network/__init__.py:171:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/network/__init__.py:169:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:172:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:186:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/network/__init__.py:184:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:187:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:208:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/network/__init__.py:209:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:223:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/network/__init__.py:221:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:224:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:237:19: W0108: Lambda may not be necessary (unnecessary-lambda)
+nodupe/plugins/network/__init__.py:238:22: W0108: Lambda may not be necessary (unnecessary-lambda)
+nodupe/plugins/network/__init__.py:247:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/network/__init__.py:245:20: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:248:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/network/__init__.py:275:4: W0603: Using the global statement (global-statement)
+************* Module nodupe.plugins.similarity.__init__
+nodupe/plugins/similarity/__init__.py:65:0: C0301: Line too long (122/100) (line-too-long)
+nodupe/plugins/similarity/__init__.py:139:0: C0301: Line too long (110/100) (line-too-long)
+nodupe/plugins/similarity/__init__.py:149:0: C0301: Line too long (122/100) (line-too-long)
+nodupe/plugins/similarity/__init__.py:155:0: C0301: Line too long (114/100) (line-too-long)
+nodupe/plugins/similarity/__init__.py:160:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:165:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:170:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:172:0: C0301: Line too long (105/100) (line-too-long)
+nodupe/plugins/similarity/__init__.py:173:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:176:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:188:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:193:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:196:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:215:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:218:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:231:0: C0301: Line too long (122/100) (line-too-long)
+nodupe/plugins/similarity/__init__.py:263:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:272:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:280:0: C0301: Line too long (110/100) (line-too-long)
+nodupe/plugins/similarity/__init__.py:286:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:295:0: C0301: Line too long (122/100) (line-too-long)
+nodupe/plugins/similarity/__init__.py:301:0: C0301: Line too long (114/100) (line-too-long)
+nodupe/plugins/similarity/__init__.py:309:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:315:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:321:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:331:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:335:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:340:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:350:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:355:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:360:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:384:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:391:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:446:0: C0301: Line too long (122/100) (line-too-long)
+nodupe/plugins/similarity/__init__.py:484:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:488:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:492:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:496:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:500:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:519:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:523:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:528:0: C0301: Line too long (109/100) (line-too-long)
+nodupe/plugins/similarity/__init__.py:529:0: C0303: Trailing whitespace (trailing-whitespace)
+nodupe/plugins/similarity/__init__.py:533:0: C0303: Trailing whitespace (trailing-whitespace)
+************* Module nodupe.plugins.similarity
+nodupe/plugins/similarity/__init__.py:49:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/similarity/__init__.py:52:26: W0621: Redefining name 'vectors' from outer scope (line 527) (redefined-outer-name)
+nodupe/plugins/similarity/__init__.py:52:54: W0621: Redefining name 'metadata' from outer scope (line 528) (redefined-outer-name)
+nodupe/plugins/similarity/__init__.py:62:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/similarity/__init__.py:76:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/similarity/__init__.py:88:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/similarity/__init__.py:100:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/similarity/__init__.py:109:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/similarity/__init__.py:114:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/similarity/__init__.py:130:26: W0621: Redefining name 'vectors' from outer scope (line 527) (redefined-outer-name)
+nodupe/plugins/similarity/__init__.py:130:54: W0621: Redefining name 'metadata' from outer scope (line 528) (redefined-outer-name)
+nodupe/plugins/similarity/__init__.py:145:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/similarity/__init__.py:149:4: R0914: Too many local variables (19/15) (too-many-locals)
+nodupe/plugins/similarity/__init__.py:159:12: W0621: Redefining name 'results' from outer scope (line 536) (redefined-outer-name)
+nodupe/plugins/similarity/__init__.py:203:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/similarity/__init__.py:220:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/similarity/__init__.py:237:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/similarity/__init__.py:268:26: W0621: Redefining name 'vectors' from outer scope (line 527) (redefined-outer-name)
+nodupe/plugins/similarity/__init__.py:268:54: W0621: Redefining name 'metadata' from outer scope (line 528) (redefined-outer-name)
+nodupe/plugins/similarity/__init__.py:291:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/similarity/__init__.py:316:12: W0621: Redefining name 'results' from outer scope (line 536) (redefined-outer-name)
+nodupe/plugins/similarity/__init__.py:323:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/similarity/__init__.py:318:19: R1716: Simplify chained comparison between the operands (chained-comparison)
+nodupe/plugins/similarity/__init__.py:342:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/similarity/__init__.py:338:17: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+nodupe/plugins/similarity/__init__.py:362:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/similarity/__init__.py:358:17: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+nodupe/plugins/similarity/__init__.py:389:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/similarity/__init__.py:395:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/similarity/__init__.py:440:26: W0621: Redefining name 'vectors' from outer scope (line 527) (redefined-outer-name)
+nodupe/plugins/similarity/__init__.py:440:54: W0621: Redefining name 'metadata' from outer scope (line 528) (redefined-outer-name)
+nodupe/plugins/similarity/__init__.py:499:8: W0107: Unnecessary pass statement (unnecessary-pass)
+************* Module nodupe.plugins.video.__init__
+nodupe/plugins/video/__init__.py:261:0: C0301: Line too long (106/100) (line-too-long)
+nodupe/plugins/video/__init__.py:330:0: C0301: Line too long (101/100) (line-too-long)
+************* Module nodupe.plugins.video
+nodupe/plugins/video/__init__.py:12:0: E0401: Unable to import 'numpy' (import-error)
+nodupe/plugins/video/__init__.py:25:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/video/__init__.py:30:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/video/__init__.py:35:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/video/__init__.py:40:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/video/__init__.py:45:8: W0107: Unnecessary pass statement (unnecessary-pass)
+nodupe/plugins/video/__init__.py:57:12: W0612: Unused variable 'result' (unused-variable)
+nodupe/plugins/video/__init__.py:122:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/video/__init__.py:102:24: C0415: Import outside toplevel (cv2) (import-outside-toplevel)
+nodupe/plugins/video/__init__.py:109:28: C0415: Import outside toplevel (PIL.Image) (import-outside-toplevel)
+nodupe/plugins/video/__init__.py:123:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:91:12: W0612: Unused variable 'result' (unused-variable)
+nodupe/plugins/video/__init__.py:126:4: R0914: Too many local variables (16/15) (too-many-locals)
+nodupe/plugins/video/__init__.py:163:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/video/__init__.py:164:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:184:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/video/__init__.py:177:22: E0602: Undefined variable 'cv2' (undefined-variable)
+nodupe/plugins/video/__init__.py:185:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:202:12: C0415: Import outside toplevel (cv2) (import-outside-toplevel)
+nodupe/plugins/video/__init__.py:202:12: W0611: Unused import cv2 (unused-import)
+nodupe/plugins/video/__init__.py:241:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/video/__init__.py:219:12: C0415: Import outside toplevel (cv2) (import-outside-toplevel)
+nodupe/plugins/video/__init__.py:219:12: E0401: Unable to import 'cv2' (import-error)
+nodupe/plugins/video/__init__.py:223:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:242:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:268:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/video/__init__.py:251:12: C0415: Import outside toplevel (cv2) (import-outside-toplevel)
+nodupe/plugins/video/__init__.py:251:12: E0401: Unable to import 'cv2' (import-error)
+nodupe/plugins/video/__init__.py:269:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:286:15: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/video/__init__.py:275:12: C0415: Import outside toplevel (cv2) (import-outside-toplevel)
+nodupe/plugins/video/__init__.py:275:12: E0401: Unable to import 'cv2' (import-error)
+nodupe/plugins/video/__init__.py:287:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:315:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/video/__init__.py:314:20: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:316:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:332:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/video/__init__.py:330:20: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:333:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:347:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/video/__init__.py:345:20: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:348:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:361:19: W0718: Catching too general exception Exception (broad-exception-caught)
+nodupe/plugins/video/__init__.py:362:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+nodupe/plugins/video/__init__.py:373:4: W0603: Using the global statement (global-statement)
+nodupe/plugins/video/__init__.py:13:0: C0411: standard import "from abc import ABC, abstractmethod" should be placed before "import numpy as np" (wrong-import-order)
+nodupe/plugins/video/__init__.py:14:0: C0411: standard import "from pathlib import Path" should be placed before "import numpy as np" (wrong-import-order)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.core.cache.embedding_cache:[181:220]
+==nodupe.core.cache.hash_cache:[191:230]
+                removed_count += 1
+
+            return removed_count
+
+    def get_stats(self) -> Dict[str, Any]:
+        """Get cache statistics.
+
+        Returns:
+            Dictionary of cache statistics
+        """
+        with self._lock:
+            stats = self._stats.copy()
+            stats['size'] = len(self._cache)
+            stats['capacity'] = self.max_size
+            stats['hit_rate'] = (
+                stats['hits'] / (stats['hits'] + stats['misses'])
+                if (stats['hits'] + stats['misses']) > 0
+                else 0.0
+            )
+            return stats
+
+    def get_cache_size(self) -> int:
+        """Get current cache size.
+
+        Returns:
+            Number of entries in cache
+        """
+        with self._lock:
+            return len(self._cache)
+
+    def is_cached(self, key: str) -> bool:
+        """Check if an embedding is cached and valid.
+
+        Args:
+            key: Cache key
+
+        Returns:
+            True if embedding is cached and valid
+        """ (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.core.scan.processor:[230:249]
+==nodupe.core.scan.walker:[110:129]
+                'name': os.path.basename(file_path),
+                'extension': os.path.splitext(file_path)[1].lower(),
+                'size': stat.st_size,
+                'modified_time': int(stat.st_mtime),
+                'created_time': int(stat.st_ctime),
+                'is_directory': False,
+                'is_file': True,
+                'is_symlink': os.path.islink(file_path)
+            }
+        except Exception as e:
+            print(f"[WARNING] Error getting file info for {file_path}: {e}")
+            raise
+
+    def set_hash_algorithm(self, algorithm: str) -> None:
+        """Set hash algorithm to use.
+
+        Args:
+            algorithm: Hash algorithm name (e.g., 'sha256', 'md5')
+        """ (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.core.cache.embedding_cache:[149:173]
+==nodupe.core.cache.hash_cache:[148:172]
+                return True
+            return False
+
+    def invalidate_all(self) -> None:
+        """Invalidate all cache entries."""
+        with self._lock:
+            # Count the number of entries being cleared
+            num_entries = len(self._cache)
+            self._cache.clear()
+            # Increment evictions by the number of entries that were cleared
+            self._stats['evictions'] += num_entries
+
+    def validate_cache(self) -> int:
+        """Validate all cache entries and remove stale ones.
+
+        Returns:
+            Number of entries removed
+        """
+        with self._lock:
+            removed_count = 0
+            current_time = time.time()
+
+            # Collect keys to remove
+            keys_to_remove = [] (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.plugins.commands.apply:[89:103]
+==nodupe.plugins.commands.verify:[148:161]
+            container = getattr(args, 'container', None)
+            if not container:
+                print("[ERROR] Dependency container not available")
+                return 1
+
+            db_connection = container.get_service('database')
+            if not db_connection:
+                print("[ERROR] Database service not available")
+                db_connection = DatabaseConnection.get_instance()
+
+            file_repo = FileRepository(db_connection)
+
+            # 2. Determine verification mode (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.core.cache.embedding_cache:[228:253]
+==nodupe.core.cache.hash_cache:[238:263]
+        return self.validate_cache()
+
+    def resize(self, new_max_size: int) -> None:
+        """Resize cache and evict excess entries if necessary.
+
+        Args:
+            new_max_size: New maximum cache size
+        """
+        with self._lock:
+            self.max_size = new_max_size
+
+            # Remove excess entries from the beginning (LRU)
+            while len(self._cache) > self.max_size:
+                self._cache.popitem(last=False)
+                self._stats['evictions'] += 1
+
+    def get_memory_usage(self) -> int:
+        """Get approximate memory usage of cache.
+
+        Returns:
+            Approximate memory usage in bytes
+        """
+        with self._lock:
+            # Rough estimate: path string + hash string + timestamps + overhead
+            usage = 0 (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.core.cache.embedding_cache:[58:76]
+==nodupe.core.cache.hash_cache:[57:75]
+        self._lock = threading.RLock()
+        self._stats = {
+            'hits': 0,
+            'misses': 0,
+            'evictions': 0,
+            'insertions': 0
+        }
+
+    def get_hash(self, file_path: Path) -> Optional[str]:
+        """Get cached hash for a file.
+
+        Args:
+            file_path: Path to file
+
+        Returns:
+            Cached hash value or None if not found/cached
+        """
+        with self._lock: (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.plugins.commands.apply:[89:98]
+==nodupe.plugins.commands.scan:[82:92]
+            container = getattr(args, 'container', None)
+            if not container:
+                print("[ERROR] Dependency container not available")
+                return 1
+
+            db_connection = container.get_service('database')
+            if not db_connection:
+                print("[ERROR] Database service not available")
+                # Fallback to default (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.core.database.connection:[191:212]
+==nodupe.core.database.schema:[56:66]
+            )
+        ''')
+
+        # Create file indexes for better performance
+        conn.execute(
+            'CREATE INDEX IF NOT EXISTS idx_files_path ON files(path)')
+        conn.execute(
+            'CREATE INDEX IF NOT EXISTS idx_files_hash ON files(hash)')
+        conn.execute(
+            'CREATE INDEX IF NOT EXISTS idx_files_size ON files(size)')
+        conn.execute(
+            'CREATE INDEX IF NOT EXISTS idx_files_duplicate ON files(is_duplicate)')
+
+        # Create embeddings table if it doesn't exist
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS embeddings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                file_id INTEGER NOT NULL,
+                embedding BLOB NOT NULL,
+                model_version TEXT NOT NULL,
+                created_time INTEGER NOT NULL, (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.core.cache.embedding_cache:[149:168]
+==nodupe.core.cache.query_cache:[130:152]
+                return True
+            return False
+
+    def invalidate_all(self) -> None:
+        """Invalidate all cache entries."""
+        with self._lock:
+            # Count the number of entries being cleared
+            num_entries = len(self._cache)
+            self._cache.clear()
+            # Increment evictions by the number of entries that were cleared
+            self._stats['evictions'] += num_entries
+
+    def validate_cache(self) -> int:
+        """Validate all cache entries and remove stale ones.
+
+        Returns:
+            Number of entries removed
+        """
+        with self._lock: (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.core.plugin_system.base:[15:43]
+==nodupe.plugins.similarity.__init__:[48:113]
+        pass
+
+    @property
+    @abstractmethod
+    def version(self) -> str:
+        """Plugin version"""
+        pass
+
+    @property
+    @abstractmethod
+    def dependencies(self) -> List[str]:
+        """List of plugin dependencies"""
+        pass
+
+    @abstractmethod
+    def initialize(self, container: Any) -> None:
+        """Initialize the plugin"""
+        pass
+
+    @abstractmethod
+    def shutdown(self) -> None:
+        """Shutdown the plugin"""
+        pass
+
+    @abstractmethod
+    def get_capabilities(self) -> Dict[str, Any]:
+        """Get plugin capabilities"""
+        pass (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.core.cache.embedding_cache:[371:386]
+==nodupe.core.cache.query_cache:[155:170]
+                    keys_to_remove.append(key)
+
+            for key in keys_to_remove:
+                del self._cache[key]
+                self._stats['evictions'] += 1
+
+            return len(keys_to_remove)
+
+    def get_cached_keys(self) -> List[str]:
+        """Get list of all cached keys.
+
+        Returns:
+            List of cached keys
+        """
+        with self._lock: (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.plugins.similarity.__init__:[48:108]
+==nodupe.plugins.video.__init__:[24:46]
+        pass
+
+    @abstractmethod
+    def add_vectors(self, vectors: List[List[float]], metadata: List[Dict[str, Any]]) -> bool:
+        """Add vectors to the index.
+
+        Args:
+            vectors: List of vectors to add
+            metadata: List of metadata dictionaries
+
+        Returns:
+            True if successful, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    def search(self, query_vector: List[float], k: int = 5, threshold: float = 0.8) -> List[Tuple[Dict[str, Any], float]]:
+        """Search for similar vectors.
+
+        Args:
+            query_vector: Query vector
+            k: Number of results to return
+            threshold: Similarity threshold
+
+        Returns:
+            List of (metadata, similarity_score) tuples
+        """
+        pass
+
+    @abstractmethod
+    def save_index(self, path: str) -> bool:
+        """Save index to file.
+
+        Args:
+            path: Path to save index
+
+        Returns:
+            True if successful, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    def load_index(self, path: str) -> bool:
+        """Load index from file.
+
+        Args:
+            path: Path to load index from
+
+        Returns:
+            True if successful, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    def get_index_size(self) -> int:
+        """Get number of vectors in index.
+
+        Returns:
+            Number of vectors in index
+        """ (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.plugins.commands.plan:[87:94]
+==nodupe.plugins.commands.similarity:[98:106]
+            container = getattr(args, 'container', None)
+            if not container:
+                from nodupe.core.container import container as global_container
+                container = global_container
+
+            db = container.get_service('database')
+            if not db: (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.core.plugin_system.base:[21:43]
+==nodupe.plugins.network.__init__:[22:44]
+        pass
+
+    @abstractmethod
+    def upload_file(self, local_path: str, remote_path: str) -> bool:
+        """Upload file to remote storage"""
+        pass
+
+    @abstractmethod
+    def download_file(self, remote_path: str, local_path: str) -> bool:
+        """Download file from remote storage"""
+        pass
+
+    @abstractmethod
+    def list_files(self, prefix: str = "") -> List[str]:
+        """List files in remote storage"""
+        pass
+
+    @abstractmethod
+    def delete_file(self, remote_path: str) -> bool:
+        """Delete file from remote storage"""
+        pass
+ (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.core.plugin_system.base:[15:42]
+==nodupe.plugins.commands.__init__:[33:55]
+        pass
+
+    @abstractmethod
+    def get_description(self) -> str:
+        """Get command description"""
+        pass
+
+    @abstractmethod
+    def add_arguments(self, parser: argparse.ArgumentParser) -> None:
+        """Add command arguments to parser"""
+        pass
+
+    @abstractmethod
+    def validate_args(self, args: argparse.Namespace) -> CommandResult:
+        """Validate command arguments"""
+        pass
+
+    @abstractmethod
+    def execute(self, args: argparse.Namespace) -> CommandResult:
+        """Execute command"""
+        pass
+ (duplicate-code)
+nodupe/plugins/video/__init__.py:1:0: R0801: Similar lines in 2 files
+==nodupe.core.database.connection:[182:187]
+==nodupe.core.database.schema:[40:45]
+            CREATE TABLE IF NOT EXISTS files (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                path TEXT NOT NULL UNIQUE,
+                size INTEGER NOT NULL,
+                modified_time INTEGER NOT NULL, (duplicate-code)
+
+------------------------------------------------------------------
+Your code has been rated at 8.38/10 (previous run: 8.38/10, +0.00)
+

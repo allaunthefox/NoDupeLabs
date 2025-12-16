@@ -19,6 +19,7 @@ Dependencies:
 
 from typing import Dict, Any, Optional, Callable
 
+
 class ServiceContainer:
     """Minimal dependency injection container.
 
@@ -102,6 +103,7 @@ class ServiceContainer:
         """Clear all services and factories."""
         self.services.clear()
         self.factories.clear()
+
 
 # Global service container instance
 container = ServiceContainer()

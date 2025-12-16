@@ -4,10 +4,9 @@ This module provides video processing backends with 5-tier graceful degradation
 for frame extraction, metadata analysis, and perceptual hashing.
 """
 
-from typing import List, Optional, Dict, Any, Tuple
+from typing import List, Optional, Dict, Any
 import logging
 import subprocess
-import os
 import hashlib
 import numpy as np
 from abc import ABC, abstractmethod
@@ -16,33 +15,30 @@ from pathlib import Path
 # Configure logging
 logger = logging.getLogger(__name__)
 
+
 class VideoBackend(ABC):
     """Abstract base class for video backends"""
 
     @abstractmethod
     def is_available(self) -> bool:
         """Check if this backend is available"""
-        pass
 
     @abstractmethod
     def extract_frames(self, video_path: str, max_frames: int = 10) -> List[np.ndarray]:
         """Extract key frames from video"""
-        pass
 
     @abstractmethod
     def get_video_metadata(self, video_path: str) -> Dict[str, Any]:
         """Get video metadata (duration, resolution, fps, etc.)"""
-        pass
 
     @abstractmethod
     def compute_perceptual_hash(self, frame: np.ndarray) -> str:
         """Compute perceptual hash for video frame"""
-        pass
 
     @abstractmethod
     def get_priority(self) -> int:
         """Get backend priority (lower number = higher priority)"""
-        pass
+
 
 class FFmpegSubprocessBackend(VideoBackend):
     """Tier 5: FFmpeg CLI backend (always available if ffmpeg binary exists)"""
@@ -55,9 +51,9 @@ class FFmpegSubprocessBackend(VideoBackend):
         """Check if ffmpeg binary is available in PATH"""
         try:
             result = subprocess.run(['ffmpeg', '-version'],
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE,
-                                  check=True)
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    check=True)
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             logger.warning("FFmpeg binary not found in PATH")
@@ -89,9 +85,9 @@ class FFmpegSubprocessBackend(VideoBackend):
             ]
 
             result = subprocess.run(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE,
-                                  check=True)
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    check=True)
 
             # Load extracted frames
             frames = []
@@ -135,9 +131,9 @@ class FFmpegSubprocessBackend(VideoBackend):
             ]
 
             result = subprocess.run(cmd,
-                                  stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE,
-                                  check=False)
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    check=False)
 
             metadata = {}
             stderr = result.stderr.decode('utf-8', errors='ignore')
@@ -189,6 +185,7 @@ class FFmpegSubprocessBackend(VideoBackend):
         """Get backend priority"""
         return self.priority
 
+
 class OpenCVBackend(VideoBackend):
     """Tier 4: OpenCV backend"""
 
@@ -199,7 +196,6 @@ class OpenCVBackend(VideoBackend):
     def _check_opencv_available(self) -> bool:
         """Check if OpenCV is available"""
         try:
-            import cv2
             return True
         except ImportError:
             logger.warning("OpenCV not available")
@@ -291,6 +287,7 @@ class OpenCVBackend(VideoBackend):
         """Get backend priority"""
         return self.priority
 
+
 class VideoBackendManager:
     """Manage multiple video backends with automatic fallback"""
 
@@ -327,7 +324,8 @@ class VideoBackendManager:
             try:
                 frames = backend.extract_frames(video_path, max_frames)
                 if frames:
-                    logger.info(f"Extracted {len(frames)} frames using {backend.__class__.__name__}")
+                    logger.info(
+                        f"Extracted {len(frames)} frames using {backend.__class__.__name__}")
                     return frames
             except Exception as e:
                 logger.warning(f"Backend {backend.__class__.__name__} failed: {e}")
@@ -365,8 +363,10 @@ class VideoBackendManager:
         logger.error("All video backends failed to compute perceptual hash")
         return ""
 
+
 # Module-level backend manager
 VIDEO_MANAGER: Optional[VideoBackendManager] = None
+
 
 def get_video_backend_manager() -> VideoBackendManager:
     """Get the global video backend manager"""
@@ -374,6 +374,7 @@ def get_video_backend_manager() -> VideoBackendManager:
     if VIDEO_MANAGER is None:
         VIDEO_MANAGER = VideoBackendManager()
     return VIDEO_MANAGER
+
 
 # Initialize manager on import
 get_video_backend_manager()

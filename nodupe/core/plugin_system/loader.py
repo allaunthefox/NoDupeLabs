@@ -123,7 +123,7 @@ class PluginLoader:
             # Find Python files, excluding __init__.py files
             pattern = "**/*.py" if recursive else "*.py"
             python_files = list(plugin_dir.glob(pattern))
-            
+
             # Filter out __init__.py files as they're not plugins
             python_files = [f for f in python_files if f.name != '__init__.py']
 
@@ -229,16 +229,16 @@ class PluginLoader:
         """
         if plugin_name in self._loaded_plugins:
             plugin_instance = self._loaded_plugins[plugin_name]
-            
+
             # Remove from registry
             try:
                 self.registry.unregister(plugin_name)
             except KeyError:
                 pass  # Plugin might not be registered in registry
-            
+
             # Remove from loaded plugins
             del self._loaded_plugins[plugin_name]
-            
+
             # Remove module from sys.modules if it exists
             module_name = getattr(plugin_instance, '__module__', None)
             if module_name and module_name in sys.modules:
@@ -278,9 +278,9 @@ class PluginLoader:
         """
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
-            if (isinstance(attr, type) and 
-                issubclass(attr, Plugin) and 
-                attr != Plugin):
+            if (isinstance(attr, type) and
+                issubclass(attr, Plugin) and
+                    attr != Plugin):
                 return attr
         return None
 
@@ -303,7 +303,7 @@ class PluginLoader:
             # Check name is valid
             # For properties, we need to check if it's a property descriptor
             name_attr = getattr(plugin_class, 'name')
-            
+
             # Check if it's a property descriptor
             if isinstance(name_attr, property):
                 # For property, try to instantiate the class and get the value

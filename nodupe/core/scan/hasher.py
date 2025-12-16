@@ -23,6 +23,7 @@ import os
 import hashlib
 from typing import Dict, Any, Optional, List, Callable
 
+
 class FileHasher:
     """File hasher for cryptographic hashing operations.
 
@@ -88,7 +89,7 @@ class FileHasher:
             raise
 
     def hash_files(self, file_paths: List[str],
-                  on_progress: Optional[Callable[[Dict[str, Any]], None]] = None) -> Dict[str, str]:
+                   on_progress: Optional[Callable[[Dict[str, Any]], None]] = None) -> Dict[str, str]:
         """Calculate hashes for multiple files.
 
         Args:
@@ -227,6 +228,7 @@ class FileHasher:
             List of available algorithm names
         """
         return sorted(hashlib.algorithms_available)
+
 
 def create_file_hasher(algorithm: str = 'sha256', buffer_size: int = 65536) -> FileHasher:
     """Create and return a FileHasher instance.

@@ -4,15 +4,14 @@ This module provides network-related functionality including remote storage,
 distributed processing, and cloud synchronization with graceful degradation.
 """
 
-from typing import List, Optional, Dict, Any, Union
+from typing import List, Optional
 import logging
-import json
-import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
 
 class RemoteStorageBackend(ABC):
     """Abstract base class for remote storage backends"""
@@ -20,27 +19,23 @@ class RemoteStorageBackend(ABC):
     @abstractmethod
     def is_available(self) -> bool:
         """Check if this backend is available"""
-        pass
 
     @abstractmethod
     def upload_file(self, local_path: str, remote_path: str) -> bool:
         """Upload file to remote storage"""
-        pass
 
     @abstractmethod
     def download_file(self, remote_path: str, local_path: str) -> bool:
         """Download file from remote storage"""
-        pass
 
     @abstractmethod
     def list_files(self, prefix: str = "") -> List[str]:
         """List files in remote storage"""
-        pass
 
     @abstractmethod
     def delete_file(self, remote_path: str) -> bool:
         """Delete file from remote storage"""
-        pass
+
 
 class LocalStorageBackend(RemoteStorageBackend):
     """Local filesystem backend (always available)"""
@@ -127,6 +122,7 @@ class LocalStorageBackend(RemoteStorageBackend):
             logger.error(f"Error deleting file: {e}")
             return False
 
+
 class S3StorageBackend(RemoteStorageBackend):
     """AWS S3 storage backend"""
 
@@ -147,7 +143,6 @@ class S3StorageBackend(RemoteStorageBackend):
     def _check_s3_available(self) -> bool:
         """Check if S3 backend is available"""
         try:
-            import boto3
             return True
         except ImportError:
             logger.warning("boto3 not available for S3 backend")
@@ -224,6 +219,7 @@ class S3StorageBackend(RemoteStorageBackend):
             logger.error(f"Error deleting from S3: {e}")
             return False
 
+
 class NetworkManager:
     """Manage network operations with automatic fallback"""
 
@@ -267,8 +263,10 @@ class NetworkManager:
         """Delete file using the best available backend"""
         return self.storage_backend.delete_file(remote_path)
 
+
 # Module-level network manager
 NETWORK_MANAGER: Optional[NetworkManager] = None
+
 
 def get_network_manager() -> NetworkManager:
     """Get the global network manager"""
@@ -276,6 +274,7 @@ def get_network_manager() -> NetworkManager:
     if NETWORK_MANAGER is None:
         NETWORK_MANAGER = NetworkManager()
     return NETWORK_MANAGER
+
 
 # Initialize manager on import
 get_network_manager()

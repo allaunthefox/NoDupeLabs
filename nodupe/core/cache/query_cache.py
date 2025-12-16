@@ -50,7 +50,7 @@ class QueryCache:
         """
         self.max_size = max_size
         self.ttl_seconds = ttl_seconds
-        
+
         # Cache storage: query_key -> (result, timestamp)
         self._cache: OrderedDict[str, Tuple[Any, float]] = OrderedDict()
         self._lock = threading.RLock()
@@ -73,13 +73,13 @@ class QueryCache:
         """
         with self._lock:
             query_key = self._generate_key(query, params)
-            
+
             if query_key not in self._cache:
                 self._stats['misses'] += 1
                 return None
 
             result, timestamp = self._cache[query_key]
-            
+
             # Check if entry is expired
             if time.time() - timestamp > self.ttl_seconds:
                 del self._cache[query_key]
@@ -99,7 +99,7 @@ class QueryCache:
         """
         with self._lock:
             query_key = self._generate_key(query, params)
-            
+
             # Remove oldest entry if at max size
             if len(self._cache) >= self.max_size:
                 self._cache.popitem(last=False)
@@ -108,10 +108,10 @@ class QueryCache:
             # Store with current timestamp
             timestamp = time.time()
             self._cache[query_key] = (result, timestamp)
-            
+
             # Move to end to mark as most recently used
             self._cache.move_to_end(query_key, last=True)
-            
+
             self._stats['insertions'] += 1
 
     def invalidate(self, query: str, params: Optional[Dict[str, Any]] = None) -> bool:
@@ -170,7 +170,7 @@ class QueryCache:
         with self._lock:
             removed_count = 0
             current_time = time.time()
-            
+
             # Collect keys to remove
             keys_to_remove = []
             for query_key, (result, timestamp) in self._cache.items():
@@ -196,8 +196,8 @@ class QueryCache:
             stats['size'] = len(self._cache)
             stats['capacity'] = self.max_size
             stats['hit_rate'] = (
-                stats['hits'] / (stats['hits'] + stats['misses']) 
-                if (stats['hits'] + stats['misses']) > 0 
+                stats['hits'] / (stats['hits'] + stats['misses'])
+                if (stats['hits'] + stats['misses']) > 0
                 else 0.0
             )
             return stats
@@ -239,7 +239,7 @@ class QueryCache:
         """
         with self._lock:
             self.max_size = new_max_size
-            
+
             # Remove excess entries from the beginning (LRU)
             while len(self._cache) > self.max_size:
                 self._cache.popitem(last=False)
@@ -264,7 +264,7 @@ class QueryCache:
                     usage += 100  # Default estimate if conversion fails
                 usage += 8  # Timestamp (float)
                 usage += 50  # Overhead per entry
-            
+
             return usage
 
     def _generate_key(self, query: str, params: Optional[Dict[str, Any]] = None) -> str:
@@ -279,7 +279,7 @@ class QueryCache:
         """
         # Normalize query (remove extra whitespace, convert to lowercase)
         normalized_query = ' '.join(query.split()).lower()
-        
+
         # Create parameter string if params exist
         if params:
             # Sort parameters by key for consistency

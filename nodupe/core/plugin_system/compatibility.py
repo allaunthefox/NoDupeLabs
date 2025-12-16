@@ -182,7 +182,8 @@ class CompatibilityChecker:
                 except ValueError:
                     issues.append(f"Invalid Python version format: {req_version}")
             elif isinstance(req_version, tuple):
-                is_compat, msg = self.check_python_compatibility(required_version=req_version)  # type: ignore
+                is_compat, msg = self.check_python_compatibility(
+                    required_version=req_version)  # type: ignore
                 if not is_compat:
                     issues.append(msg)
 

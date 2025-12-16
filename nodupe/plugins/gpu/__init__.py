@@ -12,28 +12,26 @@ from abc import ABC, abstractmethod
 # Configure logging
 logger = logging.getLogger(__name__)
 
+
 class GPUBackend(ABC):
     """Abstract base class for GPU backends"""
 
     @abstractmethod
     def is_available(self) -> bool:
         """Check if this backend is available"""
-        pass
 
     @abstractmethod
     def compute_embeddings(self, data: List[Any]) -> List[List[float]]:
         """Compute embeddings using GPU acceleration"""
-        pass
 
     @abstractmethod
     def matrix_multiply(self, a: List[List[float]], b: List[List[float]]) -> List[List[float]]:
         """Perform matrix multiplication using GPU"""
-        pass
 
     @abstractmethod
     def get_device_info(self) -> Dict[str, Any]:
         """Get information about the GPU device"""
-        pass
+
 
 class CPUFallbackBackend(GPUBackend):
     """CPU fallback backend (always available)"""
@@ -84,6 +82,7 @@ class CPUFallbackBackend(GPUBackend):
         """Get CPU device information"""
         return self.device_info
 
+
 class CUDABackend(GPUBackend):
     """NVIDIA CUDA backend using PyTorch"""
 
@@ -105,7 +104,8 @@ class CUDABackend(GPUBackend):
                     'memory': f"{torch.cuda.get_device_properties(device_id).total_memory / 1024**3:.2f} GB",
                     'compute_units': torch.cuda.get_device_properties(device_id).multi_processor_count
                 }
-                logger.info(f"CUDA backend initialized on device {device_id}: {self.device_info['name']}")
+                logger.info(
+                    f"CUDA backend initialized on device {device_id}: {self.device_info['name']}")
             else:
                 logger.warning("CUDA not available")
         except ImportError:
@@ -167,6 +167,7 @@ class CUDABackend(GPUBackend):
     def get_device_info(self) -> Dict[str, Any]:
         """Get CUDA device information"""
         return self.device_info
+
 
 class MetalBackend(GPUBackend):
     """Apple Metal backend for M1/M2/M3 GPUs"""
@@ -248,6 +249,7 @@ class MetalBackend(GPUBackend):
         """Get Metal device information"""
         return self.device_info
 
+
 def create_gpu_backend(backend_type: str = "auto", **kwargs) -> GPUBackend:
     """
     Create a GPU backend instance with graceful degradation
@@ -298,8 +300,10 @@ def create_gpu_backend(backend_type: str = "auto", **kwargs) -> GPUBackend:
     else:
         raise ValueError(f"Unknown GPU backend type: {backend_type}")
 
+
 # Module-level backend instance
 GPU_BACKEND: Optional[GPUBackend] = None
+
 
 def get_gpu_backend() -> GPUBackend:
     """Get the global GPU backend instance"""
@@ -307,6 +311,7 @@ def get_gpu_backend() -> GPUBackend:
     if GPU_BACKEND is None:
         GPU_BACKEND = create_gpu_backend()
     return GPU_BACKEND
+
 
 # Initialize backend on import
 get_gpu_backend()

@@ -19,12 +19,12 @@ except ImportError:
 # Handle optional dependencies - using lowercase to avoid constant redefinition warnings
 # These are checked at module import time but not used in this file
 try:
-    import blake3  # type: ignore # noqa: F401
+    import blake3  # type: ignore # noqa: F401 # pylint: disable=unused-import
 except ImportError:
     pass
 
 try:
-    import xxhash  # type: ignore # noqa: F401
+    import xxhash  # type: ignore # noqa: F401 # pylint: disable=unused-import
 except ImportError:
     pass
 
@@ -37,6 +37,7 @@ from .plugin_system.lifecycle import create_lifecycle_manager
 from .plugin_system.hot_reload import PluginHotReload
 from .database.connection import get_connection
 from .scan.hash_autotune import autotune_hash_algorithm, create_autotuned_hasher
+
 
 class CoreLoader:
     """Main application loader and bootstrap class"""
@@ -62,10 +63,10 @@ class CoreLoader:
             # Load configuration
             # Load configuration
             self.config = load_config()
-            
+
             # Apply platform-specific autoconfiguration
             platform_config = self._apply_platform_autoconfig()
-            # Merge platform config into loaded config (loaded config takes precedence for existing keys, 
+            # Merge platform config into loaded config (loaded config takes precedence for existing keys,
             # but we want platform defaults if missing)
             # Actually, usually config file overrides auto-detect.
             # But here ConfigManager returns a Config object or dict?
@@ -81,10 +82,10 @@ class CoreLoader:
                         # Deep merge for nested dicts like 'plugins'
                         for nested_key in value:  # type: ignore
                             if nested_key not in self.config.config[key]:
-                                self.config.config[key][nested_key] = value[nested_key]  # type: ignore
-            
-            logging.info("Configuration loaded successfully")
+                                # type: ignore
+                                self.config.config[key][nested_key] = value[nested_key]
 
+            logging.info("Configuration loaded successfully")
 
             # Initialize dependency container
             self.container = global_container
@@ -122,11 +123,12 @@ class CoreLoader:
             )
             if self.container:
                 self.container.register_service('hot_reload', self.hot_reload)
-            
+
             # Check config for hot reload
             config_dict = getattr(self.config, 'config', {})
-            hot_reload_enabled = config_dict.get('plugins', {}).get('hot_reload', True)  # Default True for now
-            
+            hot_reload_enabled = config_dict.get('plugins', {}).get(
+                'hot_reload', True)  # Default True for now
+
             if hot_reload_enabled:
                 self.hot_reload.start()
                 logging.info("Hot reload service started")
@@ -158,7 +160,7 @@ class CoreLoader:
         """Discover and load plugins from configured directories."""
         # ConfigManager stores actual config in .config attribute
         config_dict = getattr(self.config, 'config', {})
-        
+
         if not config_dict or 'plugins' not in config_dict:
             logging.info("No plugin configuration found, skipping plugin loading")
             return
@@ -214,7 +216,7 @@ class CoreLoader:
             if not self.plugin_loader:
                 logging.warning(f"Plugin loader not available for plugin: {plugin_info.name}")
                 return
-                
+
             plugin_class = self.plugin_loader.load_plugin_from_file(plugin_info.path)
             if not plugin_class:
                 logging.warning(f"Failed to load plugin: {plugin_info.name}")
@@ -277,7 +279,6 @@ class CoreLoader:
             logging.error(f"Error during shutdown: {e}")
             raise
 
-    
     def _apply_platform_autoconfig(self) -> Dict[str, Any]:
         """Apply system resource-based autoconfiguration."""
         config: Dict[str, Any] = {
@@ -449,14 +450,14 @@ class CoreLoader:
         if 'DOCKER_CONTAINER' in os.environ or 'CONTAINER' in os.environ:
             thread_restrictions_detected = True
             restriction_reason.append('container')  # type: ignore
-        
+
         if thread_restrictions_detected:
             system_info['thread_restrictions_detected'] = True
             system_info['thread_restriction_reasons'] = restriction_reason
             # Reduce workers conservatively
             if system_info.get('cpu_cores', 1) > 2:
                 # Force conservative workers in containers
-                pass 
+                pass
 
     def _perform_hash_autotuning(self) -> None:
         """Perform hash algorithm autotuning and register the optimal hasher."""
@@ -466,41 +467,41 @@ class CoreLoader:
             # Get system information for optimal configuration
             system_resources = self._detect_system_resources()
             ram_gb = system_resources.get('ram_gb', 1)
-            
+
             # Determine if we're memory constrained
             memory_constrained = ram_gb < 4  # Less than 4GB is considered memory constrained
-            
+
             # Perform autotuning with system-appropriate parameters
             autotune_results = autotune_hash_algorithm(
                 sample_size=1024 * 1024,  # 1MB sample
-                iterations=5 if memory_constrained else 10, # Fewer iterations for memory constrained
+                iterations=5 if memory_constrained else 10,  # Fewer iterations for memory constrained
                 file_size_threshold=10 * 1024 * 1024  # 10MB threshold
             )
-            
+
             optimal_algorithm = autotune_results['optimal_algorithm']
             benchmark_results = autotune_results['benchmark_results']
-            
+
             logging.info(f"Hash autotuning completed. Optimal algorithm: {optimal_algorithm}")
             logging.info(f"Available algorithms: {autotune_results['available_algorithms']}")
             logging.info(f"BLAKE3 available: {autotune_results['has_blake3']}")
             logging.info(f"xxHash available: {autotune_results['has_xxhash']}")
-            
+
             # Log performance results
             sorted_results = sorted(benchmark_results.items(), key=lambda x: x[1])
             for algo, time_taken in sorted_results[:5]:  # Show top 5
                 logging.info(f"  {algo}: {time_taken:.6f}s")
-            
+
             # Create autotuned hasher and register it in the container
             autotuned_hasher, _ = create_autotuned_hasher()
             if self.container:
                 self.container.register_service('hasher', autotuned_hasher)
-            
+
             # Also register the autotune results for reference
             if self.container:
                 self.container.register_service('hash_autotune_results', autotune_results)
-            
+
             logging.info("Hash autotuning completed and registered successfully")
-            
+
         except Exception as e:
             logging.error(f"Hash autotuning failed: {e}")
             # Fallback to default hasher

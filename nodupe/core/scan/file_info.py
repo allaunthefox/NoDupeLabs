@@ -3,9 +3,9 @@ File Information
 Get basic file information using only standard library
 """
 
-import os
 from pathlib import Path
 from typing import Dict, Any
+
 
 class FileInfo:
     """Get file information"""

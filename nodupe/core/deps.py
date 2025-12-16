@@ -20,6 +20,7 @@ Dependencies:
 import importlib.util
 from typing import Dict, Any, Optional, Callable
 
+
 class DependencyManager:
     """Dependency manager with graceful degradation.
 
@@ -90,6 +91,7 @@ class DependencyManager:
         except Exception as e:
             print(f"[ERROR] Unexpected error importing {module_name}: {e}")
             return fallback
+
 
 # Global dependency manager instance
 dep_manager = DependencyManager()

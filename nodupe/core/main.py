@@ -53,7 +53,7 @@ class CLIHandler:
             action='store_true',
             help='Enable debug logging'
         )
-        
+
         # Performance tuning overrides (passed to config if needed)
         parser.add_argument('--cores', type=int, help='Override detected CPU cores')
         parser.add_argument('--threads', type=int, help='Override detected CPU threads')
@@ -126,7 +126,7 @@ class CLIHandler:
         """Handle version command."""
         print("NoDupeLabs CLI v1.0.0")
         print("Powered by Enhanced Core Loader")
-        
+
         # Show system info from loader config if available
         if self.loader.config and hasattr(self.loader.config, 'config'):
             cfg = self.loader.config.config
@@ -140,7 +140,7 @@ class CLIHandler:
         if not self.loader.plugin_registry:
             print("Plugin system not active.")
             return 1
-            
+
         if args.list:
             plugins = self.loader.plugin_registry.get_plugins()
             print(f"Loaded plugins: {len(plugins)}")
@@ -176,11 +176,11 @@ def main(args: Optional[List[str]] = None) -> int:
     try:
         # 1. Bootstrap the system using enhanced loader
         loader = bootstrap()
-        
+
         # 2. Run CLI
         cli = CLIHandler(loader)
         return cli.run(args)
-        
+
     except KeyboardInterrupt:
         print("\n[INFO] Interrupted by user", file=sys.stderr)
         return 130

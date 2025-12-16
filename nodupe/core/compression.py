@@ -24,7 +24,6 @@ import tarfile
 import zipfile
 from pathlib import Path
 from typing import Optional, List, Literal
-from io import BytesIO
 
 
 class CompressionError(Exception):

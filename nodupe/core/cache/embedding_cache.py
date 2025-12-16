@@ -22,8 +22,6 @@ import threading
 import time
 from typing import Optional, Dict, Any, Tuple, List
 from collections import OrderedDict
-import hashlib
-import array
 
 
 class EmbeddingCacheError(Exception):
@@ -53,7 +51,7 @@ class EmbeddingCache:
         self.max_size = max_size
         self.ttl_seconds = ttl_seconds
         self.max_dimensions = max_dimensions
-        
+
         # Cache storage: key -> (embedding_vector, timestamp)
         self._cache: OrderedDict[str, Tuple[List[float], float]] = OrderedDict()
         self._lock = threading.RLock()
@@ -79,7 +77,7 @@ class EmbeddingCache:
                 return None
 
             embedding, timestamp = self._cache[key]
-            
+
             # Check if entry is expired
             if time.time() - timestamp > self.ttl_seconds:
                 del self._cache[key]
@@ -111,10 +109,10 @@ class EmbeddingCache:
             # Store with current timestamp
             timestamp = time.time()
             self._cache[key] = (embedding, timestamp)
-            
+
             # Move to end to mark as most recently used
             self._cache.move_to_end(key, last=True)
-            
+
             self._stats['insertions'] += 1
 
     def calculate_similarity(self, key1: str, key2: str) -> Optional[float]:
@@ -129,7 +127,7 @@ class EmbeddingCache:
         """
         emb1 = self.get_embedding(key1)
         emb2 = self.get_embedding(key2)
-        
+
         if emb1 is None or emb2 is None:
             return None
 
@@ -168,7 +166,7 @@ class EmbeddingCache:
         with self._lock:
             removed_count = 0
             current_time = time.time()
-            
+
             # Collect keys to remove
             keys_to_remove = []
             for cache_key, (embedding, timestamp) in self._cache.items():
@@ -194,8 +192,8 @@ class EmbeddingCache:
             stats['size'] = len(self._cache)
             stats['capacity'] = self.max_size
             stats['hit_rate'] = (
-                stats['hits'] / (stats['hits'] + stats['misses']) 
-                if (stats['hits'] + stats['misses']) > 0 
+                stats['hits'] / (stats['hits'] + stats['misses'])
+                if (stats['hits'] + stats['misses']) > 0
                 else 0.0
             )
             return stats
@@ -236,7 +234,7 @@ class EmbeddingCache:
         """
         with self._lock:
             self.max_size = new_max_size
-            
+
             # Remove excess entries from the beginning (LRU)
             while len(self._cache) > self.max_size:
                 self._cache.popitem(last=False)
@@ -256,7 +254,7 @@ class EmbeddingCache:
                 usage += len(embedding) * 8  # Float array (8 bytes per float)
                 usage += 8  # Timestamp (float)
                 usage += 50  # Overhead per entry
-            
+
             return usage
 
     def _cosine_similarity(self, vec1: List[float], vec2: List[float]) -> float:
@@ -274,17 +272,17 @@ class EmbeddingCache:
 
         # Calculate dot product
         dot_product = sum(a * b for a, b in zip(vec1, vec2))
-        
+
         # Calculate magnitudes
         mag1 = sum(a * a for a in vec1) ** 0.5
         mag2 = sum(b * b for b in vec2) ** 0.5
-        
+
         if mag1 == 0 or mag2 == 0:
             return 0.0
 
         # Calculate cosine similarity
         similarity = dot_product / (mag1 * mag2)
-        
+
         # Clamp to [0, 1] range (handle floating point precision issues)
         return max(0.0, min(1.0, similarity))
 
@@ -313,7 +311,7 @@ class EmbeddingCache:
             for cache_key, (embedding, _) in self._cache.items():
                 if cache_key == key:
                     continue  # Skip self
-                
+
                 similarity = self._cosine_similarity(reference_embedding, embedding)
                 if similarity >= threshold:
                     similarities.append((cache_key, similarity))
@@ -343,13 +341,13 @@ class EmbeddingCache:
         # Calculate average
         avg_embedding = []
         num_embeddings = len(embeddings)
-        
+
         # Get dimension from first embedding
         if not embeddings:
             return None
-            
+
         dim = len(embeddings[0])
-        
+
         for i in range(dim):
             avg_value = sum(embedding[i] for embedding in embeddings) / num_embeddings
             avg_embedding.append(avg_value)

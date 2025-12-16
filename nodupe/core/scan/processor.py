@@ -21,8 +21,9 @@ Dependencies:
 
 import os
 import hashlib
-from typing import List, Dict, Any, Optional, Tuple, Callable
+from typing import List, Dict, Any, Optional, Callable
 from .walker import FileWalker
+
 
 class FileProcessor:
     """File processor for metadata extraction and duplicate detection.
@@ -46,7 +47,7 @@ class FileProcessor:
         self._hash_buffer_size = 65536  # 64KB buffer
 
     def process_files(self, root_path: str, file_filter: Optional[Callable[[Any], bool]] = None,
-                     on_progress: Optional[Callable[[Any], None]] = None) -> List[Dict[str, Any]]:
+                      on_progress: Optional[Callable[[Any], None]] = None) -> List[Dict[str, Any]]:
         """Process files in directory and return processed file information.
 
         Args:
@@ -175,7 +176,7 @@ class FileProcessor:
         return files
 
     def batch_process_files(self, file_paths: List[str],
-                          on_progress: Optional[Callable[[Any], None]] = None) -> List[Dict[str, Any]]:
+                            on_progress: Optional[Callable[[Any], None]] = None) -> List[Dict[str, Any]]:
         """Process multiple files in batch.
 
         Args:
@@ -278,6 +279,7 @@ class FileProcessor:
             Current buffer size in bytes
         """
         return self._hash_buffer_size
+
 
 def create_file_processor(file_walker: Optional[FileWalker] = None) -> FileProcessor:
     """Create and return a FileProcessor instance.
