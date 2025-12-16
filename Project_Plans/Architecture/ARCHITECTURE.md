@@ -67,12 +67,20 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 
 **Notes**: Core loader is now unified (`main.py` uses `loader.py`), robust (graceful degradation), and feature-complete (auto-tuning enabled).
 
-### 2. Database Layer (Core)**Location**: `nodupe/core/database/`**Status**: ✅**IMPLEMENTED**(Complete database layer with schema, transactions, indexing)**Responsibilities**:
+### 2. Database Layer (Core)
+
+**Location** — `nodupe/core/database/`
+
+**Status** — ✅ **IMPLEMENTED** (Complete database layer with schema, transactions, indexing)
+
+**Responsibilities**:
 
 - File metadata storage
 - Duplicate detection
 - Basic indexing
-- Transaction management**Key Components**:
+- Transaction management
+
+**Key Components**:
 
 - `connection.py` - ✅ SQLite connection management with pooling (fully implemented)
 - `files.py` - ✅ File repository with CRUD operations (fully implemented)
@@ -82,12 +90,20 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 - `transactions.py` - ✅**IMPLEMENTED**(ACID transactions with savepoints) (fully implemented)
 - `repository.py` - ⚠️**UNUSED**(Interface only - `files.py` implements repository pattern)**Dependencies**: sqlite3 (standard library)**Notes**: ✅**Database layer complete!**Schema, transactions, and indexing fully implemented.
 
-### 3. File Processing (Core)**Location**: `nodupe/core/scan/`**Status**: ✅**IMPLEMENTED**(Fully functional)**Responsibilities**:
+### 3. File Processing (Core)
+
+**Location** — `nodupe/core/scan/`
+
+**Status** — ✅ **IMPLEMENTED** (Fully functional)
+
+**Responsibilities**:
 
 - File discovery and walking
 - Hashing and metadata extraction
 - Progress tracking
-- Incremental scanning**Key Components**:
+- Incremental scanning
+
+**Key Components**:
 
 - `walker.py` - ✅ File system traversal (fully implemented)
 - `processor.py` - ✅ File metadata extraction (fully implemented)
@@ -95,16 +111,24 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 - `progress.py` - ✅ Progress tracking with time estimation (fully implemented)
 - `file_info.py` - ✅ File information utilities (fully implemented)**Dependencies**: Standard library + hashlib**Notes**: Fully functional scanning system.
 
-### 4. Core Utilities**Location**: `nodupe/core/`**Status**: ✅**FULLY IMPLEMENTED**(13/13 utilities implemented)**Responsibilities**:
+### 4. Core Utilities
+
+**Location** — `nodupe/core/`
+
+**Status** — ✅ **FULLY IMPLEMENTED** (13/13 utilities implemented)
+
+**Responsibilities**:
 
 - Filesystem operations
 - Hashing algorithms
 - Compression utilities
 - MIME type detection
 - Security and validation
-- Resource management**Key Components**:
+- Resource management
 
-- `filesystem.py` - ✅**IMPLEMENTED**(Safe file operations, atomic writes) (fully implemented)
+**Key Components**:
+
+- `filesystem.py` - ✅ **IMPLEMENTED** (Safe file operations, atomic writes) (fully implemented)
 - `logging.py` - ✅**IMPLEMENTED**(Structured logging with rotation) (fully implemented)
 - `validators.py` - ✅**IMPLEMENTED**(Comprehensive validation) (fully implemented)
 - `mime_detection.py` - ✅**IMPLEMENTED**(Magic number detection) (fully implemented)
@@ -118,18 +142,27 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 - `mmap_handler.py` - ✅**IMPLEMENTED**(Memory-mapped file operations with context manager) (fully implemented)
 - `api.py` - ✅**IMPLEMENTED**(API management with stability decorators and registration) (fully implemented)**Dependencies**: Standard library only**Notes**: ✅**MAJOR PROGRESS**- 13/13 core utilities fully implemented.
 
-### 5. Cache System (Core)**Location**: `nodupe/core/cache/`**Status**: ✅**IMPLEMENTED**(Complete cache system)**Responsibilities**:
+### 5. Cache System (Core)
+
+**Location** — `nodupe/core/cache/`
+
+**Status** — ✅ **IMPLEMENTED** (Complete cache system)
+
+**Responsibilities**:
 
 - File hash caching
 - Query result caching
 - Embedding vector caching
-- TTL expiration and eviction**Key Components**:
+- TTL expiration and eviction
 
-- `hash_cache.py` - ✅**IMPLEMENTED**(File hash caching with TTL) (fully implemented)
+**Key Components**:
+
+- `hash_cache.py` - ✅ **IMPLEMENTED** (File hash caching with TTL) (fully implemented)
 - `query_cache.py` - ✅**IMPLEMENTED**(Query result caching) (fully implemented)
 - `embedding_cache.py` - ✅**IMPLEMENTED**(Embedding vector caching) (fully implemented)**Dependencies**: Standard library only
 
-### Notes**: ✅**Cache system complete
+### Notes ✅ Cache system complete
+
 ## Plugin Architecture
 
 ### Plugin Categories
@@ -140,15 +173,19 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 - `scan.py` - ✅ Scan command (Wired to Core) (fully implemented)
 - `apply.py` - ✅ Apply command (Wired to Core) (fully implemented)
 - `similarity.py` - ✅ Similarity command (Wired to Core) (fully implemented)
-- `plan.py` - ✅**IMPLEMENTED**(Wired to Core - Strategies Active) (fully implemented)**Dependencies**: Core modules only**Notes**: Commands work via plugin manager integration.
+`plan.py` - ✅ **IMPLEMENTED** (Wired to Core - Strategies Active) (fully implemented)
+
+**Dependencies**: Core modules only
+
+**Notes**: Commands work via plugin manager integration.
 
 #### Other Plugins (Empty/Stubbed)
 
--**AI/ML**: Empty
--**GPU**: Empty
--**Video**: Empty
--**Network**: Empty
--**Similarity Backend**: ✅**Implemented**(BruteForce, Faiss)
+- **AI/ML**: Empty
+- **GPU**: Empty
+- **Video**: Empty
+- **Network**: Empty
+- **Similarity Backend**: ✅ **Implemented** (BruteForce, Faiss)
 
 ## Actual vs Documented Status
 
@@ -169,12 +206,18 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 1. ✅**Core utilities**- All implemented (13/13 completed)
 1. ✅**Similarity backend**- Fully implemented
 
-### Reality Check**Previous Documentation Claimed**:
+### Reality Check
 
-- "Core architecture 95% complete"**Actual Status**:
+**Previous Documentation Claimed**:
 
-- ✅**Commands**: 100% (All core commands functional)
-- ❌**Advanced Plugins**: 0%**Honest Assessment**: Core architecture is stable and robust. Advanced features are next.
+"Core architecture 95% complete"
+
+**Actual Status**:
+
+- ✅ **Commands**: 100% (All core commands functional)
+- ❌ **Advanced Plugins**: 0%
+
+**Honest Assessment**: Core architecture is stable and robust. Advanced features are next.
 
 ## Priority Implementation Needs
 
@@ -204,16 +247,24 @@ This document outlines the modular architecture for NoDupeLabs with hard isolati
 
 The project includes a comprehensive automated CI/CD pipeline implemented with GitHub Actions.
 
-### Pipeline Components**Location**: `.github/workflows/test.yml`**Status**: ✅**IMPLEMENTED**(Complete automated pipeline)**Features**:
+### Pipeline Components
 
--**Multi-Python Testing**: Tests run on Python 3.8, 3.9, 3.10, 3.11, 3.12, and 3.13
--**Code Quality Gates**:
+**Location**: `.github/workflows/test.yml`
+
+**Status**: ✅ **IMPLEMENTED** (Complete automated pipeline)
+
+**Features**:
+
+- **Multi-Python Testing**: Tests run on Python 3.8, 3.9, 3.10, 3.11, 3.12, and 3.13
+
+- **Code Quality Gates**:
   - Pylint with 10.0 threshold (current: 9.97/10)
   - Mypy strict type checking
   - Black formatting validation
   - isort import sorting validation
   - flake8 linting
--**Coverage Reporting**:
+
+- **Coverage Reporting**:
   - pytest with XML, HTML, and terminal coverage reports
   - Codecov integration for coverage tracking
 -**Security Scanning**: Automated security checks with bandit and safety

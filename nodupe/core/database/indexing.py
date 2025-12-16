@@ -16,8 +16,7 @@ Dependencies:
 """
 
 import sqlite3
-from typing import List, Dict, Any, Tuple, Optional
-import time
+from typing import List, Dict, Any, Optional
 
 
 class IndexingError(Exception):
@@ -49,7 +48,7 @@ class DatabaseIndexing:
             cursor = self.connection.cursor()
 
             # Files table indexes (from schema)
-            indexes = [
+            indexes: List[str] = [
                 "CREATE INDEX IF NOT EXISTS idx_files_path ON files(path)",
                 "CREATE INDEX IF NOT EXISTS idx_files_size ON files(size)",
                 "CREATE INDEX IF NOT EXISTS idx_files_hash ON files(hash)",
@@ -76,8 +75,14 @@ class DatabaseIndexing:
                 "CREATE INDEX IF NOT EXISTS idx_plugins_enabled ON plugins(enabled)",
 
                 # Composite indexes for common queries
-                "CREATE INDEX IF NOT EXISTS idx_files_status_duplicate ON files(status, is_duplicate)",
-                "CREATE INDEX IF NOT EXISTS idx_file_relationships_similarity_type ON file_relationships(similarity_score, relationship_type)",
+                (
+                    "CREATE INDEX IF NOT EXISTS idx_files_status_duplicate "
+                    "ON files(status, is_duplicate)"
+                ),
+                (
+                    "CREATE INDEX IF NOT EXISTS idx_file_relationships_similarity_type "
+                    "ON file_relationships(similarity_score, relationship_type)"
+                ),
             ]
 
             for index_sql in indexes:
@@ -195,7 +200,7 @@ class DatabaseIndexing:
                     "WHERE type='index' AND name NOT LIKE 'sqlite_%'"
                 )
 
-            indexes = []
+            indexes: List[Dict[str, Any]] = []
             for row in cursor.fetchall():
                 indexes.append({
                     'name': row[0],
@@ -224,7 +229,7 @@ class DatabaseIndexing:
             cursor = self.connection.cursor()
             cursor.execute(f"PRAGMA index_info({index_name})")
 
-            columns = []
+            columns: List[Dict[str, Any]] = []
             for row in cursor.fetchall():
                 columns.append({
                     'seqno': row[0],
@@ -253,13 +258,15 @@ class DatabaseIndexing:
             cursor = self.connection.cursor()
             cursor.execute(f"EXPLAIN QUERY PLAN {query}")
 
-            plan = []
-            for row in cursor.fetchall():
-                plan.append({
+            plan: List[Dict[str, Any]] = []
+            rows = cursor.fetchall()
+            for row in rows:
+                plan_item: Dict[str, Any] = {
                     'id': row[0],
                     'parent': row[1],
                     'detail': row[3] if len(row) > 3 else row[2]
-                })
+                }
+                plan.append(plan_item)
 
             return plan
 
@@ -315,7 +322,7 @@ class DatabaseIndexing:
 
             # Get table size (approximate)
             cursor.execute(
-                f"SELECT SUM(pgsize) FROM dbstat WHERE name=?",
+                "SELECT SUM(pgsize) FROM dbstat WHERE name=?",
                 (table_name,)
             )
             result = cursor.fetchone()
@@ -378,7 +385,7 @@ class DatabaseIndexing:
             )
             tables = [row[0] for row in cursor.fetchall()]
 
-            suggestions = []
+            suggestions: List[Dict[str, Any]] = []
 
             for table in tables:
                 # Get table info

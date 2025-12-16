@@ -134,7 +134,7 @@ class TestDatabaseConnection:
             
             db.execute(
                 "INSERT INTO files (path, size, modified_time, "
-                "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?)", 
+                "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)", 
                 ("test.txt", 100, 12345, 12345, 12345, 12345)
             )
             
@@ -150,7 +150,7 @@ class TestDatabaseConnection:
             # Insert again and commit
             db.execute(
                 "INSERT INTO files (path, size, modified_time, "
-                "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?)", 
+                "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)", 
                 ("test.txt", 100, 12345, 12345, 12345, 12345)
             )
             db.commit()

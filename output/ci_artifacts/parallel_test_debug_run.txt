@@ -1,0 +1,8 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.7, pytest-9.0.1, pluggy-1.6.0 -- /home/allaun/Workspace/NoDupeLabs/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/allaun/Workspace/NoDupeLabs
+plugins: cov-7.0.0, anyio-4.12.0
+collecting ... collected 1 item
+
+tests/core/test_parallel.py::TestParallelUnorderedMap::test_map_parallel_unordered_with_processes_and_interpreters 

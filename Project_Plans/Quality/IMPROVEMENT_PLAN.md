@@ -22,23 +22,32 @@ The focus of this phase is to ensure that the verified code is actually robust a
 
 **Current**: 13% | **Target**: >60% for Core
 
-### Tasks
-- [ ]**Core Database**: Add tests for `FileRepository` CRUD operations (`nodupe/core/database/`)
-- [ ]**File Scanner**: Add tests for `FileWalker` and `FileProcessor` with mocked file systems
-- [ ]**Error Handling**: Verify graceful degradation when plugins fail
-- [ ]**Hash Functions**: Test all hashing algorithms and edge cases
-- [ ]**Configuration**: Test config loading with various TOML formats
+### Phase 1 Tasks
 
-### Success Criteria
+- [ ] **Core Database**: Add tests for `FileRepository` CRUD operations (`nodupe/core/database/`)
+- [ ] **File Scanner**: Add tests for `FileWalker` and `FileProcessor` with mocked file systems
+- [ ] **Error Handling**: Verify graceful degradation when plugins fail
+- [ ] **Hash Functions**: Test all hashing algorithms and edge cases
+- [ ] **Configuration**: Test config loading with various TOML formats
+
+### Phase 1 Success Criteria
+
 - Core module coverage reaches 60%
 - All critical paths have test coverage
 - Error scenarios are tested
 
-### 2. Enforce Type Safety
+### 2. Enforce Type Safety ✅ IN PROGRESS
 
-**Current**: Partial hints | **Target**: `mypy` strict passing
+**Current**: Pylance errors fixed | **Target**: `mypy` strict mode passing
 
-#### Tasks
+#### Type Safety Tasks
+
+- [x] **Fix Pylance Errors** ✅ (2025-12-15):
+  - Fixed type annotation errors in `nodupe/core/database/indexing.py`
+  - Fixed unknown argument type errors in `nodupe/core/plugin_system/compatibility.py`
+  - Added proper type casting using `cast()` from typing module
+  - Added explicit type annotations for list comprehensions
+  - Improved type inference for dict operations
 - [ ] Initialize `mypy` configuration with strict settings
 - [ ] Run type check on `nodupe/core/` first
 - [ ] Fix typing errors in `nodupe/plugins/`
@@ -46,6 +55,7 @@ The focus of this phase is to ensure that the verified code is actually robust a
 - [ ] Enable `mypy` in pre-commit hooks
 
 ### Configuration
+
 ```ini
 [mypy]
 python_version = 3.9
@@ -57,7 +67,8 @@ check_untyped_defs = True
 disallow_untyped_calls = True
 ```
 
-#### Success Criteria
+#### Type Safety Success Criteria
+
 - `mypy` passes with zero errors on core
 - All function signatures have type hints
 - Complex types properly annotated
@@ -66,7 +77,8 @@ disallow_untyped_calls = True
 
 **Current**: Automated | **Target**: Automated GitHub Actions
 
-##### Tasks
+#### Pipeline Tasks
+
 - [x] Create `.github/workflows/test.yml` ✅:
   - Run `pytest` with coverage reporting
   - Run `pylint` (fail if < 10.0)
@@ -77,6 +89,7 @@ disallow_untyped_calls = True
 - [x] Set up code coverage reporting (Codecov) ✅
 
 ### Example Workflow
+
 ```yaml
 name: CI/CD Pipeline
 
@@ -84,60 +97,30 @@ on: [push, pull_request]
 
 jobs:
  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+      - name: Run tests
+        run: pytest --cov=nodupe --cov-report=xml
+      - name: Run linting
+        run: pylint nodupe/ --fail-under=10.0
+      - name: Run type checking
+        run: mypy nodupe/
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
 ```
 
-runs-on: ubuntu-latest
-steps:
+#### Pipeline Success Criteria
 
-  - uses: actions/checkout@v4
-  - name: Set up Python
-
-```text
-uses: actions/setup-python@v4
-with:
-  python-version: '3.9'
-```
-
-  - name: Install dependencies
-
-```text
-run: |
-```
-
-```text
-  python -m pip install --upgrade pip
-  pip install -r requirements.txt
-  pip install -r requirements-dev.txt
-```
-
-  - name: Run tests
-
-```text
-run: pytest --cov=nodupe --cov-report=xml
-```
-
-  - name: Run linting
-
-```text
-run: pylint nodupe/ --fail-under=10.0
-```
-
-  - name: Run type checking
-
-```text
-run: mypy nodupe/
-```
-
-  - name: Upload coverage
-
-```text
-uses: codecov/codecov-action@v3
-```
-
-```text
-```
-
-##### Success Criteria
 - All tests run automatically on push
 - Pull requests blocked if quality gates fail
 - Coverage reports generated automatically
@@ -148,46 +131,39 @@ This phase focuses on enforcing the modular architecture and strictly isolating 
 
 ### 1. Plugin Isolation Enforcement
 
-#### Tasks
-- [ ]**Refactor Tests**: Move plugin tests to `tests/plugins/` and ensure they do *not* import from other plugins
-- [ ]**Dependency Checks**: Add a script to ensure `nodupe/core` never imports from `nodupe/plugins`
-- [ ]**Import Analysis**: Create dependency graph visualization
-- [ ]**Pre-commit Hooks**: Add import boundary validation
+#### Phase 2 Tasks
+
+- [ ] **Refactor Tests**: Move plugin tests to `tests/plugins/` and ensure they do *not* import from other plugins
+- [ ] **Dependency Checks**: Add a script to ensure `nodupe/core` never imports from `nodupe/plugins`
+- [ ] **Import Analysis**: Create dependency graph visualization
+- [ ] **Pre-commit Hooks**: Add import boundary validation
 
 ### Isolation Script
+
 ```python
 # scripts/check_isolation.py
 def check_core_isolation():
+    """Ensure core never imports from plugins"""
+    import glob
+    core_files = glob.glob("nodupe/core/**/*.py", recursive=True)
+    violations = []
+    for file in core_files:
+        with open(file) as f:
+            if "from nodupe.plugins" in f.read():
+                violations.append(file)
+    return violations
 ```
 
-"""Ensure core never imports from plugins"""
-core_files = glob("nodupe/core/**/*.py")
-violations = []
-for file in core_files:
+### Phase 2 Success Criteria
 
-```python
-with open(file) as f:
-```
-
-if "from nodupe.plugins" in f.read():
-    violations.append(file)
-
-```python
-```
-
-return violations
-
-```python
-```
-
-### Success Criteria
 - No imports from `nodupe/plugins` in `nodupe/core`
 - Plugin tests fully isolated
 - Dependency graph shows clear boundaries
 
 ### 2. Performance Benchmarking
 
-##### Tasks
+#### Benchmarking Tasks
+
 - [ ] Integrate `pytest-benchmark`
 - [ ] Establish baselines for:
   - Scanning 10k files
@@ -197,34 +173,29 @@ return violations
 - [ ] Add benchmarking to CI/CD
 
 ### Benchmark Examples
+
 ```python
 def test_scan_performance(benchmark):
-```
-
-"""Benchmark scanning 10k files"""
-result = benchmark(scan_directory, test_dir_10k)
-assert result.files_scanned == 1000
-
-```text
+    """Benchmark scanning 10k files"""
+    result = benchmark(scan_directory, test_dir_10k)
+    assert result.files_scanned == 100
 
 def test_hash_throughput(benchmark):
+    """Benchmark hashing throughput"""
+    result = benchmark(hash_large_file, test_file_1gb)
+    assert result.mb_per_second > 100
 ```
 
-"""Benchmark hashing throughput"""
-result = benchmark(hash_large_file, test_file_1gb)
-assert result.mb_per_second > 100
+#### Benchmarking Success Criteria
 
-```text
-```
-
-#### Success Criteria
 - Baseline performance metrics established
 - Regression detection in place
 - Performance tracked over time
 
 ### 3. Documentation Generation
 
-#### Tasks
+#### Documentation Tasks
+
 - [ ] Set up `MkDocs` or `Sphinx`
 - [ ] Generate API documentation from docstrings
 - [ ] Write a "Plugin Developer Guide"
@@ -233,6 +204,7 @@ assert result.mb_per_second > 100
 - [ ] Automate docs deployment to GitHub Pages
 
 ### Documentation Structure
+
 ```text
 docs/
 ├── index.md                    # Landing page
@@ -248,7 +220,8 @@ docs/
 └── api/                        # Auto-generated API docs
 ```
 
-##### Success Criteria
+#### Documentation Success Criteria
+
 - Complete API documentation generated
 - Developer guides written
 - Documentation auto-deploys on merge
@@ -257,13 +230,15 @@ docs/
 
 ### 1. Ecosystem Expansion
 
-##### Tasks
-- [ ]**Plugin Marketplace**: Mechanism to install 3rd party plugins
-- [ ]**UI Layer**: Optional web interface (React/Next.js) interacting with the API
-- [ ]**Plugin Discovery**: Search and install plugins
-- [ ]**Community Hub**: Plugin repository and ratings
+#### Ecosystem Tasks
+
+- [ ] **Plugin Marketplace**: Mechanism to install 3rd party plugins
+- [ ] **UI Layer**: Optional web interface (React/Next.js) interacting with the API
+- [ ] **Plugin Discovery**: Search and install plugins
+- [ ] **Community Hub**: Plugin repository and ratings
 
 ### Plugin Marketplace Features
+
 - Plugin search and discovery
 - Version management
 - Dependency resolution
@@ -272,11 +247,12 @@ docs/
 
 ### 2. Advanced Features
 
-#### Tasks
-- [ ]**Distributed Scanning**: Networked scanning across multiple machines
-- [ ]**Cloud Sync**: S3/Google Drive integration
-- [ ]**Real-time Monitoring**: Live performance dashboard
-- [ ]**Advanced Analytics**: Machine learning insights
+#### Advanced Tasks
+
+- [ ] **Distributed Scanning**: Networked scanning across multiple machines
+- [ ] **Cloud Sync**: S3/Google Drive integration
+- [ ] **Real-time Monitoring**: Live performance dashboard
+- [ ] **Advanced Analytics**: Machine learning insights
 
 ## Success Metrics
 
@@ -356,45 +332,37 @@ All pull requests must meet these requirements before merge:
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/psf/black
-```
-
-rev: 23.1.0
-hooks:
-
-  - id: black
-
-```text
+    rev: 23.1.0
+    hooks:
+      - id: black
   - repo: https://github.com/PyCQA/pylint
-```
-
-rev: v3.0.0
-hooks:
-
-  - id: pylint
-
-```text
+    rev: v3.0.0
+    hooks:
+      - id: pylint
   - repo: https://github.com/pre-commit/mirrors-mypy
-```
-
-rev: v1.0.0
-hooks:
-
-  - id: mypy
-
-```text
+    rev: v1.0
+    hooks:
+      - id: mypy
 ```
 
 ## Risk Mitigation
 
 ### Identified Risks
 
-1.**Low Test Coverage**: Regression risk high ⚠️ CRITICAL
+1. **Low Test Coverage**: Regression risk high ⚠️ CRITICAL
+
    - Mitigation: Aggressive testing in Phase 1
-1.**Missing Type Hints**: Type errors at runtime ⚠️
+
+2. **Missing Type Hints**: Type errors at runtime ⚠️
+
    - Mitigation: Gradual mypy adoption
-1.**No CI/CD**: Manual testing error-prone ⚠️ CRITICAL
+
+3. **No CI/CD**: Manual testing error-prone ⚠️ CRITICAL
+
    - Mitigation: Priority setup in Phase 1
-1.**Plugin Isolation**: Unclear boundaries ✅ MITIGATED
+
+4. **Plugin Isolation**: Unclear boundaries ✅ MITIGATED
+
    - Mitigation: Automated checks in Phase 2
 
 ## Conclusion
@@ -403,7 +371,7 @@ This improvement plan provides a clear path from the current state (13% coverage
 
 ### Current State Summary (HONEST AUDIT - 2025-12-13)
 
-## 12. Project Status Assessment (2025-12-14)
+## Project Status Assessment (2025-12-14)
 
 ### Status**: ✅**Aligned
 
@@ -431,6 +399,7 @@ The project documentation now accurately reflects the state of the codebase (~90
 1.**Optimization**: ✅ `mmap` and `incremental` features implemented.
 
 ### 📊 Updated Reality Check (2025-12-14)
+
 - Overall completion: ~90-95%
 - Core scanning: 100% (works perfectly)
 - Core utilities: 100% (13/13 modules fully implemented)

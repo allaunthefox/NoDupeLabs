@@ -18,7 +18,8 @@ Dependencies:
     - sys (for GIL detection)
 """
 
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from multiprocessing import cpu_count
 from typing import Callable, List, Any, Optional, Iterator, Tuple
 from functools import partial
@@ -26,6 +27,7 @@ import threading
 import sys
 import time
 import logging
+import os
 
 def _process_batch_worker(func_and_batch):
     """Worker that processes a batch of items with a provided function.
@@ -245,6 +247,16 @@ class Parallel:
             ParallelError: If mapping fails
         """
         try:
+            # Runtime knobs via environment variables
+            try:
+                batch_divisor = int(os.getenv("NODUPE_BATCH_DIVISOR", "256"))
+            except Exception:
+                batch_divisor = 256
+            try:
+                chunk_factor = int(os.getenv("NODUPE_CHUNK_FACTOR", "1024"))
+            except Exception:
+                chunk_factor = 1024
+            batch_logging = os.getenv("NODUPE_BATCH_LOG", "0") in ("1", "true", "True", "yes", "on")
             # Determine number of workers
             if workers is None:
                 workers = Parallel.get_cpu_count() if use_processes else min(32, len(items))
@@ -275,14 +287,14 @@ class Parallel:
             with executor_class(max_workers=workers) as executor:
                 if use_processes and prefer_batches:
                     try:
-                        batch_size = max(1, len(items) // (max(1, workers) * 256))
+                        batch_size = max(1, len(items) // (max(1, workers) * batch_divisor))
                     except Exception:
                         batch_size = 1
 
                     if batch_size <= 1:
                         # Fallback to chunksize mapping if batches would be size 1
                         try:
-                            chunksize = max(1, len(items) // (max(1, workers) * 1024))
+                            chunksize = max(1, len(items) // (max(1, workers) * chunk_factor))
                         except Exception:
                             chunksize = 1
                         for result in executor.map(func, items, chunksize=chunksize):
@@ -291,14 +303,25 @@ class Parallel:
                         # Map batches using a top-level helper so callables are picklable
                         batches = [items[i:i + batch_size] for i in range(0, len(items), batch_size)]
                         paired = [(func, b) for b in batches]
+                        prev = time.time()
                         for batch_result in executor.map(_process_batch_worker, paired):
+                            now = time.time()
+                            duration = now - prev
+                            prev = now
+                            if batch_logging:
+                                try:
+                                    logging.getLogger(__name__).debug(
+                                        "batch size=%d processed in %.3fs", len(batch_result), duration
+                                    )
+                                except Exception:
+                                    pass
                             for r in batch_result:
                                 yield r
                 elif use_processes and prefer_map:
                     # Auto-balance chunksize: smaller chunks reduce per-task overhead but increase scheduling;
                     # use a conservative factor to amortize pickling/IPC work.
                     try:
-                        chunksize = max(1, len(items) // (max(1, workers) * 1024))
+                        chunksize = max(1, len(items) // (max(1, workers) * chunk_factor))
                     except Exception:
                         chunksize = 1
                     for result in executor.map(func, items, chunksize=chunksize):
@@ -317,7 +340,7 @@ class Parallel:
 
                     # Iterate, yielding as futures complete and submitting new tasks
                     while futures:
-                        for future in as_completed(futures, timeout=timeout):
+                        for future in concurrent.futures.as_completed(futures, timeout=timeout):
                             try:
                                 result = future.result()
                                 yield result

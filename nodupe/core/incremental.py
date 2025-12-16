@@ -15,7 +15,11 @@ class Incremental:
     CHECKPOINT_FILE = ".nodupe_checkpoint.json"
 
     @staticmethod
-    def save_checkpoint(scan_path: str, processed_files: Dict[str, Any], metadata: Optional[Dict[str, Any]] = None) -> None:
+    def save_checkpoint(
+        scan_path: str, 
+        processed_files: Dict[str, Any], 
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
         """Save incremental scanning checkpoint
         
         Args:
@@ -32,7 +36,11 @@ class Incremental:
 
         checkpoint_file = Path(scan_path) / Incremental.CHECKPOINT_FILE
         with open(checkpoint_file, 'w') as f:
-            json.dump(checkpoint_data, f, indent=2)
+            json.dump(
+                checkpoint_data, 
+                f, 
+                indent=2
+            )
 
     @staticmethod
     def load_checkpoint(scan_path: str) -> Optional[Dict[str, Any]]:

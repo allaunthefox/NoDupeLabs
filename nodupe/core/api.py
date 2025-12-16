@@ -54,7 +54,11 @@ class API:
     _api_metadata: Dict[str, Dict[str, Any]] = {}
 
     @staticmethod
-    def register_api(endpoint_name: str, func: Callable[..., Any], metadata: Optional[Dict[str, Any]] = None) -> None:
+    def register_api(
+        endpoint_name: str, 
+        func: Callable[..., Any], 
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
         """Register API endpoint with metadata
         
         Args:
@@ -143,7 +147,10 @@ class API:
         return endpoint(*args, **kwargs)
 
 
-def api_endpoint(endpoint_name: str, metadata: Optional[Dict[str, Any]] = None) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def api_endpoint(
+    endpoint_name: str, 
+    metadata: Optional[Dict[str, Any]] = None
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to register a function as an API endpoint
     
     Args:

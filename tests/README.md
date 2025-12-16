@@ -72,15 +72,10 @@ The following markers are available for test selection:
 
 ```python
 def test_example(temp_dir):
-```
-
-# temp_dir is a Path object pointing to a temporary directory
-
-test_file = temp_dir / "test.txt"
-test_file.write_text("test content")
-assert test_file.exists()
-
-```text
+    # temp_dir is a Path object pointing to a temporary directory
+    test_file = temp_dir / "test.txt"
+    test_file.write_text("test content")
+    assert test_file.exists()
 ```
 
 ## Configuration
