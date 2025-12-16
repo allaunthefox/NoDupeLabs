@@ -112,7 +112,7 @@ Project_Plans/
 
 ### Code Quality
 
-- **Pylint Score**: 9.97/10 ✅ (Target: 10.0)
+- **Pylint Score**: 10.00/10 ✅ (Target: 10.0)
 - **Type Safety**: Pylance Clean ✅ (Zero errors)
 - **Test Status**: 144 tests collected, 134+ passing ✅
 - **Test Coverage**: 31% 🔄 (Target: 60%+)
@@ -169,11 +169,13 @@ This project includes runtime knobs and lightweight instrumentation to improve a
 
 - Running the deterministic micro-benchmark (local tuning)
   - Example:
+
 ```bash
 # run the micro-benchmark and print median timings
 NODUPE_BATCH_DIVISOR=256 NODUPE_CHUNK_FACTOR=1024 pytest tests/core/test_parallel_microbenchmark.py -q -s
 ```
-  - Try varying knobs (e.g. `NODUPE_BATCH_DIVISOR=512`, `NODUPE_CHUNK_FACTOR=2048`) and compare medians to select production defaults.
+
+- Try varying knobs (e.g. `NODUPE_BATCH_DIVISOR=512`, `NODUPE_CHUNK_FACTOR=2048`) and compare medians to select production defaults.
 
 - Artifacts and CI
   - Local instrumentation outputs and CI artifacts (pytest logs, coverage.xml) are stored in `output/ci_artifacts/`.
