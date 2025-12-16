@@ -142,6 +142,18 @@
   - [x] Current Project Status Review - Check current test collection status (559 tests, 2 errors)
   - [x] Current Project Status Review - Identify critical issues needing attention
 
+- [ ] Fix Critical Test Collection Issues (IMMEDIATE PRIORITY)
+  - [ ] Fix Critical Test Collection Issues - Investigate PluginCompatibility import error in tests/plugins/test_plugin_compatibility.py
+  - [ ] Fix Critical Test Collection Issues - Check if PluginCompatibility class exists in nodupe.core.plugin_system.compatibility
+  - [ ] Fix Critical Test Collection Issues - Either implement missing PluginCompatibility class or fix import statement
+  - [ ] Fix Critical Test Collection Issues - Test plugin compatibility functionality after fix
+  - [ ] Fix Critical Test Collection Issues - Investigate resource module import error in tests/test_utils.py
+  - [ ] Fix Critical Test Collection Issues - Add Windows-compatible resource monitoring alternative
+  - [ ] Fix Critical Test Collection Issues - Use psutil or conditional imports for cross-platform compatibility
+  - [ ] Fix Critical Test Collection Issues - Test performance utilities on Windows platform
+  - [ ] Fix Critical Test Collection Issues - Verify all 559 tests can be collected without errors
+  - [ ] Fix Critical Test Collection Issues - Update test documentation for platform requirements
+
 - [ ] Phase 5: File Processing Pipeline Testing
   - [ ] Phase 5: File Processing Pipeline Testing - Analyze file processing architecture
   - [ ] Phase 5: File Processing Pipeline Testing - Review existing file processing tests
