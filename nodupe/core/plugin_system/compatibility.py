@@ -16,7 +16,7 @@ Dependencies:
 """
 
 import sys
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any, cast
 import re
 
 
@@ -40,9 +40,9 @@ class CompatibilityChecker:
 
     def check_python_compatibility(
         self,
-        required_version: Optional[Tuple[int, int]] = None,
-        min_version: Optional[Tuple[int, int]] = None,
-        max_version: Optional[Tuple[int, int]] = None
+        required_version: Optional[Tuple[int, ...]] = None,
+        min_version: Optional[Tuple[int, ...]] = None,
+        max_version: Optional[Tuple[int, ...]] = None
     ) -> Tuple[bool, str]:
         """Check Python version compatibility.
 
@@ -59,17 +59,26 @@ class CompatibilityChecker:
         # Check exact version requirement
         if required_version:
             if (current.major, current.minor) != required_version:
-                return False, f"Requires Python {required_version[0]}.{required_version[1]}, running {current.major}.{current.minor}"
+                return False, (
+                    f"Requires Python {required_version[0]}.{required_version[1]}, "
+                    f"running {current.major}.{current.minor}"
+                )
 
         # Check minimum version
         if min_version:
             if (current.major, current.minor) < min_version:
-                return False, f"Requires Python {min_version[0]}.{min_version[1]}+, running {current.major}.{current.minor}"
+                return False, (
+                    f"Requires Python {min_version[0]}.{min_version[1]}+, "
+                    f"running {current.major}.{current.minor}"
+                )
 
         # Check maximum version
         if max_version:
             if (current.major, current.minor) > max_version:
-                return False, f"Maximum Python {max_version[0]}.{max_version[1]} supported, running {current.major}.{current.minor}"
+                return False, (
+                    f"Maximum Python {max_version[0]}.{max_version[1]} supported, "
+                    f"running {current.major}.{current.minor}"
+                )
 
         return True, f"Compatible with Python {current.major}.{current.minor}"
 
@@ -140,7 +149,10 @@ class CompatibilityChecker:
         if not self._api_version_compatible(required_api_version, current_api_version):
             return False, f"{plugin_name} requires API {required_api_version}, host provides {current_api_version}"
 
-        return True, f"API compatible with {plugin_name} (host: {current_api_version}, required: {required_api_version})"
+        return True, (
+            f"API compatible with {plugin_name} "
+            f"(host: {current_api_version}, required: {required_api_version})"
+        )
 
     def check_plugin_compatibility(
         self,
@@ -155,7 +167,7 @@ class CompatibilityChecker:
         Returns:
             Tuple of (is_compatible, list_of_issues)
         """
-        issues = []
+        issues: List[str] = []
 
         # Check Python version compatibility
         if 'python_version' in plugin_info:
@@ -170,7 +182,7 @@ class CompatibilityChecker:
                 except ValueError:
                     issues.append(f"Invalid Python version format: {req_version}")
             elif isinstance(req_version, tuple):
-                is_compat, msg = self.check_python_compatibility(required_version=req_version)
+                is_compat, msg = self.check_python_compatibility(required_version=req_version)  # type: ignore
                 if not is_compat:
                     issues.append(msg)
 
@@ -178,7 +190,18 @@ class CompatibilityChecker:
         if 'dependencies' in plugin_info:
             deps = plugin_info['dependencies']
             if isinstance(deps, dict):
-                for dep_name, version_constraint in deps.items():
+                # Cast to proper dict type for type checking
+                typed_deps = cast(Dict[Any, Any], deps)
+                deps_dict: Dict[str, str] = {}
+                for item_key, item_value in typed_deps.items():
+                    try:
+                        key_str: str = str(item_key) if item_key is not None else ""
+                        value_str: str = str(item_value) if item_value is not None else ""
+                        deps_dict[key_str] = value_str
+                    except (TypeError, ValueError):
+                        # Skip items that can't be converted to strings
+                        continue
+                for dep_name, version_constraint in deps_dict.items():
                     if version_constraint.startswith('>='):
                         min_ver = version_constraint[2:]
                         is_compat, msg = self.check_dependency_compatibility(
@@ -372,7 +395,7 @@ class CompatibilityChecker:
         # Remove any pre-release or build metadata
         clean_version = re.split(r'[-+]', version_str)[0]
         # Split on dots and convert to integers
-        parts = []
+        parts: List[int] = []
         for part in clean_version.split('.'):
             try:
                 parts.append(int(part))

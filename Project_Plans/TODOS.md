@@ -7,9 +7,10 @@
 
 ### 1. Test Coverage Improvement ⚠️ IN PROGRESS
 
--**Current**: 144 tests collected (~31% coverage)
--**Target**: >60% core coverage
--**Tasks**:
+- **Current**: 144 tests collected (~31% coverage)
+- **Target**: >60% core coverage
+- **Tasks**:
+
   - [x] Add tests for `nodupe/core/database/` (FileRepository, DatabaseConnection) ✅
   - [x] Add tests for `nodupe/core/loader.py` (CoreLoader) ✅
   - [x] Add tests for `nodupe/core/scan/` (FileWalker, FileProcessor, FileHasher) ✅
@@ -20,9 +21,9 @@
 
 ### 2. CI/CD Pipeline Setup ⚠️ CRITICAL
 
--**Current**: Manual testing only
--**Target**: Automated GitHub Actions pipeline
--**Tasks**:
+- **Current**: Manual testing only
+- **Target**: Automated GitHub Actions pipeline
+- **Tasks**:
 
   - [x] Create `.github/workflows/test.yml` ✅
   - [x] Configure pytest with coverage reporting ✅
@@ -31,11 +32,18 @@
   - [x] Set up Codecov integration ✅
   - [x] Add automated dependency updates ✅
 
-### 3. Type Safety Enforcement ⚠️ HIGH
+### 3. Type Safety Enforcement ✅ IN PROGRESS
 
--**Current**: Partial type hints
--**Target**: mypy strict mode passing
--**Tasks**:
+- **Current**: Pylance errors fixed, partial mypy
+- **Target**: mypy strict mode passing
+- **Recent Updates** (2025-12-15):
+  - [x] **Fixed all Pylance type checking errors** ✅:
+    - Fixed `nodupe/core/database/indexing.py` type annotations
+    - Fixed `nodupe/core/plugin_system/compatibility.py` type casting and annotations
+    - Added proper use of `cast()` from typing module
+    - Improved type inference for list and dict operations
+- **Tasks**:
+
   - [ ] Initialize mypy configuration with strict settings
   - [ ] Run type checking on `nodupe/core/`
   - [ ] Fix typing errors in `nodupe/plugins/`
@@ -46,9 +54,10 @@
 
 ### 4. Plugin System Completion
 
--**Current**: 100% complete
--**Target**: 100% complete
--**Tasks**:
+- **Current**: 100% complete
+- **Target**: 100% complete
+- **Tasks**:
+
   - [x] Add plugin configuration support
   - [x] Implement plugin error handling
   - [x] Add plugin metrics and monitoring (via hooks)
@@ -58,9 +67,10 @@
 
 ### 5. Performance Benchmarking
 
--**Current**: No benchmarks
--**Target**: Comprehensive performance metrics
--**Tasks**:
+- **Current**: No benchmarks
+- **Target**: Comprehensive performance metrics
+- **Tasks**:
+
   - [ ] Integrate pytest-benchmark
   - [ ] Establish baseline for scanning 10k files
   - [ ] Benchmark vector search with 100k items
@@ -70,9 +80,10 @@
 
 ### 6. Documentation Generation
 
--**Current**: Partial documentation
--**Target**: Complete, auto-generated documentation
--**Tasks**:
+- **Current**: Partial documentation
+- **Target**: Complete, auto-generated documentation
+- **Tasks**:
+
   - [ ] Set up MkDocs or Sphinx
   - [ ] Generate API documentation from docstrings
   - [ ] Write "Plugin Developer Guide"
@@ -84,9 +95,10 @@
 
 ### 7. Missing Command Implementation
 
--**Current**: 5/9 commands implemented
--**Target**: 9/9 commands implemented
--**Tasks**:
+- **Current**: 5/9 commands implemented
+- **Target**: 9/9 commands implemented
+- **Tasks**:
+
   - [x] Implement `plan` command (planner module)
   - [x] Implement `verify` command (integrity checking) - COMPLETED
   - [ ] Implement `rollback` command (safety system)
@@ -95,9 +107,10 @@
 
 ### 8. Safety Features
 
--**Current**: Limited safety features
--**Target**: Comprehensive safety system
--**Tasks**:
+- **Current**: Limited safety features
+- **Target**: Comprehensive safety system
+- **Tasks**:
+
   - [ ] Implement rollback system
   - [ ] Add verify command with integrity checking
   - [ ] Implement checkpoint validation
@@ -106,9 +119,10 @@
 
 ### 9. Archive Support
 
--**Current**: No archive support
--**Target**: Full archive handling
--**Tasks**:
+- **Current**: No archive support
+- **Target**: Full archive handling
+- **Tasks**:
+
   - [ ] Add archive inspection functionality
   - [ ] Implement archive extraction
   - [ ] Add multi-format support (ZIP, TAR, etc.)
@@ -119,9 +133,10 @@
 
 ### 10. Plugin Marketplace
 
--**Current**: No plugin ecosystem
--**Target**: Full plugin marketplace
--**Tasks**:
+- **Current**: No plugin ecosystem
+- **Target**: Full plugin marketplace
+- **Tasks**:
+
   - [ ] Design plugin marketplace architecture
   - [ ] Implement plugin discovery mechanism
   - [ ] Add plugin version management
@@ -131,9 +146,10 @@
 
 ### 11. Advanced Features
 
--**Current**: Basic functionality
--**Target**: Advanced capabilities
--**Tasks**:
+- **Current**: Basic functionality
+- **Target**: Advanced capabilities
+- **Tasks**:
+
   - [ ] Implement distributed scanning
   - [ ] Add cloud sync (S3/Google Drive)
   - [ ] Create real-time monitoring dashboard
@@ -142,9 +158,10 @@
 
 ### 12. UI Layer
 
--**Current**: CLI only
--**Target**: Optional web interface
--**Tasks**:
+- **Current**: CLI only
+- **Target**: Optional web interface
+- **Tasks**:
+
   - [ ] Design web interface architecture
   - [ ] Implement React/Next.js frontend
   - [ ] Create API server for frontend
@@ -155,42 +172,42 @@
 
 ### Current Metrics (Updated 2025-12-15)
 
--**Pylint Score**: 9.97/10.00 ⚠️ (Target: 10.0)
--**Test Coverage**: ~31% ⚠️ IN PROGRESS
--**Tests Passing**: 144/144 ✅
--**Core Coverage**: 100% ✅
--**Plugin Coverage**: 100% ✅
--**MyPy Status**: Setup (strict mode) ✅
--**CI/CD Status**: Automated ✅
--**Documentation**: 85% ✅
+- **Pylint Score**: 9.97/10.00 ⚠️ (Target: 10.0)
+- **Test Coverage**: ~31% ⚠️ IN PROGRESS
+- **Tests Passing**: 144/144 ✅
+- **Core Coverage**: 100% ✅
+- **Plugin Coverage**: 100% ✅
+- **MyPy Status**: Setup (strict mode) ✅
+- **CI/CD Status**: Automated ✅
+- **Documentation**: 85% ✅
 
 ### Phase Completion Status
 
--**Phase 1 (Analysis)**: 100% ✅
--**Phase 2 (Core Isolation)**: 100% ✅
--**Phase 3 (Plugin System)**: 100% ✅
--**Phase 4 (AI/ML)**: 0% ❌
--**Phase 5 (Similarity)**: 100% ✅
--**Phase 6 (Commands)**: 90% ✅
--**Phase 7 (Testing)**: 50% ⚠️ IN PROGRESS
--**Phase 8 (Documentation)**: 40% ⚠️
--**Phase 9 (Deployment)**: 10% ⚠️
--**Phase 10 (Monitoring)**: 0% ❌
+- **Phase 1 (Analysis)**: 100% ✅
+- **Phase 2 (Core Isolation)**: 100% ✅
+- **Phase 3 (Plugin System)**: 100% ✅
+- **Phase 4 (AI/ML)**: 0% ❌
+- **Phase 5 (Similarity)**: 100% ✅
+- **Phase 6 (Commands)**: 90% ✅
+- **Phase 7 (Testing)**: 50% ⚠️ IN PROGRESS
+- **Phase 8 (Documentation)**: 40% ⚠️
+- **Phase 9 (Deployment)**: 10% ⚠️
+- **Phase 10 (Monitoring)**: 0% ❌
 
 ## 🎯 IMMEDIATE NEXT STEPS
 
 ### Week 1-2 Focus
 
-1.**Boost test coverage**from 13% to >60%
-1.**Setup CI/CD pipeline**with GitHub Actions
-1.**Enable mypy type checking**with strict mode
-1.**Add core database tests**(FileRepository, connections)
-1.**Add file processing tests**(FileWalker, FileProcessor)
+1. **Boost test coverage** from 13% to >60%
+1. **Setup CI/CD pipeline** with GitHub Actions
+1. **Enable mypy type checking** with strict mode
+1. **Add core database tests** (FileRepository, connections)
+1. **Add file processing tests** (FileWalker, FileProcessor)
 
 ### Week 3-4 Focus
 
-1.**Add performance benchmarks**for critical operations
-1.**Generate API documentation**from docstrings
+1. **Add performance benchmarks** for critical operations
+1. **Generate API documentation** from docstrings
 1. **Implement Verify command**
 1. **Setup automated dependency updates**
 
@@ -257,17 +274,34 @@ All cross-references have been verified and updated:
 
 ### Documentation Standards
 
-1.**Status Indicators**: Use ✅ ❌ 🔄 ⚠️ consistently
-1.**Cross-References**: Link to related documents
-1.**Actionable Content**: Focus on what, why, and how
-1.**Metric Tracking**: Update percentages regularly
-1.**Phase Alignment**: Keep all documents in sync
+1. **Clear Structure**: Use headers, lists, and tables
+1. **Actionable Content**: Focus on what, why, and how
+1. **Cross-References**: Link to related documents
+1. **Status Indicators**: Use ✅ ❌ 🔄 ⚠️ for status
+1. **Keep Current**: Update when implementation changes
 
-### Update Frequency
+### File Naming Conventions
 
--**Weekly**: Test coverage metrics, CI/CD status
--**Bi-weekly**: Phase completion percentages
--**Monthly**: Architecture updates, feature status
--**Quarterly**: Roadmap review, priority reassessment
+- Use **UPPERCASE.md** for primary documents (e.g., `ARCHITECTURE.md`)
+- Use **lowercase.md** for supporting documents
+- Be descriptive and specific
+
+### Markdown Conventions
+
+- Use `#` for main titles (one per document)
+- Use `##` for major sections
+- Use `###` for subsections
+- Use tables for feature matrices
+- Use code blocks for examples
+- Use emoji indicators sparingly and consistently
+
+---
+
+### When to Update
+
+- **Weekly**: Test coverage metrics, CI/CD status
+- **Bi-weekly**: Phase completion percentages
+- **Monthly**: Architecture updates, feature status
+- **Quarterly**: Roadmap review, priority reassessment
 
 This comprehensive TODO list provides a clear roadmap for completing the NoDupeLabs modernization with accurate status tracking and prioritized action items.

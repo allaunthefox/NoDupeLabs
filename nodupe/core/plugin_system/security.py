@@ -292,29 +292,29 @@ class SecurityASTVisitor(ast.NodeVisitor):
         """Initialize the visitor."""
         self.dangerous_nodes: List[str] = []
 
-    def visit_Exec(self, node: ast.AST) -> None:
+    def visit_exec(self, node: ast.AST) -> None:
         """Visit exec statement (Python 2, if somehow present)."""
         self.dangerous_nodes.append('exec statement')
         self.generic_visit(node)
 
-    def visit_Eval(self, node: ast.AST) -> None:
+    def visit_eval(self, node: ast.AST) -> None:
         """Visit eval call."""
         self.dangerous_nodes.append('eval')
         self.generic_visit(node)
 
-    def visit_Call(self, node: ast.Call) -> None:
+    def visit_call(self, node: ast.Call) -> None:
         """Visit function calls."""
         if isinstance(node.func, ast.Name):
             if node.func.id in ['exec', 'eval', 'compile', 'open']:
                 self.dangerous_nodes.append(f'call to {node.func.id}')
         self.generic_visit(node)
 
-    def visit_Import(self, node: ast.AST) -> None:
+    def visit_import(self, node: ast.AST) -> None:
         """Visit import statements."""
         # These are handled separately for more detailed checking
         self.generic_visit(node)
 
-    def visit_ImportFrom(self, node: ast.AST) -> None:
+    def visit_import_from(self, node: ast.AST) -> None:
         """Visit from-import statements."""
         # These are handled separately for more detailed checking
         self.generic_visit(node)

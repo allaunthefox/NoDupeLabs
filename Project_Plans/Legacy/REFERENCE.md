@@ -51,40 +51,23 @@ NoDupeLabs-Legacy/
 The legacy plugin system provided basic event-based integration:
 
 ### Plugin Manager Interface
+
 ```python
+from typing import Callable, List
+
+
 class LegacyPluginManager:
-```
+  def register(self, event: str, callback: Callable):
+    """Register callback for event"""
+    pass
 
-def register(self, event: str, callback: Callable):
+  def emit(self, event: str, **kwargs):
+    """Emit event to all registered callbacks"""
+    pass
 
-```text
-"""Register callback for event"""
-pass
-```
-
-```text
-
-```
-
-def emit(self, event: str,**kwargs):
-
-```text
-"""Emit event to all registered callbacks"""
-pass
-```
-
-```text
-
-```
-
-def load_plugins(self, paths: List[str]):
-
-```python
-"""Load plugins from specified paths"""
-pass
-```
-
-```text
+  def load_plugins(self, paths: List[str]):
+    """Load plugins from specified paths"""
+    pass
 ```
 
 ### Legacy Plugins
@@ -329,7 +312,11 @@ pm.register("scan_complete", on_scan_complete)
 
 ## Legacy Configuration System
 
-### Configuration File Format**File**: `nodupe.yml`**Structure**:
+### Configuration File Format
+
+**File**: `nodupe.yml`
+
+**Structure**:
 
 ```yaml
 hash_algo: sha512
@@ -347,12 +334,12 @@ ignore_patterns:
 
 ### Configuration Features
 
-1.**Hash Algorithm Selection**: SHA-512, BLAKE2b, SHA-256
-1.**Parallelism Control**: Auto-detection or manual configuration
-1.**Dry Run Mode**: Safe testing without changes
-1.**NSFW Detection**: Configurable sensitivity
-1.**Ignore Patterns**: File/directory exclusion
-1.**Environment Auto-Tuning**: Desktop, NAS, Cloud, Container
+- **Hash Algorithm Selection**: SHA-512, BLAKE2b, SHA-256
+- **Parallelism Control**: Auto-detection or manual configuration
+- **Dry Run Mode**: Safe testing without changes
+- **NSFW Detection**: Configurable sensitivity
+- **Ignore Patterns**: File/directory exclusion
+- **Environment Auto-Tuning**: Desktop, NAS, Cloud, Container
 
 ### Environment Presets
 
@@ -444,7 +431,11 @@ interrogate -vv nodupe/ --fail-under 100
 1.**Graceful Degradation**: Fallback to standard library
 1.**Vendoring**: Bundled libraries for offline operation
 
-### Vendored Libraries**Location**: `nodupe/vendor/libs`**Contents**:
+### Vendored Libraries
+
+**Location**: `nodupe/vendor/libs`
+
+**Contents**:
 
 - PyYAML
 - ONNX Runtime
