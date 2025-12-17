@@ -20,8 +20,11 @@ Dependencies:
 from .connection import DatabaseConnection, get_connection
 from .files import FileRepository
 from .embeddings import EmbeddingRepository
+from .database import Database, DatabaseError
 
 __all__ = [
+    'Database',
+    'DatabaseError',
     'DatabaseConnection',
     'get_connection',
     'FileRepository',

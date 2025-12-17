@@ -23,7 +23,7 @@ import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Callable
 import time
-from ..security_hardened_archive_handler import SecurityHardenedArchiveHandler
+from ..archive_handler import ArchiveHandler as SecurityHardenedArchiveHandler
 from ..mime_detection import MIMEDetection
 
 

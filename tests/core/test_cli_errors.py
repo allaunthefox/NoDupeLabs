@@ -18,7 +18,7 @@ from unittest.mock import patch, MagicMock
 from nodupe.core.main import CLIHandler
 from nodupe.plugins.commands.scan import ScanPlugin
 from nodupe.plugins.commands.apply import ApplyPlugin
-from nodupe.plugins.commands.similarity import SimilarityPlugin
+from nodupe.plugins.commands.similarity import SimilarityCommandPlugin as SimilarityPlugin
 
 class TestCLIArgumentValidation:
     """Test CLI argument validation errors."""

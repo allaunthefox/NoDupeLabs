@@ -15,6 +15,10 @@ from nodupe.core.database.connection import DatabaseConnection
 from nodupe.core.database.files import FileRepository, get_file_repository
 from nodupe.core.database.repository_interface import DatabaseRepository
 from nodupe.core.database.schema import DatabaseSchema
+from nodupe.core.database.query import (DatabaseQuery, DatabaseBatch, DatabasePerformance,
+                                      DatabaseIntegrity, DatabaseBackup, DatabaseMigration,
+                                      DatabaseRecovery, DatabaseOptimization)
+from nodupe.core.database.database import Database
 
 
 def _init_full_schema(db: DatabaseConnection) -> None:
@@ -638,38 +642,355 @@ def test_database_integration():
             # Test with real database file
             db = DatabaseConnection(tmp.name)
             repo = FileRepository(db)
-            
+
             # Initialize database
             _init_full_schema(db)
-            
+
             # Add some test files
             file1_id = repo.add_file("/path/to/file1.txt", 1024, 1234567890, "hash123")
             file2_id = repo.add_file("/path/to/file2.txt", 2048, 1234567891, "hash123")  # Same hash
             assert file1_id is not None  # Ensure files were added successfully
             assert file2_id is not None
-            
+
             # Mark second as duplicate
             repo.mark_as_duplicate(file2_id, file1_id)
-            
+
             # Verify operations worked
             assert repo.count_files() == 2
             assert repo.count_duplicates() == 1
-            
+
             # Find duplicates by hash
             duplicates = repo.find_duplicates_by_hash("hash123")
             assert len(duplicates) == 2
-            
+
             # Get original files
             originals = repo.get_original_files()
             assert len(originals) == 1
-            
+
             # Update file
             success = repo.update_file(file1_id, size=3072)
             assert success is True
-            
+
             updated_file = repo.get_file(file1_id)
             assert updated_file is not None
             assert updated_file['size'] == 3072
-            
+
         finally:
             os.unlink(tmp.name)
+
+class TestDatabaseQueryComponents:
+    """Test the new database query components."""
+
+    def test_database_query_execute(self):
+        """Test DatabaseQuery execute method."""
+        with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+            db = DatabaseConnection(tmp.name)
+            _init_full_schema(db)
+
+            # Create DatabaseQuery instance
+            query = DatabaseQuery(db)
+
+            # Insert test data
+            db.execute(
+                "INSERT INTO files (path, size, modified_time, "
+                "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                ("test.txt", 100, 12345, 12345, 12345, 12345)
+            )
+
+            # Test query execution
+            results = query.execute("SELECT * FROM files WHERE path = ?", ("test.txt",))
+            assert len(results) == 1
+            assert results[0]['path'] == "test.txt"
+            assert results[0]['size'] == 100
+
+    def test_database_batch_operations(self):
+        """Test DatabaseBatch execute_batch method."""
+        with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+            db = DatabaseConnection(tmp.name)
+            _init_full_schema(db)
+
+            # Create DatabaseBatch instance
+            batch = DatabaseBatch(db)
+
+            # Test batch operations
+            operations = [
+                (
+                    "INSERT INTO files (path, size, modified_time, "
+                    "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                    ("file1.txt", 100, 12345, 12345, 12345, 12345)
+                ),
+                (
+                    "INSERT INTO files (path, size, modified_time, "
+                    "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                    ("file2.txt", 200, 12346, 12345, 12345, 12345)
+                )
+            ]
+
+            batch.execute_batch(operations)
+
+            # Verify batch execution
+            cursor = db.execute("SELECT COUNT(*) FROM files")
+            count = cursor.fetchone()[0]
+            assert count == 2
+
+    def test_database_batch_transaction(self):
+        """Test DatabaseBatch execute_transaction_batch method."""
+        with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+            db = DatabaseConnection(tmp.name)
+            _init_full_schema(db)
+
+            # Create DatabaseBatch instance
+            batch = DatabaseBatch(db)
+
+            # Test transaction batch operations
+            operations = [
+                (
+                    "INSERT INTO files (path, size, modified_time, "
+                    "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                    ("file1.txt", 100, 12345, 12345, 12345, 12345)
+                ),
+                (
+                    "INSERT INTO files (path, size, modified_time, "
+                    "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                    ("file2.txt", 200, 12346, 12345, 12345, 12345)
+                )
+            ]
+
+            batch.execute_transaction_batch(operations)
+
+            # Verify transaction batch execution
+            cursor = db.execute("SELECT COUNT(*) FROM files")
+            count = cursor.fetchone()[0]
+            assert count == 2
+
+    def test_database_performance_monitoring(self):
+        """Test DatabasePerformance monitoring methods."""
+        with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+            db = Database(tmp.name)
+            _init_full_schema(db.connection)
+
+            # Create DatabasePerformance instance
+            performance = DatabasePerformance(db)
+
+            # Test monitor_performance method
+            monitor = performance.monitor_performance()
+            assert monitor is not None
+
+            # Test get_results method
+            results = performance.get_results()
+            assert isinstance(results, dict)
+            assert 'metrics' in results or 'error' in results
+
+    def test_database_integrity_checking(self):
+        """Test DatabaseIntegrity check_integrity method."""
+        with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+            db = Database(tmp.name)
+            _init_full_schema(db.connection)
+
+            # Create DatabaseIntegrity instance
+            integrity = DatabaseIntegrity(db)
+
+            # Test check_integrity method
+            results = integrity.check_integrity()
+            assert isinstance(results, dict)
+            assert 'tables' in results
+            assert 'indexes' in results
+            assert 'valid' in results
+            assert results['valid'] is True
+
+    def test_database_backup_functionality(self):
+        """Test DatabaseBackup create_backup and restore_backup methods."""
+        with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+            with tempfile.NamedTemporaryFile(suffix='_backup.db', delete=False) as backup:
+                try:
+                    db = Database(tmp.name)
+                    _init_full_schema(db.connection)
+
+                    # Add test data
+                    db.connection.execute(
+                        "INSERT INTO files (path, size, modified_time, "
+                        "created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                        ("test.txt", 100, 12345, 12345, 12345, 12345)
+                    )
+
+                    # Create DatabaseBackup instance
+                    backup_db = DatabaseBackup(db)
+
+                    # Test create_backup method
+                    backup_db.create_backup(backup.name)
+
+                    # Verify backup was created
+                    assert os.path.exists(backup.name)
+
+                    # Test restore_backup method
+                    restore_path = tmp.name + "_restored"
+                    backup_db.restore_backup(backup.name, restore_path)
+
+                    # Verify restore was created
+                    assert os.path.exists(restore_path)
+
+                finally:
+                    os.unlink(tmp.name)
+                    if os.path.exists(backup.name):
+                        os.unlink(backup.name)
+                    if os.path.exists(tmp.name + "_restored"):
+                        os.unlink(tmp.name + "_restored")
+
+    def test_database_migration_functionality(self):
+        """Test DatabaseMigration migrate_schema method."""
+        with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+            db = Database(tmp.name)
+            _init_full_schema(db.connection)
+
+            # Create DatabaseMigration instance
+            migration = DatabaseMigration(db)
+
+            # Test migrate_schema method
+            migrations = {
+                "test_table": {
+                    "add_columns": ["new_column TEXT"],
+                    "add_indexes": ["CREATE INDEX idx_test_table_new ON test_table(new_column)"]
+                }
+            }
+
+            # This should not raise an error even if the table doesn't exist
+            migration.migrate_schema(migrations)
+
+    def test_database_recovery_functionality(self):
+        """Test DatabaseRecovery handle_errors method."""
+        with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+            db = Database(tmp.name)
+            _init_full_schema(db.connection)
+
+            # Create DatabaseRecovery instance
+            recovery = DatabaseRecovery(db)
+
+            # Test handle_errors method with no errors
+            result = recovery.handle_errors(raise_on_error=False)
+            assert result is True
+
+            # Test handle_errors method with raise_on_error=True
+            result = recovery.handle_errors(raise_on_error=True)
+            assert result is True
+
+    def test_database_optimization_functionality(self):
+        """Test DatabaseOptimization optimize_query method."""
+        with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+            db = DatabaseConnection(tmp.name)
+            _init_full_schema(db)
+
+            # Create DatabaseOptimization instance
+            optimization = DatabaseOptimization(db)
+
+            # Test optimize_query method
+            query = "  SELECT * FROM files WHERE size > 100;  "
+            optimized = optimization.optimize_query(query)
+            assert optimized == "SELECT * FROM files WHERE size > 100"
+
+            # Test with query that doesn't end with semicolon
+            query2 = "SELECT * FROM files"
+            optimized2 = optimization.optimize_query(query2)
+            assert optimized2 == "SELECT * FROM files"
+
+class TestDatabaseIntegration:
+    """Test full Database class integration."""
+
+    def test_database_initialization(self):
+        """Test Database class initialization."""
+        with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+            # Test Database initialization
+            db = Database(tmp.name)
+            assert db.path == tmp.name
+            assert db.timeout == 30.0
+            assert hasattr(db, 'connection')
+            assert hasattr(db, 'schema')
+            assert hasattr(db, 'indexing')
+            assert hasattr(db, 'query')
+            assert hasattr(db, 'batch')
+            assert hasattr(db, 'transaction')
+            assert hasattr(db, 'performance')
+            assert hasattr(db, 'integrity')
+            assert hasattr(db, 'backup')
+            assert hasattr(db, 'migration')
+            assert hasattr(db, 'recovery')
+            assert hasattr(db, 'security')
+            assert hasattr(db, 'optimization')
+
+            # Test connection
+            conn = db.connect()
+            assert isinstance(conn, sqlite3.Connection)
+
+            # Test close
+            db.close()
+
+    def test_database_query_operations(self):
+        """Test Database query operations."""
+        with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+            db = Database(tmp.name)
+            _init_full_schema(db.connection)
+
+            # Test create_table
+            db.create_table("test_table", "id INTEGER PRIMARY KEY, name TEXT")
+
+            # Test create
+            data_id = db.create("test_table", {"name": "test"})
+            assert data_id is not None
+
+            # Test read
+            results = db.read("SELECT * FROM test_table WHERE id = ?", (data_id,))
+            assert len(results) == 1
+            assert results[0]['name'] == "test"
+
+            # Test update
+            updated_count = db.update("UPDATE test_table SET name = ? WHERE id = ?", ("updated", data_id))
+            assert updated_count == 1
+
+            # Test delete
+            deleted_count = db.delete("DELETE FROM test_table WHERE id = ?", (data_id,))
+            assert deleted_count == 1
+
+            # Test close
+            db.close()
+
+    def test_database_batch_operations(self):
+        """Test Database batch operations."""
+        with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+            db = Database(tmp.name)
+            _init_full_schema(db.connection)
+
+            # Test execute_batch
+            operations = [
+                ("INSERT INTO files (path, size, modified_time, created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                 ("file1.txt", 100, 12345, 12345, 12345, 12345)),
+                ("INSERT INTO files (path, size, modified_time, created_time, scanned_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+                 ("file2.txt", 200, 12346, 12345, 12345, 12345))
+            ]
+
+            db.execute_batch(operations)
+
+            # Verify batch execution
+            results = db.read("SELECT COUNT(*) FROM files")
+            assert results[0]['COUNT(*)'] == 2
+
+            # Test close
+            db.close()
+
+    def test_database_context_manager(self):
+        """Test Database context manager functionality."""
+        with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
+            # Test context manager
+            with Database(tmp.name) as db:
+                _init_full_schema(db.connection)
+                assert isinstance(db, Database)
+
+                # Test operations within context
+                db.create_table("context_table", "id INTEGER PRIMARY KEY, value TEXT")
+                db.create("context_table", {"value": "test"})
+
+            # Context manager should have closed the connection
+
+            # Verify we can create a new database instance
+            db2 = Database(tmp.name)
+            results = db2.read("SELECT * FROM context_table")
+            assert len(results) == 1
+            db2.close()

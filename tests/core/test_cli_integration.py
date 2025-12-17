@@ -20,7 +20,7 @@ from nodupe.core.main import main, CLIHandler
 from nodupe.core.loader import bootstrap
 from nodupe.plugins.commands.scan import ScanPlugin
 from nodupe.plugins.commands.apply import ApplyPlugin
-from nodupe.plugins.commands.similarity import SimilarityPlugin
+from nodupe.plugins.commands.similarity import SimilarityCommandPlugin as SimilarityPlugin
 
 class TestCLIEndToEndWorkflows:
     """Test end-to-end CLI workflows."""
