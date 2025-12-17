@@ -1,28 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="4" failures="0" skipped="0" tests="4" time="0.304" timestamp="2025-12-16T22:11:37.766489-06:00" hostname="FoxBoxRox"><testcase classname="" name="tests.core.test_cli_commands" time="0.000"><error message="collection failure">ImportError while importing test module '/home/allaun/Workspace/NoDupeLabs/tests/core/test_cli_commands.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.13/importlib/__init__.py:88: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/core/test_cli_commands.py:22: in &lt;module&gt;
-    from nodupe.plugins.commands.similarity import SimilarityPlugin
-E   ImportError: cannot import name 'SimilarityPlugin' from 'nodupe.plugins.commands.similarity' (/home/allaun/Workspace/NoDupeLabs/nodupe/plugins/commands/similarity.py)</error></testcase><testcase classname="" name="tests.core.test_cli_errors" time="0.000"><error message="collection failure">ImportError while importing test module '/home/allaun/Workspace/NoDupeLabs/tests/core/test_cli_errors.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.13/importlib/__init__.py:88: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/core/test_cli_errors.py:21: in &lt;module&gt;
-    from nodupe.plugins.commands.similarity import SimilarityPlugin
-E   ImportError: cannot import name 'SimilarityPlugin' from 'nodupe.plugins.commands.similarity' (/home/allaun/Workspace/NoDupeLabs/nodupe/plugins/commands/similarity.py)</error></testcase><testcase classname="" name="tests.core.test_cli_integration" time="0.000"><error message="collection failure">ImportError while importing test module '/home/allaun/Workspace/NoDupeLabs/tests/core/test_cli_integration.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/usr/lib/python3.13/importlib/__init__.py:88: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-tests/core/test_cli_integration.py:23: in &lt;module&gt;
-    from nodupe.plugins.commands.similarity import SimilarityPlugin
-E   ImportError: cannot import name 'SimilarityPlugin' from 'nodupe.plugins.commands.similarity' (/home/allaun/Workspace/NoDupeLabs/nodupe/plugins/commands/similarity.py)</error></testcase><testcase classname="" name="tests.core.test_database_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/home/allaun/Workspace/NoDupeLabs/tests/core/test_database_comprehensive.py'.
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.281" timestamp="2025-12-17T03:53:35.149509-06:00" hostname="FoxBoxRox"><testcase classname="" name="tests.core.test_database_comprehensive" time="0.000"><error message="collection failure">ImportError while importing test module '/home/allaun/Workspace/NoDupeLabs/tests/core/test_database_comprehensive.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /usr/lib/python3.13/importlib/__init__.py:88: in import_module
@@ -30,4 +6,4 @@ Traceback:
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 tests/core/test_database_comprehensive.py:9: in &lt;module&gt;
     from nodupe.core.database import (
-E   ImportError: cannot import name 'Database' from 'nodupe.core.database' (/home/allaun/Workspace/NoDupeLabs/nodupe/core/database/__init__.py)</error></testcase></testsuite></testsuites>
+E   ImportError: cannot import name 'DatabaseIndexing' from 'nodupe.core.database' (/home/allaun/Workspace/NoDupeLabs/nodupe/core/database/__init__.py)</error></testcase></testsuite></testsuites>

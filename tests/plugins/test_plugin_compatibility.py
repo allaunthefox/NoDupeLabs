@@ -3,7 +3,8 @@
 import pytest
 from unittest.mock import MagicMock
 from typing import List
-from nodupe.core.plugin_system.compatibility import PluginCompatibility, PluginCompatibilityError
+from nodupe.core.plugin_system.compatibility import PluginCompatibility
+from nodupe.core.plugin_system.compatibility import PluginCompatibilityError
 from nodupe.core.plugin_system.base import Plugin
 
 
