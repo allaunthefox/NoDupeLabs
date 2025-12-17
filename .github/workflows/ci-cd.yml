@@ -141,9 +141,28 @@ jobs:
                     check_docstrings(os.path.join(root, file))
         "
 
+  security-scan:
+    name: Security Scan
+    needs: [test, lint, docs]
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: AISBoM Security Scanner
+      uses: docker://ghcr.io/aisecureworks/aisbom-scanner:latest
+      with:
+        args: scan --output-format=sarif --output-file=aisbom-results.sarif --severity-threshold=medium .
+
+    - name: Upload SARIF results
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: aisbom-results.sarif
+      if: always()
+
   deploy:
     name: Deploy
-    needs: [test, lint, docs]
+    needs: [test, lint, docs, security-scan]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
