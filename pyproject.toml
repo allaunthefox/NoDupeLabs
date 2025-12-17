@@ -2,6 +2,50 @@
 requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+# Explicit package configuration to avoid flat-layout discovery issues
+packages = ["nodupe"]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nodupe*"]
+exclude = [
+    "logs*",
+    "output*",
+    "merge_backup*",
+    "node_modules*",
+    "Project_Plans*",
+    "docs*",
+    "tests*",
+    "benchmarks*",
+    "htmlcov*",
+    ".github*",
+    ".vscode*",
+    ".idea*",
+    "*.egg-info*",
+    "*.pyc*",
+    "__pycache__*",
+    ".git*",
+    ".venv*",
+    "*.log*",
+    "*.png*",
+    "*.jpg*",
+    "*.zip*",
+    "*.tar.gz*",
+    "coverage.xml*",
+    "test_results.xml*",
+    "pylint_report.txt*"
+]
+
+[tool.setuptools.package-data]
+# Include non-Python files that are part of the package
+"nodupe" = ["py.typed", "*.json", "*.toml", "*.md"]
+
+[tool.setuptools.exclude-package-data]
+# Exclude directories that should not be treated as packages
+"*" = []
+
 [project]
 name = "nodupe"
 version = "1.0.0"
