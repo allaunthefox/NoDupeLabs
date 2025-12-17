@@ -21,6 +21,8 @@ from .connection import DatabaseConnection, get_connection
 from .files import FileRepository
 from .embeddings import EmbeddingRepository
 from .database import Database, DatabaseError
+from .transactions import DatabaseTransaction, DatabaseTransactions, TransactionError, IsolationLevel
+from .schema import DatabaseSchema, SchemaError
 
 __all__ = [
     'Database',
@@ -28,5 +30,11 @@ __all__ = [
     'DatabaseConnection',
     'get_connection',
     'FileRepository',
-    'EmbeddingRepository'
+    'EmbeddingRepository',
+    'DatabaseTransaction',
+    'DatabaseTransactions',
+    'TransactionError',
+    'IsolationLevel',
+    'DatabaseSchema',
+    'SchemaError'
 ]
