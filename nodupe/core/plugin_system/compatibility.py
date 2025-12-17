@@ -18,6 +18,7 @@ Dependencies:
 import sys
 from typing import Dict, List, Optional, Tuple, Any, cast
 import re
+from nodupe.core.plugin_system.base import Plugin
 
 
 class CompatibilityError(Exception):
@@ -413,3 +414,157 @@ def create_compatibility_checker() -> CompatibilityChecker:
         CompatibilityChecker instance
     """
     return CompatibilityChecker()
+
+class PluginCompatibilityError(Exception):
+    """Plugin compatibility error exception."""
+    pass
+
+class PluginCompatibility:
+    """Plugin compatibility checker with plugin-specific functionality.
+
+    Provides compatibility checking for plugins, including interface validation,
+    dependency checking, and lifecycle management.
+    """
+
+    def __init__(self):
+        """Initialize plugin compatibility checker."""
+        self.container = None
+        self._checker = CompatibilityChecker()
+
+    def check_compatibility(self, plugin):
+        """Check plugin compatibility.
+
+        Args:
+            plugin: Plugin instance to check
+
+        Returns:
+            Dictionary with compatibility information
+        """
+        if not isinstance(plugin, Plugin):
+            raise PluginCompatibilityError("Plugin must inherit from Plugin base class")
+
+        if not hasattr(plugin, 'name') or not plugin.name:
+            raise PluginCompatibilityError("Plugin must have a valid name")
+
+        if not hasattr(plugin, 'version'):
+            raise PluginCompatibilityError("Plugin must have a version")
+
+        if not hasattr(plugin, 'dependencies'):
+            raise PluginCompatibilityError("Plugin must have dependencies")
+
+        # Check required methods
+        required_methods = ['initialize', 'shutdown', 'get_capabilities']
+        for method in required_methods:
+            if not hasattr(plugin, method):
+                raise PluginCompatibilityError(f"Plugin must implement {method} method")
+
+        # Create compatibility report
+        report = {
+            "compatible": True,
+            "issues": [],
+            "warnings": []
+        }
+
+        # Check plugin attributes
+        if not plugin.name.strip():
+            report["compatible"] = False
+            report["issues"].append("Plugin name cannot be empty")
+
+        # Check version format
+        try:
+            self._parse_version(plugin.version)
+        except Exception:
+            report["compatible"] = False
+            report["issues"].append(f"Invalid version format: {plugin.version}")
+
+        # Check dependencies
+        if not isinstance(plugin.dependencies, list):
+            report["compatible"] = False
+            report["issues"].append("Dependencies must be a list")
+
+        return report
+
+    def get_compatibility_report(self, plugin):
+        """Get detailed compatibility report for a plugin.
+
+        Args:
+            plugin: Plugin instance to analyze
+
+        Returns:
+            Dictionary with detailed compatibility report
+        """
+        if not isinstance(plugin, Plugin):
+            raise PluginCompatibilityError("Plugin must inherit from Plugin base class")
+
+        report = {
+            "plugin_name": getattr(plugin, 'name', 'unknown'),
+            "plugin_version": getattr(plugin, 'version', 'unknown'),
+            "compatibility_status": "unknown",
+            "compatibility_issues": [],
+            "compatibility_warnings": []
+        }
+
+        # Basic validation
+        if not hasattr(plugin, 'name') or not plugin.name:
+            report["compatibility_status"] = "incompatible"
+            report["compatibility_issues"].append("Plugin must have a valid name")
+            return report
+
+        if not hasattr(plugin, 'version'):
+            report["compatibility_status"] = "incompatible"
+            report["compatibility_issues"].append("Plugin must have a version")
+            return report
+
+        if not hasattr(plugin, 'dependencies'):
+            report["compatibility_status"] = "incompatible"
+            report["compatibility_issues"].append("Plugin must have dependencies")
+            return report
+
+        # Check required methods
+        required_methods = ['initialize', 'shutdown', 'get_capabilities']
+        for method in required_methods:
+            if not hasattr(plugin, method):
+                report["compatibility_status"] = "incompatible"
+                report["compatibility_issues"].append(f"Plugin must implement {method} method")
+
+        # If we got here, basic checks passed
+        if not report["compatibility_issues"]:
+            report["compatibility_status"] = "compatible"
+
+        return report
+
+    def initialize(self, container):
+        """Initialize compatibility checker with container.
+
+        Args:
+            container: Service container instance
+        """
+        self.container = container
+
+    def shutdown(self):
+        """Shutdown compatibility checker."""
+        self.container = None
+
+    def _parse_version(self, version_str):
+        """Parse version string into components.
+
+        Args:
+            version_str: Version string to parse
+
+        Returns:
+            List of version components
+        """
+        if not version_str:
+            raise ValueError("Version string cannot be empty")
+
+        parts = []
+        for part in version_str.split('.'):
+            try:
+                parts.append(int(part))
+            except ValueError:
+                raise ValueError(f"Invalid version part: {part}")
+
+        if len(parts) < 2:
+            raise ValueError("Version must have at least major.minor format")
+
+        return parts

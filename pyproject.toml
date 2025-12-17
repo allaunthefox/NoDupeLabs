@@ -72,7 +72,6 @@ addopts = """
     --cov-report=xml:coverage.xml
     --cov-fail-under=80
     --cov-branch
-    -n auto
     -v
     --tb=short
     --durations=20

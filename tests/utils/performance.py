@@ -6,10 +6,22 @@ import tempfile
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Union, Callable
 import contextlib
-import resource
-import psutil
 import os
-from unittest.mock import MagicMock
+import sys
+from unittest.mock import MagicMock, patch
+
+# Platform-specific imports with fallback
+try:
+    import resource
+    RESOURCE_AVAILABLE = True
+except ImportError:
+    RESOURCE_AVAILABLE = False
+
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
 
 def benchmark_function_performance(
     func: Callable,
@@ -72,6 +84,21 @@ def measure_memory_usage(
     Returns:
         Dictionary of memory usage metrics
     """
+    if not PSUTIL_AVAILABLE:
+        # Fallback implementation when psutil is not available
+        # Run the function but return mock memory values
+        for _ in range(iterations):
+            func(*args, **kwargs)
+
+        return {
+            "initial_memory": 0,
+            "final_memory": 0,
+            "total_memory_used": 0,
+            "average_memory_per_call": 0,
+            "iterations": iterations,
+            "warning": "psutil not available, using fallback implementation"
+        }
+
     # Get initial memory usage
     process = psutil.Process(os.getpid())
     initial_mem = process.memory_info().rss
@@ -146,17 +173,22 @@ def simulate_resource_constraints(
                 # Simulate CPU limit by adding artificial delay
                 original_limits['cpu'] = cpu_limit
 
-            if memory_limit is not None:
+            if memory_limit is not None and RESOURCE_AVAILABLE:
                 # Set memory limit using resource module
                 if hasattr(resource, 'RLIMIT_AS'):
                     original_limits['memory'] = resource.getrlimit(resource.RLIMIT_AS)
                     resource.setrlimit(resource.RLIMIT_AS, (memory_limit, memory_limit))
+                else:
+                    # Resource module available but RLIMIT_AS not supported
+                    print("Warning: RLIMIT_AS not available on this platform")
+            elif memory_limit is not None and not RESOURCE_AVAILABLE:
+                print("Warning: resource module not available, memory limits will not be enforced")
 
             yield
 
         finally:
             # Restore original limits
-            if 'memory' in original_limits:
+            if 'memory' in original_limits and RESOURCE_AVAILABLE and hasattr(resource, 'RLIMIT_AS'):
                 resource.setrlimit(resource.RLIMIT_AS, original_limits['memory'])
 
     return resource_context
@@ -279,20 +311,33 @@ def create_performance_monitor() -> Callable:
     @contextlib.contextmanager
     def monitor_context():
         start_time = time.time()
-        start_mem = psutil.Process(os.getpid()).memory_info().rss
+
+        if PSUTIL_AVAILABLE:
+            start_mem = psutil.Process(os.getpid()).memory_info().rss
 
         yield
 
         end_time = time.time()
-        end_mem = psutil.Process(os.getpid()).memory_info().rss
+
+        if PSUTIL_AVAILABLE:
+            end_mem = psutil.Process(os.getpid()).memory_info().rss
+            memory_used = end_mem - start_mem
+            cpu_usage = psutil.cpu_percent(interval=0.1)
+        else:
+            memory_used = 0
+            cpu_usage = 0
 
         elapsed_time = end_time - start_time
-        memory_used = end_mem - start_mem
 
         print(f"Performance Monitor Results:")
         print(f"  Execution Time: {elapsed_time:.4f} seconds")
-        print(f"  Memory Used: {memory_used / 1024 / 1024:.2f} MB")
-        print(f"  CPU Usage: {psutil.cpu_percent(interval=0.1)}%")
+
+        if PSUTIL_AVAILABLE:
+            print(f"  Memory Used: {memory_used / 1024 / 1024:.2f} MB")
+            print(f"  CPU Usage: {cpu_usage}%")
+        else:
+            print(f"  Memory Used: N/A (psutil not available)")
+            print(f"  CPU Usage: N/A (psutil not available)")
 
     return monitor_context
 

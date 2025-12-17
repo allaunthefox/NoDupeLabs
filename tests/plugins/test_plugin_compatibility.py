@@ -2,6 +2,7 @@
 
 import pytest
 from unittest.mock import MagicMock
+from typing import List
 from nodupe.core.plugin_system.compatibility import PluginCompatibility, PluginCompatibilityError
 from nodupe.core.plugin_system.base import Plugin
 
@@ -61,10 +62,19 @@ class TestPluginCompatibilityOperations:
 
         # Create a test plugin
         class TestPlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return "test_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return ["core>=1.0.0"]
+
             def __init__(self):
-                self.name = "test_plugin"
-                self.version = "1.0.0"
-                self.dependencies = ["core>=1.0.0"]
                 self.initialized = False
 
             def initialize(self, container):
@@ -94,10 +104,19 @@ class TestPluginCompatibilityOperations:
 
         # Create a test plugin
         class TestPlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return "test_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return ["core>=1.0.0"]
+
             def __init__(self):
-                self.name = "test_plugin"
-                self.version = "1.0.0"
-                self.dependencies = ["core>=1.0.0"]
                 self.initialized = False
 
             def initialize(self, container):
@@ -129,10 +148,19 @@ class TestPluginCompatibilityOperations:
 
         # Create a compatible test plugin
         class CompatiblePlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return "compatible_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return ["core>=1.0.0"]
+
             def __init__(self):
-                self.name = "compatible_plugin"
-                self.version = "1.0.0"
-                self.dependencies = ["core>=1.0.0"]
                 self.initialized = False
 
             def initialize(self, container):
@@ -157,10 +185,19 @@ class TestPluginCompatibilityOperations:
 
         # Create an incompatible test plugin
         class IncompatiblePlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return "incompatible_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return ["nonexistent>=1.0.0"]
+
             def __init__(self):
-                self.name = "incompatible_plugin"
-                self.version = "1.0.0"
-                self.dependencies = ["nonexistent>=1.0.0"]
                 self.initialized = False
 
             def initialize(self, container):
@@ -189,10 +226,19 @@ class TestPluginCompatibilityEdgeCases:
 
         # Create a plugin with no dependencies
         class NoDepsPlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return "no_deps_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return []
+
             def __init__(self):
-                self.name = "no_deps_plugin"
-                self.version = "1.0.0"
-                self.dependencies = []
                 self.initialized = False
 
             def initialize(self, container):
@@ -217,10 +263,19 @@ class TestPluginCompatibilityEdgeCases:
 
         # Create a plugin with empty name
         class EmptyNamePlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return ""
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return []
+
             def __init__(self):
-                self.name = ""
-                self.version = "1.0.0"
-                self.dependencies = []
                 self.initialized = False
 
             def initialize(self, container):
@@ -246,10 +301,19 @@ class TestPluginCompatibilityEdgeCases:
 
         # Create a plugin with invalid version
         class InvalidVersionPlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return "invalid_version_plugin"
+
+            @property
+            def version(self) -> str:
+                return "invalid_version"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return []
+
             def __init__(self):
-                self.name = "invalid_version_plugin"
-                self.version = "invalid_version"
-                self.dependencies = []
                 self.initialized = False
 
             def initialize(self, container):
@@ -275,11 +339,21 @@ class TestPluginCompatibilityEdgeCases:
 
         # Create a plugin missing required methods
         class IncompletePlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return "incomplete_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return []
+
             def __init__(self):
-                self.name = "incomplete_plugin"
-                self.version = "1.0.0"
-                self.dependencies = []
                 # Missing initialize and shutdown methods
+                pass
 
         incomplete_plugin = IncompletePlugin()
 
@@ -301,10 +375,19 @@ class TestPluginCompatibilityPerformance:
         plugins = []
         for i in range(100):
             class TestPlugin(Plugin):
+                @property
+                def name(self) -> str:
+                    return f"test_plugin_{i}"
+
+                @property
+                def version(self) -> str:
+                    return "1.0.0"
+
+                @property
+                def dependencies(self) -> List[str]:
+                    return ["core>=1.0.0"]
+
                 def __init__(self, plugin_id):
-                    self.name = f"test_plugin_{plugin_id}"
-                    self.version = "1.0.0"
-                    self.dependencies = ["core>=1.0.0"]
                     self.initialized = False
 
                 def initialize(self, container):
@@ -335,10 +418,19 @@ class TestPluginCompatibilityPerformance:
         plugins = []
         for i in range(1000):
             class TestPlugin(Plugin):
+                @property
+                def name(self) -> str:
+                    return f"perf_plugin_{i}"
+
+                @property
+                def version(self) -> str:
+                    return "1.0.0"
+
+                @property
+                def dependencies(self) -> List[str]:
+                    return ["core>=1.0.0"]
+
                 def __init__(self, plugin_id):
-                    self.name = f"perf_plugin_{plugin_id}"
-                    self.version = "1.0.0"
-                    self.dependencies = ["core>=1.0.0"]
                     self.initialized = False
 
                 def initialize(self, container):
@@ -375,10 +467,19 @@ class TestPluginCompatibilityIntegration:
 
         # Create a test plugin
         class TestPlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return "test_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return ["core>=1.0.0"]
+
             def __init__(self):
-                self.name = "test_plugin"
-                self.version = "1.0.0"
-                self.dependencies = ["core>=1.0.0"]
                 self.initialized = False
 
             def initialize(self, container):
@@ -409,10 +510,19 @@ class TestPluginCompatibilityIntegration:
 
         # Create a test plugin
         class TestPlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return "test_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return ["core>=1.0.0"]
+
             def __init__(self):
-                self.name = "test_plugin"
-                self.version = "1.0.0"
-                self.dependencies = ["core>=1.0.0"]
                 self.initialized = False
 
             def initialize(self, container):
@@ -498,15 +608,24 @@ class TestPluginCompatibilityAdvanced:
 
         # Create a plugin with complex dependencies
         class ComplexDepsPlugin(Plugin):
-            def __init__(self):
-                self.name = "complex_deps_plugin"
-                self.version = "1.0.0"
-                self.dependencies = [
+            @property
+            def name(self) -> str:
+                return "complex_deps_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return [
                     "core>=1.0.0",
                     "utils>=2.0.0",
                     "network>=1.5.0",
                     "ml>=3.0.0"
                 ]
+
+            def __init__(self):
                 self.initialized = False
 
             def initialize(self, container):
@@ -534,13 +653,22 @@ class TestPluginCompatibilityAdvanced:
 
         # Create a plugin with version constraints
         class VersionConstrainedPlugin(Plugin):
-            def __init__(self):
-                self.name = "version_constrained_plugin"
-                self.version = "1.0.0"
-                self.dependencies = [
+            @property
+            def name(self) -> str:
+                return "version_constrained_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return [
                     "core>=1.0.0,<2.0.0",
                     "utils>=2.0.0,<=3.0.0"
                 ]
+
+            def __init__(self):
                 self.initialized = False
 
             def initialize(self, container):
@@ -568,10 +696,19 @@ class TestPluginCompatibilityAdvanced:
 
         # Compatible plugin
         class CompatiblePlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return "compatible_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return ["core>=1.0.0"]
+
             def __init__(self):
-                self.name = "compatible_plugin"
-                self.version = "1.0.0"
-                self.dependencies = ["core>=1.0.0"]
                 self.initialized = False
 
             def initialize(self, container):
@@ -585,10 +722,19 @@ class TestPluginCompatibilityAdvanced:
 
         # Incompatible plugin
         class IncompatiblePlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return "incompatible_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return ["nonexistent>=1.0.0"]
+
             def __init__(self):
-                self.name = "incompatible_plugin"
-                self.version = "1.0.0"
-                self.dependencies = ["nonexistent>=1.0.0"]
                 self.initialized = False
 
             def initialize(self, container):
@@ -619,10 +765,19 @@ class TestPluginCompatibilityAdvanced:
 
         # Create a plugin with dynamic dependencies
         class DynamicDepsPlugin(Plugin):
+            @property
+            def name(self) -> str:
+                return "dynamic_deps_plugin"
+
+            @property
+            def version(self) -> str:
+                return "1.0.0"
+
+            @property
+            def dependencies(self) -> List[str]:
+                return ["core>=1.0.0"]
+
             def __init__(self):
-                self.name = "dynamic_deps_plugin"
-                self.version = "1.0.0"
-                self.dependencies = ["core>=1.0.0"]
                 self.initialized = False
                 self.dynamic_dependencies = []
 

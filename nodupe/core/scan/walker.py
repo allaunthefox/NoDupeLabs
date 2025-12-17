@@ -23,6 +23,8 @@ import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Callable
 import time
+from ..security_hardened_archive_handler import SecurityHardenedArchiveHandler
+from ..mime_detection import MIMEDetection
 
 
 class FileWalker:
@@ -43,6 +45,8 @@ class FileWalker:
         self._error_count = 0
         self._start_time = 0
         self._last_update = 0
+        self._archive_handler = SecurityHardenedArchiveHandler()
+        self._enable_archive_support = True
 
     def walk(self, root_path: str, file_filter: Optional[Callable[[str], bool]] = None,
              on_progress: Optional[Callable[[Dict[str, Any]], None]] = None) -> List[Dict[str, Any]]:
@@ -77,6 +81,12 @@ class FileWalker:
                         if file_filter is None or file_filter(file_info):
                             files.append(file_info)
                             self._file_count += 1
+
+                            # Check for archive files and extract contents
+                            if self._enable_archive_support and self._is_archive_file(file_path):
+                                archive_files = self._process_archive_file(file_path, root_path)
+                                files.extend(archive_files)
+                                self._file_count += len(archive_files)
 
                         self._check_progress_update(on_progress)
 
@@ -116,11 +126,42 @@ class FileWalker:
                 'created_time': int(stat.st_ctime),
                 'is_directory': False,
                 'is_file': True,
-                'is_symlink': os.path.islink(file_path)
+                'is_symlink': os.path.islink(file_path),
+                'is_archive': self._is_archive_file(file_path)
             }
         except Exception as e:
             print(f"[WARNING] Error getting file info for {file_path}: {e}")
             raise
+
+    def _is_archive_file(self, file_path: str) -> bool:
+        """Check if file is an archive.
+
+        Args:
+            file_path: Path to file
+
+        Returns:
+            True if file is an archive
+        """
+        try:
+            return self._archive_handler.is_archive_file(file_path)
+        except Exception:
+            return False
+
+    def _process_archive_file(self, archive_path: str, base_path: str) -> List[Dict[str, Any]]:
+        """Process archive file and return contents information.
+
+        Args:
+            archive_path: Path to archive file
+            base_path: Base path for relative path calculation
+
+        Returns:
+            List of file information dictionaries for archive contents
+        """
+        try:
+            return self._archive_handler.get_archive_contents_info(archive_path, base_path)
+        except Exception as e:
+            print(f"[WARNING] Error processing archive {archive_path}: {e}")
+            return []
 
     def _check_progress_update(self, on_progress: Optional[Callable[[Dict[str, Any]], None]]) -> None:
         """Check if progress update should be sent.
@@ -173,6 +214,22 @@ class FileWalker:
             'total_time': elapsed,
             'average_files_per_second': self._file_count / elapsed if elapsed > 0 else 0
         }
+
+    def enable_archive_support(self, enable: bool = True) -> None:
+        """Enable or disable archive support.
+
+        Args:
+            enable: True to enable archive support, False to disable
+        """
+        self._enable_archive_support = enable
+
+    def is_archive_support_enabled(self) -> bool:
+        """Check if archive support is enabled.
+
+        Returns:
+            True if archive support is enabled
+        """
+        return self._enable_archive_support
 
 
 def create_file_walker() -> FileWalker:

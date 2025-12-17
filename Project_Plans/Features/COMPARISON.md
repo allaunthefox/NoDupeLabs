@@ -54,10 +54,10 @@ This document provides a comprehensive comparison between legacy and modern NoDu
 
 | Feature | Legacy | Modern | Planned | Priority | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-|**Archive Inspection**| ✅ | ❌ | Medium |**Missing - Not Planned**|
-|**Archive Extraction**| ✅ | ❌ | ❌ | Medium | No archive support |
-|**Multi-format Support**| ✅ | ❌ | ❌ | Medium | ZIP, TAR, etc. |
-|**Archive Management**| ✅ | ❌ | ❌ | Medium | Command missing |
+|**Archive Inspection**| ✅ | ✅ | Medium |**IMPLEMENTED - Security Hardened**|
+|**Archive Extraction**| ✅ | ✅ | ❌ | Medium | Full archive support |
+|**Multi-format Support**| ✅ | ✅ | ❌ | Medium | ZIP, TAR, TAR.GZ, TAR.BZ2, TAR.XZ |
+|**Archive Management**| ✅ | ✅ | ❌ | Medium | Integrated with file scanning |
 
 ### Virtual Filesystem
 
@@ -139,9 +139,9 @@ This document provides a comprehensive comparison between legacy and modern NoDu
 |**Linting**| ✅ | ✅ | Complete | 10/10 Pylint |
 |**CI/CD Pipeline**| ✅ | ❌ | ✅ (Phase 1) | High | Needs setup |
 
-## Migration Status Summary
+## Migration Status Summary (Updated 2025-12-16)
 
-### ✅ Completed Migration (80%)
+### ✅ Completed Migration (85%)
 
 - Core scanning functionality
 - Basic apply operations
@@ -151,12 +151,13 @@ This document provides a comprehensive comparison between legacy and modern NoDu
 - Configuration system (TOML + Auto-tuning)
 - Database layer
 - Error handling framework
+- Comprehensive documentation (CONTRIBUTING.md, architecture docs)
 
 ### 🔄 Partial Migration (10%)
 
 - Safety features (limited rollback)
 
-### ❌ Not Migrated (10%)
+### ❌ Not Migrated (5%)
 
 - Rollback system (planned Phase 9)
 - Archive support
@@ -168,7 +169,7 @@ This document provides a comprehensive comparison between legacy and modern NoDu
 
 ### 1. Rollback System**Status**: Planned for Phase 9**Impact**: Reduced safety for file operations**Recommendation**: Prioritize in Phase 9
 
-### 2. Archive Support**Status**: Not planned**Impact**: Cannot handle archived files**Recommendation**: Consider for future enhancement
+### 2. Archive Support**Status**: ✅ IMPLEMENTED**Impact**: Full archive support with security hardening**Recommendation**: Update documentation and testing
 
 ## Modern Architecture Improvements
 

@@ -10,7 +10,7 @@ from .discovery import PluginDiscovery
 from .security import PluginSecurity
 from .lifecycle import PluginLifecycleManager
 from .dependencies import DependencyResolver as PluginDependencies
-from .compatibility import CompatibilityChecker as PluginCompatibility
+from .compatibility import PluginCompatibility, PluginCompatibilityError
 from .hot_reload import PluginHotReload
 
 __all__ = [
@@ -22,5 +22,6 @@ __all__ = [
     'PluginLifecycleManager',
     'PluginDependencies',
     'PluginCompatibility',
+    'PluginCompatibilityError',
     'PluginHotReload'
 ]

@@ -317,6 +317,8 @@ class MIMEDetection:
             'application/x-tar',
             'application/gzip',
             'application/x-bzip2',
+            'application/x-xz',
+            'application/x-lzma',
         ]
 
 
