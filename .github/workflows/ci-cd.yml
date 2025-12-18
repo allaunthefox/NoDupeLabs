@@ -163,7 +163,7 @@ jobs:
           args: scan --output-format=sarif --output-file=aisbom-results.sarif --severity-threshold=medium .
 
       - name: Upload SARIF results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: aisbom-results.sarif
         if: always()
