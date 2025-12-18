@@ -57,8 +57,12 @@ class Incremental:
         if not checkpoint_file.exists():
             return None
 
-        with open(checkpoint_file, 'r') as f:
-            return json.load(f)
+        try:
+            with open(checkpoint_file, 'r') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            # Invalid JSON or corrupted file
+            return None
 
     @staticmethod
     def get_remaining_files(scan_path: str, all_files: List[str]) -> List[str]:
