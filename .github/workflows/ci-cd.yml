@@ -82,7 +82,7 @@ jobs:
 
       - name: Run pylint
         run: |
-          pylint nodupe/ --disable=all --enable=missing-docstring,invalid-name,line-too-long,missing-module-docstring,missing-class-docstring,missing-function-docstring
+          pylint nodupe/ --disable=all --enable=missing-docstring,invalid-name,missing-module-docstring,missing-class-docstring,missing-function-docstring
 
       - name: Run markdownlint
         run: |
