@@ -398,17 +398,23 @@ class CoreLoader:
         ram_gb = system_info.get('ram_gb', 1)
         drive_type = system_info.get('drive_type', 'unknown')
 
-        # Configure max workers
-        if cpu_cores <= 2:
-            system_info['max_workers'] = 2
-        elif cpu_cores <= 4:
-            system_info['max_workers'] = 4
-        elif cpu_cores <= 8:
-            system_info['max_workers'] = 8
-        elif cpu_cores <= 16:
-            system_info['max_workers'] = 16
+        # Configure max workers - use 2x CPU cores for better parallelism
+        # but cap at reasonable limits based on system resources
+        max_workers = cpu_cores * 2
+        
+        # Apply limits based on RAM
+        if ram_gb <= 2:
+            max_workers = min(max_workers, 2)
+        elif ram_gb <= 4:
+            max_workers = min(max_workers, 4)
+        elif ram_gb <= 8:
+            max_workers = min(max_workers, 8)
+        elif ram_gb <= 16:
+            max_workers = min(max_workers, 16)
         else:
-            system_info['max_workers'] = 32
+            max_workers = min(max_workers, 32)
+            
+        system_info['max_workers'] = max_workers
 
         # Configure batch size
         if ram_gb <= 2:
