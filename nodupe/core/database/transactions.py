@@ -65,6 +65,14 @@ class DatabaseTransaction:
             if self._in_transaction:
                 raise TransactionError("Transaction already active")
 
+            # Check if SQLite connection is already in a transaction
+            # This can happen with isolation_level='IMMEDIATE' where SQLite
+            # automatically starts a transaction on first write operation
+            if self.connection.in_transaction:
+                # SQLite is already in a transaction, just track our state
+                self._in_transaction = True
+                return
+
             # SQLite uses BEGIN to start transactions
             self.connection.execute(f"BEGIN {self.isolation_level.value}")
             self._in_transaction = True
