@@ -102,25 +102,34 @@ class TestPluginDiscoveryOperations:
         """Test discovering plugins in a directory."""
         discovery = PluginDiscovery()
 
-        # Create a temporary directory with a plugin file
-        with patch('nodupe.core.plugin_system.discovery.Path') as mock_path:
-            mock_path.return_value = MagicMock()
-            mock_path.return_value.iterdir.return_value = []
+        # Create proper mock directory structure
+        mock_dir = MagicMock()
+        mock_dir.exists.return_value = True
+        
+        # Create mock plugin file
+        mock_file = MagicMock()
+        mock_file.is_file.return_value = True
+        mock_file.suffix = '.py'
+        mock_file.stem = 'plugin'
+        mock_file.exists.return_value = True
+        mock_file.stat.return_value.st_size = 100
+        
+        # Set up directory to return the mock file
+        mock_dir.iterdir.return_value = [mock_file]
 
-            # Mock the discovery process
-            with patch.object(discovery, '_extract_plugin_info') as mock_extract:
-                mock_extract.return_value = PluginInfo(
-                    name="test_plugin",
-                    version="1.0.0",
-                    file_path=Path("/test/plugin.py"),
-                    dependencies=[],
-                    capabilities={}
-                )
+        # Mock the discovery process
+        with patch.object(discovery, '_extract_plugin_info') as mock_extract:
+            mock_extract.return_value = PluginInfo(
+                name="test_plugin",
+                version="1.0.0",
+                file_path=Path("/test/plugin.py"),
+                dependencies=[],
+                capabilities={}
+            )
 
-                # Mock file operations
-                with patch('builtins.open', MagicMock()):
-                    result = discovery.discover_plugins_in_directory(
-                        Path("/test"))
+            # Mock file operations
+            with patch('builtins.open', MagicMock()):
+                result = discovery.discover_plugins_in_directory(mock_dir)
 
         assert result == [mock_extract.return_value]
 
@@ -353,7 +362,24 @@ class TestPluginDiscoveryPerformance:
         """Test mass plugin discovery."""
         discovery = PluginDiscovery()
 
-        # Mock discovery of many plugins
+        # Create proper mock directory with many files
+        mock_dir = MagicMock()
+        mock_dir.exists.return_value = True
+        
+        # Create 100 mock plugin files
+        mock_files = []
+        for i in range(100):
+            mock_file = MagicMock()
+            mock_file.is_file.return_value = True
+            mock_file.suffix = '.py'
+            mock_file.stem = f'plugin_{i}'
+            mock_file.exists.return_value = True
+            mock_file.stat.return_value.st_size = 100
+            mock_files.append(mock_file)
+        
+        mock_dir.iterdir.return_value = mock_files
+
+        # Mock the discovery process
         with patch.object(discovery, '_extract_plugin_info') as mock_extract:
             mock_extract.return_value = PluginInfo(
                 name="test_plugin",
@@ -364,13 +390,7 @@ class TestPluginDiscoveryPerformance:
             )
 
             with patch('builtins.open', MagicMock()):
-                with patch('nodupe.core.plugin_system.discovery.Path') as mock_path:
-                    mock_path.return_value.exists.return_value = True
-                    mock_path.return_value.iterdir.return_value = [
-                        mock_path.return_value] * 100
-
-                    result = discovery.discover_plugins_in_directory(
-                        Path("/test"))
+                result = discovery.discover_plugins_in_directory(mock_dir)
 
         assert len(result) == 100
 
@@ -380,7 +400,24 @@ class TestPluginDiscoveryPerformance:
 
         discovery = PluginDiscovery()
 
-        # Mock discovery of many plugins
+        # Create proper mock directory with many files
+        mock_dir = MagicMock()
+        mock_dir.exists.return_value = True
+        
+        # Create 1000 mock plugin files
+        mock_files = []
+        for i in range(1000):
+            mock_file = MagicMock()
+            mock_file.is_file.return_value = True
+            mock_file.suffix = '.py'
+            mock_file.stem = f'plugin_{i}'
+            mock_file.exists.return_value = True
+            mock_file.stat.return_value.st_size = 100
+            mock_files.append(mock_file)
+        
+        mock_dir.iterdir.return_value = mock_files
+
+        # Mock the discovery process
         with patch.object(discovery, '_extract_plugin_info') as mock_extract:
             mock_extract.return_value = PluginInfo(
                 name="test_plugin",
@@ -391,16 +428,10 @@ class TestPluginDiscoveryPerformance:
             )
 
             with patch('builtins.open', MagicMock()):
-                with patch('nodupe.core.plugin_system.discovery.Path') as mock_path:
-                    mock_path.return_value.exists.return_value = True
-                    mock_path.return_value.iterdir.return_value = [
-                        mock_path.return_value] * 1000
-
-                    # Test discovery performance
-                    start_time = time.time()
-                    result = discovery.discover_plugins_in_directory(
-                        Path("/test"))
-                    discovery_time = time.time() - start_time
+                # Test discovery performance
+                start_time = time.time()
+                result = discovery.discover_plugins_in_directory(mock_dir)
+                discovery_time = time.time() - start_time
 
         assert len(result) == 1000
         assert discovery_time < 1.0
@@ -527,7 +558,23 @@ class TestPluginDiscoveryAdvanced:
         """Test discovering plugins with complex metadata."""
         discovery = PluginDiscovery()
 
-        # Mock file operations to return complex metadata
+        # Create proper mock directory structure
+        mock_dir = MagicMock()
+        mock_dir.exists.return_value = True
+        
+        # Create mock plugin file that looks like a real plugin
+        mock_file = MagicMock()
+        mock_file.is_file.return_value = True
+        mock_file.suffix = '.py'
+        mock_file.stem = 'complex_plugin'
+        mock_file.exists.return_value = True
+        mock_file.stat.return_value.st_size = 100
+        mock_file.__str__ = lambda: "/test/complex_plugin.py"
+        
+        # Set up directory to return the mock file
+        mock_dir.iterdir.return_value = [mock_file]
+
+        # Mock file operations to return complex metadata with actual Python code
         with patch('builtins.open', MagicMock()) as mock_open:
             mock_open.return_value.__enter__.return_value.read.return_value = """
             # Plugin metadata
@@ -540,14 +587,19 @@ class TestPluginDiscoveryAdvanced:
                     "nested": True
                 }
             }
+
+            # Actual Python code to make it look like a plugin
+            def initialize():
+                pass
+
+            def shutdown():
+                pass
+
+            def get_capabilities():
+                return {}
             """
 
-            with patch('nodupe.core.plugin_system.discovery.Path') as mock_path:
-                mock_path.return_value.exists.return_value = True
-                mock_path.return_value.iterdir.return_value = [
-                    mock_path.return_value]
-
-                result = discovery.discover_plugins_in_directory(Path("/test"))
+            result = discovery.discover_plugins_in_directory(mock_dir)
 
         assert len(result) == 1
         plugin_info = result[0]
@@ -595,7 +647,31 @@ class TestPluginDiscoveryAdvanced:
         """Test discovering plugins with duplicate names."""
         discovery = PluginDiscovery()
 
-        # Mock discovery of plugins with duplicate names
+        # Create proper mock directory structure
+        mock_dir = MagicMock()
+        mock_dir.exists.return_value = True
+        
+        # Create two mock plugin files with same name but different paths
+        mock_file1 = MagicMock()
+        mock_file1.is_file.return_value = True
+        mock_file1.suffix = '.py'
+        mock_file1.stem = 'duplicate_plugin'
+        mock_file1.exists.return_value = True
+        mock_file1.stat.return_value.st_size = 100
+        mock_file1.__str__ = lambda: "/test1/plugin.py"
+        
+        mock_file2 = MagicMock()
+        mock_file2.is_file.return_value = True
+        mock_file2.suffix = '.py'
+        mock_file2.stem = 'duplicate_plugin'
+        mock_file2.exists.return_value = True
+        mock_file2.stat.return_value.st_size = 100
+        mock_file2.__str__ = lambda: "/test2/plugin.py"
+        
+        # Set up directory to return both mock files
+        mock_dir.iterdir.return_value = [mock_file1, mock_file2]
+
+        # Mock the discovery process
         with patch.object(discovery, '_extract_plugin_info') as mock_extract:
             plugin_info1 = PluginInfo(
                 name="duplicate_plugin",
@@ -615,13 +691,7 @@ class TestPluginDiscoveryAdvanced:
             mock_extract.side_effect = [plugin_info1, plugin_info2]
 
             with patch('builtins.open', MagicMock()):
-                with patch('nodupe.core.plugin_system.discovery.Path') as mock_path:
-                    mock_path.return_value.exists.return_value = True
-                    mock_path.return_value.iterdir.return_value = [
-                        mock_path.return_value, mock_path.return_value]
-
-                    result = discovery.discover_plugins_in_directory(
-                        Path("/test"))
+                result = discovery.discover_plugins_in_directory(mock_dir)
 
         # Should handle duplicates (behavior may vary)
         assert len(result) >= 1

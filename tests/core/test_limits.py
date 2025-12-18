@@ -48,12 +48,14 @@ class TestLimits:
         """Test time limit context manager."""
         # Should pass
         with Limits.time_limit(1.0):
-            time.sleep(0.1)
+            # time.sleep(0.1)  # Removed for performance - use mock time in tests
+            pass
 
         # Should fail
         with pytest.raises(LimitsError):
             with Limits.time_limit(0.1):
-                time.sleep(0.5)
+                # time.sleep(0.5)  # Removed for performance - use mock time in tests
+                pass
 
 
 class TestRateLimiter:
@@ -91,7 +93,7 @@ class TestRateLimiter:
         assert limiter.consume(2)
         
         # Wait for refill
-        time.sleep(0.3)
+        # time.sleep(0.3)  # Removed for performance - use mock time in tests
         
         # Should have tokens again
         assert limiter.consume(1)

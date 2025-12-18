@@ -359,15 +359,16 @@ def simulate_slow_operations(
 
     @contextlib.contextmanager
     def slow_context():
-        original_time = time.time
+        original_monotonic = time.monotonic
+        start_time = original_monotonic()
 
-        def slow_time():
-            actual_time = original_time()
+        def slow_monotonic():
+            elapsed = original_monotonic() - start_time
             variability_factor = 1.0 + random.uniform(-variability, variability)
-            return actual_time + (delay * variability_factor)
+            return elapsed + (delay * variability_factor)
 
         # Patch time functions
-        with patch('time.time', side_effect=slow_time):
+        with patch('time.monotonic', side_effect=slow_monotonic):
             with patch('time.sleep', side_effect=lambda x: time.sleep(x * 10)):
                 yield
 
@@ -551,26 +552,28 @@ def simulate_performance_degradation(
     @contextlib.contextmanager
     def degradation_context():
         call_count = 0
+        original_monotonic = time.monotonic
+        start_time = original_monotonic()
 
-        original_time = time.time
-        original_sleep = time.sleep
-
-        def degraded_time():
+        def degraded_monotonic():
             nonlocal call_count
             call_count += 1
+
+            elapsed = original_monotonic() - start_time
 
             if degradation_type == "linear":
                 degradation = degradation_factor * call_count
             else:  # exponential
                 degradation = degradation_factor ** call_count
 
-            return original_time() + degradation
+            return elapsed + degradation
 
         def degraded_sleep(seconds):
+            original_sleep = time.sleep
             original_sleep(seconds * (1 + degradation_factor))
 
-        with patch('time.time', side_effect=degraded_time):
-            with patch('time.sleep', side_effect=degraded_sleep):
+        with patch('time.monotonic', side_effect=degraded_monotonic):
+            with patch('time.sleep', side_effect=lambda x: time.sleep(x * (1 + degradation_factor))):
                 yield
 
     return degradation_context

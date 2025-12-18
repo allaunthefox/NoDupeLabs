@@ -613,23 +613,22 @@ def simulate_timeout_errors(
 
         error = error_map.get(timeout_type, TimeoutError("Timeout error"))
 
-        original_time = time.time
+        original_monotonic = time.monotonic
         original_sleep = time.sleep
+        start_time = original_monotonic()
 
-        start_time = original_time()
-
-        def slow_time():
-            elapsed = original_time() - start_time
+        def slow_monotonic():
+            elapsed = original_monotonic() - start_time
             if elapsed > 1.0:  # After 1 second, start causing timeouts
                 raise error
-            return original_time()
+            return elapsed
 
         def slow_sleep(seconds):
             if seconds > 0.1:  # Long sleeps cause timeouts
                 raise error
             original_sleep(seconds)
 
-        with patch('time.time', side_effect=slow_time):
+        with patch('time.monotonic', side_effect=slow_monotonic):
             with patch('time.sleep', side_effect=slow_sleep):
                 yield
 

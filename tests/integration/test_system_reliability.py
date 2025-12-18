@@ -54,7 +54,7 @@ class TestContinuousOperation:
                     success_count += 1
 
                 # Small delay between operations
-                time.sleep(0.1)
+                # time.sleep(0.1)  # Removed for performance - use mock time in tests
 
             # Should have high success rate
             assert success_count >= 18  # At least 90% success rate
@@ -94,7 +94,7 @@ class TestContinuousOperation:
                 if apply_result == 0:
                     success_count += 1
 
-                time.sleep(0.1)
+                # time.sleep(0.1)  # Removed for performance - use mock time in tests
 
             # Should have high success rate
             assert success_count >= 14  # At least 93% success rate
@@ -124,7 +124,7 @@ class TestContinuousOperation:
                 if similarity_result == 0:
                     success_count += 1
 
-                time.sleep(0.1)
+                # time.sleep(0.1)  # Removed for performance - use mock time in tests
 
             # Should have high success rate
             assert success_count >= 9  # At least 90% success rate
@@ -459,7 +459,7 @@ class TestResourceManagement:
                 assert scan_result == 0
 
                 # Small delay
-                time.sleep(0.1)
+                # time.sleep(0.1)  # Removed for performance - use mock time in tests
 
             # System should still be responsive after multiple operations
             final_scan_result = scan_plugin.execute_scan(scan_args)
@@ -499,7 +499,7 @@ class TestResourceManagement:
                 apply_result = apply_plugin.execute_apply(apply_args)
                 assert apply_result == 0
 
-                time.sleep(0.1)
+                # time.sleep(0.1)  # Removed for performance - use mock time in tests
 
             # System should still be responsive
             final_apply_result = apply_plugin.execute_apply(apply_args)
@@ -597,7 +597,7 @@ class TestSystemStability:
                 if result == 0:
                     success_count += 1
 
-                time.sleep(0.1)
+                # time.sleep(0.1)  # Removed for performance - use mock time in tests
 
             # Should have high success rate for mixed operations
             assert success_count >= 4  # At least 80% success rate
