@@ -4,7 +4,7 @@ Handles application version information and compatibility checking.
 """
 
 import sys
-from typing import NamedTuple, Optional
+from typing import NamedTuple, Optional, Union
 
 
 class VersionInfo(NamedTuple):
@@ -181,7 +181,7 @@ PYTHON_MIN_VERSION = (3, 9)
 PYTHON_MIN_VERSION_STR = f"{PYTHON_MIN_VERSION[0]}.{PYTHON_MIN_VERSION[1]}"
 
 
-def get_system_info() -> dict[str, str | VersionInfo | tuple[int, int] | tuple[int, int, int]]:
+def get_system_info() -> dict[str, Union[str, VersionInfo, tuple[int, int], tuple[int, int, int]]]:
     """Get comprehensive system and version information.
 
     Returns:
@@ -203,7 +203,7 @@ def get_system_info() -> dict[str, str | VersionInfo | tuple[int, int] | tuple[i
     }
 
 
-def check_compatibility() -> dict[str, bool | str | list[str]]:
+def check_compatibility() -> dict[str, Union[bool, str, list[str]]]:
     """Check overall compatibility status.
 
     Returns:
