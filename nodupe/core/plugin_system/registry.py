@@ -27,7 +27,8 @@ class PluginRegistry:
             raise ValueError(f"Plugin {plugin.name} already registered")
 
         self._plugins[plugin.name] = plugin
-        plugin.initialize(self._container)
+        if hasattr(self, '_container') and self._container:
+            plugin.initialize(self._container)
 
     def unregister(self, name: str) -> None:
         """Unregister a plugin"""
@@ -46,6 +47,18 @@ class PluginRegistry:
         """Get all registered plugins"""
         return list(self._plugins.values())
 
+    def register_plugin(self, plugin: Plugin) -> None:
+        """Alias for register() for backward compatibility."""
+        return self.register(plugin)
+    
+    def get_all_plugins(self) -> list:
+        """Alias for get_plugins() for backward compatibility."""
+        return self.get_plugins()
+    
+    def clear(self) -> None:
+        """Clear all registered plugins."""
+        self._plugins.clear()
+
     def shutdown(self) -> None:
         """Shutdown all plugins"""
         for plugin in self._plugins.values():
@@ -61,3 +74,8 @@ class PluginRegistry:
         """Initialize the registry with a dependency container"""
         self._container = container
         self._initialized = True
+
+    @property
+    def container(self):
+        """Get the service container."""
+        return getattr(self, '_container', None)
