@@ -469,8 +469,8 @@ class WorkerPool:
         """Worker thread main loop."""
         while self._running:
             try:
-                # Get task from queue (with timeout to check _running)
-                task = self._queue.get(timeout=0.1)
+                # Get task from queue (blocking to avoid polling)
+                task = self._queue.get()
 
                 if task is None:  # Poison pill
                     break
@@ -486,6 +486,7 @@ class WorkerPool:
                     self._queue.task_done()
 
             except queue.Empty:
+                # This shouldn't happen with blocking get, but handle gracefully
                 continue
 
     def submit(
@@ -529,24 +530,33 @@ class WorkerPool:
             self._running = False
 
         if wait:
-            # Wait for queue to empty
-            start_time = time.time()
-            while not self._queue.empty():
-                if timeout and (time.time() - start_time) > timeout:
-                    break
-                time.sleep(0.1)
+            # Wait for all tasks to complete using queue.join()
+            start_time = time.monotonic()
+            try:
+                self._queue.join()
+            except Exception:
+                # If join() fails, fall back to polling
+                while not self._queue.empty():
+                    if timeout and (time.monotonic() - start_time) > timeout:
+                        break
+                    time.sleep(0.1)
 
-        # Send poison pills to workers
+        # Send poison pills to workers - ensure we send exactly one per worker
         for _ in range(len(self._threads)):
             try:
-                self._queue.put(None, block=False)
+                # Use blocking put with timeout to avoid deadlock
+                self._queue.put(None, block=True, timeout=1.0)
             except queue.Full:
+                # Queue is full, but this shouldn't happen if we used queue.join()
+                pass
+            except Exception:
+                # If put fails, continue anyway
                 pass
 
         # Wait for threads to finish
         for thread in self._threads:
             if timeout:
-                remaining = timeout - (time.time() - start_time)
+                remaining = timeout - (time.monotonic() - start_time)
                 thread.join(timeout=max(0, remaining))
             else:
                 thread.join()

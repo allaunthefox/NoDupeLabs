@@ -135,9 +135,9 @@ class Parallel:
 
             # Process in parallel (instrumented)
             with executor_class(max_workers=workers) as executor:
-                start_submit = time.time()
+                start_submit = time.monotonic()
                 futures = [executor.submit(func, item) for item in items]
-                submit_end = time.time()
+                submit_end = time.monotonic()
                 logging.getLogger(__name__).debug(
                     "Submitted %d tasks in %.3fs", len(futures), submit_end - start_submit
                 )
@@ -146,9 +146,9 @@ class Parallel:
 
                 for idx, future in enumerate(futures):
                     try:
-                        t0 = time.time()
+                        t0 = time.monotonic()
                         result = future.result(timeout=timeout)
-                        t1 = time.time()
+                        t1 = time.monotonic()
                         logging.getLogger(__name__).debug(
                             "Task %d completed in %.3fs", idx, t1 - t0
                         )
@@ -306,9 +306,9 @@ class Parallel:
                         batches = [items[i:i + batch_size]
                                    for i in range(0, len(items), batch_size)]
                         paired = [(func, b) for b in batches]
-                        prev = time.time()
+                        prev = time.monotonic()
                         for batch_result in executor.map(_process_batch_worker, paired):
-                            now = time.time()
+                            now = time.monotonic()
                             duration = now - prev
                             prev = now
                             if batch_logging:

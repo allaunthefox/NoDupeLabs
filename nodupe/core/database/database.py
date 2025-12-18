@@ -243,7 +243,7 @@ class DatabaseMonitoring:
 
     def start_monitoring(self) -> None:
         """Start monitoring database operations."""
-        self._start_time = time.time()
+        self._start_time = time.monotonic()
         self._query_count = 0
 
     def increment_query_count(self) -> None:
@@ -255,7 +255,7 @@ class DatabaseMonitoring:
         if self._start_time is None:
             return {"error": "Monitoring not started"}
 
-        duration = time.time() - self._start_time
+        duration = time.monotonic() - self._start_time
         return {
             "duration": duration,
             "query_count": self._query_count,

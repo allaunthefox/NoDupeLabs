@@ -243,11 +243,11 @@ class Limits:
                 # Operation must complete within 5 seconds
                 slow_operation()
         """
-        start_time = time.time()
+        start_time = time.monotonic()
         try:
             yield
         finally:
-            elapsed = time.time() - start_time
+            elapsed = time.monotonic() - start_time
             if elapsed > seconds:
                 raise LimitsError(
                     f"Operation took {elapsed:.2f}s, exceeding limit of {seconds}s"
@@ -258,6 +258,8 @@ class RateLimiter:
     """Token bucket rate limiter.
 
     Implements the token bucket algorithm for rate limiting operations.
+    Uses condition variables for efficient waiting and time.monotonic() for
+    accurate elapsed time calculations.
     """
 
     def __init__(self, rate: float, burst: int = 1):
@@ -270,12 +272,13 @@ class RateLimiter:
         self.rate = rate
         self.burst = burst
         self.tokens = float(burst)
-        self.last_update = time.time()
+        self.last_update = time.monotonic()
         self._lock = threading.Lock()
+        self._condition = threading.Condition(self._lock)
 
     def _refill(self) -> None:
         """Refill tokens based on elapsed time."""
-        now = time.time()
+        now = time.monotonic()
         elapsed = now - self.last_update
         self.tokens = min(self.burst, self.tokens + elapsed * self.rate)
         self.last_update = now
@@ -309,22 +312,33 @@ class RateLimiter:
         Raises:
             LimitsError: If timeout is exceeded
         """
-        start_time = time.time()
+        start_time = time.monotonic()
 
-        while True:
-            if self.consume(tokens):
-                return True
+        with self._lock:
+            while True:
+                # Check if we have enough tokens
+                self._refill()
+                if self.tokens >= tokens:
+                    self.tokens -= tokens
+                    return True
 
-            # Check timeout
-            if timeout is not None:
-                elapsed = time.time() - start_time
-                if elapsed >= timeout:
-                    raise LimitsError(
-                        f"Rate limit wait timeout after {elapsed:.2f}s"
-                    )
+                # Check timeout
+                if timeout is not None:
+                    elapsed = time.monotonic() - start_time
+                    if elapsed >= timeout:
+                        raise LimitsError(
+                            f"Rate limit wait timeout after {elapsed:.2f}s"
+                        )
 
-            # Sleep briefly before retry
-            time.sleep(0.01)
+                # Wait for tokens to be available or timeout
+                wait_time = timeout if timeout is not None else None
+                self._condition.wait(timeout=wait_time)
+
+                # If we get here without timeout, loop will check tokens again
+    def _notify_waiters(self) -> None:
+        """Notify waiting threads that tokens may be available."""
+        with self._condition:
+            self._condition.notify_all()
 
     @contextmanager
     def limit(self, tokens: int = 1):

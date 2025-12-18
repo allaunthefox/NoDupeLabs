@@ -143,12 +143,12 @@ class HashAutotuner:
 
         algorithm_func = self.available_algorithms[algorithm_name]
 
-        start_time = time.time()
+        start_time = time.monotonic()
 
         for _ in range(iterations):
             _ = algorithm_func(test_data)
 
-        total_time = time.time() - start_time
+        total_time = time.monotonic() - start_time
         avg_time = total_time / iterations
 
         return avg_time

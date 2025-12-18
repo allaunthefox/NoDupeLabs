@@ -79,7 +79,7 @@ class EmbeddingCache:
             embedding, timestamp = self._cache[key]
 
             # Check if entry is expired
-            if time.time() - timestamp > self.ttl_seconds:
+            if time.monotonic() - timestamp > self.ttl_seconds:
                 del self._cache[key]
                 self._stats['misses'] += 1
                 return None
@@ -107,7 +107,7 @@ class EmbeddingCache:
                 self._stats['evictions'] += 1
 
             # Store with current timestamp
-            timestamp = time.time()
+            timestamp = time.monotonic()
             self._cache[key] = (embedding, timestamp)
 
             # Move to end to mark as most recently used
@@ -165,7 +165,7 @@ class EmbeddingCache:
         """
         with self._lock:
             removed_count = 0
-            current_time = time.time()
+            current_time = time.monotonic()
 
             # Collect keys to remove
             keys_to_remove = []

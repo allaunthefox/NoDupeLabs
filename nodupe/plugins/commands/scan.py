@@ -90,7 +90,7 @@ class ScanPlugin(Plugin):
                 valid_paths.append(path)
             
             print(f"[PLUGIN] Executing scan command: {valid_paths}")
-            start_time = time.time()
+            start_time = time.monotonic()
 
             # 1. Get services
             container = getattr(args, 'container', None)
@@ -170,7 +170,7 @@ class ScanPlugin(Plugin):
             # Generally `scan` populates DB, `plan` analyzes it.
             # But the user expects "Scan" to find duplicates.
 
-            elapsed = time.time() - start_time
+            elapsed = time.monotonic() - start_time
             print(f"\n[PLUGIN] Scan complete in {elapsed:.2f}s")
             print(f"[PLUGIN] Total files processed: {len(all_processed_files)}")
 

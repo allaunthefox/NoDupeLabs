@@ -61,7 +61,7 @@ class FileWalker:
             List of file information dictionaries
         """
         self._reset_counters()
-        self._start_time = time.time()
+        self._start_time = time.monotonic()
         self._last_update = self._start_time
 
         files = []
@@ -172,7 +172,7 @@ class FileWalker:
         if on_progress is None:
             return
 
-        current_time = time.time()
+        current_time = time.monotonic()
         if current_time - self._last_update >= 0.1:  # Update every 100ms
             self._last_update = current_time
             on_progress(self._get_progress())
@@ -183,7 +183,7 @@ class FileWalker:
         Returns:
             Dictionary containing progress information
         """
-        elapsed = time.time() - self._start_time
+        elapsed = time.monotonic() - self._start_time
         return {
             'files_processed': self._file_count,
             'directories_processed': self._dir_count,
@@ -206,7 +206,7 @@ class FileWalker:
         Returns:
             Dictionary containing final statistics
         """
-        elapsed = time.time() - self._start_time
+        elapsed = time.monotonic() - self._start_time
         return {
             'total_files': self._file_count,
             'total_directories': self._dir_count,

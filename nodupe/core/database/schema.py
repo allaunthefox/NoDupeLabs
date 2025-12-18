@@ -202,7 +202,7 @@ class DatabaseSchema:
                 cursor.execute(index_sql)
 
             # Record schema version
-            current_time = int(time.time())
+            current_time = int(time.monotonic())
             cursor.execute(
                 "INSERT OR REPLACE INTO schema_version (version, applied_at, description) "
                 "VALUES (?, ?, ?)",

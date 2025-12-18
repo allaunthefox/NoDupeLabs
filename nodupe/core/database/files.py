@@ -56,7 +56,7 @@ class FileRepository:
             File ID
         """
         try:
-            current_time = int(time.time())
+            current_time = int(time.monotonic())
             cursor = self.db.execute(
                 '''
                 INSERT INTO files (path, size, modified_time, hash, created_time, scanned_at, updated_at)
@@ -375,7 +375,7 @@ class FileRepository:
             return 0
 
         try:
-            current_time = int(time.time())
+            current_time = int(time.monotonic())
             data = [
                 (
                     file_data['path'],

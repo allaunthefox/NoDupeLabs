@@ -55,7 +55,7 @@ class ProgressTracker:
             total_bytes: Total number of bytes to process
         """
         with self._lock:
-            self._start_time = time.time()
+            self._start_time = time.monotonic()
             self._last_update_time = self._start_time
             self._total_items = total_items
             self._completed_items = 0
@@ -74,19 +74,19 @@ class ProgressTracker:
         with self._lock:
             self._completed_items += items_completed
             self._processed_bytes += bytes_processed
-            self._last_update_time = time.time()
+            self._last_update_time = time.monotonic()
 
     def complete(self) -> None:
         """Mark progress as complete."""
         with self._lock:
             self._status = "completed"
-            self._last_update_time = time.time()
+            self._last_update_time = time.monotonic()
 
     def error(self) -> None:
         """Record an error."""
         with self._lock:
             self._error_count += 1
-            self._last_update_time = time.time()
+            self._last_update_time = time.monotonic()
 
     def get_progress(self) -> Dict[str, Any]:
         """Get current progress information.
@@ -95,7 +95,7 @@ class ProgressTracker:
             Dictionary containing progress information
         """
         with self._lock:
-            elapsed = time.time() - self._start_time if self._start_time > 0 else 0
+            elapsed = time.monotonic() - self._start_time if self._start_time > 0 else 0
 
             # Calculate rates
             items_per_second = self._completed_items / elapsed if elapsed > 0 else 0
@@ -164,7 +164,7 @@ class ProgressTracker:
             Elapsed time in seconds
         """
         with self._lock:
-            return time.time() - self._start_time if self._start_time > 0 else 0
+            return time.monotonic() - self._start_time if self._start_time > 0 else 0
 
     def get_status(self) -> str:
         """Get current status.
