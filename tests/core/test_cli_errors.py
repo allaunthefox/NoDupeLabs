@@ -263,7 +263,9 @@ class TestCLIEdgeCases:
             args.extensions = None
             args.exclude = None
             args.verbose = False
-            args.container = None
+            args.container = MagicMock()  # Provide a mock container
+            # Mock the database service
+            args.container.get_service = MagicMock(return_value=MagicMock())
 
             # This should succeed but find no files
             result = scan_plugin.execute_scan(args)
@@ -314,6 +316,10 @@ class TestCLIEdgeCases:
             args.backend = "brute_force"
             args.output = "text"
             args.verbose = False
+            args.metric = "name"  # Add required metric attribute
+            args.container = MagicMock()  # Provide a mock container
+            # Mock the database service
+            args.container.get_service = MagicMock(return_value=MagicMock())
 
             # This should handle empty database gracefully
             result = similarity_plugin.execute_similarity(args)
