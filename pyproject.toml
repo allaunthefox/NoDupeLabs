@@ -2,11 +2,6 @@
 requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-# Explicit package configuration to avoid flat-layout discovery issues
-packages = ["nodupe"]
-package-dir = {"" = "."}
-
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["nodupe*"]

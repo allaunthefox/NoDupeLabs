@@ -208,6 +208,21 @@ Project_Plans/
 
 ### ⚠️ Critical Issues & Gaps
 
+#### CI/CD Configuration Errors (2025-12-18)
+
+1. **`pyproject.toml` Duplicate Declaration** ✅ FIXED
+   - **Error**: `Cannot declare ('tool', 'setuptools', 'packages', 'find') twice`
+   - **Impact**: Pytest could not load configuration, all tests failed
+   - **Priority**: CRITICAL
+   - **Status**: Fixed - removed conflicting explicit package declaration
+
+2. **Pylint Line-Too-Long Check Mismatch** ⚠️ IN PROGRESS
+   - **Error**: 94+ `C0301: Line too long` violations across codebase
+   - **Impact**: Lint job fails on every CI run
+   - **Root Cause**: CI enables line-too-long check, but local config disables it
+   - **Priority**: HIGH
+   - **Recommendation**: Remove line-too-long from CI checks (Black handles formatting)
+
 #### Test Collection Errors
 
 1. **`tests/plugins/test_plugin_compatibility.py`**
@@ -236,10 +251,18 @@ Project_Plans/
 
 ### 📋 Immediate Action Plan
 
+#### Critical Priority (Today)
+
+- [x] Fix pyproject.toml duplicate declaration error
+- [ ] Remove line-too-long from CI pylint checks
+- [ ] Verify tests pass after configuration fixes
+- [ ] Push fixes to PR #16
+
 #### High Priority (Next 2 Weeks)
 
 - [ ] Fix PluginCompatibility import error
 - [ ] Fix Windows resource module import
+- [ ] Consolidate duplicate CI workflow files
 - [ ] Increase core test coverage to 60%+
 - [ ] Add error handling tests
 - [ ] Test all hashing algorithms
