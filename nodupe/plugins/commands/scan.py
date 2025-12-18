@@ -75,7 +75,21 @@ class ScanPlugin(Plugin):
             args: Command arguments including injected 'container'
         """
         try:
-            print(f"[PLUGIN] Executing scan command: {args.paths}")
+            # Validation
+            if not args.paths:
+                print("[ERROR] No paths provided. Please specify at least one directory to scan.")
+                return 1
+            
+            # Check if paths exist
+            import os
+            valid_paths = []
+            for path in args.paths:
+                if not os.path.exists(path):
+                    print(f"[ERROR] Path does not exist: {path}")
+                    return 1
+                valid_paths.append(path)
+            
+            print(f"[PLUGIN] Executing scan command: {valid_paths}")
             start_time = time.time()
 
             # 1. Get services

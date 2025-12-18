@@ -90,6 +90,34 @@ class SimilarityCommandPlugin(Plugin):
     def execute_similarity(self, args: argparse.Namespace) -> int:
         """Execute similarity command."""
         try:
+            # Validation
+            # Check if query_file is provided (for compatibility with tests)
+            if hasattr(args, 'query_file') and args.query_file is None:
+                print("[ERROR] Query file is required")
+                return 1
+            
+            # Validate threshold is in range 0.0-1.0
+            if hasattr(args, 'threshold'):
+                if args.threshold < 0.0 or args.threshold > 1.0:
+                    print(f"[ERROR] Threshold must be between 0.0 and 1.0, got {args.threshold}")
+                    return 1
+            
+            # Validate k/limit is positive integer
+            if hasattr(args, 'k'):
+                if args.k <= 0:
+                    print(f"[ERROR] k must be a positive integer, got {args.k}")
+                    return 1
+            elif hasattr(args, 'limit'):
+                if args.limit <= 0:
+                    print(f"[ERROR] limit must be a positive integer, got {args.limit}")
+                    return 1
+            
+            # Validate metric is one of the allowed choices
+            valid_metrics = ['name', 'size', 'hash', 'content', 'vector']
+            if args.metric not in valid_metrics:
+                print(f"[ERROR] Invalid metric: {args.metric}. Must be one of: {', '.join(valid_metrics)}")
+                return 1
+            
             print(f"[PLUGIN] Executing similarity command: {args.metric} metric")
 
             # 1. Get services
