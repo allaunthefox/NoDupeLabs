@@ -116,8 +116,14 @@ pytest --cov=nodupe --cov-report=html
 
 ### Test Coverage
 
-- Minimum 80% line coverage for new code
+**Project Target**: 80% overall coverage  
+**Current Coverage**: 47.1% (measured 2025-12-19)
+
+**Requirements for New Code**:
+- Aim to maintain or improve overall coverage
+- Minimum 80% line coverage for new modules
 - Minimum 70% branch coverage for new code
+- Critical paths must have 100% coverage
 - All tests must pass before submitting a pull request
 - Write unit tests, integration tests, and end-to-end tests as appropriate
 
