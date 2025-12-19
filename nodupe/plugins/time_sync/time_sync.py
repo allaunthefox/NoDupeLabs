@@ -33,6 +33,16 @@ from typing import Iterable, Optional, Tuple, List
 import logging
 
 from nodupe.core.plugin_system import Plugin
+from nodupe.core.time_sync_utils import (
+    ParallelNTPClient,
+    MonotonicTimeCalculator,
+    DNSCache,
+    TargetedFileScanner,
+    FastDate64Encoder,
+    get_global_dns_cache,
+    get_global_metrics,
+    performance_timer
+)
 
 logger = logging.getLogger(__name__)
 
@@ -439,11 +449,47 @@ class TimeSyncPlugin(Plugin):
         if not self.is_network_allowed():
             raise TimeSyncDisabledError("Network operations are disabled for TimeSync")
 
-        host, server_time, offset, delay = self._query_servers_best(self.servers)
+        # Use parallel NTP client for improved performance
+        with performance_timer("NTP parallel sync"):
+            parallel_client = ParallelNTPClient(
+                timeout=self.timeout,
+                dns_cache=get_global_dns_cache()
+            )
+            
+            result = parallel_client.query_hosts_parallel(
+                hosts=self.servers,
+                attempts_per_host=self.attempts,
+                max_acceptable_delay=self.max_acceptable_delay,
+                stop_on_good_result=True,
+                good_delay_threshold=0.1
+            )
+            
+            parallel_client.shutdown(wait=False)
+        
+        if not result.success or result.best_response is None:
+            raise RuntimeError("No successful NTP responses")
+        
+        best = result.best_response
+        host = best.host
+        server_time = best.server_time
+        offset = best.offset
+        delay = best.delay
+        
         if delay > self.max_acceptable_delay:
             raise RuntimeError(f"NTP reply from {host} too noisy (delay={delay:.3f}s)")
+        
         self._apply_new_measurement(server_time, offset, delay)
         logger.info(f"Time synchronized with {host}, offset: {offset:.3f}s, delay: {delay:.3f}s")
+        
+        # Record performance metrics
+        get_global_metrics().record_parallel_query(
+            num_hosts=len(self.servers),
+            num_addresses=sum(len(get_global_dns_cache().get(host, []) or []) for host in self.servers),
+            success=True,
+            duration=0.0,  # Would need to measure actual duration
+            best_delay=delay
+        )
+        
         return host, server_time, offset, delay
 
     def maybe_sync(self) -> Optional[Tuple[str, float, float, float]]:
@@ -707,8 +753,8 @@ class TimeSyncPlugin(Plugin):
         """
         Get time from recent file timestamps as a fallback.
         
-        This searches for recently modified files in common locations and uses
-        the most recent timestamp as a time reference when other methods fail.
+        This uses the optimized TargetedFileScanner for efficient file system scanning
+        with limited depth and early cutoff to avoid blocking on large filesystems.
         
         Returns:
             Current time based on the most recent file timestamp in seconds since Unix epoch
@@ -716,9 +762,37 @@ class TimeSyncPlugin(Plugin):
         Raises:
             RuntimeError: If no suitable files are found or access fails
         """
+        # Use optimized file scanner for better performance
+        scanner = TargetedFileScanner(max_files=100, max_depth=2)
+        
+        # Additional paths to search beyond the scanner's trusted paths
+        additional_paths = [
+            os.path.expanduser("~"),
+            os.getcwd(),
+        ]
+        
+        try:
+            file_time = scanner.get_recent_file_time(additional_paths)
+            
+            if file_time is None:
+                raise RuntimeError("No suitable recent files found")
+            
+            logger.info(f"Using file timestamp from optimized scanner: {file_time}")
+            return file_time
+            
+        except Exception as e:
+            logger.warning(f"Optimized file scanner failed: {e}")
+            # Fallback to simple approach if scanner fails
+            return self._get_file_timestamp_fallback()
+    
+    def _get_file_timestamp_fallback(self) -> float:
+        """
+        Fallback file timestamp method using simple glob approach.
+        
+        This is used if the optimized scanner fails.
+        """
         import os
         import glob
-        from pathlib import Path
         
         # Common locations to search for recently modified files
         search_paths = [
@@ -769,7 +843,7 @@ class TimeSyncPlugin(Plugin):
                     continue
         
         if latest_time > 0:
-            logger.info(f"Using file timestamp from {latest_file}: {latest_time}")
+            logger.info(f"Using file timestamp from fallback scanner: {latest_file}: {latest_time}")
             return latest_time
         else:
             raise RuntimeError("No suitable recent files found for timestamp fallback")
@@ -918,8 +992,7 @@ class TimeSyncPlugin(Plugin):
         """
         Encode POSIX timestamp (float seconds) to 64-bit unsigned integer.
         
-        Based on Ben Joffe's FastDate64 algorithm.
-        Reference: https://www.benjoffe.com/fast-date-64
+        Uses the optimized FastDate64Encoder for better performance.
         
         Args:
             ts: POSIX timestamp in seconds (float)
@@ -931,22 +1004,14 @@ class TimeSyncPlugin(Plugin):
             ValueError: If timestamp is negative
             OverflowError: If timestamp is too large for encoding
         """
-        if ts < 0:
-            raise ValueError("Negative timestamps not supported")
-
-        sec = int(ts)
-        frac = int((ts - sec) * FASTDATE_FRAC_SCALE)
-        if sec > FASTDATE_SECONDS_MAX:
-            raise OverflowError(f"Timestamp seconds {sec} too large for {FASTDATE_SECONDS_BITS}-bit field")
-        return (sec << FASTDATE_FRAC_BITS) | (frac & (FASTDATE_FRAC_SCALE - 1))
+        return FastDate64Encoder.encode(ts)
 
     @staticmethod
     def decode_fastdate64(value: int) -> float:
         """
         Decode 64-bit unsigned integer to POSIX timestamp (float seconds).
         
-        Based on Ben Joffe's FastDate64 algorithm.
-        Reference: https://www.benjoffe.com/fast-date-64
+        Uses the optimized FastDate64Encoder for better performance.
         
         Args:
             value: 64-bit unsigned integer encoding of timestamp
@@ -954,10 +1019,7 @@ class TimeSyncPlugin(Plugin):
         Returns:
             POSIX timestamp in seconds (float)
         """
-        frac_mask = FASTDATE_FRAC_SCALE - 1
-        sec = value >> FASTDATE_FRAC_BITS
-        frac = value & frac_mask
-        return float(sec) + (float(frac) / FASTDATE_FRAC_SCALE)
+        return FastDate64Encoder.decode(value)
 
     @staticmethod
     def encode_fastdate(ts: float) -> int:
@@ -1140,68 +1202,10 @@ class TimeSyncPlugin(Plugin):
                 "attempts": self.attempts,
                 "max_acceptable_delay": self.max_acceptable_delay,
                 "smoothing_alpha": self.alpha,
-                "leap_year_plugin_available": hasattr(self, '_leap_year_calculator') and self._leap_year_calculator.is_plugin_available()
+                "leap_year_plugin_available": self.is_leap_year_plugin_available()
             }
 
     # ---- leap year integration ----
-    def __init__(self, *args, **kwargs):
-        """Initialize the TimeSync plugin with leap year calculator."""
-        super(TimeSyncPlugin, self).__init__()
-        
-        # Initialize leap year calculator for date-related operations
-        self._leap_year_calculator = LeapYearCalculator()
-        
-        # Continue with normal initialization
-        self.__init_original__(*args, **kwargs)
-    
-    def __init_original__(
-        self,
-        servers: Optional[Iterable[str]] = None,
-        timeout: float = DEFAULT_TIMEOUT,
-        attempts: int = DEFAULT_ATTEMPTS,
-        max_acceptable_delay: float = 0.5,
-        smoothing_alpha: float = 0.3,
-        *,
-        enabled: Optional[bool] = None,
-        allow_network: Optional[bool] = None,
-        allow_background: Optional[bool] = None,
-    ):
-        """
-        Original initialization logic for the TimeSync plugin.
-        
-        Args:
-            servers: List of NTP servers to query (defaults to Google, Cloudflare, pool)
-            timeout: Socket timeout for NTP queries in seconds
-            attempts: Number of attempts per server before giving up
-            max_acceptable_delay: Maximum acceptable network delay in seconds
-            smoothing_alpha: Smoothing factor for offset calculations (0.0-1.0)
-            enabled: Override default enabled state
-            allow_network: Override default network access state
-            allow_background: Override default background sync state
-        """
-        self.servers = list(servers or DEFAULT_SERVERS)
-        if not self.servers:
-            raise ValueError("At least one NTP server required")
-
-        self.timeout = float(timeout)
-        self.attempts = int(attempts)
-        self.max_acceptable_delay = float(max_acceptable_delay)
-        self.alpha = float(smoothing_alpha)
-
-        # Runtime flags default to environment-driven values but can be overridden per-instance
-        self._enabled = _env_enabled if enabled is None else bool(enabled)
-        self._allow_network = (not _env_no_network) if allow_network is None else bool(allow_network)
-        self._allow_background = _env_allow_bg if allow_background is None else bool(allow_background)
-
-        self._lock = threading.Lock()
-        self._base_server_time: Optional[float] = None
-        self._base_monotonic: Optional[float] = None
-        self._smoothed_offset: Optional[float] = None
-        self._last_delay: Optional[float] = None
-
-        self._bg_thread: Optional[threading.Thread] = None
-        self._bg_stop = threading.Event()
-
     def is_leap_year(self, year: int) -> bool:
         """
         Determine if a year is a leap year using the LeapYear plugin or built-in calculation.
