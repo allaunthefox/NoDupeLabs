@@ -175,52 +175,17 @@ class DatabaseConnection:
         self.close()
 
     def initialize_database(self) -> None:
-        """Initialize database schema if it doesn't exist."""
+        """Initialize database schema if it doesn't exist.
+        
+        Note: This method is kept for backward compatibility but should not be used
+        directly. Use DatabaseSchema.create_schema() instead for the full schema.
+        """
+        # This method is intentionally minimal now - the full schema is handled
+        # by DatabaseSchema.create_schema() which is called from the loader
         conn = self.get_connection()
-
-        # Create files table if it doesn't exist
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS files (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                path TEXT NOT NULL UNIQUE,
-                size INTEGER NOT NULL,
-                modified_time INTEGER NOT NULL,
-                hash TEXT,
-                is_duplicate BOOLEAN DEFAULT FALSE,
-                duplicate_of INTEGER,
-                FOREIGN KEY (duplicate_of) REFERENCES files(id)
-            )
-        ''')
-
-        # Create file indexes for better performance
-        conn.execute(
-            'CREATE INDEX IF NOT EXISTS idx_files_path ON files(path)')
-        conn.execute(
-            'CREATE INDEX IF NOT EXISTS idx_files_hash ON files(hash)')
-        conn.execute(
-            'CREATE INDEX IF NOT EXISTS idx_files_size ON files(size)')
-        conn.execute(
-            'CREATE INDEX IF NOT EXISTS idx_files_duplicate ON files(is_duplicate)')
-
-        # Create embeddings table if it doesn't exist
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS embeddings (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                file_id INTEGER NOT NULL,
-                embedding BLOB NOT NULL,
-                model_version TEXT NOT NULL,
-                created_time INTEGER NOT NULL,
-                FOREIGN KEY (file_id) REFERENCES files(id),
-                UNIQUE(file_id, model_version)
-            )
-        ''')
-
-        # Create embedding indexes
-        conn.execute(
-            'CREATE INDEX IF NOT EXISTS idx_embeddings_file ON embeddings(file_id)')
-        conn.execute(
-            'CREATE INDEX IF NOT EXISTS idx_embeddings_model ON embeddings(model_version)')
-
+        
+        # Enable foreign key constraints
+        conn.execute("PRAGMA foreign_keys = ON")
         conn.commit()
 
 

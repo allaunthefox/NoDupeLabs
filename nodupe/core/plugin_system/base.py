@@ -4,7 +4,20 @@ Abstract base class for all plugins.
 """
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import List, Dict, Any
+
+
+@dataclass
+class PluginMetadata:
+    """Metadata for a plugin."""
+    name: str
+    version: str
+    description: str
+    author: str
+    license: str
+    dependencies: List[str]
+    tags: List[str]
 
 
 class Plugin(ABC):

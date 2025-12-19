@@ -17,6 +17,7 @@ Key Features:
 import sys
 import argparse
 import logging
+import time
 from typing import Optional, List, Any
 
 # Import the enhanced core loader bootstrap
@@ -73,9 +74,24 @@ class CLIHandler:
         version_parser = subparsers.add_parser('version', help='Show version')
         version_parser.set_defaults(func=self._cmd_version)
 
+        # Plugin command with subcommands
         plugin_parser = subparsers.add_parser('plugin', help='Plugin management')
-        plugin_parser.add_argument('--list', action='store_true', help='List plugins')
-        plugin_parser.set_defaults(func=self._cmd_plugin)
+        plugin_subparsers = plugin_parser.add_subparsers(dest='subcommand', help='Plugin subcommands')
+
+        # Plugin subcommands
+        plugin_install = plugin_subparsers.add_parser('install', help='Install a plugin')
+        plugin_install.add_argument('plugin_name', help='Plugin name or UUID to install')
+
+        plugin_enable = plugin_subparsers.add_parser('enable', help='Enable a plugin')
+        plugin_enable.add_argument('plugin_name', help='Plugin name or UUID to enable')
+
+        plugin_disable = plugin_subparsers.add_parser('disable', help='Disable a plugin')
+        plugin_disable.add_argument('plugin_name', help='Plugin name or UUID to disable')
+
+        plugin_list = plugin_subparsers.add_parser('list', help='List installed plugins')
+
+        # Default to list if no subcommand specified
+        plugin_parser.set_defaults(func=self._cmd_plugin, subcommand='list')
 
         # Plugin commands
         # The loader has already loaded plugins into the registry
@@ -141,13 +157,194 @@ class CLIHandler:
             print("Plugin system not active.")
             return 1
 
-        if args.list:
+        # Get database connection from container
+        db = self.loader.container.get_service('database')
+        if not db:
+            print("Database not available.")
+            return 1
+
+        # Handle subcommands
+        if hasattr(args, 'subcommand'):
+            subcommand = args.subcommand
+        else:
+            # Default to list if no subcommand specified
+            subcommand = 'list'
+
+        if subcommand == 'list':
+            return self._cmd_plugin_list(db)
+        elif subcommand == 'install':
+            if not hasattr(args, 'plugin_name') or not args.plugin_name:
+                print("Error: plugin install requires plugin name or UUID")
+                return 1
+            return self._cmd_plugin_install(db, args.plugin_name)
+        elif subcommand == 'enable':
+            if not hasattr(args, 'plugin_name') or not args.plugin_name:
+                print("Error: plugin enable requires plugin name or UUID")
+                return 1
+            return self._cmd_plugin_enable(db, args.plugin_name)
+        elif subcommand == 'disable':
+            if not hasattr(args, 'plugin_name') or not args.plugin_name:
+                print("Error: plugin disable requires plugin name or UUID")
+                return 1
+            return self._cmd_plugin_disable(db, args.plugin_name)
+        else:
+            print(f"Unknown plugin command: {subcommand}")
+            return 1
+
+    def _cmd_plugin_list(self, db) -> int:
+        """List all plugins."""
+        try:
             plugins = self.loader.plugin_registry.get_plugins()
             print(f"Loaded plugins: {len(plugins)}")
             for plugin in plugins:
-                print(f"  - {plugin.name} (v{getattr(plugin, 'version', '?.?')})")
+                status = "enabled" if getattr(plugin, 'enabled', True) else "disabled"
+                print(f"  - {plugin.name} (v{getattr(plugin, 'version', '?.?')}) [{status}]")
             return 0
-        return 0
+        except Exception as e:
+            print(f"Error listing plugins: {e}")
+            return 1
+
+    def _cmd_plugin_install(self, db, plugin_identifier: str) -> int:
+        """Install a plugin by name or UUID."""
+        try:
+            # Get the actual SQLite connection
+            connection = db.get_connection()
+            cursor = connection.cursor()
+
+            # Check if plugin already exists in database
+            cursor.execute(
+                "SELECT id, name, version, enabled FROM plugins WHERE name = ? OR id = ?",
+                (plugin_identifier, plugin_identifier)
+            )
+            existing = cursor.fetchone()
+
+            if existing:
+                plugin_id, name, version, enabled = existing
+                status = "enabled" if enabled else "disabled"
+                print(f"Plugin '{name}' (ID: {plugin_id}) already installed (v{version}) [{status}]")
+                return 0
+
+            # Check if plugin exists in registry
+            plugins = self.loader.plugin_registry.get_plugins()
+            target_plugin = None
+            for plugin in plugins:
+                if plugin.name == plugin_identifier or str(getattr(plugin, 'id', '')) == plugin_identifier:
+                    target_plugin = plugin
+                    break
+
+            if not target_plugin:
+                print(f"Plugin '{plugin_identifier}' not found in registry")
+                return 1
+
+            # Install plugin
+            plugin_id = self._install_plugin_to_db(db, target_plugin)
+            print(f"Plugin '{target_plugin.name}' installed successfully (ID: {plugin_id})")
+            return 0
+
+        except Exception as e:
+            print(f"Error installing plugin: {e}")
+            return 1
+
+    def _cmd_plugin_enable(self, db, plugin_identifier: str) -> int:
+        """Enable a plugin by name or UUID."""
+        try:
+            plugin_id = self._resolve_plugin_identifier(db, plugin_identifier)
+            if not plugin_id:
+                print(f"Plugin '{plugin_identifier}' not found")
+                return 1
+
+            # Get the actual SQLite connection
+            connection = db.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(
+                "UPDATE plugins SET enabled = 1, updated_at = ? WHERE id = ?",
+                (int(time.time()), plugin_id)
+            )
+            connection.commit()
+
+            # Get plugin name for display
+            cursor.execute("SELECT name FROM plugins WHERE id = ?", (plugin_id,))
+            name = cursor.fetchone()[0]
+            print(f"Plugin '{name}' enabled successfully")
+            return 0
+
+        except Exception as e:
+            print(f"Error enabling plugin: {e}")
+            return 1
+
+    def _cmd_plugin_disable(self, db, plugin_identifier: str) -> int:
+        """Disable a plugin by name or UUID."""
+        try:
+            plugin_id = self._resolve_plugin_identifier(db, plugin_identifier)
+            if not plugin_id:
+                print(f"Plugin '{plugin_identifier}' not found")
+                return 1
+
+            # Get the actual SQLite connection
+            connection = db.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(
+                "UPDATE plugins SET enabled = 0, updated_at = ? WHERE id = ?",
+                (int(time.time()), plugin_id)
+            )
+            connection.commit()
+
+            # Get plugin name for display
+            cursor.execute("SELECT name FROM plugins WHERE id = ?", (plugin_id,))
+            name = cursor.fetchone()[0]
+            print(f"Plugin '{name}' disabled successfully")
+            return 0
+
+        except Exception as e:
+            print(f"Error disabling plugin: {e}")
+            return 1
+
+    def _resolve_plugin_identifier(self, db, identifier: str) -> Optional[int]:
+        """Resolve plugin identifier to database ID."""
+        # Get the actual SQLite connection
+        connection = db.get_connection()
+        cursor = connection.cursor()
+
+        # Try as UUID (ID)
+        try:
+            plugin_id = int(identifier)
+            cursor.execute("SELECT id FROM plugins WHERE id = ?", (plugin_id,))
+            result = cursor.fetchone()
+            if result:
+                return result[0]
+        except ValueError:
+            pass
+
+        # Try as name
+        cursor.execute("SELECT id FROM plugins WHERE name = ?", (identifier,))
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+
+        return None
+
+    def _install_plugin_to_db(self, db, plugin) -> int:
+        """Install plugin to database."""
+        # Get the actual SQLite connection
+        connection = db.get_connection()
+        cursor = connection.cursor()
+        current_time = int(time.time())
+
+        cursor.execute(
+            "INSERT INTO plugins (name, version, type, status, enabled, created_at, updated_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (
+                plugin.name,
+                getattr(plugin, 'version', '1.0.0'),
+                getattr(plugin, 'type', 'unknown'),
+                'installed',
+                True,
+                current_time,
+                current_time
+            )
+        )
+        connection.commit()
+        return cursor.lastrowid
 
     def _setup_debug_logging(self) -> None:
         """Setup debug logging."""
