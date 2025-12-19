@@ -139,6 +139,12 @@ class CoreLoader:
             # Initialize database
             self.database = get_connection()
             self.database.initialize_database()
+            
+            # Initialize full schema including plugins table
+            from .database.schema import DatabaseSchema
+            schema = DatabaseSchema(self.database.get_connection())
+            schema.create_schema()
+            
             if self.container:
                 self.container.register_service('database', self.database)
             logging.info("Database initialized")

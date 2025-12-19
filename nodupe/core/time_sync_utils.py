@@ -729,6 +729,8 @@ class PerformanceMetrics:
         total_dns = metrics['dns_cache_hits'] + metrics['dns_cache_misses']
         if total_dns > 0:
             summary['dns_cache_hit_rate'] = metrics['dns_cache_hits'] / total_dns
+        else:
+            summary['dns_cache_hit_rate'] = 0.0
         
         return summary
 
