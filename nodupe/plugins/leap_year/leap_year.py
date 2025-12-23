@@ -23,16 +23,16 @@ from __future__ import annotations
 
 import time
 import threading
-from typing import List, Tuple, Optional, Union, Iterator
+from typing import List, Tuple, Optional, Union, Iterator, Dict, Any
 import logging
 from functools import lru_cache
 
-from nodupe.core.plugin_system import PluginBase, PluginMetadata
+from nodupe.core.plugin_system.base import Plugin
 
 logger = logging.getLogger(__name__)
 
 
-class LeapYearPlugin(PluginBase):
+class LeapYearPlugin(Plugin):
     """
     LeapYear Plugin for fast leap year calculations.
     
@@ -49,55 +49,38 @@ class LeapYearPlugin(PluginBase):
     - Thread-safe operations
     """
 
-    def __init__(
-        self,
-        calendar: str = "gregorian",
-        enable_cache: bool = True,
-        cache_size: int = 10000,
-        *,
-        min_year: int = 1,
-        max_year: int = 9999
-    ):
+    def __init__(self, metadata: Dict[str, Any] = None):
         """
         Initialize the LeapYear plugin.
-        
-        Args:
-            calendar: Calendar system ('gregorian' or 'julian')
-            enable_cache: Enable LRU caching for leap year queries
-            cache_size: Size of LRU cache (if enabled)
-            min_year: Minimum supported year
-            max_year: Maximum supported year
         """
-        super().__init__()
-        self.calendar = calendar.lower()
-        if self.calendar not in ("gregorian", "julian"):
-            raise ValueError(f"Unsupported calendar: {calendar}")
+        if metadata is None:
+            metadata = {
+                "uuid": "123e4567-e89b-12d3-a456-426614174000",
+                "name": "leapyear",
+                "display_name": "Leap Year Calculator",
+                "version": "v1.0.0",
+                "description": "Fast leap year calculations using Ben Joffe's algorithm",
+                "author": "NoDupeLabs",
+                "category": "utility",
+                "compatibility": ["nodupe"],
+                "marketplace_id": "leapyear-calculator"
+            }
         
-        self.enable_cache = enable_cache
-        self.cache_size = cache_size
-        self.min_year = min_year
-        self.max_year = max_year
+        super().__init__(metadata)
+        
+        self.calendar = "gregorian"
+        self.enable_cache = True
+        self.cache_size = 10000
+        self.min_year = 1
+        self.max_year = 9999
         
         self._lock = threading.Lock()
         self._cache_hits = 0
         self._cache_misses = 0
         
-        logger.info(f"LeapYear plugin initialized with {calendar} calendar")
+        logger.info(f"LeapYear plugin initialized with {self.calendar} calendar")
 
-    @property
-    def metadata(self) -> PluginMetadata:
-        """Get plugin metadata."""
-        return PluginMetadata(
-            name="LeapYear",
-            version="1.0.0",
-            description="Fast leap year calculations using Ben Joffe's algorithm",
-            author="NoDupeLabs",
-            license="MIT",
-            dependencies=[],
-            tags=["date", "time", "calendar", "leap-year", "algorithm"]
-        )
-
-    def initialize(self) -> None:
+    def initialize(self, container: Any) -> None:
         """Initialize the plugin."""
         logger.info("Initializing LeapYear plugin")
         if self.enable_cache:
@@ -109,6 +92,15 @@ class LeapYearPlugin(PluginBase):
         if self.enable_cache:
             cache_stats = self.get_cache_stats()
             logger.info(f"Cache stats: {cache_stats['hits']} hits, {cache_stats['misses']} misses")
+
+    def get_capabilities(self) -> Dict[str, Any]:
+        """Get plugin capabilities."""
+        return {
+            'features': ['leap_year_detection', 'date_validation', 'calendar_utilities'],
+            'calendar_systems': ['gregorian', 'julian'],
+            'max_year': self.max_year,
+            'min_year': self.min_year
+        }
 
     # ---- Core leap year detection ----
     def is_leap_year(self, year: int) -> bool:
