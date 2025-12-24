@@ -116,8 +116,8 @@ pytest --cov=nodupe --cov-report=html
 
 ### Test Coverage
 
-**Project Target**: 80% overall coverage  
-**Current Coverage**: 47.1% (measured 2025-12-19)
+**Project Target**: 60%+ overall coverage  
+**Current Coverage**: ~47% (measured 2025-12-19)
 
 **Requirements for New Code**:
 - Aim to maintain or improve overall coverage

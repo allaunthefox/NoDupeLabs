@@ -176,7 +176,7 @@ class DatabaseSchema:
             connection: SQLite database connection
         """
         self.connection = connection
-        self.schemas = self.TABLES.copy()
+        self.tables = self.TABLES.copy()
 
     def create_schema(self) -> None:
         """Create complete database schema.

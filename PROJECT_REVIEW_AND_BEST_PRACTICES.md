@@ -173,7 +173,7 @@ NoDupeLabs competes in a space with several established tools. Here's the compet
 **Clear Advantages**:
 
 1. ✅ **Plugin Architecture**: None of the C-based tools offer extensible plugin systems with hot-reload and lifecycle management
-2. ⚠️ **ML Similarity Detection**: partially implemented - 9 tests passing, 7 tests failing (as of 2025-12-19). See tests/core/test_cli_commands.py and tests/integration/
+2. ⚠️ **ML Similarity Detection**: partially implemented but with configuration issues - 9 tests passing, 7 tests failing due to invalid metric configuration (as of 2025-12-19). See tests/core/test_cli_commands.py and tests/integration/. Plugin has name mismatch and invalid metric configuration causing "Invalid metric" errors during operation.
 3. ✅ **Programmatic API**: Full Python API for integration into larger systems and automation
 4. ✅ **Database-Backed**: Persistent storage of scan history, relationships, and metadata
 5. ✅ **Time Synchronization**: Built-in time sync utilities for accurate timestamps across systems

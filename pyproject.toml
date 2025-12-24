@@ -48,6 +48,9 @@ description = "Advanced duplicate file detection and management system"
 authors = [{ name = "NoDupeLabs", email = "your.email@example.com" }]
 readme = "README.md"
 requires-python = ">=3.9"
+dependencies = [
+    "rich>=13.0.0"
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -59,6 +62,42 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
+
+[project.optional-dependencies]
+docs = [
+    "sphinx>=7.0.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "sphinx-autodoc-typehints>=1.25.0",
+    "sphinx-copybutton>=0.5.0",
+    "sphinx-design>=0.5.0",
+    "myst-parser>=2.0.0"
+]
+mkdocs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.0.0",
+    "mkdocstrings>=0.20.0",
+    "mkdocstrings-python>=1.1.0"
+]
+markify = [
+    "markify>=1.0.0",
+    "markdown>=3.0.0",
+    "pandoc>=2.0.0"
+]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.8.0",
+    "ruff>=0.1.6",
+    "pre-commit>=3.0.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/allaunthefox/NoDupeLabs"
+Documentation = "https://nodupelabs.readthedocs.io"
+Repository = "https://github.com/allaunthefox/NoDupeLabs"
+Issues = "https://github.com/allaunthefox/NoDupeLabs/issues"
 
 [tool.nodupe]
 # NoDupeLabs configuration
@@ -248,3 +287,53 @@ max-args = 10
 max-locals = 25
 max-branches = 20
 max-statements = 75
+
+[tool.sphinx]
+# Sphinx documentation configuration
+source_dir = "docs/source"
+build_dir = "docs/_build"
+all_files = true
+builder = "html"
+make_mode = true
+warning_is_error = true
+
+[tool.mkdocs]
+# MkDocs documentation configuration
+site_name = "NoDupeLabs Documentation"
+site_description = "Advanced duplicate file detection and management system"
+site_author = "NoDupeLabs"
+site_url = "https://nodupelabs.readthedocs.io"
+
+[tool.mkdocs.theme]
+name = "material"
+palette.scheme = "default"
+palette.primary = "indigo"
+palette.accent = "indigo"
+palette.toggle.icon = "material/brightness-7"
+palette.toggle.name = "Switch to dark mode"
+
+[tool.mkdocs.theme.palette.1]
+scheme = "slate"
+primary = "indigo"
+accent = "indigo"
+toggle.icon = "material/brightness-4"
+toggle.name = "Switch to light mode"
+
+[tool.mkdocs.markdown_extensions]
+admonition = {}
+attr_list = {}
+codehilite = {}
+md_in_html = {}
+pymdownx.details = {}
+pymdownx.superfences = {}
+pymdownx.tabbed = {}
+
+[tool.mkdocs.plugins]
+search = {}
+mkdocstrings = {}
+
+[[tool.mkdocs.nav]]
+Home = "index.md"
+
+[[tool.mkdocs.nav]]
+"API Reference" = { nodupe = "api/nodupe.md" }

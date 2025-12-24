@@ -186,6 +186,7 @@ class HashCache:
                     # File no longer exists
                     keys_to_remove.append(path_str)
 
+            removed_count = 0
             # Remove stale entries
             for path_str in keys_to_remove:
                 del self._cache[path_str]

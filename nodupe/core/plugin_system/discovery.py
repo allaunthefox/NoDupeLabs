@@ -1,9 +1,10 @@
 """Plugin Discovery Module.
 
-Plugin discovery and scanning using standard library only.
+Plugin discovery and scanning using standard library only with UUID support.
 
 Key Features:
     - Plugin file discovery in directories
+    - UUID-based plugin identification and validation
     - Plugin metadata extraction
     - Plugin validation and compatibility checking
     - Standard library only (no external dependencies)
@@ -13,11 +14,14 @@ Dependencies:
     - typing (standard library)
     - importlib (standard library)
     - ast (standard library)
+    - uuid (standard library)
 """
 
 from pathlib import Path
 from typing import List, Dict, Optional, Any
 import ast
+import re
+from uuid import UUID
 
 
 class PluginDiscoveryError(Exception):
@@ -33,16 +37,18 @@ class PluginInfo:
         file_path: Path,
         version: str = "1.0.0",
         dependencies: Optional[List[str]] = None,
-        capabilities: Optional[Dict[str, Any]] = None
+        capabilities: Optional[Dict[str, Any]] = None,
+        uuid: Optional[str] = None
     ):
         self.name = name
         self.file_path = file_path
         self.version = version
         self.dependencies = dependencies if dependencies is not None else []
-        self.capabilities = capabilities if capabilities is not None else {}
+        self.capabilities = capabilities if capabilities is not None else []
+        self.uuid = uuid
 
     def __repr__(self) -> str:
-        return f"PluginInfo(name='{self.name}', version='{self.version}', file_path='{self.file_path}')"
+        return f"PluginInfo(name='{self.name}', version='{self.version}', file_path='{self.file_path}', uuid='{self.uuid}')"
 
 
 class PluginDiscovery:
@@ -259,6 +265,277 @@ class PluginDiscovery:
             if plugin.name == plugin_name:
                 return True
         return False
+
+    def discover_uuid_plugins_in_directory(
+        self,
+        directory: Path,
+        recursive: bool = True
+    ) -> List[PluginInfo]:
+        """Discover UUID-based plugins in a directory.
+
+        Args:
+            directory: Directory to scan for UUID plugins
+            recursive: If True, scan subdirectories recursively
+
+        Returns:
+            List of discovered UUID plugin information
+        """
+        try:
+            discovered_plugins = []
+
+            # UUID filename pattern: {name}_{uuid}.v{version}.py
+            uuid_pattern = re.compile(
+                r'^(?P<name>[a-z][a-z0-9_]{1,49})_'  # Plugin name
+                r'(?P<uuid>[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})'  # UUID v4
+                r'\.v(?P<version>\d+\.\d+\.\d+)\.py$'  # Version
+            )
+
+            try:
+                items = list(directory.iterdir())
+            except (AttributeError, TypeError):
+                items = []
+            except (OSError, FileNotFoundError, PermissionError):
+                return []
+
+            for item in items:
+                try:
+                    is_py_file = False
+                    try:
+                        is_py_file = item.is_file() and item.suffix == '.py'
+                    except (AttributeError, TypeError):
+                        is_py_file = True
+                    
+                    if is_py_file:
+                        # Check if filename matches UUID pattern
+                        match = uuid_pattern.match(item.name)
+                        if match:
+                            plugin_info = self._extract_uuid_plugin_info(item, match)
+                            if plugin_info:
+                                discovered_plugins.append(plugin_info)
+                                self._discovered_plugins.append(plugin_info)
+                    
+                    elif recursive:
+                        try:
+                            if item.is_dir():
+                                subdir_plugins = self.discover_uuid_plugins_in_directory(
+                                    item, recursive
+                                )
+                                discovered_plugins.extend(subdir_plugins)
+                        except (AttributeError, TypeError):
+                            pass
+                        
+                except PluginDiscoveryError:
+                    continue
+
+            return discovered_plugins
+
+        except Exception:
+            return []
+
+    def find_uuid_plugin_by_uuid(
+        self,
+        plugin_uuid: str,
+        search_directories: Optional[List[Path]] = None,
+        recursive: bool = True
+    ) -> Optional[PluginInfo]:
+        """Find a UUID-based plugin by its UUID.
+
+        Args:
+            plugin_uuid: UUID of plugin to find
+            search_directories: Optional list of directories to search
+            recursive: If True, search subdirectories
+
+        Returns:
+            PluginInfo if found, None otherwise
+        """
+        # First check already discovered plugins
+        for plugin in self._discovered_plugins:
+            if hasattr(plugin, 'uuid') and str(plugin.uuid) == plugin_uuid:
+                return plugin
+        
+        # If no search directories provided, return None
+        if search_directories is None:
+            return None
+        
+        # Search in provided directories
+        for directory in search_directories:
+            try:
+                plugins = self.discover_uuid_plugins_in_directory(directory, recursive)
+                for plugin in plugins:
+                    if hasattr(plugin, 'uuid') and str(plugin.uuid) == plugin_uuid:
+                        return plugin
+            except PluginDiscoveryError:
+                continue
+
+        return None
+
+    def find_uuid_plugin_by_name_and_version(
+        self,
+        plugin_name: str,
+        version: str,
+        search_directories: Optional[List[Path]] = None,
+        recursive: bool = True
+    ) -> Optional[PluginInfo]:
+        """Find a UUID-based plugin by name and version.
+
+        Args:
+            plugin_name: Name of plugin to find
+            version: Version of plugin to find
+            search_directories: Optional list of directories to search
+            recursive: If True, search subdirectories
+
+        Returns:
+            PluginInfo if found, None otherwise
+        """
+        # First check already discovered plugins
+        for plugin in self._discovered_plugins:
+            if (hasattr(plugin, 'name') and plugin.name == plugin_name and
+                hasattr(plugin, 'version') and plugin.version == version):
+                return plugin
+        
+        # If no search directories provided, return None
+        if search_directories is None:
+            return None
+        
+        # Search in provided directories
+        for directory in search_directories:
+            try:
+                plugins = self.discover_uuid_plugins_in_directory(directory, recursive)
+                for plugin in plugins:
+                    if (hasattr(plugin, 'name') and plugin.name == plugin_name and
+                        hasattr(plugin, 'version') and plugin.version == version):
+                        return plugin
+            except PluginDiscoveryError:
+                continue
+
+        return None
+
+    def _extract_uuid_plugin_info(self, file_path: Path, match: re.Match) -> Optional[PluginInfo]:
+        """Extract UUID plugin information from a Python file.
+
+        Args:
+            file_path: Path to Python file
+            match: Regex match object with UUID pattern groups
+
+        Returns:
+            PluginInfo if valid UUID plugin found, None otherwise
+        """
+        try:
+            # Read file and look for UUID plugin metadata
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            # Parse UUID-specific metadata
+            uuid_metadata = self._parse_uuid_metadata(content)
+
+            # Extract from filename pattern
+            name = match.group('name')
+            uuid_str = match.group('uuid')
+            version = match.group('version')
+
+            # Validate UUID format
+            try:
+                uuid_obj = UUID(uuid_str)
+                if uuid_obj.version != 4:
+                    return None  # Must be UUID v4
+            except ValueError:
+                return None
+
+            # Validate that this looks like a UUID plugin file
+            if not self._looks_like_uuid_plugin(content):
+                return None
+
+            # Merge filename metadata with parsed metadata
+            final_metadata = {
+                'name': name,
+                'uuid': uuid_str,
+                'version': f'v{version}',  # Add 'v' prefix for consistency
+                'dependencies': uuid_metadata.get('dependencies', []),
+                'capabilities': uuid_metadata.get('capabilities', {}),
+                'display_name': uuid_metadata.get('display_name', name.replace('_', ' ').title()),
+                'description': uuid_metadata.get('description', 'No description available'),
+                'author': uuid_metadata.get('author', 'Unknown'),
+                'category': uuid_metadata.get('category', 'utility'),
+                'marketplace_id': f"{name}_{uuid_str}"
+            }
+
+            return PluginInfo(
+                name=name,
+                file_path=file_path,
+                version=final_metadata['version'],
+                dependencies=final_metadata['dependencies'],
+                capabilities=final_metadata['capabilities'],
+                uuid=final_metadata['uuid']
+            )
+
+        except Exception:
+            return None
+
+    def _parse_uuid_metadata(self, content: str) -> Dict[str, Any]:
+        """Parse UUID-specific metadata from Python file content.
+
+        Args:
+            content: Python file content
+
+        Returns:
+            Dictionary of parsed UUID metadata
+        """
+        metadata = {}
+
+        # Look for PLUGIN_METADATA dictionary
+        try:
+            tree = ast.parse(content)
+            
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Assign):
+                    for target in node.targets:
+                        if isinstance(target, ast.Name) and target.id == 'PLUGIN_METADATA':
+                            if isinstance(node.value, ast.Dict):
+                                # Extract metadata from dictionary
+                                for key, value in zip(node.value.keys, node.value.values):
+                                    if isinstance(key, ast.Constant) and isinstance(key.value, str):
+                                        key_name = key.value
+                                        if isinstance(value, ast.Constant):
+                                            metadata[key_name] = value.value
+                                        elif isinstance(value, ast.List):
+                                            # Parse list values
+                                            metadata[key_name] = [item.value for item in value.elts if isinstance(item, ast.Constant)]
+                                        elif isinstance(value, ast.Dict):
+                                            # Parse dict values
+                                            dict_value = {}
+                                            for k, v in zip(value.keys, value.values):
+                                                if isinstance(k, ast.Constant) and isinstance(v, ast.Constant):
+                                                    dict_value[k.value] = v.value
+                                            metadata[key_name] = dict_value
+        except SyntaxError:
+            pass
+
+        return metadata
+
+    def _looks_like_uuid_plugin(self, content: str) -> bool:
+        """Check if content looks like a UUID-based plugin file.
+
+        Args:
+            content: Python file content
+
+        Returns:
+            True if content appears to be a UUID plugin
+        """
+        # Must have PLUGIN_METADATA
+        if 'PLUGIN_METADATA' not in content:
+            return False
+
+        # Must have class that inherits from Plugin
+        if 'class' not in content or 'Plugin' not in content:
+            return False
+
+        # Must have required methods
+        required_methods = ['initialize', 'shutdown', 'get_capabilities']
+        for method in required_methods:
+            if f'def {method}' not in content:
+                return False
+
+        return True
 
     def _extract_plugin_info(self, file_path: Path) -> Optional[PluginInfo]:
         """Extract plugin information from a Python file.

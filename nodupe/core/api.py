@@ -193,6 +193,6 @@ def validate_args(**validators: Callable[[Any], bool]) -> Callable[[Callable[...
                 validators[arg_name](val) for arg_name, val in bound_args.items()
                 if arg_name in validators
             )
-        setattr(wrapper, '_validator', validator_func)
+        wrapper._validator = validator_func
         return wrapper
     return decorator

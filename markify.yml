@@ -1,0 +1,193 @@
+# Markify Configuration
+# Documentation generation and conversion tool
+
+version: 1.0.0
+
+# Input and Output Configuration
+input:
+  # Source directories for Markdown files
+  directories:
+    - docs/
+    - docs/getting-started/
+    - docs/user-guide/
+    - docs/development/
+    - docs/resources/
+  
+  # File patterns to include
+  include:
+    - "**/*.md"
+    - "**/*.markdown"
+  
+  # File patterns to exclude
+  exclude:
+    - "**/node_modules/**"
+    - "**/.*"
+    - "**/_*"
+    - "**/README.md"  # Exclude root README from conversion
+
+output:
+  # Output directory for converted files
+  directory: "output/markify/"
+  
+  # Output formats
+  formats:
+    - html
+    - pdf
+    - epub
+  
+  # HTML specific settings
+  html:
+    template: "default"
+    theme: "markify"
+    assets:
+      css: ["styles/main.css"]
+      js: ["scripts/main.js"]
+  
+  # PDF specific settings
+  pdf:
+    format: "A4"
+    orientation: "portrait"
+    margin: "1in"
+
+# Processing Options
+processing:
+  # Markdown extensions to enable
+  markdown_extensions:
+    - tables
+    - fenced_code_blocks
+    - codehilite
+    - smarty
+    - toc
+    - attr_list
+    - def_list
+    - footnotes
+    - admonition
+    - md_in_html
+  
+  # Code highlighting
+  highlight_code: true
+  highlight_theme: "github"
+  
+  # Image processing
+  process_images: true
+  image_format: "webp"
+  image_quality: 85
+  
+  # Link processing
+  process_links: true
+  relative_links: true
+  broken_link_check: true
+
+# Metadata
+metadata:
+  title: "NoDupeLabs Documentation"
+  author: "NoDupeLabs"
+  description: "Advanced duplicate file detection and management system"
+  keywords: ["duplicate detection", "file management", "Python", "documentation"]
+  version: "1.0.0"
+  
+  # Custom metadata
+  custom:
+    project_url: "https://github.com/allaunthefox/NoDupeLabs"
+    documentation_url: "https://nodupelabs.readthedocs.io"
+    license: "MIT"
+
+# Templates
+templates:
+  # Default template for HTML output
+  default: "templates/html/default.html"
+  
+  # Custom templates for different content types
+  types:
+    api: "templates/html/api.html"
+    guide: "templates/html/guide.html"
+    reference: "templates/html/reference.html"
+
+# Watch Mode (for development)
+watch:
+  enabled: false
+  poll_interval: 1000  # milliseconds
+  
+  # Files to watch for changes
+  watch_patterns:
+    - "docs/**/*.md"
+    - "docs/**/*.markdown"
+    - "markify.yml"
+
+# Build Options
+build:
+  # Clean output directory before build
+  clean_output: true
+  
+  # Generate source maps for debugging
+  source_maps: false
+  
+  # Minify output (for production)
+  minify: false
+  
+  # Generate index files
+  generate_index: true
+  
+  # Copy static assets
+  copy_assets: true
+  asset_directories:
+    - "docs/assets"
+    - "docs/images"
+    - "docs/stylesheets"
+    - "docs/javascripts"
+
+# Integration with other tools
+integration:
+  # Sphinx integration
+  sphinx:
+    enabled: true
+    output_dir: "docs/_build/markify"
+  
+  # MkDocs integration
+  mkdocs:
+    enabled: true
+    output_dir: "site/markify"
+  
+  # Pandoc integration (if available)
+  pandoc:
+    enabled: false
+    executable: "pandoc"
+    options:
+      - "--toc"
+      - "--number-sections"
+
+# Advanced Options
+advanced:
+  # Parallel processing
+  parallel: true
+  max_workers: 4
+  
+  # Caching
+  cache: true
+  cache_dir: ".markify_cache"
+  
+  # Error handling
+  fail_on_error: false
+  verbose_errors: true
+  
+  # Performance
+  memory_limit: "1GB"
+  timeout: 300  # seconds
+
+# Deployment
+deploy:
+  # GitHub Pages deployment
+  github_pages:
+    enabled: false
+    branch: "gh-pages"
+    folder: "output/markify/"
+  
+  # Other deployment targets
+  targets:
+    - name: "local"
+      path: "output/markify/"
+    - name: "server"
+      enabled: false
+      host: "example.com"
+      path: "/var/www/docs"
+      method: "scp"

@@ -50,6 +50,7 @@ class PluginLifecycleManager:
         self._plugin_states: Dict[str, PluginState] = {}
         self._plugin_dependencies: Dict[str, List[str]] = {}
         self._plugin_containers: Dict[str, Any] = {}
+        self._plugin_lifecycles: Dict[str, Any] = {}
 
     def initialize_plugin(
         self,

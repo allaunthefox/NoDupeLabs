@@ -19,29 +19,51 @@ Dependencies:
 
 from typing import Any, Dict
 import argparse
+import os
 from pathlib import Path
 from nodupe.core.plugin_system.base import Plugin
 from nodupe.core.filesystem import Filesystem
 from nodupe.core.database.files import FileRepository
 from nodupe.core.database.connection import DatabaseConnection
+from nodupe.core.audit import get_audit_logger, AuditEventType
+from nodupe.core.backup import create_backup_before_operation
+from nodupe.core.confirmation import get_confirmation_manager
+from nodupe.core.undo import execute_reversible_operation, DeleteFileOperation, MoveFileOperation, CopyFileOperation
+from nodupe.core.hash_progressive import ProgressiveHasher, get_progressive_hasher
+
+# Plugin metadata (UUID-based specification)
+PLUGIN_METADATA = {
+    "uuid": "a1b2c3d4-e5f6-4490-8bc4-ef1234567890",
+    "name": "apply",
+    "display_name": "File Apply Plugin",
+    "version": "v1.0.0",
+    "description": "Apply actions to duplicate files",
+    "author": "NoDupeLabs Team",
+    "category": "utility",
+    "dependencies": [],
+    "compatibility": {
+        "python": ">=3.9",
+        "nodupe_core": ">=1.0.0"
+    },
+    "tags": ["file-management", "duplicate-handling", "apply-actions"],
+    "marketplace_id": "apply_a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+}
 
 
 class ApplyPlugin(Plugin):
     """Apply plugin implementation."""
 
-    name = "apply"
-    version = "1.0.0"
-    dependencies = []
-
     def __init__(self):
-        """Initialize apply plugin."""
-        self.description = "Apply actions to duplicate files"
+        """Initialize apply plugin with UUID metadata."""
+        super().__init__(PLUGIN_METADATA)
 
     def initialize(self, container: Any) -> None:
         """Initialize the plugin."""
+        self._initialized = True
 
     def shutdown(self) -> None:
         """Shutdown the plugin."""
+        self._initialized = False
 
     def get_capabilities(self) -> Dict[str, Any]:
         """Get plugin capabilities."""
@@ -112,6 +134,10 @@ class ApplyPlugin(Plugin):
             
             print(f"[PLUGIN] Executing apply command: {args.action}")
 
+            # Initialize audit logger
+            audit_logger = get_audit_logger()
+            audit_logger.log_apply_started(args.action, vars(args))
+
             # 1. Get services
             container = getattr(args, 'container', None)
             if not container:
@@ -146,6 +172,38 @@ class ApplyPlugin(Plugin):
                     print(f"  {dup['path']} (Duplicate of: {orig_path})")
                 return 0
 
+            # Prepare file information for confirmation and backup
+            files_to_process = []
+            for dup in duplicates:
+                path = Path(dup['path'])
+                if path.exists():
+                    files_to_process.append({
+                        'path': str(path),
+                        'size': path.stat().st_size,
+                        'id': dup['id']
+                    })
+
+            # User confirmation for destructive operations
+            if args.action in ['delete', 'move'] and not args.dry_run:
+                confirmation_mgr = get_confirmation_manager()
+                if not confirmation_mgr.confirm_apply_action(args.action, files_to_process):
+                    print("[PLUGIN] Operation cancelled by user.")
+                    return 0
+
+            # Create backup before destructive operations
+            if args.action in ['delete', 'move'] and not args.dry_run:
+                backup_files = [Path(f['path']) for f in files_to_process]
+                backup_path = create_backup_before_operation(
+                    operation=args.action,
+                    description=f"Before {args.action} operation",
+                    files=backup_files
+                )
+                if backup_path:
+                    print(f"[PLUGIN] Backup created: {backup_path}")
+                    audit_logger.log_backup_created(backup_path, args.action, len(backup_files))
+                else:
+                    print("[WARNING] Failed to create backup, but proceeding with operation.")
+
             # 3. Process Actions
             for dup in duplicates:
                 path = Path(dup['path'])
@@ -159,7 +217,9 @@ class ApplyPlugin(Plugin):
                         if args.dry_run:
                             print(f"[DRY-RUN] Would delete: {path}")
                         else:
-                            Filesystem.remove_file(path)
+                            # Use reversible delete operation
+                            delete_op = DeleteFileOperation(path)
+                            execute_reversible_operation(delete_op)
                             file_repo.delete_file(dup['id'])
                             print(f"[DELETED] {path}")
 
@@ -181,8 +241,9 @@ class ApplyPlugin(Plugin):
                             if args.dry_run:
                                 print(f"[DRY-RUN] Would move: {path} -> {dest_path}")
                             else:
-                                Filesystem.ensure_directory(dest_dir)
-                                Filesystem.move_file(path, dest_path)
+                                # Use reversible move operation
+                                move_op = MoveFileOperation(path, dest_path)
+                                execute_reversible_operation(move_op)
                                 # Update DB to point to new location or just delete entry?
                                 # Usually duplicates are processed to get rid of them or archive them.
                                 # If moved, we might update the path in DB or remove if 'archived' implies removal from active working set.
@@ -194,14 +255,20 @@ class ApplyPlugin(Plugin):
                             if args.dry_run:
                                 print(f"[DRY-RUN] Would copy: {path} -> {dest_path}")
                             else:
-                                Filesystem.ensure_directory(dest_dir)
-                                Filesystem.copy_file(path, dest_path)
+                                # Use reversible copy operation
+                                copy_op = CopyFileOperation(path, dest_path)
+                                execute_reversible_operation(copy_op)
                                 print(f"[COPIED] {path} -> {dest_path}")
 
                     files_processed += 1
 
                 except Exception as e:
                     print(f"[ERROR] Failed to process {path}: {e}")
+                    audit_logger.log_event(AuditEventType.SYSTEM_ERROR, {
+                        'file_path': str(path),
+                        'error': str(e),
+                        'operation': args.action
+                    })
 
             if args.dry_run:
                 print(f"\n[PLUGIN] Dry run complete. Would process {files_processed} files.")
@@ -216,6 +283,13 @@ class ApplyPlugin(Plugin):
             if args.verbose:
                 import traceback
                 traceback.print_exc()
+            # Log the error
+            audit_logger = get_audit_logger()
+            audit_logger.log_event(AuditEventType.APPLY_FAILED, {
+                'action': getattr(args, 'action', 'unknown'),
+                'error': str(e),
+                'traceback': str(traceback.format_exc()) if 'traceback' in locals() else None
+            })
             return 1
 
 

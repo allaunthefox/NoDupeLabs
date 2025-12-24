@@ -97,9 +97,9 @@ class ProgressTracker:
         with self._lock:
             elapsed = time.monotonic() - self._start_time if self._start_time > 0 else 0
 
-            # Calculate rates
-            items_per_second = self._completed_items / elapsed if elapsed > 0 else 0
-            bytes_per_second = self._processed_bytes / elapsed if elapsed > 0 else 0
+            # Calculate rates - only calculate if enough time has passed for meaningful rates
+            items_per_second = self._completed_items / elapsed if elapsed > 0.001 else 0
+            bytes_per_second = self._processed_bytes / elapsed if elapsed > 0.001 else 0
 
             # Calculate estimates
             remaining_items = max(0, self._total_items - self._completed_items)

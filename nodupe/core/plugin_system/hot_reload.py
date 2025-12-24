@@ -87,24 +87,26 @@ class PluginHotReload:
             
         try:
             import fcntl
-            import struct
+            import ctypes
+            import ctypes.util
             
-            # Create inotify file descriptor
-            self._inotify_fd = os.open('/proc/sys/kernel/osrelease', os.O_RDONLY)
-            os.close(self._inotify_fd)
+            # Load libc
+            libc_path = ctypes.util.find_library('c')
+            if not libc_path:
+                return False
+                
+            libc = ctypes.CDLL(libc_path, use_errno=True)
             
-            # Try to create inotify instance
-            self._inotify_fd = os.open('/dev/null', os.O_RDONLY)
-            os.close(self._inotify_fd)
-            
-            # Actually create inotify fd
-            self._inotify_fd = os.open('/proc/sys/kernel/osrelease', os.O_RDONLY)
-            os.close(self._inotify_fd)
+            # Define inotify constants
+            IN_NONBLOCK = 0x800
+            IN_MODIFY = 0x0000002
+            IN_MOVED_TO = 0x00000080
+            IN_CREATE = 0x0000100
+            IN_DELETE = 0x00000200
+            IN_MOVE_SELF = 0x0000800
+            IN_DELETE_SELF = 0x0000400
             
             # Use inotify_init1 system call
-            import ctypes
-            libc = ctypes.CDLL('libc.so.6', use_errno=True)
-            IN_NONBLOCK = 0x800
             fd = libc.inotify_init1(IN_NONBLOCK)
             
             if fd < 0:

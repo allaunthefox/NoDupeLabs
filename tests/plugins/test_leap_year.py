@@ -20,14 +20,10 @@ class TestLeapYearPlugin:
     def test_plugin_metadata(self):
         """Test that plugin metadata is correctly defined."""
         plugin = LeapYearPlugin()
-        metadata = plugin.metadata
         
-        assert metadata.name == "LeapYear"
-        assert metadata.version == "1.0.0"
-        assert "Ben Joffe" in metadata.description
-        assert "algorithm" in metadata.description
-        assert "date" in metadata.tags
-        assert "leap-year" in metadata.tags
+        assert plugin.name == "leapyear"
+        assert plugin.version == "1.0"
+        assert plugin.dependencies == []
 
     def test_initialization_defaults(self):
         """Test plugin initialization with default values."""
@@ -39,26 +35,37 @@ class TestLeapYearPlugin:
         assert plugin.min_year == 1
         assert plugin.max_year == 9999
 
-    def test_initialization_custom_values(self):
-        """Test plugin initialization with custom values."""
-        plugin = LeapYearPlugin(
-            calendar="julian",
-            enable_cache=False,
-            cache_size=5000,
-            min_year=1000,
-            max_year=3000
-        )
+    def test_initialization_with_metadata(self):
+        """Test plugin initialization with custom metadata."""
+        metadata = {
+            "uuid": "123e4567-e89b-12d3-a456-426614174001",
+            "name": "leapyear_test",
+            "display_name": "Test Leap Year Calculator",
+            "version": "v1.1.0",
+            "description": "Test version of leap year calculator",
+            "author": "Test Author",
+            "category": "test",
+            "compatibility": ["nodupe"],
+            "marketplace_id": "test-leapyear-calculator"
+        }
+        plugin = LeapYearPlugin(metadata)
         
-        assert plugin.calendar == "julian"
-        assert plugin.enable_cache is False
-        assert plugin.cache_size == 5000
-        assert plugin.min_year == 1000
-        assert plugin.max_year == 3000
+        assert plugin.name == "leapyear_test"
+        assert plugin.display_name == "Test Leap Year Calculator"
+        assert plugin.version == "v1.1.0"
+        assert plugin.author == "Test Author"
+        assert plugin.category == "test"
+        assert plugin.calendar == "gregorian"  # Default values still apply
+        assert plugin.enable_cache is True
+        assert plugin.cache_size == 10000
+        assert plugin.min_year == 1
+        assert plugin.max_year == 999
 
     def test_invalid_calendar(self):
         """Test that invalid calendar raises ValueError."""
+        plugin = LeapYearPlugin()
         with pytest.raises(ValueError, match="Unsupported calendar"):
-            LeapYearPlugin(calendar="invalid")
+            plugin.set_calendar("invalid")
 
     def test_year_validation(self):
         """Test year validation."""

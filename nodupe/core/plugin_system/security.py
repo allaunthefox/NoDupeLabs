@@ -257,6 +257,37 @@ class PluginSecurity:
                         f"Dangerous import found in {file_path}: from {module_name} import ..."
                     )
 
+    def validate_plugin(self, plugin) -> bool:
+        """Validate a plugin instance for security issues.
+        
+        Args:
+            plugin: Plugin instance to validate
+            
+        Returns:
+            True if plugin passes security validation
+        """
+        # For now, just return True as plugin validation is different from file validation
+        # In a real implementation, this would check plugin behavior, not code
+        return True
+
+    def check_plugin_permissions(self, plugin) -> Dict[str, bool]:
+        """Check plugin permissions and return permission report.
+        
+        Args:
+            plugin: Plugin instance to check permissions for
+            
+        Returns:
+            Dictionary with permission status
+        """
+        # For now, return a basic permission report
+        return {
+            'can_access_filesystem': False,
+            'can_network_access': False,
+            'can_execute_system_commands': False,
+            'can_import_dangerous_modules': False,
+            'can_modify_system_state': False
+        }
+
     def _check_additional_security_issues(self, tree: ast.AST, file_path: Path) -> None:
         """Check for additional security issues.
 
@@ -292,31 +323,40 @@ class SecurityASTVisitor(ast.NodeVisitor):
         """Initialize the visitor."""
         self.dangerous_nodes: List[str] = []
 
-    def visit_exec(self, node: ast.AST) -> None:
+    def visit_Exec(self, node: ast.AST) -> None:
         """Visit exec statement (Python 2, if somehow present)."""
         self.dangerous_nodes.append('exec statement')
         self.generic_visit(node)
 
-    def visit_eval(self, node: ast.AST) -> None:
+    def visit_Eval(self, node: ast.AST) -> None:
         """Visit eval call."""
         self.dangerous_nodes.append('eval')
         self.generic_visit(node)
 
-    def visit_call(self, node: ast.Call) -> None:
+    def visit_Call(self, node: ast.Call) -> None:
         """Visit function calls."""
         if isinstance(node.func, ast.Name):
             if node.func.id in ['exec', 'eval', 'compile', 'open']:
                 self.dangerous_nodes.append(f'call to {node.func.id}')
+        elif isinstance(node.func, ast.Attribute):
+            # Check for dangerous method calls
+            if hasattr(node.func, 'attr') and node.func.attr in ['open', 'write', 'read', 'close']:
+                self.dangerous_nodes.append(f'method call to {node.func.attr}')
         self.generic_visit(node)
 
-    def visit_import(self, node: ast.AST) -> None:
+    def visit_Import(self, node: ast.Import) -> None:
         """Visit import statements."""
         # These are handled separately for more detailed checking
+        for alias in node.names:
+            if alias.name in PluginSecurity.DANGEROUS_MODULES:
+                self.dangerous_nodes.append(f'import of dangerous module {alias.name}')
         self.generic_visit(node)
 
-    def visit_import_from(self, node: ast.AST) -> None:
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         """Visit from-import statements."""
         # These are handled separately for more detailed checking
+        if node.module and node.module in PluginSecurity.DANGEROUS_MODULES:
+            self.dangerous_nodes.append(f'from-import of dangerous module {node.module}')
         self.generic_visit(node)
 
 

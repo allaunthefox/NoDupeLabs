@@ -17,6 +17,11 @@ import zipfile
 import hashlib
 
 
+class BackupError(Exception):
+    """Exception raised for backup-related errors."""
+    pass
+
+
 class BackupManager:
     """Manager for creating and restoring backups before destructive operations."""
 
@@ -49,7 +54,7 @@ class BackupManager:
             # Backup database if it exists
             db_path = Path("nodupe.db")
             if db_path.exists():
-                backup_zip.write(db_path, f"database/{db_path.name}")
+                backup_zip.write(str(db_path), f"database/{db_path.name}")
 
             # Backup specific files if provided
             if files_to_backup:
@@ -57,15 +62,15 @@ class BackupManager:
                     if file_path.exists():
                         # Use relative path to avoid absolute path issues
                         arc_path = f"files/{file_path.name}"
-                        backup_zip.write(file_path, arc_path)
+                        backup_zip.write(str(file_path), arc_path)
 
             # Create backup manifest
             manifest = {
-                "timestamp": timestamp,
+                "timestamp": datetime.now().isoformat(),
                 "operation": operation,
                 "description": description,
                 "files_backed_up": [str(f) for f in files_to_backup] if files_to_backup else [],
-                "database_backed_up": db_path.exists(),
+                "database_backed_up": Path("nodupe.db").exists(),
                 "file_count": len(files_to_backup) if files_to_backup else 0
             }
 
@@ -125,14 +130,14 @@ class BackupManager:
                             # Move from database/ subdirectory to current directory
                             extracted_path = Path(file_info.filename)
                             if extracted_path.exists():
-                                shutil.move(extracted_path, extracted_path.name)
+                                shutil.move(str(extracted_path), str(extracted_path.name))
 
                 # Extract files if requested
                 if restore_files:
                     temp_dir = Path(tempfile.mkdtemp())
                     try:
                         # Extract all files to temp directory first
-                        backup_zip.extractall(temp_dir)
+                        backup_zip.extractall(str(temp_dir))
 
                         # Move files back to their original locations
                         files_dir = temp_dir / "files"
@@ -142,11 +147,11 @@ class BackupManager:
                                 original_path = Path(file_path.name)
                                 if original_path.exists():
                                     original_path.unlink()  # Remove existing file
-                                shutil.move(file_path, original_path)
+                                shutil.move(str(file_path), str(original_path))
 
                     finally:
                         # Clean up temp directory
-                        shutil.rmtree(temp_dir)
+                        shutil.rmtree(str(temp_dir))
 
             return True
 
@@ -269,5 +274,6 @@ def create_backup_before_operation(operation: str, description: str,
 __all__ = [
     'BackupManager',
     'get_backup_manager',
-    'create_backup_before_operation'
+    'create_backup_before_operation',
+    'BackupError'
 ]

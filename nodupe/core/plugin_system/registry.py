@@ -19,6 +19,7 @@ class PluginRegistry:
             cls._instance = super().__new__(cls)  # type: ignore
             cls._instance._plugins = {}
             cls._instance._initialized = False
+            cls._instance._container = None
         return cls._instance
 
     def register(self, plugin: Plugin) -> None:
@@ -27,7 +28,7 @@ class PluginRegistry:
             raise ValueError(f"Plugin {plugin.name} already registered")
 
         self._plugins[plugin.name] = plugin
-        if hasattr(self, '_container') and self._container:
+        if self._container:
             plugin.initialize(self._container)
 
     def unregister(self, name: str) -> None:
@@ -74,6 +75,15 @@ class PluginRegistry:
         """Initialize the registry with a dependency container"""
         self._container = container
         self._initialized = True
+
+    def start(self) -> None:
+        """Start the plugin registry"""
+        if not self._initialized:
+            raise RuntimeError("Registry not initialized")
+    
+    def stop(self) -> None:
+        """Stop the plugin registry"""
+        self.shutdown()
 
     @property
     def container(self):
