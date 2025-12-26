@@ -168,7 +168,7 @@ class DatabaseConnection:
             except sqlite3.Error as e:
                 print(f"[ERROR] Database connection close failed: {e}")
             finally:
-                del self._local.connection
+                delattr(self._local, 'connection')
 
     def __del__(self) -> None:
         """Clean up database connection when object is destroyed."""
@@ -185,10 +185,17 @@ class DatabaseConnection:
                 path TEXT NOT NULL UNIQUE,
                 size INTEGER NOT NULL,
                 modified_time INTEGER NOT NULL,
+                created_time INTEGER NOT NULL,
+                accessed_time INTEGER,
+                file_type TEXT,
+                mime_type TEXT,
                 hash TEXT,
                 is_duplicate BOOLEAN DEFAULT FALSE,
                 duplicate_of INTEGER,
-                FOREIGN KEY (duplicate_of) REFERENCES files(id)
+                status TEXT DEFAULT 'active',
+                scanned_at INTEGER NOT NULL,
+                updated_at INTEGER NOT NULL,
+                FOREIGN KEY (duplicate_of) REFERENCES files(id) ON DELETE SET NULL
             )
         ''')
 

@@ -5,7 +5,7 @@
 
 ## Executive Summary
 
-The NoDupeLabs project has significant discrepancies between reported status and actual implementation. While `docs/PROJECT_STATUS.md` reports "Healthy and Active" with 559/559 tests passing, the reality is that the test suite has critical import errors preventing test collection, and actual test coverage is only 15.7%.
+The NoDupeLabs project has significant discrepancies between reported status and actual implementation. While `docs/PROJECT_STATUS.md` reports "Healthy and Active" with ~47% test coverage, the reality is that the test suite has critical import errors preventing test collection, and actual test coverage is now reflected accurately at ~47%.
 
 ## Critical Issues Identified
 

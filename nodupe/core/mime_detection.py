@@ -141,7 +141,7 @@ class MIMEDetection:
     }
 
     @staticmethod
-    def detect_mime_type(file_path: str, use_magic: bool = True) -> str:
+    def detect_mime_type(file_path: Optional[str], use_magic: bool = True) -> str:
         """Detect MIME type.
 
         Args:
@@ -154,13 +154,14 @@ class MIMEDetection:
         Raises:
             MIMEDetectionError: If MIME type cannot be detected
         """
+        # Handle None as file_path
+        if file_path is None:
+            raise MIMEDetectionError("File path cannot be None")
+        
+        # Initialize path outside the try block to avoid unbound variable
+        path = Path(file_path)  # Path() handles both str and Path objects
+        
         try:
-            # Convert to Path
-            if isinstance(file_path, str):
-                path = Path(file_path)
-            else:
-                path = file_path
-
             # Try magic number detection first (if enabled and file exists)
             if use_magic and path.exists() and path.is_file():
                 magic_mime = MIMEDetection._detect_by_magic(path)
@@ -181,7 +182,7 @@ class MIMEDetection:
             return 'application/octet-stream'
 
         except Exception as e:
-            raise MIMEDetectionError(f"Failed to detect MIME type for {file_path}: {e}") from e
+            raise MIMEDetectionError(f"Failed to detect MIME type for {str(path)}: {e}") from e
 
     @staticmethod
     def _detect_by_magic(file_path: Path, max_read: int = 512) -> Optional[str]:
@@ -257,7 +258,9 @@ class MIMEDetection:
         Returns:
             True if MIME type is text
         """
-        return mime_type.startswith('text/') or mime_type in [
+        # Remove any parameters after semicolon
+        base_mime_type = mime_type.split(';')[0].strip()
+        return base_mime_type.startswith('text/') or base_mime_type in [
             'application/json',
             'application/xml',
             'application/javascript',

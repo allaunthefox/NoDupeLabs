@@ -1,0 +1,440 @@
+[1m============================= test session starts ==============================[0m
+platform linux -- Python 3.13.11, pytest-9.0.1, pluggy-1.6.0
+rootdir: /home/allaun/Workspace/NoDupeLabs
+configfile: pyproject.toml
+testpaths: tests
+plugins: cov-7.0.0, anyio-4.12.0
+collected 958 items
+
+tests/core/test_api.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m                             [  2%][0m
+tests/core/test_archive_handler.py [32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[31m               [  4%][0m
+tests/core/test_cli.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                          [  7%][0m
+tests/core/test_cli_commands.py [32m.[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[31m                            [  8%][0m
+tests/core/test_cli_errors.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                        [ 10%][0m
+tests/core/test_cli_integration.py [31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31m                       [ 12%][0m
+tests/core/test_compression.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                      [ 14%][0m
+tests/core/test_config.py [32m.[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31m              [ 17%][0m
+tests/core/test_container.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                          [ 19%][0m
+tests/core/test_database.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m [ 24%]
+[0m[32m.[0m[32m.[0m[32m.[0m[31m                                                                      [ 24%][0m
+tests/core/test_database_files.py [32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[31m                   [ 26%][0m
+tests/core/test_deps.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                               [ 28%][0m
+tests/core/test_duplicate_detection.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[31m                    [ 29%][0m
+tests/core/test_errors.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                               [ 31%][0m
+tests/core/test_file_hasher.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                   [ 33%][0m
+tests/core/test_file_info.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                              [ 35%][0m
+tests/core/test_file_processor.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                  [ 37%][0m
+tests/core/test_file_walker.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                              [ 38%][0m
+tests/core/test_filesystem.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                   [ 41%][0m
+tests/core/test_hasher.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                          [ 43%][0m
+tests/core/test_incremental.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                       [ 45%][0m
+tests/core/test_limits.py [32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                         [ 47%][0m
+tests/core/test_loader.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                               [ 49%][0m
+tests/core/test_logging.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                        [ 51%][0m
+tests/core/test_mime_detection.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                           [ 52%][0m
+tests/core/test_mmap_handler.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                                   [ 53%][0m
+tests/core/test_plugins.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31m        [ 57%][0m
+tests/core/test_progress_tracker.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                             [ 58%][0m
+tests/core/test_security.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                         [ 60%][0m
+tests/core/test_time_sync_failure_rules.py [32m.[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m         [ 62%][0m
+tests/core/test_validators.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                            [ 64%][0m
+tests/core/test_version.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                                   [ 65%][0m
+tests/integration/test_end_to_end_workflows.py [31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[31m           [ 66%][0m
+tests/integration/test_system_error_recovery.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31m     [ 68%][0m
+tests/integration/test_system_performance.py [31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31m               [ 70%][0m
+tests/integration/test_system_reliability.py [31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31m             [ 71%][0m
+tests/integration/test_system_security.py [32m.[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                 [ 73%][0m
+tests/plugins/test_leap_year.py [31mF[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[31m      [ 77%][0m
+tests/plugins/test_plugin_compatibility.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[31mF[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[31m        [ 79%][0m
+tests/plugins/test_plugin_discovery.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[31m        [ 82%][0m
+tests/plugins/test_plugin_hot_reload.py [31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31m           [ 84%][0m
+tests/plugins/test_plugin_lifecycle.py [31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31m    [ 87%][0m
+tests/plugins/test_plugin_loader.py [31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31m                 [ 89%][0m
+tests/plugins/test_plugin_registry.py [32m.[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[31m                   [ 91%][0m
+tests/plugins/test_time_sync.py [31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[31mF[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[31mF[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[31mF[0m[31m [ 95%]
+[0m[31mF[0m[31m                                                                        [ 95%][0m
+tests/test_basic.py [32m.[0m[31mF[0m[31mF[0m[32m.[0m[31m                                                 [ 95%][0m
+tests/test_hash_autotune.py [32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31m                                   [ 96%][0m
+tests/test_simple_compatibility.py [32m.[0m[31m                                     [ 97%][0m
+tests/test_utils.py [32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[31m                                               [ 97%][0m
+tests/test_verify_plugin.py [32m.[0m[32m.[0m[31m                                           [ 97%][0m
+tests/performance/test_time_sync_performance.py [31mF[0m[31mF[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[32m.[0m[31mF[0m[32m.[0m[31mF[0m[32m.[0m[31mF[0m[32m.[0m[32m.[0m[32m.[0m[31m[1m
+ERROR: Coverage failure: total of 43.32 is less than fail-under=80.00
+[0m[31m                                                                         [100%][0m
+
+---- generated xml file: /home/allaun/Workspace/NoDupeLabs/test_results.xml ----
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.13.11-final-0 _______________
+
+Name                                           Stmts   Miss Branch BrPart   Cover   Missing
+-------------------------------------------------------------------------------------------
+nodupe/core/api.py                                83      0     14      0 100.00%
+nodupe/core/archive_handler.py                    77     40     24      3  41.58%   59-60, 82-84, 103-116, 140-176, 184-187, 201
+nodupe/core/audit.py                              78     12      4      1  84.15%   55->exit, 96, 103, 111, 125, 132, 140, 148, 156, 164, 185-186, 191
+nodupe/core/backup.py                            114     93     34      0  14.19%   29-30, 44-74, 86, 100, 114-155, 163-186, 197-212, 223-231, 241-243, 258-266
+nodupe/core/cache/embedding_cache.py             150    150     50      0   0.00%   21-403
+nodupe/core/cache/hash_cache.py                  114    114     22      0   0.00%   21-288
+nodupe/core/cache/query_cache.py                 133    133     36      0   0.00%   21-345
+nodupe/core/compression.py                       193     52    104     29  66.67%   79, 106, 113, 142, 159, 173-177, 188, 214, 218, 221->234, 231, 239-241, 255-264, 268, 272-275, 302, 312, 316, 335, 339, 346, 350-353, 377, 379, 383, 395-402, 418, 424, 442, 473
+nodupe/core/config.py                             53      4     10      0  93.65%   14-18, 99-100
+nodupe/core/confirmation.py                      109     88     38      0  14.29%   20-27, 35-38, 53-92, 104-110, 122-146, 158-198, 209-215, 225-227, 241-260, 265-266
+nodupe/core/container.py                          32      0      8      0 100.00%
+nodupe/core/database/connection.py                82      9     12      1  89.36%   49, 151-153, 159-161, 168-169
+nodupe/core/database/database.py                 693    319     80      3  49.55%   78-79, 119, 124-125, 139-141, 145-147, 151-154, 158-160, 166, 171-177, 183, 188-195, 201-202, 206, 210, 214, 220, 224-234, 246-247, 251, 258-259, 294, 298-303, 309, 314-320, 326, 331-345, 351, 356-364, 376, 382, 398, 402-405, 409-414, 420, 424, 428, 434-435, 439, 445, 450-471, 477, 481-499, 505, 509-534, 540, 546-574, 580, 584-588, 592-594, 608->617, 617->606, 635-650, 656, 660, 666, 670, 676, 680, 686, 690-695, 701, 705, 711, 715-716, 722, 726, 732, 736-739, 745, 749, 755, 759, 765, 769-775, 781, 785, 791, 795, 801, 805-806, 812, 816, 822, 826-828, 834, 839, 845, 849, 855, 859, 865, 869, 875, 879, 885, 889, 895, 899, 905, 909, 915, 919, 925, 929, 935, 939, 945, 949, 955, 959, 965, 969, 975, 979, 985, 989, 995, 999, 1005, 1009, 1015, 1019, 1025, 1029, 1035, 1039-1040, 1046, 1050, 1056, 1060-1063, 1069, 1073, 1079, 1083, 1089, 1093, 1099, 1103, 1109, 1113, 1119, 1123-1124, 1130, 1134, 1140, 1144-1146, 1152, 1156, 1162, 1166, 1172, 1176, 1182, 1186, 1192, 1196, 1202, 1206, 1212, 1216, 1222, 1226, 1232, 1236, 1242, 1246, 1252, 1256, 1262, 1266, 1272, 1276, 1282, 1286, 1292, 1296
+nodupe/core/database/embeddings.py               118     98      6      0  16.13%   41, 55-69, 80-97, 109-126, 137-154, 165-182, 194-205, 216-224, 235-243, 254-262, 270-284, 292-297, 308-316, 327-350, 354-359, 371-372
+nodupe/core/database/files.py                    135     42     10      3  68.97%   98-100, 127-130, 143, 160-162, 180-182, 210-212, 240-242, 264-266, 283-285, 309-311, 335-337, 348-350, 361-363, 375, 408-410
+nodupe/core/database/indexing.py                 152    133     26      0  10.67%   47-95, 105-111, 133-151, 163-174, 188-214, 228-243, 257-274, 289-302, 316-347, 358-368, 379-416, 427-457, 480-495
+nodupe/core/database/query.py                     89     12     20      2  83.49%   54, 62-64, 118, 132-134, 136-139
+nodupe/core/database/repository_interface.py      46     32      6      0  26.92%   60-82, 105-120, 135-142, 154
+nodupe/core/database/schema.py                   127     95     32      0  22.64%   214-216, 227-245, 256-277, 291-294, 307-343, 351-368, 382-400, 414-424, 432-446, 461-475
+nodupe/core/database/security.py                  63     39     32      4  29.47%   46-58, 69-83, 98-117, 129-144, 159, 163, 180, 184
+nodupe/core/database/transactions.py             151    110     24      0  23.43%   64-81, 89-98, 106-115, 126-135, 146-154, 165-172, 193-219, 234-240, 257-263, 272, 276-277, 281-287, 303, 317-319, 327-330, 338-341, 361-363, 380-386, 406-407, 422
+nodupe/core/deps.py                               33      0      2      0 100.00%
+nodupe/core/errors.py                              5      0      0      0 100.00%
+nodupe/core/filesystem.py                        119     26     44     11  77.30%   52, 74, 91, 110-116, 121-122, 141, 153, 170, 193, 201, 215, 219-220, 235, 256, 258, 273, 289, 291, 306
+nodupe/core/hash_progressive.py                   86     65     36      0  17.21%   19, 34, 45-50, 63-67, 79-109, 120-131, 143-167, 177-179, 184-185, 190-191
+nodupe/core/incremental.py                        47      0      8      0 100.00%
+nodupe/core/limits.py                            192     70     50      7  59.09%   53-59, 73-76, 91-102, 114-133, 148-170, 188, 191, 203-204, 252, 315-335, 340-341, 501-506
+nodupe/core/loader.py                            315     39    130     43  81.57%   16-17, 28-29, 75->88, 81->77, 84->83, 92->94, 98->101, 104->106, 109->111, 114->116, 124->128, 132->137, 142->144, 181-182, 188->197, 200->207, 207->exit, 217-218, 222-223, 229-230, 234-235, 237->241, 241->244, 256->261, 261->266, 266->271, 271->275, 278-280, 309, 320-321, 345->349, 351->357, 353-354, 361->369, 365-366, 370->388, 372->388, 375-376, 377->372, 384-385, 390-391, 407, 409, 421-422, 424-425, 441-443, 464->exit, 502->506, 506->509, 516->518
+nodupe/core/logging.py                            86      1     20      2  97.17%   94, 195->199
+nodupe/core/main.py                               96     17     28      6  79.84%   82->exit, 85->84, 89-90, 115-123, 131->136, 141-142, 160, 185-186, 188-189
+nodupe/core/mime_detection.py                     73     17     32      4  70.48%   162, 178, 183-184, 209-215, 225-226, 244-248
+nodupe/core/mmap_handler.py                       31      0      4      1  97.14%   50->exit
+nodupe/core/parallel.py                          267    267     78      0   0.00%   21-730
+nodupe/core/plugin_system/base.py                 18      0      0      0 100.00%
+nodupe/core/plugin_system/compatibility.py       236    160    124     13  27.50%   58-84, 104-132, 150-153, 171-247, 256, 265, 273, 286-300, 312-319, 331-344, 356-369, 382-386, 398-407, 416, 450, 453, 459, 470-471, 482-483, 497, 509-511, 514-516, 519-521, 527-528, 531->534, 558, 568
+nodupe/core/plugin_system/dependencies.py        157    131     68      0  11.56%   44-47, 56-69, 81-95, 106, 117, 128-152, 164-193, 204-240, 251-254, 265-266, 282-285, 296-316, 327-344, 348-351, 360
+nodupe/core/plugin_system/discovery.py           182     59     80      5  65.65%   96, 108-111, 120->101, 127-133, 137-139, 168-170, 200-221, 295-297, 319->313, 328-335, 337, 348->313, 350-354, 359-360, 398-429
+nodupe/core/plugin_system/hot_reload.py          189    108     54      7  36.21%   86, 111, 122-124, 133-161, 169-189, 194, 205-239, 243, 252-263, 268, 282, 291->exit, 301-333, 342-377
+nodupe/core/plugin_system/lifecycle.py           127     36     36     10  68.10%   79, 86, 90-91, 106-110, 129, 137-139, 147-149, 173, 177-180, 196-198, 202-203, 214, 225, 236-237, 245, 259, 268, 282-284, 313, 314->exit, 317, 323->322
+nodupe/core/plugin_system/loader.py              122     96     44      0  15.66%   63-97, 116-145, 164-174, 195-199, 215-219, 230-249, 268, 279-285, 296-325
+nodupe/core/plugin_system/registry.py             54     11     12      1  75.76%   30->exit, 35-40, 60, 67-68, 80-81, 85
+nodupe/core/plugin_system/security.py            108     76     40      0  21.62%   87-118, 130-143, 155-162, 171, 182, 190, 198, 206, 214, 226-231, 245-256, 271-283, 293, 297-298, 302-303, 307-310, 315, 320, 329
+nodupe/core/plugins.py                             4      0      0      0 100.00%
+nodupe/core/pools.py                             261    261     68      0   0.00%   21-720
+nodupe/core/progress_tracker.py                   33      2      6      2  89.74%   45, 69
+nodupe/core/scan/file_info.py                     10      0      2      0 100.00%
+nodupe/core/scan/hash_autotune.py                143     29     40     13  74.86%   18-19, 22-23, 34-36, 81-82, 86-90, 93->113, 97, 102, 107, 142, 172-174, 193, 203-208, 229, 233, 297
+nodupe/core/scan/hasher.py                       132     24     36      4  80.95%   61, 77-81, 92-95, 103, 207-209, 226-228, 243-245, 260-262, 275, 297, 324
+nodupe/core/scan/processor.py                    102     24     34      9  75.74%   70->74, 75-84, 112-114, 137-139, 151, 157, 194, 199->203, 204-213, 241-243, 252, 271
+nodupe/core/scan/progress.py                      94     76     12      0  16.98%   40-48, 57-65, 74-77, 81-83, 87-89, 97-121, 144-146, 150-158, 166-167, 175-176, 184-185, 193-194, 205-216, 229
+nodupe/core/scan/walker.py                        88     25     12      2  73.00%   87-89, 93-95, 100-102, 132-134, 147-148, 160-164, 177-178, 186-187, 224, 232
+nodupe/core/security.py                          174     40     68     19  74.79%   77, 93, 100, 105-107, 114, 144, 149-150, 155, 167, 176, 183, 191-192, 219, 241, 245, 249-252, 277-278, 306, 314, 318, 322, 328-329, 342->344, 345-346, 363->366, 369, 373-374, 413-414, 438, 452-453
+nodupe/core/time_sync_failure_rules.py           328     73    124     13  72.12%   54->56, 56->exit, 319-320, 326, 328, 342, 359, 406-411, 416, 433, 442, 497-533, 537-542, 546-550, 554-566, 570-595, 603-605, 616
+nodupe/core/time_sync_utils.py                   318     41     76     16  82.49%   136, 146-147, 157-159, 194, 208, 274->277, 280->290, 287-288, 295, 302->306, 304-305, 309-331, 399, 432->437, 437->424, 463, 515, 548->exit, 632-633, 672-673, 690-691, 723->729, 730->733, 753
+nodupe/core/undo.py                              128     91     32      0  23.12%   22, 26, 30, 43-49, 53-57, 61-65, 73, 86-90, 94-105, 109-114, 118, 131-134, 138-148, 152-157, 161, 173-175, 183-197, 208-226, 234-242, 250, 261, 271-273, 278-279, 284-285, 290-291
+nodupe/core/validators.py                        128     14     84     15  86.32%   82, 85->94, 94->102, 125, 159, 167, 211, 214, 223, 225, 230, 232, 278, 317, 374, 395
+nodupe/core/version.py                            91     29     26      4  61.54%   96, 98, 101-102, 129-138, 141-153, 156-157
+nodupe/plugins/commands/apply.py                 157     96     64      3  32.58%   54, 58, 62, 94->101, 108-109, 113-117, 126-263, 288
+nodupe/plugins/commands/archive.py               209    209     84      0   0.00%   22-408
+nodupe/plugins/commands/mount.py                 339    339    134      0   0.00%   23-579
+nodupe/plugins/commands/plan.py                  142    142     40      0   0.00%   10-304
+nodupe/plugins/commands/rollback.py              120    120     38      0   0.00%   22-251
+nodupe/plugins/commands/scan.py                  144     80     42      0  38.71%   41-49, 71, 75, 79, 120-235, 260
+nodupe/plugins/commands/similarity.py            101     48     42      5  46.15%   49, 53, 57, 100->106, 110-113, 127-128, 132-135, 147-201, 210
+nodupe/plugins/commands/verify.py                216    183     84      0  11.00%   81, 85, 89, 94-121, 129-248, 258-286, 290-337, 341-390, 394-442, 453
+nodupe/plugins/leap_year/leap_year.py            213     69     64      9  63.90%   74-76, 80-83, 87, 119, 137, 142, 144, 158-169, 188, 207, 258, 260, 335-340, 345-360, 365-373, 379, 444-452, 467-471, 475-479, 500
+nodupe/plugins/time_sync/time_sync.py            521    307    118     16  37.87%   59-61, 65-74, 89-96, 110, 122, 126, 206, 236-239, 250, 255, 260, 264, 328-331, 335, 339-342, 349-375, 383-402, 408-424, 435, 448, 450, 479, 501-505, 526, 534-640, 694, 706, 708, 730, 741-747, 766-786, 794-849, 863-874, 883-907, 921-947, 953-957, 981-982, 986-987, 1044-1058, 1074-1080, 1102-1120, 1136-1145, 1175, 1229, 1247
+-------------------------------------------------------------------------------------------
+TOTAL                                           9531   5076   2812    286  43.32%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+[31m[1mFAIL Required test coverage of 80% not reached. Total coverage: 43.32%
+[0m============================= slowest 20 durations =============================
+3.33s call     tests/integration/test_system_security.py::TestSecurityAudit::test_security_compliance_validation
+3.15s call     tests/core/test_cli_integration.py::TestCLIPerformanceIntegration::test_performance_overrides_integration
+3.13s call     tests/core/test_cli_integration.py::TestCLISystemIntegration::test_cli_help_integration
+2.17s call     tests/integration/test_system_security.py::TestAuthenticationAuthorization::test_cli_authentication_mechanisms
+2.10s call     tests/core/test_cli_integration.py::TestCLISystemIntegration::test_cli_error_handling_integration
+2.09s call     tests/core/test_cli_integration.py::TestCLIPerformanceIntegration::test_debug_logging_integration
+2.08s call     tests/core/test_cli_integration.py::TestCLISystemIntegration::test_cli_with_real_bootstrap
+2.02s call     tests/test_hash_autotune.py::test_loader_integration
+1.31s call     tests/integration/test_end_to_end_workflows.py::TestCLIIntegration::test_cli_plugin_command_integration
+1.29s call     tests/integration/test_end_to_end_workflows.py::TestCLIIntegration::test_cli_scan_command_integration
+1.13s call     tests/integration/test_system_security.py::TestAuthenticationAuthorization::test_plugin_authorization
+1.11s call     tests/integration/test_end_to_end_workflows.py::TestCLIIntegration::test_cli_version_command_integration
+1.06s call     tests/core/test_loader.py::TestCoreLoaderDatabase::test_database_initialization
+1.06s call     tests/core/test_cli.py::TestCLIArgumentParsing::test_invalid_command
+1.06s call     tests/core/test_cli.py::TestCLIErrorHandling::test_missing_required_args
+1.05s call     tests/core/test_cli.py::TestCLIIntegration::test_cli_error_handling_integration
+1.05s call     tests/core/test_loader.py::TestCoreLoaderPluginSystem::test_plugin_discovery_and_loading
+1.05s call     tests/core/test_loader.py::TestCoreLoaderInitialization::test_double_initialization
+1.05s call     tests/core/test_loader.py::TestCoreLoaderConfiguration::test_config_merging
+1.05s call     tests/core/test_cli.py::TestCLIHelpSystem::test_version_help
+[36m[1m=========================== short test summary info ============================[0m
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_detect_archive_format_zip[0m - AttributeError: 'ArchiveHandler' object has no attribute 'detect_archive_fo...
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_detect_archive_format_tar[0m - AttributeError: 'ArchiveHandler' object has no attribute 'detect_archive_fo...
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_detect_archive_format_none[0m - AttributeError: 'ArchiveHandler' object has no attribute 'detect_archive_fo...
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_extract_zip_archive[0m - AssertionError: assert 'test.txt' in [PosixPath('/tmp/tmp8qjup8oi/extracted...
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_extract_tar_archive[0m - AssertionError: assert 'test.txt' in [PosixPath('/tmp/tmposvjxvie/extracted...
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_extract_nonexistent_archive[0m - nodupe.core.archive_handler.ArchiveHandlerError: Failed to extract archive ...
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_extract_invalid_archive[0m - nodupe.core.archive_handler.ArchiveHandlerError: Failed to extract archive ...
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_extract_archive_with_directories[0m - AssertionError: assert 'dir1/test.txt' in [PosixPath('/tmp/tmppo0ig9r3/extr...
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_extract_archive_empty[0m - assert [] == {}
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_extract_archive_with_special_characters[0m - AssertionError: assert 'файл.txt' in [PosixPath('/tmp/tmps8vyhl6r/extracted...
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_detect_archive_format_error_handling[0m - AttributeError: 'ArchiveHandler' object has no attribute 'detect_archive_fo...
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_extract_archive_readonly_directory[0m - nodupe.core.archive_handler.ArchiveHandlerError: Failed to extract archive ...
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_extract_archive_password_protected[0m - Failed: DID NOT RAISE any of (<class 'zipfile.BadZipFile'>, <class 'Runtime...
+[31mFAILED[0m tests/core/test_archive_handler.py::[1mTestArchiveHandler::test_extract_archive_duplicate_files[0m - AssertionError: assert 2 == 1
+[31mFAILED[0m tests/core/test_cli.py::[1mTestCLIErrorHandling::test_invalid_file_path[0m - SystemExit: 2
+[31mFAILED[0m tests/core/test_cli.py::[1mTestCLIErrorHandling::test_permission_error_handling[0m - SystemExit: 2
+[31mFAILED[0m tests/core/test_cli.py::[1mTestCLIDebugLogging::test_debug_logging_enabled[0m - AssertionError: expected call not found.
+[31mFAILED[0m tests/core/test_cli_commands.py::[1mTestScanCommand::test_scan_command_execution[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_cli_commands.py::[1mTestApplyCommand::test_apply_command_execution[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_cli_commands.py::[1mTestSimilarityCommand::test_similarity_command_initialization[0m - AssertionError: assert 'similarity_command' == 'similarity'
+[31mFAILED[0m tests/core/test_cli_commands.py::[1mTestSimilarityCommand::test_similarity_command_execution[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_cli_commands.py::[1mTestCommandIntegration::test_scan_apply_workflow[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_cli_errors.py::[1mTestCLIEdgeCases::test_scan_empty_directory[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_cli_errors.py::[1mTestCLIEdgeCases::test_apply_empty_input_file[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_cli_integration.py::[1mTestCLIEndToEndWorkflows::test_scan_apply_workflow_integration[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_cli_integration.py::[1mTestCLIEndToEndWorkflows::test_scan_similarity_workflow_integration[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_cli_integration.py::[1mTestCLICommandChaining::test_multiple_scan_commands[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_cli_integration.py::[1mTestCLICommandChaining::test_scan_apply_chain[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_cli_integration.py::[1mTestCLIPluginIntegration::test_plugin_command_execution[0m - AttributeError: 'function' object has no attribute 'called'
+[31mFAILED[0m tests/core/test_cli_integration.py::[1mTestCLIPluginIntegration::test_multiple_plugins_integration[0m - AttributeError: 'function' object has no attribute 'called'
+[31mFAILED[0m tests/core/test_cli_integration.py::[1mTestCLIComplexScenarios::test_large_directory_scan[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_cli_integration.py::[1mTestCLIComplexScenarios::test_complex_file_types[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_cli_integration.py::[1mTestCLIComplexScenarios::test_complex_workflow[0m - assert 1 == 0
+[31mFAILED[0m tests/core/test_config.py::[1mTestConfigManager::test_config_manager_missing_toml_module[0m - AttributeError: 'ConfigManager' object has no attribute 'config_path'
+[31mFAILED[0m tests/core/test_config.py::[1mTestConfigManager::test_config_manager_missing_config_file[0m - AssertionError: Regex pattern did not match.
+[31mFAILED[0m tests/core/test_config.py::[1mTestConfigManager::test_config_manager_default_behavior[0m - AssertionError: assert {'build-syste...', ...}, ...}} == {}
+[31mFAILED[0m tests/core/test_config.py::[1mTestLoadConfig::test_load_config_with_custom_path[0m - AssertionError: assert 'nodupe.db' == '/test/path'
+[31mFAILED[0m tests/core/test_config.py::[1mTestLoadConfig::test_load_config_missing_file[0m - AssertionError: assert {'build-syste...', ...}, ...}} == {}
+[31mFAILED[0m tests/core/test_config.py::[1mTestLoadConfig::test_load_config_integration[0m - AssertionError: assert ['jpg', 'png'...'docx', 'txt'] == ['.txt', '.pdf']
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_create_file_record[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_get_file_by_id[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_get_file_by_path[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_update_file_record[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_mark_as_duplicate[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_find_duplicates_by_hash[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_find_duplicates_by_size[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_get_all_files[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_delete_file[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_get_duplicate_files[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_get_original_files[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_count_files[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_count_duplicates[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_batch_add_files[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_database_files.py::[1mTestFileRecordManager::test_clear_all_files[0m - sqlite3.OperationalError: table files has no column named created_time
+[31mFAILED[0m tests/core/test_duplicate_detection.py::[1mTestFileProcessor::test_file_processor_initialization[0m - AssertionError: assert False
+[31mFAILED[0m tests/core/test_duplicate_detection.py::[1mTestFileProcessor::test_find_duplicates_method[0m - AttributeError: <module 'nodupe.core.scan.processor' from '/home/allaun/Wor...
+[31mFAILED[0m tests/core/test_duplicate_detection.py::[1mtest_duplicate_detection_memory_efficiency[0m - AssertionError: assert 10 == 2
+[31mFAILED[0m tests/core/test_limits.py::[1mTestLimits::test_time_limit[0m - Failed: DID NOT RAISE <class 'nodupe.core.limits.LimitsError'>
+[31mFAILED[0m tests/core/test_limits.py::[1mTestRateLimiter::test_rate_limiter_refill[0m - assert False
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginManagerIntegration::test_plugin_manager_lifecycle[0m - assert <nodupe.core.container.ServiceContainer object at 0x7fe0f3cbe780> is...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginManagerErrorHandling::test_register_duplicate_plugin[0m - ValueError: Plugin duplicate_plugin already registered
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginManagerErrorHandling::test_plugin_manager_without_container[0m - AttributeError: property 'container' of 'PluginRegistry' object has no setter
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginManagerEdgeCases::test_multiple_plugin_registrations[0m - AssertionError: assert 13 == 10
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginManagerCompatibility::test_plugin_manager_independent_instances[0m - AssertionError: assert <MagicMock id='140604137777408'> is None
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginManagerIntegrationWithCore::test_plugin_manager_in_core_loader[0m - ModuleNotFoundError: No module named 'nodupepe'
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginRegistryAdvanced::test_plugin_registry_mass_registration[0m - AssertionError: assert 115 == 100
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginRegistryAdvanced::test_plugin_registry_clear[0m - AssertionError: assert 1125 == 10
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginLoader::test_plugin_loader_initialization[0m - TypeError: PluginLoader.__init__() missing 1 required positional argument: ...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginLoader::test_plugin_loader_with_container[0m - TypeError: PluginLoader.__init__() missing 1 required positional argument: ...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginLoader::test_plugin_loader_load_unload[0m - TypeError: PluginLoader.__init__() missing 1 required positional argument: ...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginDiscovery::test_plugin_discovery_initialization[0m - AssertionError: assert False
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginLifecycle::test_plugin_lifecycle_initialization[0m - TypeError: PluginLifecycleManager.__init__() missing 1 required positional ...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginLifecycle::test_plugin_lifecycle_with_container[0m - TypeError: PluginLifecycleManager.__init__() missing 1 required positional ...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginHotReload::test_plugin_hot_reload_initialization[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginHotReload::test_plugin_hot_reload_with_container[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginCompatibility::test_plugin_compatibility_checking[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginDependencies::test_plugin_dependency_initialization[0m - ImportError: cannot import name 'PluginDependencyManager' from 'nodupe.core...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginDependencies::test_plugin_dependency_resolution[0m - ImportError: cannot import name 'PluginDependencyManager' from 'nodupe.core...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginSecurity::test_plugin_security_initialization[0m - AssertionError: assert False
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginSecurity::test_plugin_security_validation[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginIntegration::test_complete_plugin_system_workflow[0m - TypeError: PluginLoader.__init__() missing 1 required positional argument: ...
+[31mFAILED[0m tests/core/test_plugins.py::[1mTestPluginIntegration::test_plugin_system_performance[0m - TypeError: PluginLoader.__init__() missing 1 required positional argument: ...
+[31mFAILED[0m tests/core/test_time_sync_failure_rules.py::[1mTestServerStats::test_record_success[0m - AssertionError: assert 0.15000000000000002 == 0.15
+[31mFAILED[0m tests/core/test_time_sync_failure_rules.py::[1mTestFailureRuleEngine::test_unhealthy_server_retry[0m - assert 1.0 >= 10.0
+[31mFAILED[0m tests/core/test_time_sync_failure_rules.py::[1mTestFailureRuleEngine::test_connection_strategy[0m - AssertionError: assert <RetryStrategy.MODERATE: 2> == <RetryStrategy.AGGRES...
+[31mFAILED[0m tests/core/test_time_sync_failure_rules.py::[1mTestFailureRuleEngine::test_health_report[0m - assert 75.0 == 60.0
+[31mFAILED[0m tests/core/test_time_sync_failure_rules.py::[1mTestAdaptiveFailureHandler::test_network_pattern_analysis[0m - AssertionError: assert 'unknown' in ['high_failure_network', 'moderate_fail...
+[31mFAILED[0m tests/core/test_time_sync_failure_rules.py::[1mTestAdaptiveFailureHandler::test_server_exclusion_recommendation[0m - KeyError: 'recommendations'
+[31mFAILED[0m tests/integration/test_end_to_end_workflows.py::[1mTestCompleteScanApplyWorkflow::test_scan_apply_list_workflow[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_end_to_end_workflows.py::[1mTestCompleteScanApplyWorkflow::test_scan_apply_delete_workflow[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_end_to_end_workflows.py::[1mTestCompleteScanSimilarityWorkflow::test_scan_similarity_workflow[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_end_to_end_workflows.py::[1mTestPluginLifecycleIntegration::test_plugin_load_execute_shutdown_workflow[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_end_to_end_workflows.py::[1mTestPluginLifecycleIntegration::test_multiple_plugin_integration[0m - AssertionError: assert 'similarity_command' == 'similarity'
+[31mFAILED[0m tests/integration/test_end_to_end_workflows.py::[1mTestDatabaseIntegration::test_scan_database_integration[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_end_to_end_workflows.py::[1mTestDatabaseIntegration::test_apply_database_integration[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_end_to_end_workflows.py::[1mTestCLIIntegration::test_cli_scan_command_integration[0m - SystemExit: 2
+[31mFAILED[0m tests/integration/test_end_to_end_workflows.py::[1mTestComplexWorkflowIntegration::test_scan_apply_similarity_complex_workflow[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_end_to_end_workflows.py::[1mTestComplexWorkflowIntegration::test_large_dataset_workflow[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_error_recovery.py::[1mTestSystemLogging::test_scan_logging_with_verbose_output[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_error_recovery.py::[1mTestSystemLogging::test_apply_logging_with_verbose_output[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_error_recovery.py::[1mTestSystemMonitoring::test_scan_monitoring_with_error_reporting[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_error_recovery.py::[1mTestSystemMonitoring::test_apply_monitoring_with_error_reporting[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_error_recovery.py::[1mTestRecoveryValidation::test_scan_recovery_validation[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_error_recovery.py::[1mTestRecoveryValidation::test_apply_recovery_validation[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestPerformanceBenchmarking::test_scan_performance_benchmarking[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestPerformanceBenchmarking::test_apply_performance_benchmarking[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestPerformanceBenchmarking::test_similarity_performance_benchmarking[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestLargeDatasetPerformance::test_scan_large_dataset_performance[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestLargeDatasetPerformance::test_apply_large_duplicates_performance[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestMemoryUsage::test_scan_memory_usage[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestMemoryUsage::test_apply_memory_usage[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestPerformanceOptimization::test_scan_with_size_filters_performance[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestPerformanceOptimization::test_scan_with_extension_filters_performance[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestConcurrentOperationPerformance::test_multiple_scan_operations_performance[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestConcurrentOperationPerformance::test_sequential_workflow_performance[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestPerformanceRegression::test_performance_regression_detection[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_performance.py::[1mTestPerformanceRegression::test_memory_leak_detection[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestContinuousOperation::test_repeated_scan_operations[0m - assert 0 >= 18
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestContinuousOperation::test_repeated_apply_operations[0m - assert 0 >= 14
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestContinuousOperation::test_repeated_similarity_operations[0m - assert 0 >= 9
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestResourceStress::test_scan_with_large_file_count[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestResourceStress::test_apply_with_large_duplicate_groups[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestErrorRecoveryMechanisms::test_scan_recovery_from_file_errors[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestErrorRecoveryMechanisms::test_apply_recovery_from_invalid_data[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestLongRunningOperations::test_long_running_scan_operation[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestLongRunningOperations::test_long_running_apply_operation[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestResourceManagement::test_resource_cleanup_after_scan[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestResourceManagement::test_resource_cleanup_after_apply[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestSystemStability::test_comprehensive_system_stability[0m - assert 0 >= 4
+[31mFAILED[0m tests/integration/test_system_reliability.py::[1mTestSystemStability::test_system_reliability_under_load[0m - assert 0 >= 8
+[31mFAILED[0m tests/integration/test_system_security.py::[1mTestDataProtection::test_scan_data_protection[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_security.py::[1mTestDataProtection::test_apply_data_protection[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_security.py::[1mTestSecureFileHandling::test_scan_secure_file_handling[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_security.py::[1mTestSecureFileHandling::test_apply_secure_file_handling[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_security.py::[1mTestPluginSecurity::test_plugin_security_boundaries[0m - AssertionError: assert 'similarity_command' == 'similarity'
+[31mFAILED[0m tests/integration/test_system_security.py::[1mTestPluginSecurity::test_plugin_isolation[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_security.py::[1mTestSecurityValidation::test_scan_security_validation[0m - assert 1 == 0
+[31mFAILED[0m tests/integration/test_system_security.py::[1mTestSecurityValidation::test_apply_security_validation[0m - assert 1 == 0
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_plugin_metadata[0m - AttributeError: 'LeapYearPlugin' object has no attribute 'metadata'
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_initialization_custom_values[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'ca...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_invalid_calendar[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'ca...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_year_validation[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'mi...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_gregorian_leap_years[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'ca...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_gregorian_century_years[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'ca...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_julian_leap_years[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'ca...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_ben_joffe_algorithm_gregorian[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'ca...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_ben_joffe_algorithm_julian[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'ca...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_find_leap_years[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'ca...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_count_leap_years[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'ca...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_is_leap_year_batch[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'ca...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_leap_year_range_iterator[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'ca...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_get_easter_date[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'ca...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_caching_enabled[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'en...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_caching_disabled[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'en...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_enable_disable_caching[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'en...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_previous_leap_year_error[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'mi...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_get_leap_year_cycle[0m - assert (2025, 2026, 2027, 2028) == (2021, 2022, 2023, 2024)
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_boundary_years[0m - TypeError: LeapYearPlugin.__init__() got an unexpected keyword argument 'mi...
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_large_year_ranges[0m - assert 15 < 10
+[31mFAILED[0m tests/plugins/test_leap_year.py::[1mTestLeapYearPlugin::test_plugin_lifecycle[0m - TypeError: LeapYearPlugin.initialize() missing 1 required positional argume...
+[31mFAILED[0m tests/plugins/test_plugin_compatibility.py::[1mTestPluginCompatibilityOperations::test_check_incompatible_plugin[0m - assert True is False
+[31mFAILED[0m tests/plugins/test_plugin_compatibility.py::[1mTestPluginCompatibilityEdgeCases::test_check_plugin_with_empty_name[0m - nodupe.core.plugin_system.compatibility.PluginCompatibilityError: Plugin mu...
+[31mFAILED[0m tests/plugins/test_plugin_compatibility.py::[1mTestPluginCompatibilityEdgeCases::test_check_plugin_with_missing_methods[0m - TypeError: Can't instantiate abstract class IncompletePlugin without an imp...
+[31mFAILED[0m tests/plugins/test_plugin_compatibility.py::[1mTestPluginCompatibilityIntegration::test_compatibility_with_loader[0m - AttributeError: 'PluginLoader' object has no attribute 'load_plugin'. Did y...
+[31mFAILED[0m tests/plugins/test_plugin_compatibility.py::[1mTestPluginCompatibilityErrorHandling::test_check_compatibility_with_missing_attributes[0m - TypeError: Can't instantiate abstract class IncompletePlugin without an imp...
+[31mFAILED[0m tests/plugins/test_plugin_compatibility.py::[1mTestPluginCompatibilityAdvanced::test_compatibility_with_complex_dependencies[0m - assert (0 > 0 or 0 > 0)
+[31mFAILED[0m tests/plugins/test_plugin_compatibility.py::[1mTestPluginCompatibilityAdvanced::test_compatibility_with_conditional_checking[0m - assert True is False
+[31mFAILED[0m tests/plugins/test_plugin_compatibility.py::[1mTestPluginCompatibilityAdvanced::test_compatibility_with_dynamic_dependency_management[0m - AssertionError: assert {'compatible': True, 'issues': [], 'warnings': []} !...
+[31mFAILED[0m tests/plugins/test_plugin_discovery.py::[1mTestPluginDiscoveryAdvanced::test_discover_plugins_with_complex_metadata[0m - AssertionError: assert 'feature1' in {}
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReload::test_plugin_hot_reload_initialization[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReload::test_plugin_hot_reload_with_container[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReload::test_plugin_hot_reload_lifecycle[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadOperations::test_watch_plugin[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadOperations::test_watch_multiple_plugins[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadOperations::test_start_hot_reload[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadOperations::test_stop_hot_reload[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadOperations::test_hot_reload_lifecycle[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadEdgeCases::test_watch_duplicate_plugin[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadEdgeCases::test_watch_plugin_with_nonexistent_path[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadEdgeCases::test_start_hot_reload_already_running[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadEdgeCases::test_stop_hot_reload_not_running[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadPerformance::test_mass_plugin_watching[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadPerformance::test_hot_reload_performance[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadIntegration::test_hot_reload_with_registry[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadIntegration::test_hot_reload_with_loader[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadErrorHandling::test_watch_plugin_with_invalid_name[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadErrorHandling::test_watch_plugin_with_invalid_path[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadErrorHandling::test_start_hot_reload_with_exception[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadAdvanced::test_hot_reload_with_plugin_lifecycle[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadAdvanced::test_hot_reload_with_conditional_watching[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_hot_reload.py::[1mTestPluginHotReloadAdvanced::test_hot_reload_with_dynamic_plugin_management[0m - TypeError: PluginHotReload.__init__() missing 3 required positional argumen...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleManager::test_plugin_lifecycle_manager_initialization[0m - AssertionError: assert False
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleManager::test_plugin_lifecycle_manager_with_container[0m - AttributeError: 'PluginLifecycleManager' object has no attribute 'initialize'
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleManager::test_plugin_lifecycle_manager_lifecycle[0m - AttributeError: 'PluginLifecycleManager' object has no attribute 'initialize'
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginState::test_plugin_state_enum[0m - AssertionError: assert False
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleOperations::test_initialize_plugin[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleOperations::test_shutdown_plugin[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleOperations::test_initialize_all_plugins[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleOperations::test_shutdown_all_plugins[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleOperations::test_get_plugin_state[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleOperations::test_is_plugin_initialized[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleOperations::test_is_plugin_active[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleOperations::test_get_active_plugins[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleOperations::test_get_plugin_dependencies[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleOperations::test_set_plugin_dependencies[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleEdgeCases::test_initialize_nonexistent_plugin[0m - TypeError: PluginLifecycleManager.initialize_plugin() missing 1 required po...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleEdgeCases::test_initialize_plugin_with_exception[0m - TypeError: Can't instantiate abstract class FailingPlugin without an implem...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleEdgeCases::test_shutdown_plugin_with_exception[0m - TypeError: Can't instantiate abstract class FailingPlugin without an implem...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleEdgeCases::test_initialize_already_initialized_plugin[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleEdgeCases::test_shutdown_already_shutdown_plugin[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecyclePerformance::test_mass_plugin_initialization[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecyclePerformance::test_plugin_lifecycle_performance[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleIntegration::test_plugin_lifecycle_with_registry[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleIntegration::test_plugin_lifecycle_with_loader[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleErrorHandling::test_initialize_plugin_with_missing_methods[0m - TypeError: Can't instantiate abstract class IncompletePlugin without an imp...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleErrorHandling::test_initialize_plugin_with_invalid_state[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleErrorHandling::test_shutdown_plugin_with_invalid_state[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleAdvanced::test_plugin_lifecycle_with_dependencies[0m - TypeError: Can't instantiate abstract class PluginA without an implementati...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleAdvanced::test_plugin_lifecycle_with_circular_dependencies[0m - TypeError: Can't instantiate abstract class PluginA without an implementati...
+[31mFAILED[0m tests/plugins/test_plugin_lifecycle.py::[1mTestPluginLifecycleAdvanced::test_plugin_lifecycle_with_conditional_initialization[0m - TypeError: Can't instantiate abstract class PluginA without an implementati...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoader::test_plugin_loader_initialization[0m - AssertionError: assert False
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoader::test_plugin_loader_with_container[0m - AttributeError: 'PluginLoader' object has no attribute 'initialize'
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoader::test_plugin_loader_lifecycle[0m - AttributeError: 'PluginLoader' object has no attribute 'initialize'
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoading::test_load_plugin[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoading::test_load_plugin_with_container[0m - AttributeError: 'PluginLoader' object has no attribute 'initialize'
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoading::test_unload_plugin[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoading::test_get_loaded_plugin[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoading::test_get_all_loaded_plugins[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoadingEdgeCases::test_load_plugin_without_name[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoadingEdgeCases::test_load_plugin_with_invalid_name[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoadingEdgeCases::test_load_duplicate_plugin[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoadingEdgeCases::test_unload_nonexistent_plugin[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoadingPerformance::test_mass_plugin_loading[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoadingPerformance::test_plugin_loading_performance[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoaderIntegration::test_plugin_loader_with_registry[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoaderIntegration::test_plugin_loader_with_lifecycle_manager[0m - TypeError: Can't instantiate abstract class TestPlugin without an implement...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoaderErrorHandling::test_load_invalid_plugin[0m - AttributeError: 'PluginLoader' object has no attribute 'load_plugin'. Did y...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoaderErrorHandling::test_load_plugin_with_missing_methods[0m - TypeError: Can't instantiate abstract class IncompletePlugin without an imp...
+[31mFAILED[0m tests/plugins/test_plugin_loader.py::[1mTestPluginLoaderErrorHandling::test_load_plugin_with_exception_in_initialize[0m - TypeError: Can't instantiate abstract class FailingPlugin without an implem...
+[31mFAILED[0m tests/plugins/test_plugin_registry.py::[1mTestPluginRegistry::test_plugin_registration[0m - ValueError: Plugin test_plugin already registered
+[31mFAILED[0m tests/plugins/test_plugin_registry.py::[1mTestPluginRegistry::test_plugin_unregistration[0m - ValueError: Plugin test_plugin already registered
+[31mFAILED[0m tests/plugins/test_plugin_registry.py::[1mTestPluginRegistry::test_get_all_plugins[0m - ValueError: Plugin plugin_0 already registered
+[31mFAILED[0m tests/plugins/test_plugin_registry.py::[1mTestPluginRegistry::test_plugin_registry_lifecycle[0m - assert <nodupe.core.container.ServiceContainer object at 0x7fe0d4ee1910> is...
+[31mFAILED[0m tests/plugins/test_plugin_registry.py::[1mTestPluginRegistryEdgeCases::test_multiple_plugin_registrations[0m - AssertionError: assert 13 == 10
+[31mFAILED[0m tests/plugins/test_plugin_registry.py::[1mTestPluginRegistryPerformance::test_plugin_registry_mass_registration[0m - AssertionError: assert 113 == 100
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_plugin_metadata[0m - AttributeError: 'TimeSyncPlugin' object has no attribute 'metadata'
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_initialization_defaults[0m - AssertionError: assert ['time.google...pool.ntp.org'] == ['time.google...po...
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_disabled_behavior_fallback[0m - AttributeError: type object 'TimeSyncPlugin' has no attribute '_get_excepti...
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_force_sync_success[0m - AttributeError: module 'nodupe.plugins.time_sync' has no attribute 'socket'
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_force_sync_disabled_network[0m - AttributeError: module 'nodupe.plugins.time_sync' has no attribute 'socket'
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_force_sync_disabled_plugin[0m - AttributeError: module 'nodupe.plugins.time_sync' has no attribute 'socket'
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_force_sync_high_delay[0m - AttributeError: module 'nodupe.plugins.time_sync' has no attribute 'socket'
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_maybe_sync_success[0m - AttributeError: module 'nodupe.plugins.time_sync' has no attribute 'socket'
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_maybe_sync_failure[0m - AttributeError: module 'nodupe.plugins.time_sync' has no attribute 'socket'
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_background_sync_start_stop[0m - AttributeError: module 'nodupe.plugins.time_sync' has no attribute 'socket'
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_background_sync_disabled_network[0m - AttributeError: type object 'TimeSyncPlugin' has no attribute '_get_excepti...
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_background_sync_disabled_background[0m - AttributeError: type object 'TimeSyncPlugin' has no attribute '_get_excepti...
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_get_corrected_time_after_sync[0m - AttributeError: module 'nodupe.plugins.time_sync' has no attribute 'socket'
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_get_status[0m - AttributeError: 'TimeSyncPlugin' object has no attribute '_leap_year_calcul...
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_smoothing_alpha_applied[0m - AttributeError: module 'nodupe.plugins.time_sync' has no attribute 'socket'
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_get_authenticated_time_disabled_plugin[0m - AttributeError: type object 'TimeSyncPlugin' has no attribute '_get_excepti...
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_get_authenticated_time_unsupported_format[0m - RuntimeError: Unable to obtain time from any source: Unsupported format: in...
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_get_authenticated_time_fallback_warning[0m - AttributeError: <module 'nodupe.plugins.time_sync' from '/home/allaun/Works...
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_get_authenticated_time_monotonic_fallback[0m - AttributeError: <module 'nodupe.plugins.time_sync' from '/home/allaun/Works...
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_get_authenticated_time_network_failure_fallback[0m - AttributeError: <module 'nodupe.plugins.time_sync' from '/home/allaun/Works...
+[31mFAILED[0m tests/plugins/test_time_sync.py::[1mTestTimeSyncPlugin::test_get_authenticated_time_case_insensitive_formats[0m - RuntimeError: Unable to obtain time from any source: Unsupported format: IS...
+[31mFAILED[0m tests/test_basic.py::[1mtest_sample_files_fixture[0m - AssertionError: assert 5 == 4
+[31mFAILED[0m tests/test_basic.py::[1mtest_mock_config_fixture[0m - assert 10.0 == 30.0
+[31mFAILED[0m tests/test_utils.py::[1mtest_performance_utilities[0m - TypeError: test_performance_utilities.<locals>.test_function() got an unexp...
+[31mFAILED[0m tests/performance/test_time_sync_performance.py::[1mTestParallelNTPClient::test_parallel_vs_sequential_performance[0m - NameError: name 'socket' is not defined. Did you forget to import 'socket'?
+[31mFAILED[0m tests/performance/test_time_sync_performance.py::[1mTestParallelNTPClient::test_early_termination_with_good_result[0m - NameError: name 'socket' is not defined. Did you forget to import 'socket'?
+[31mFAILED[0m tests/performance/test_time_sync_performance.py::[1mTestParallelNTPClient::test_dns_caching_performance[0m - assert 4.969999281456694e-06 < (5.160000000614673e-06 * 0.5)
+[31mFAILED[0m tests/performance/test_time_sync_performance.py::[1mTestTimeSyncPluginPerformance::test_parallel_sync_performance[0m - RuntimeError: No successful NTP responses
+[31mFAILED[0m tests/performance/test_time_sync_performance.py::[1mTestTimeSyncPluginPerformance::test_metrics_collection[0m - assert 2 == 1
+[31mFAILED[0m tests/performance/test_time_sync_performance.py::[1mTestTimeSyncPluginPerformance::test_fastdate64_integration[0m - assert 2.9393559088930488e-06 < 1e-06
+[31m======================= [31m[1m275 failed[0m, [32m683 passed[0m[31m in 55.74s[0m[31m =======================[0m

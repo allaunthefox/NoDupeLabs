@@ -27,8 +27,10 @@ from typing import List, Dict, Any, Optional
 from .compression import Compression
 from .mime_detection import MIMEDetection
 
+
 class ArchiveHandlerError(Exception):
     """Archive handling error"""
+
 
 class ArchiveHandler:
     """Handle archive file detection and extraction.
@@ -117,9 +119,9 @@ class ArchiveHandler:
 
             # Extract archive
             extracted_files = Compression.extract_archive(
-                archive_path_obj,
-                extract_dir,
-                archive_format
+                archive_path=archive_path_obj,
+                output_dir=extract_dir,
+                format_=archive_format  # Changed from format to format_ to avoid conflict with built-in format
             )
 
             return extracted_files
@@ -146,7 +148,7 @@ class ArchiveHandler:
                 if extracted_file.is_file():
                     try:
                         stat = extracted_file.stat()
-                        relative_path = str(Path(archive_path).name) + '/' + str(extracted_file.relative_to(extracted_file.parent))
+                        relative_path = str(Path(archive_path).name) + '/' + str(extracted_file.relative_to(extracted_file.parent.parent))
 
                         file_info = {
                             'path': str(extracted_file),
@@ -191,6 +193,7 @@ class ArchiveHandler:
     def __del__(self):
         """Destructor to ensure cleanup."""
         self.cleanup()
+
 
 def create_archive_handler() -> ArchiveHandler:
     """Create and return an ArchiveHandler instance.

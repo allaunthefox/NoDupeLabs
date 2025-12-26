@@ -8,14 +8,7 @@ It leverages the Even Better TOML VSCode extension for enhanced TOML support.
 import os
 import sys
 from typing import Dict, Any, Optional
-
-try:
-    import toml
-except ImportError:
-    # We'll handle the missing toml dependency gracefully in the class if needed,
-    # or let the import error propagate if it's a hard dependency for this module.
-    # For now, we will re-raise properly or handle it in __init__
-    toml = None
+import toml  # Make sure toml is available as a hard dependency for this module
 
 
 class ConfigManager:
@@ -50,8 +43,11 @@ class ConfigManager:
                 f"Configuration file {self.config_path} not found")
 
         try:
-            with open(self.config_path, 'r', encoding='utf-8') as f:
+            # Handle UTF-8 BOM by reading with 'utf-8-sig' encoding
+            with open(self.config_path, 'r', encoding='utf-8-sig') as f:
                 self.config = toml.load(f)
+        except PermissionError as e:
+            raise PermissionError(f"Permission denied accessing config file: {e}") from e
         except Exception as e:
             raise ValueError(f"Error parsing TOML file: {e}") from e
 
@@ -95,7 +91,8 @@ class ConfigManager:
             The configuration value or default if not found
         """
         try:
-            return self.get_nodupe_config().get(section, {}).get(key, default)
+            nodupe_config = self.get_nodupe_config()
+            return nodupe_config.get(section, {}).get(key, default)
         except Exception:
             return default
 

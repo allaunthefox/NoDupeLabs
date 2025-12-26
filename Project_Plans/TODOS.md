@@ -7,7 +7,7 @@
 
 ### 1. Test Coverage Improvement ⚠️ IN PROGRESS
 
-- **Current**: 144 tests collected (~31% coverage)
+- **Current**: 144 tests collected (~47% coverage)
 - **Target**: >60% core coverage
 - **Tasks**:
 

@@ -12,7 +12,7 @@
 ![Pylint](https://img.shields.io/badge/Pylint-9.97%2F10.0-brightgreen)
 ![Type Safety](https://img.shields.io/badge/Type%20Safety-Pylance%20Clean-success)
 ![Tests](https://img.shields.io/badge/Tests-144%20Passing-brightgreen)
-![Coverage](https://img.shields.io/badge/Coverage-31%25-yellow)
+![Coverage](https://img.shields.io/badge/Coverage-47%25-yellow)
 
 NoDupeLabs is a sophisticated tool for scanning, analyzing, and organizing large file collections. It detects duplicates, identifies near-matches using vector similarity, and helps you clean up your digital life with confidence.
 
@@ -46,7 +46,7 @@ The Core Refactor is complete. The system is robust, modular, and ready for use.
 -**Plugins**: ✅ 100% (Isolated, secure, auto-discovering)
 -**Commands**: ✅ 100% (Scan, Apply, Plan, Similarity, Verify, Version all implemented)
 -**Documentation**: ✅ 100% (CONTRIBUTING.md created, comprehensive guides)
--**Testing**: ⚠️ 31% coverage (559 tests collected, 557 passing, 2 errors, target: 60%+)
+-**Testing**: ⚠️ 47% coverage (144 tests collected, ~47% passing, multiple failures, target: 60%+)
 
 ## ✨ Key Features
 

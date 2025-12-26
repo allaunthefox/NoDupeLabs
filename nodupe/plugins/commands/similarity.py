@@ -24,25 +24,39 @@ from typing import Any, Dict
 # Plugin manager is injected by the core system
 PM: Any = None
 
+# Plugin metadata (UUID-based specification)
+PLUGIN_METADATA = {
+    "uuid": "07a94075-6cb0-437c-9bf1-4a284b13e7ac",
+    "name": "similarity_command",
+    "display_name": "Similarity Search Plugin",
+    "version": "v1.0.0",
+    "description": "Find similar files using various metrics",
+    "author": "NoDupeLabs Team",
+    "category": "ml",
+    "dependencies": ["similarity_backend"],
+    "compatibility": {
+        "python": ">=3.9",
+        "nodupe_core": ">=1.0.0"
+    },
+    "tags": ["similarity", "ml", "search", "duplicate-detection"],
+    "marketplace_id": "similarity_command_07a94075-6cb0-437c-9bf1-4a284b13e7ac"
+}
+
 
 class SimilarityCommandPlugin(Plugin):
     """Similarity command plugin implementation."""
 
-    name = "similarity_command"
-    version = "1.0.0"
-    dependencies = ["similarity_backend"]
-
     def __init__(self):
-        """Initialize similarity plugin."""
-        self.description = "Find similar files using various metrics"
-        # Hook registration moved to initialize
+        """Initialize similarity plugin with UUID metadata."""
+        super().__init__(PLUGIN_METADATA)
 
     def initialize(self, container: Any) -> None:
         """Initialize the plugin."""
-        # Retrieve PM from container if available
+        self._initialized = True
 
     def shutdown(self) -> None:
         """Shutdown the plugin."""
+        self._initialized = False
 
     def get_capabilities(self) -> Dict[str, Any]:
         """Get plugin capabilities."""

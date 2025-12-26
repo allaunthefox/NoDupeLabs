@@ -35,15 +35,25 @@ class PluginLoader:
     and lifecycle management.
     """
 
-    def __init__(self, registry: PluginRegistry):
+    def __init__(self, registry: Optional[PluginRegistry] = None):
         """Initialize plugin loader.
 
         Args:
-            registry: Plugin registry instance
+            registry: Plugin registry instance (optional, will create if None)
         """
-        self.registry = registry
+        self.registry = registry or PluginRegistry()
         self._loaded_plugins: Dict[str, Plugin] = {}
         self._plugin_modules: Dict[str, Any] = {}
+
+    def initialize(self, container: Any) -> None:
+        """Initialize the plugin loader with dependency container.
+
+        Args:
+            container: Dependency container instance
+        """
+        self.container = container
+        if self.registry and hasattr(self.registry, 'initialize'):
+            self.registry.initialize(container)
 
     def load_plugin_from_file(
         self,
@@ -95,6 +105,17 @@ class PluginLoader:
             if isinstance(e, PluginLoaderError):
                 raise
             raise PluginLoaderError(f"Failed to load plugin {plugin_path}: {e}") from e
+
+    def load_plugin(self, plugin_path: Path) -> Optional[Type[Plugin]]:
+        """Load a plugin from file (alias for load_plugin_from_file).
+        
+        Args:
+            plugin_path: Path to plugin file
+
+        Returns:
+            Plugin class or None if loading failed
+        """
+        return self.load_plugin_from_file(plugin_path)
 
     def load_plugin_from_directory(
         self,
@@ -213,7 +234,8 @@ class PluginLoader:
             PluginLoaderError: If registration fails
         """
         try:
-            self.registry.register(plugin_instance)
+            if self.registry:
+                self.registry.register(plugin_instance)
 
         except Exception as e:
             raise PluginLoaderError(f"Failed to register plugin {plugin_instance.name}: {e}") from e
@@ -266,6 +288,14 @@ class PluginLoader:
             Dictionary of plugin name to instance
         """
         return self._loaded_plugins.copy()
+
+    def get_loaded_plugins(self) -> Dict[str, Plugin]:
+        """Get all loaded plugin instances (alias for get_all_loaded_plugins).
+        
+        Returns:
+            Dictionary of plugin name to instance
+        """
+        return self.get_all_loaded_plugins()
 
     def _find_plugin_class(self, module: Any) -> Optional[Type[Plugin]]:
         """Find Plugin subclass in module.

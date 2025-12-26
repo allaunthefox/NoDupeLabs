@@ -1,0 +1,237 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'nodupe/**/*.py'
+      - 'docs/**'
+      - 'pyproject.toml'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - 'nodupe/**/*.py'
+      - 'docs/**'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs-sphinx:
+    name: Build Sphinx Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[docs]
+
+      - name: Build Sphinx documentation
+        run: |
+          python scripts/build_docs.py --builder sphinx --clean
+
+      - name: Upload Sphinx docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sphinx-docs
+          path: docs/_build/
+          retention-days: 7
+
+      - name: Test documentation links
+        run: |
+          echo "✅ Sphinx documentation built successfully"
+          echo "📁 Documentation files:"
+          find docs/_build -name "*.html" | head -5
+
+  docs-mkdocs:
+    name: Build MkDocs Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[mkdocs]
+
+      - name: Build MkDocs documentation
+        run: |
+          python scripts/build_docs.py --builder mkdocs --clean
+
+      - name: Upload MkDocs docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: mkdocs-docs
+          path: site/
+          retention-days: 7
+
+      - name: Test documentation links
+        run: |
+          echo "✅ MkDocs documentation built successfully"
+          echo "📁 Documentation files:"
+          find site -name "*.html" | head -5
+
+  docs-deploy:
+    name: Deploy Documentation
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [docs-sphinx, docs-mkdocs]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Sphinx docs
+        uses: actions/download-artifact@v4
+        with:
+          name: sphinx-docs
+          path: docs/_build/
+
+      - name: Download MkDocs docs
+        uses: actions/download-artifact@v4
+        with:
+          name: mkdocs-docs
+          path: site/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          publish_branch: gh-pages
+          force_orphan: true
+          cname: nodupelabs.readthedocs.io
+
+      - name: Verify deployment
+        run: |
+          echo "✅ Documentation deployed successfully!"
+          echo "🌐 Documentation URL: ${{ steps.deployment.outputs.page_url }}"
+          curl -f ${{ steps.deployment.outputs.page_url }} || exit 1
+
+  docs-markify:
+    name: Build Markify Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[markify]
+
+      - name: Build Markify documentation
+        run: |
+          python scripts/build_docs.py --builder markify --clean
+
+      - name: Upload Markify docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: markify-docs
+          path: output/markify/
+          retention-days: 7
+
+      - name: Test Markify output
+        run: |
+          echo "✅ Markify documentation built successfully"
+          echo "📁 Markify docs:"
+          find output/markify -name "*.html" | head -5
+
+  docs-preview:
+    name: Preview Documentation
+    if: github.event_name == 'pull_request'
+    needs: [docs-sphinx, docs-mkdocs, docs-markify]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Sphinx docs
+        uses: actions/download-artifact@v4
+        with:
+          name: sphinx-docs
+          path: docs/_build/
+
+      - name: Download MkDocs docs
+        uses: actions/download-artifact@v4
+        with:
+          name: mkdocs-docs
+          path: site/
+
+      - name: Download Markify docs
+        uses: actions/download-artifact@v4
+        with:
+          name: markify-docs
+          path: output/markify/
+
+      - name: Create preview artifacts
+        run: |
+          echo "✅ Documentation preview ready for PR #${{ github.event.number }}"
+          echo "📁 Sphinx docs: docs/_build/"
+          echo "📁 MkDocs site: site/"
+          echo "📁 Markify docs: output/markify/"
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '📚 Documentation preview is ready!\n\n**Sphinx Docs**: Check the `sphinx-docs` artifact\n**MkDocs Site**: Check the `mkdocs-docs` artifact\n**Markify Docs**: Check the `markify-docs` artifact\n\nTo view locally, download the artifacts and open the HTML files in your browser.'
+            })

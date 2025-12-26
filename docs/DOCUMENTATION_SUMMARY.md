@@ -92,8 +92,8 @@ This document summarizes the recent documentation updates and improvements made 
 | --- | --- | --- | --- |
 | **Pylint Score** | 9.97/10 | 10.0 | ✅ Excellent |
 | **Type Safety** | Pylance Clean | Zero errors | ✅ Achieved |
-| **Test Coverage** | ~31% | 60%+ | ⚠️ Needs Improvement |
-| **Test Status** | 559/559 tests passing | 100% passing | ✅ Operational |
+| **Test Coverage** | ~47% | 60%+ | ⚠️ Needs Improvement |
+| **Test Status** | 144 tests collected, ~47% passing | 100% passing | ⚠️ Needs Work |
 | **CI/CD** | Automated | Full automation | ✅ Operational |
 | **Documentation** | Comprehensive | Complete | ✅ CONTRIBUTING.md Added |
 

@@ -635,7 +635,7 @@ class TestPluginSecurity:
         class TestPlugin(Plugin):
             def __init__(self):
                 self.name = "test_plugin"
-                self.version = "1.0.0"
+                self.version = "v1.0.0"
                 self.dependencies = []
 
             def initialize(self, container):
