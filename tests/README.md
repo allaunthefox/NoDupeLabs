@@ -245,7 +245,7 @@ addopts = """
     --cov-report=term-missing
     --cov-report=html:htmlcov
     --cov-report=xml:coverage.xml
-    --cov-fail-under=80
+    --cov-fail-under=100
     --cov-branch
     -n auto
     -v

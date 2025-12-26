@@ -265,7 +265,7 @@ Project_Plans/
 - [ ] Fix PluginCompatibility import error
 - [ ] Fix Windows resource module import
 - [ ] Consolidate duplicate CI workflow files
-- [ ] Increase core test coverage to 60%+
+- [ ] Increase core test coverage to 100%
 - [ ] Add error handling tests
 - [ ] Test all hashing algorithms
 

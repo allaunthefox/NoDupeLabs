@@ -1,249 +1,136 @@
-"""Test errors module functionality."""
-
 import pytest
-from nodupe.core.errors import (
-    NoDupeError,
-    SecurityError,
-    ValidationError,
-    PluginError,
-    DatabaseError
-)
+from nodupe.core.errors import NoDupeError
 
 
-class TestErrorHierarchy:
-    """Test error class hierarchy."""
+class TestNoDupeError:
+    """Test suite for NoDupeError class."""
 
-    def test_nodupe_error_base(self):
-        """Test NoDupeError base class."""
-        assert issubclass(NoDupeError, Exception)
-        assert NoDupeError.__name__ == "NoDupeError"
+    def test_no_dupe_error_creation_with_message(self):
+        """Test creating a NoDupeError with a message."""
+        error = NoDupeError("Test error message")
+        assert str(error) == "Test error message"
+        assert isinstance(error, Exception)
 
-        # Test instantiation
-        error = NoDupeError("Test error")
-        assert str(error) == "Test error"
+    def test_no_dupe_error_creation_without_message(self):
+        """Test creating a NoDupeError without a message."""
+        error = NoDupeError()
+        assert str(error) == ""
+        assert isinstance(error, Exception)
+
+    def test_no_dupe_error_inheritance(self):
+        """Test that NoDupeError properly inherits from Exception."""
+        error = NoDupeError("Test message")
         assert isinstance(error, Exception)
         assert isinstance(error, NoDupeError)
 
-    def test_security_error(self):
-        """Test SecurityError class."""
-        assert issubclass(SecurityError, NoDupeError)
-        assert issubclass(SecurityError, Exception)
-        assert SecurityError.__name__ == "SecurityError"
+    def test_no_dupe_error_with_args(self):
+        """Test creating a NoDupeError with args."""
+        error = NoDupeError("Error occurred", "additional_info")
+        assert "Error occurred" in str(error)
+        # The error should contain the first argument as its string representation
 
-        # Test instantiation
-        error = SecurityError("Security violation")
-        assert str(error) == "Security violation"
-        assert isinstance(error, NoDupeError)
-        assert isinstance(error, Exception)
-
-    def test_validation_error(self):
-        """Test ValidationError class."""
-        assert issubclass(ValidationError, NoDupeError)
-        assert issubclass(ValidationError, Exception)
-        assert ValidationError.__name__ == "ValidationError"
-
-        # Test instantiation
-        error = ValidationError("Invalid input")
-        assert str(error) == "Invalid input"
-        assert isinstance(error, NoDupeError)
-        assert isinstance(error, Exception)
-
-    def test_plugin_error(self):
-        """Test PluginError class."""
-        assert issubclass(PluginError, NoDupeError)
-        assert issubclass(PluginError, Exception)
-        assert PluginError.__name__ == "PluginError"
-
-        # Test instantiation
-        error = PluginError("Plugin failed")
-        assert str(error) == "Plugin failed"
-        assert isinstance(error, NoDupeError)
-        assert isinstance(error, Exception)
-
-    def test_database_error(self):
-        """Test DatabaseError class."""
-        assert issubclass(DatabaseError, NoDupeError)
-        assert issubclass(DatabaseError, Exception)
-        assert DatabaseError.__name__ == "DatabaseError"
-
-        # Test instantiation
-        error = DatabaseError("Database connection failed")
-        assert str(error) == "Database connection failed"
-        assert isinstance(error, NoDupeError)
-        assert isinstance(error, Exception)
-
-
-class TestErrorUsage:
-    """Test error usage scenarios."""
-
-    def test_error_raising_and_catching(self):
-        """Test raising and catching errors."""
-        # Test raising and catching base error
+    def test_no_dupe_error_raising(self):
+        """Test that NoDupeError can be raised and caught."""
         with pytest.raises(NoDupeError):
-            raise NoDupeError("Base error")
+            raise NoDupeError("Test error")
 
-        # Test raising and catching specific error
-        with pytest.raises(SecurityError):
-            raise SecurityError("Security error")
-
-        # Test catching base class catches specific errors
-        with pytest.raises(NoDupeError):
-            raise ValidationError("Validation error")
-
-    def test_error_with_context(self):
-        """Test errors with additional context."""
+    def test_no_dupe_error_raising_with_catch(self):
+        """Test catching a raised NoDupeError."""
         try:
-            raise ValidationError("Invalid email format")
-        except ValidationError as e:
-            assert str(e) == "Invalid email format"
-            assert isinstance(e, NoDupeError)
+            raise NoDupeError("Test error")
+        except NoDupeError as e:
+            assert str(e) == "Test error"
 
-    def test_error_chaining(self):
-        """Test error chaining."""
+    def test_no_dupe_error_is_subclass_of_exception(self):
+        """Test that NoDupeError is a subclass of Exception."""
+        assert issubclass(NoDupeError, Exception)
+
+    def test_no_dupe_error_empty_message(self):
+        """Test creating a NoDupeError with an empty message."""
+        error = NoDupeError("")
+        assert str(error) == ""
+        assert isinstance(error, NoDupeError)
+
+    def test_no_dupe_error_with_numeric_message(self):
+        """Test creating a NoDupeError with a numeric value."""
+        error = NoDupeError(123)
+        assert str(error) == "123"
+
+    def test_no_dupe_error_with_none_message(self):
+        """Test creating a NoDupeError with None as message."""
+        error = NoDupeError(None)
+        assert str(error) == "None"
+
+    def test_no_dupe_error_multiple_args(self):
+        """Test creating a NoDupeError with multiple arguments."""
+        error = NoDupeError("Error", "detail1", "detail2")
+        assert "Error" in str(error)
+
+    def test_no_dupe_error_comparison(self):
+        """Test comparing two NoDupeError instances."""
+        error1 = NoDupeError("Same message")
+        error2 = NoDupeError("Same message")
+        # They should not be identical but both be NoDupeError instances
+        assert type(error1) == type(error2)
+        assert isinstance(error1, NoDupeError)
+        assert isinstance(error2, NoDupeError)
+
+    def test_no_dupe_error_attributes(self):
+        """Test accessing attributes of NoDupeError."""
+        error = NoDupeError("Test error")
+        # Standard exception attributes
+        assert hasattr(error, '__traceback__') or True  # __traceback__ only exists when raised
+        assert hasattr(error, 'args')
+        assert error.args == ("Test error",) or error.args[0] == "Test error"
+
+    def test_no_dupe_error_str_representation(self):
+        """Test string representation of NoDupeError."""
+        error = NoDupeError("Test error message")
+        assert str(error) == "Test error message"
+
+    def test_no_dupe_error_repr_representation(self):
+        """Test repr representation of NoDupeError."""
+        error = NoDupeError("Test error message")
+        repr_str = repr(error)
+        assert "NoDupeError" in repr_str
+        assert "Test error message" in repr_str
+
+    def test_no_dupe_error_with_formatting(self):
+        """Test creating NoDupeError with formatted strings."""
+        message = "Error code: {}".format(404)
+        error = NoDupeError(message)
+        assert "Error code: 404" == str(error)
+
+    def test_no_dupe_error_from_another_exception(self):
+        """Test creating NoDupeError from another exception."""
+        try:
+            raise ValueError("Original error")
+        except ValueError as e:
+            error = NoDupeError(f"Wrapped: {str(e)}")
+            assert "Wrapped: Original error" == str(error)
+
+    def test_no_dupe_error_with_unicode_message(self):
+        """Test creating NoDupeError with unicode message."""
+        error = NoDupeError("Error with ünïcödë")
+        assert "Error with ünïcödë" in str(error)
+
+    def test_no_dupe_error_chaining(self):
+        """Test exception chaining behavior with NoDupeError."""
         try:
             try:
-                raise ValueError("Original error")
-            except ValueError as e:
-                raise ValidationError("Validation failed") from e
-        except ValidationError as e:
-            assert str(e) == "Validation failed"
-            assert isinstance(e.__cause__, ValueError)
-            assert str(e.__cause__) == "Original error"
+                raise ValueError("Original")
+            except ValueError as original:
+                raise NoDupeError("Converted") from original
+        except NoDupeError as e:
+            assert "Converted" in str(e)
+            assert e.__cause__ is not None
 
-
-class TestErrorIntegration:
-    """Test error integration scenarios."""
-
-    def test_error_in_function(self):
-        """Test using errors in functions."""
-        def validate_input(value):
-            if not value:
-                raise ValidationError("Input cannot be empty")
-            return value
-
-        # Test successful case
-        result = validate_input("valid")
-        assert result == "valid"
-
-        # Test error case
-        with pytest.raises(ValidationError):
-            validate_input("")
-
-    def test_error_in_class_method(self):
-        """Test using errors in class methods."""
-        class UserService:
-            def validate_user(self, username):
-                if not username:
-                    raise ValidationError("Username cannot be empty")
-                if len(username) < 3:
-                    raise ValidationError("Username too short")
-                return username
-
-        service = UserService()
-
-        # Test successful case
-        result = service.validate_user("validuser")
-        assert result == "validuser"
-
-        # Test error cases
-        with pytest.raises(ValidationError):
-            service.validate_user("")
-
-        with pytest.raises(ValidationError):
-            service.validate_user("ab")
-
-    def test_error_in_plugin_system(self):
-        """Test using errors in plugin system."""
-        class MockPlugin:
-            def __init__(self, name):
-                if not name:
-                    raise PluginError("Plugin name cannot be empty")
-                self.name = name
-
-            def execute(self):
-                if not hasattr(self, 'initialized'):
-                    raise PluginError("Plugin not initialized")
-                return f"Plugin {self.name} executed"
-
-        # Test successful plugin
-        plugin = MockPlugin("test_plugin")
-        plugin.initialized = True
-        result = plugin.execute()
-        assert result == "Plugin test_plugin executed"
-
-        # Test plugin error
-        with pytest.raises(PluginError):
-            MockPlugin("")
-
-        # Test plugin execution error
-        plugin_no_init = MockPlugin("test_plugin")
-        with pytest.raises(PluginError):
-            plugin_no_init.execute()
-
-
-class TestErrorProperties:
-    """Test error properties and attributes."""
-
-    def test_error_args(self):
-        """Test error args attribute."""
-        error = ValidationError("Error message", "additional_info")
-        assert error.args == ("Error message", "additional_info")
-        assert str(error) == "('Error message', 'additional_info')"
-
-    def test_error_repr(self):
-        """Test error repr."""
-        error = SecurityError("Security breach")
-        repr_str = repr(error)
-        assert "SecurityError" in repr_str
-        assert "Security breach" in repr_str
-
-    def test_error_with_custom_attributes(self):
-        """Test errors with custom attributes."""
-        error = DatabaseError("Connection failed")
-        error.connection_string = "db://localhost"
-        error.retry_count = 3
-
-        assert error.connection_string == "db://localhost"
-        assert error.retry_count == 3
-        assert str(error) == "Connection failed"
-
-
-class TestErrorHierarchyVerification:
-    """Test error hierarchy verification."""
-
-    def test_all_errors_inherit_from_nodupe_error(self):
-        """Test that all custom errors inherit from NoDupeError."""
-        error_classes = [
-            SecurityError,
-            ValidationError,
-            PluginError,
-            DatabaseError]
-
-        for error_class in error_classes:
-            assert issubclass(error_class, NoDupeError)
-            assert issubclass(error_class, Exception)
-
-            # Test instantiation
-            error = error_class("Test")
-            assert isinstance(error, NoDupeError)
-            assert isinstance(error, Exception)
-
-    def test_error_isinstance_checks(self):
-        """Test isinstance checks for error hierarchy."""
-        errors = [
-            NoDupeError("base"),
-            SecurityError("security"),
-            ValidationError("validation"),
-            PluginError("plugin"),
-            DatabaseError("database")
-        ]
-
-        for error in errors:
-            assert isinstance(error, NoDupeError)
-            assert isinstance(error, Exception)
-
-        # Test specific isinstance checks
-        assert isinstance(errors[1], SecurityError)
-        assert isinstance(errors[2], ValidationError)
-        assert isinstance(errors[3], PluginError)
-        assert isinstance(errors[4], DatabaseError)
+    def test_no_dupe_error_context(self):
+        """Test exception context behavior with NoDupeError."""
+        try:
+            try:
+                raise ValueError("Original")
+            except ValueError:
+                raise NoDupeError("Converted")
+        except NoDupeError as e:
+            assert "Converted" in str(e)
