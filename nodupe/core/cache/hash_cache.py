@@ -165,7 +165,6 @@ class HashCache:
             Number of entries removed
         """
         with self._lock:
-            removed_count = 0
             current_time = time.monotonic()
 
             # Collect keys to remove
