@@ -27,12 +27,12 @@ from typing import List, Tuple, Optional, Union, Iterator
 import logging
 from functools import lru_cache
 
-from nodupe.core.plugin_system import PluginBase, PluginMetadata
+from nodupe.core.plugin_system import Plugin, PluginMetadata
 
 logger = logging.getLogger(__name__)
 
 
-class LeapYearPlugin(PluginBase):
+class LeapYearPlugin(Plugin):
     """
     LeapYear Plugin for fast leap year calculations.
     
@@ -85,25 +85,51 @@ class LeapYearPlugin(PluginBase):
         logger.info(f"LeapYear plugin initialized with {calendar} calendar")
 
     @property
+    def name(self) -> str:
+        """Plugin name."""
+        return "LeapYear"
+
+    @property
+    def version(self) -> str:
+        """Plugin version."""
+        return "1.0.0"
+
+    @property
+    def dependencies(self) -> List[str]:
+        """List of plugin dependencies."""
+        return []
+
+    def get_capabilities(self) -> dict:
+        """Get plugin capabilities."""
+        return {
+            "leap_year_detection": True,
+            "calendar_systems": ["gregorian", "julian"],
+            "batch_processing": True,
+            "date_validation": True,
+            "caching": True,
+            "thread_safe": True
+        }
+
+    @property
     def metadata(self) -> PluginMetadata:
         """Get plugin metadata."""
         return PluginMetadata(
-            name="LeapYear",
-            version="1.0.0",
+            name=self.name,
+            version=self.version,
             description="Fast leap year calculations using Ben Joffe's algorithm",
             author="NoDupeLabs",
             license="MIT",
-            dependencies=[],
+            dependencies=self.dependencies,
             tags=["date", "time", "calendar", "leap-year", "algorithm"]
         )
 
-    def initialize(self) -> None:
+    def initialize(self, container: Any) -> None:
         """Initialize the plugin."""
         logger.info("Initializing LeapYear plugin")
         if self.enable_cache:
             logger.info(f"Caching enabled with size {self.cache_size}")
 
-    def shutdown(self) -> None:
+    def shutdown(self, container: Any) -> None:
         """Shutdown the plugin."""
         logger.info("Shutting down LeapYear plugin")
         if self.enable_cache:
