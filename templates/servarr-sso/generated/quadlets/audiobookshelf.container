@@ -1,0 +1,10 @@
+[Container]
+Name=audiobookshelf
+Image=ghcr.io/advplyr/audiobookshelf:REPLACE_WITH_TAG
+
+Network=sso
+
+Volume=audiobookshelf-config:/config
+Volume=audiobookshelf-metadata:/metadata
+
+Restart=always

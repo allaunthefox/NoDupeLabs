@@ -1,0 +1,14 @@
+[Container]
+Name=radarr
+Image=__RADARR_IMAGE__
+
+Network=sso
+
+# linuxserver containers benefit from PUID/PGID/TZ envs
+Environment=PUID=__PUID__
+Environment=PGID=__PGID__
+Environment=TZ=__TZ__
+
+Volume=radarr-config:/config
+
+Restart=always

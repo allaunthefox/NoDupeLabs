@@ -1,0 +1,10 @@
+[Container]
+Name=audiobookshelf
+Image=__AUDIOBOOKSHELF_IMAGE__
+
+Network=sso
+
+Volume=audiobookshelf-config:/config
+Volume=audiobookshelf-metadata:/metadata
+
+Restart=always

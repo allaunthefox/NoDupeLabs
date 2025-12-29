@@ -1,0 +1,14 @@
+[Container]
+Name=caddy
+Image=docker.io/library/caddy:REPLACE_WITH_TAG
+
+Network=sso
+
+PublishPort=80:80
+PublishPort=443:443
+
+Volume=/home/allaun/Workspace/templates/servarr-sso/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+Volume=caddy-data:/data
+Volume=caddy-config:/config
+
+Restart=always

@@ -1,0 +1,14 @@
+[Container]
+Name=radarr
+Image=lscr.io/linuxserver/radarr:REPLACE_WITH_TAG
+
+Network=sso
+
+# linuxserver containers benefit from PUID/PGID/TZ envs
+Environment=PUID=1000
+Environment=PGID=1000
+Environment=TZ=UTC
+
+Volume=radarr-config:/config
+
+Restart=always

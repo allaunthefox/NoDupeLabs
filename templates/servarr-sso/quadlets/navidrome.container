@@ -1,0 +1,9 @@
+[Container]
+Name=navidrome
+Image=__NAVIDROME_IMAGE__
+
+Network=sso
+
+Volume=navidrome-data:/data
+
+Restart=always

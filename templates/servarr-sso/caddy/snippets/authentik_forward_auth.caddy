@@ -1,0 +1,10 @@
+(authentik_forward_auth) {
+    # Forward-auth outpost endpoint (set OUTPOST_URI in .env)
+    forward_auth authentik:9000 {
+        uri __OUTPOST_URI__
+        copy_headers X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name
+        header_up Host {host}
+        header_up X-Forwarded-Proto {scheme}
+        trusted_proxies private_ranges
+    }
+}

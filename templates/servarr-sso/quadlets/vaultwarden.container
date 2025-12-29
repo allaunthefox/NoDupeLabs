@@ -1,0 +1,9 @@
+[Container]
+Name=vaultwarden
+Image=__VAULTWARDEN_IMAGE__
+
+Network=sso
+
+Volume=vaultwarden-data:/data
+
+Restart=always

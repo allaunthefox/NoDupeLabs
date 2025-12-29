@@ -1,0 +1,13 @@
+[Container]
+Name=sonarr
+Image=lscr.io/linuxserver/sonarr:REPLACE_WITH_TAG
+
+Network=sso
+
+Environment=PUID=1000
+Environment=PGID=1000
+Environment=TZ=UTC
+
+Volume=sonarr-config:/config
+
+Restart=always

@@ -1,0 +1,14 @@
+[Container]
+Name=caddy
+Image=__CADDY_IMAGE__
+
+Network=sso
+
+PublishPort=80:80
+PublishPort=443:443
+
+Volume=__BASE_PATH__/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+Volume=caddy-data:/data
+Volume=caddy-config:/config
+
+Restart=always

@@ -1,0 +1,9 @@
+[Container]
+Name=kavita
+Image=docker.io/kizaing/kavita:REPLACE_WITH_TAG
+
+Network=sso
+
+Volume=kavita-data:/kavita/config
+
+Restart=always

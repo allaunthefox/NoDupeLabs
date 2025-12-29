@@ -1,0 +1,11 @@
+[Container]
+Name=homarr
+Image=__HOMARR_IMAGE__
+
+Network=sso
+
+Volume=homarr-configs:/app/data/configs
+Volume=homarr-icons:/app/public/icons
+Volume=homarr-data:/data
+
+Restart=always

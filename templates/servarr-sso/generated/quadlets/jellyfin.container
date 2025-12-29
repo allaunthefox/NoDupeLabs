@@ -1,0 +1,10 @@
+[Container]
+Name=jellyfin
+Image=docker.io/jellyfin/jellyfin:REPLACE_WITH_TAG
+
+Network=sso
+
+Volume=jellyfin-config:/config
+Volume=jellyfin-cache:/cache
+
+Restart=always

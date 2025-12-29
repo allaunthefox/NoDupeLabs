@@ -1,0 +1,11 @@
+[Container]
+Name=homarr
+Image=ghcr.io/ajnart/homarr:REPLACE_WITH_TAG
+
+Network=sso
+
+Volume=homarr-configs:/app/data/configs
+Volume=homarr-icons:/app/public/icons
+Volume=homarr-data:/data
+
+Restart=always

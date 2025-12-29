@@ -1,0 +1,10 @@
+[Container]
+Name=jellyfin
+Image=__JELLYFIN_IMAGE__
+
+Network=sso
+
+Volume=jellyfin-config:/config
+Volume=jellyfin-cache:/cache
+
+Restart=always

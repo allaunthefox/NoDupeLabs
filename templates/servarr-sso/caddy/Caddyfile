@@ -1,0 +1,88 @@
+{
+    email __CADDY_EMAIL__
+}
+
+import snippets/authentik_forward_auth.caddy
+
+# Authentik SSO Portal
+auth.owowatdis.cloud {
+    reverse_proxy authentik:9000 {
+        header_up Host {host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}
+
+# Dashboard - Protected by SSO
+owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy homarr:7575 {
+        header_up X-Real-IP {remote}
+        header_up Host {host}
+    }
+}
+
+# Media Services - Protected by SSO
+movies.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy jellyfin:8096 {
+        header_up X-Real-IP {remote}
+        header_up Host {host}
+    }
+}
+
+music.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy navidrome:4533 {
+        header_up X-Real-IP {remote}
+        header_up Host {host}
+    }
+}
+
+books.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy audiobookshelf:13378 {
+        header_up X-Real-IP {remote}
+        header_up Host {host}
+    }
+}
+
+manga.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy kavita:5000 {
+        header_up X-Real-IP {remote}
+        header_up Host {host}
+    }
+}
+
+# Automation - Protected by SSO
+radarr.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy radarr:7878 {
+        header_up X-Real-IP {remote}
+        header_up Host {host}
+    }
+}
+
+sonarr.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy sonarr:8989 {
+        header_up X-Real-IP {remote}
+        header_up Host {host}
+    }
+}
+
+lidarr.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy lidarr:8686 {
+        header_up X-Real-IP {remote}
+        header_up Host {host}
+    }
+}
+
+# Vaultwarden - NO SSO (Independent Auth)
+vault.owowatdis.cloud {
+    reverse_proxy vaultwarden:80 {
+        header_up X-Real-IP {remote}
+        header_up Host {host}
+    }
+}

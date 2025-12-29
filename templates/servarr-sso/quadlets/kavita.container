@@ -1,0 +1,9 @@
+[Container]
+Name=kavita
+Image=__KAVITA_IMAGE__
+
+Network=sso
+
+Volume=kavita-data:/kavita/config
+
+Restart=always

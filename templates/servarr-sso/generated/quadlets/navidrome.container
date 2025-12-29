@@ -1,0 +1,9 @@
+[Container]
+Name=navidrome
+Image=docker.io/deluan/navidrome:REPLACE_WITH_TAG
+
+Network=sso
+
+Volume=navidrome-data:/data
+
+Restart=always

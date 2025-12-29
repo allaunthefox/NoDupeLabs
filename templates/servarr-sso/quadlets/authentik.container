@@ -1,0 +1,12 @@
+[Container]
+Name=authentik
+Image=__AUTHENTIK_IMAGE__
+
+Network=sso
+
+Environment=AUTHENTIK_HOST=https://auth.owowatdis.cloud
+Environment=AUTHENTIK_COOKIE_DOMAIN=.owowatdis.cloud
+
+Volume=authentik-data:/data
+
+Restart=always

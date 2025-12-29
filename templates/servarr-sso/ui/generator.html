@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servarr Quadlet SSO Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .info-section {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        .info-section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .info-section li {
+            color: #4a5568;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+        
+        .info-section li:last-child {
+            border-bottom: none;
+        }
+        
+        .info-section li strong {
+            color: #2d3748;
+            display: inline-block;
+            width: 140px;
+        }
+        
+        .warning-section {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        .warning-section h3 {
+            color: #92400e;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .warning-section p {
+            color: #78350f;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        
+        .status.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        
+        .file-tree {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        
+        .file-tree pre {
+            margin: 0;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Servarr Quadlet SSO Archive</h1>
+        <p class="subtitle">Conservative "Gated Community" Architecture</p>
+        
+        <div class="warning-section">
+            <h3>⚠️ Conservative SSO Strategy</h3>
+            <p>
+                All services except Vaultwarden protected by Authentik forward-auth at the Caddy layer. 
+                No container modifications. Services keep internal auth unchanged. This prevents breakage 
+                while establishing SSO perimeter. Future optimization possible once stable.
+            </p>
+        </div>
+        
+        <div class="info-section">
+            <h3>📋 Configuration</h3>
+            <ul>
+                <li><strong>Domain:</strong> owowatdis.cloud</li>
+                <li><strong>Admin Email:</strong> bigdataiscoming@protonmail.com</li>
+                <li><strong>SSO Provider:</strong> Authentik (auth.owowatdis.cloud)</li>
+                <li><strong>Ingress:</strong> Caddy (ports 80/443 only)</li>
+                <li><strong>Network:</strong> sso (bridge, shared)</li>
+            </ul>
+        </div>
+        
+        <div class="info-section">
+            <h3>🎯 Service Architecture</h3>
+            <ul>
+                <li><strong>With SSO:</strong> Homarr, Jellyfin, Navidrome, Audiobookshelf, Kavita, Radarr, Sonarr, Lidarr</li>
+                <li><strong>Without SSO:</strong> Vaultwarden (security isolation)</li>
+                <li><strong>Container Changes:</strong> ZERO - all services run vanilla</li>
+                <li><strong>Auth Pattern:</strong> SSO gate + service internal auth (if any)</li>
+            </ul>
+        </div>
+        
+        <div class="info-section">
+            <h3>✅ Architecture Guarantees</h3>
+            <ul>
+                <li>✓ No container configuration changes</li>
+                <li>✓ No LDAP plugins or header injection</li>
+                <li>✓ No runtime state in archive</li>
+                <li>✓ No secrets or certificates</li>
+                <li>✓ Single shared network</li>
+                <li>✓ Only Caddy publishes ports</li>
+                <li>✓ Vaultwarden security isolation</li>
+            </ul>
+        </div>
+        
+        <button id="generateBtn" onclick="generateArchive()">
+            📦 Generate Archive
+        </button>
+        
+        <div id="status" class="status"></div>
+        
+        <div class="file-tree">
+            <pre>servarr-quadlet-sso/
+├── quadlets/
+│   ├── networks/
+│   │   └── sso.network
+│   ├── caddy.container
+│   ├── authentik.container
+│   ├── homarr.container         [SSO]
+│   ├── jellyfin.container       [SSO]
+│   ├── navidrome.container      [SSO]
+│   ├── audiobookshelf.container [SSO]
+│   ├── kavita.container         [SSO]
+│   ├── vaultwarden.container    [NO SSO - ISOLATED]
+│   ├── radarr.container         [SSO]
+│   ├── sonarr.container         [SSO]
+│   └── lidarr.container         [SSO]
+├── caddy/
+│   ├── Caddyfile
+│   └── snippets/
+│       └── authentik_forward_auth.caddy
+├── authentik/
+│   └── notes.md
+└── docs/
+    ├── PHASES.md
+    ├── RECOVERY.md
+    └── OPTIMIZATION.md          [Future improvements]</pre>
+        </div>
+    </div>
+
+    <script>
+        const files = {
+            'quadlets/networks/sso.network': `[Network]
+Name=sso
+Driver=bridge
+`,
+            'quadlets/caddy.container': `[Container]
+Name=caddy
+Image=docker.io/library/caddy:latest
+
+Network=sso
+
+PublishPort=80:80
+PublishPort=443:443
+
+Volume=./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+Volume=caddy-data:/data
+Volume=caddy-config:/config
+
+Restart=always
+`,
+            'quadlets/authentik.container': `[Container]
+Name=authentik
+Image=ghcr.io/goauthentik/server:latest
+
+Network=sso
+
+Environment=AUTHENTIK_HOST=https://auth.owowatdis.cloud
+Environment=AUTHENTIK_COOKIE_DOMAIN=.owowatdis.cloud
+
+Volume=authentik-data:/data
+
+Restart=always
+`,
+            'quadlets/homarr.container': `[Container]
+Name=homarr
+Image=ghcr.io/ajnart/homarr:latest
+
+Network=sso
+
+Volume=homarr-configs:/app/data/configs
+Volume=homarr-icons:/app/public/icons
+Volume=homarr-data:/data
+
+Restart=always
+`,
+            'quadlets/jellyfin.container': `[Container]
+Name=jellyfin
+Image=docker.io/jellyfin/jellyfin:latest
+
+Network=sso
+
+Volume=jellyfin-config:/config
+Volume=jellyfin-cache:/cache
+
+Restart=always
+`,
+            'quadlets/navidrome.container': `[Container]
+Name=navidrome
+Image=docker.io/deluan/navidrome:latest
+
+Network=sso
+
+Volume=navidrome-data:/data
+
+Restart=always
+`,
+            'quadlets/audiobookshelf.container': `[Container]
+Name=audiobookshelf
+Image=ghcr.io/advplyr/audiobookshelf:latest
+
+Network=sso
+
+Volume=audiobookshelf-config:/config
+Volume=audiobookshelf-metadata:/metadata
+
+Restart=always
+`,
+            'quadlets/kavita.container': `[Container]
+Name=kavita
+Image=docker.io/kizaing/kavita:latest
+
+Network=sso
+
+Volume=kavita-data:/kavita/config
+
+Restart=always
+`,
+            'quadlets/vaultwarden.container': `[Container]
+Name=vaultwarden
+Image=docker.io/vaultwarden/server:latest
+
+Network=sso
+
+Volume=vaultwarden-data:/data
+
+Restart=always
+`,
+            'quadlets/radarr.container': `[Container]
+Name=radarr
+Image=lscr.io/linuxserver/radarr:latest
+
+Network=sso
+
+Volume=radarr-config:/config
+
+Restart=always
+`,
+            'quadlets/sonarr.container': `[Container]
+Name=sonarr
+Image=lscr.io/linuxserver/sonarr:latest
+
+Network=sso
+
+Volume=sonarr-config:/config
+
+Restart=always
+`,
+            'quadlets/lidarr.container': `[Container]
+Name=lidarr
+Image=lscr.io/linuxserver/lidarr:latest
+
+Network=sso
+
+Volume=lidarr-config:/config
+
+Restart=always
+`,
+            'caddy/snippets/authentik_forward_auth.caddy': `(authentik_forward_auth) {
+    forward_auth authentik:9000 {
+        uri /outpost.goauthentik.io/auth/caddy
+        copy_headers X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name
+        header_up Host {host}
+        header_up X-Forwarded-Proto {scheme}
+        trusted_proxies private_ranges
+    }
+}
+`,
+            'caddy/Caddyfile': `{
+    email bigdataiscoming@protonmail.com
+}
+
+import snippets/authentik_forward_auth.caddy
+
+# Authentik SSO Portal
+auth.owowatdis.cloud {
+    reverse_proxy authentik:9000
+}
+
+# Dashboard - Protected by SSO
+owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy homarr:7575
+}
+
+# Media Services - Protected by SSO
+movies.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy jellyfin:8096
+}
+
+music.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy navidrome:4533
+}
+
+books.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy audiobookshelf:13378
+}
+
+manga.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy kavita:5000
+}
+
+# Automation - Protected by SSO
+radarr.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy radarr:7878
+}
+
+sonarr.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy sonarr:8989
+}
+
+lidarr.owowatdis.cloud {
+    import authentik_forward_auth
+    reverse_proxy lidarr:8686
+}
+
+# Vaultwarden - NO SSO (Independent Auth)
+vault.owowatdis.cloud {
+    reverse_proxy vaultwarden:80
+}
+`,
+            'authentik/notes.md': `# Authentik SSO Configuration
+
+## Architecture: Gated Community Pattern
+
+Authentik acts as the perimeter security. All services (except Vaultwarden) require successful SSO authentication before access. Services maintain their internal authentication unchanged.
+
+## Configuration
+
+- **Cookie domain:** .owowatdis.cloud
+- **HTTPS enforced:** Yes
+- **Outpost:** Single shared outpost for all protected services
+- **Ingress:** Caddy only
+- **Container modifications:** ZERO
+
+## Protected Services (with SSO gate)
+
+- Homarr (Dashboard)
+- Jellyfin (Movies)
+- Navidrome (Music)
+- Audiobookshelf (Books)
+- Kavita (Manga)
+- Radarr (Movie automation)
+- Sonarr (TV automation)
+- Lidarr (Music automation)
+
+## Isolated Services (NO SSO)
+
+- **Vaultwarden:** Password managers should never share authentication with SSO systems. This remains independently authenticated to prevent SSO compromise from exposing password vault.
+
+## User Experience
+
+### First Access
+1. User navigates to any protected service (e.g., movies.owowatdis.cloud)
+2. Caddy intercepts and forwards to Authentik
+3. User authenticates at auth.owowatdis.cloud
+4. Cookie set for .owowatdis.cloud domain
+5. User redirected to original service
+6. Service may prompt for its own login (if configured)
+
+### Subsequent Access
+- Cookie valid across all subdomains
+- No re-authentication required (until session expires)
+- Direct access to services
+
+## Future Optimization Paths
+
+Once this architecture is proven stable, consider:
+
+1. **Jellyfin:** LDAP plugin + Authentik LDAP provider for single-sign-on
+2. **Navidrome:** Header-based auth (X-Auth-User) to skip internal login
+3. **Audiobookshelf:** Reverse proxy auth mode
+4. **Kavita:** Header auth configuration
+5. **Arr apps:** Disable built-in auth after SSO proven
+
+## Integration Steps (Post-Deployment)
+
+1. Deploy Authentik outpost application
+2. Configure provider for each service
+3. Test forward-auth flow
+4. Optionally disable internal service auth
+5. Document per-service behavior
+`}
+] }

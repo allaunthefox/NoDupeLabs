@@ -1,0 +1,9 @@
+[Container]
+Name=vaultwarden
+Image=docker.io/vaultwarden/server:REPLACE_WITH_TAG
+
+Network=sso
+
+Volume=vaultwarden-data:/data
+
+Restart=always

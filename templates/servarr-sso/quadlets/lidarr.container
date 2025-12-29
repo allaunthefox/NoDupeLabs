@@ -1,0 +1,13 @@
+[Container]
+Name=lidarr
+Image=__LIDARR_IMAGE__
+
+Network=sso
+
+Environment=PUID=__PUID__
+Environment=PGID=__PGID__
+Environment=TZ=__TZ__
+
+Volume=lidarr-config:/config
+
+Restart=always
