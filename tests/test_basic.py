@@ -18,25 +18,24 @@ def test_temp_dir_fixture(temp_dir):
 
 def test_sample_files_fixture(sample_files):
     """Test that the sample_files fixture creates files correctly."""
-    assert len(sample_files) == 4  # 3 duplicate files + 1 unique file
-    
+    assert len(sample_files) == 5  # Updated to match actual fixture: small.txt, medium.txt, large.txt, duplicate_small.txt, binary.dat
+
     # Check that all files exist
-    for file_path in sample_files:
+    for name, file_path in sample_files.items():
         assert file_path.exists()
         assert file_path.is_file()
-    
-    # Check that the first 3 files have identical content (duplicates)
-    content_0 = sample_files[0].read_text()
-    content_1 = sample_files[1].read_text()
-    content_2 = sample_files[2].read_text()
-    
-    assert content_0 == content_1 == content_2
-    assert "duplicate detection" in content_0
-    
-    # Check that the last file is unique
-    unique_content = sample_files[3].read_text()
-    assert "unique file" in unique_content
-    assert unique_content != content_0
+
+    # Check that small.txt and duplicate_small.txt have identical content (duplicates)
+    small_content = sample_files["small.txt"].read_text()
+    duplicate_content = sample_files["duplicate_small.txt"].read_text()
+    assert small_content == duplicate_content
+
+    # Check that other files have different content
+    medium_content = sample_files["medium.txt"].read_text()
+    large_content = sample_files["large.txt"].read_text()
+    assert small_content != medium_content
+    assert small_content != large_content
+    assert medium_content != large_content
 
 
 def test_mock_config_fixture(mock_config):
@@ -44,12 +43,12 @@ def test_mock_config_fixture(mock_config):
     assert isinstance(mock_config, dict)
     assert "database" in mock_config
     assert "scan" in mock_config
-    
+
     # Check database config
     db_config = mock_config["database"]
     assert db_config["path"] == ":memory:"
-    assert db_config["timeout"] == 30.0
-    
+    assert db_config["timeout"] == 10.0  # Updated to match actual fixture value
+
     # Check scan config
     scan_config = mock_config["scan"]
     assert "min_file_size" in scan_config

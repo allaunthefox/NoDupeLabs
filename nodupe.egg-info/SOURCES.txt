@@ -1,5 +1,4 @@
 pyproject.toml
-./nodupe/__init__.py
 benchmarks/__init__.py
 benchmarks/performance_benchmarks.py
 nodupe/__init__.py
@@ -9,6 +8,7 @@ nodupe.egg-info/dependency_links.txt
 nodupe.egg-info/top_level.txt
 nodupe/core/__init__.py
 nodupe/core/api.py
+nodupe/core/archive_handler.py
 nodupe/core/compression.py
 nodupe/core/config.py
 nodupe/core/container.py
@@ -26,6 +26,8 @@ nodupe/core/parallel.py
 nodupe/core/plugins.py
 nodupe/core/pools.py
 nodupe/core/security.py
+nodupe/core/time_sync_failure_rules.py
+nodupe/core/time_sync_utils.py
 nodupe/core/validators.py
 nodupe/core/version.py
 nodupe/core/cache/__init__.py
@@ -35,11 +37,14 @@ nodupe/core/cache/query_cache.py
 nodupe/core/cli/__init__.py
 nodupe/core/database/__init__.py
 nodupe/core/database/connection.py
+nodupe/core/database/database.py
 nodupe/core/database/embeddings.py
 nodupe/core/database/files.py
 nodupe/core/database/indexing.py
+nodupe/core/database/query.py
 nodupe/core/database/repository_interface.py
 nodupe/core/database/schema.py
+nodupe/core/database/security.py
 nodupe/core/database/transactions.py
 nodupe/core/plugin_system/__init__.py
 nodupe/core/plugin_system/base.py
@@ -49,6 +54,7 @@ nodupe/core/plugin_system/discovery.py
 nodupe/core/plugin_system/hot_reload.py
 nodupe/core/plugin_system/lifecycle.py
 nodupe/core/plugin_system/loader.py
+nodupe/core/plugin_system/loading_order.py
 nodupe/core/plugin_system/registry.py
 nodupe/core/plugin_system/security.py
 nodupe/core/scan/__init__.py
@@ -65,10 +71,17 @@ nodupe/plugins/commands/plan.py
 nodupe/plugins/commands/scan.py
 nodupe/plugins/commands/similarity.py
 nodupe/plugins/commands/verify.py
+nodupe/plugins/database/__init__.py
+nodupe/plugins/database/features.py
+nodupe/plugins/database/sharding.py
 nodupe/plugins/gpu/__init__.py
+nodupe/plugins/leap_year/__init__.py
+nodupe/plugins/leap_year/leap_year.py
 nodupe/plugins/ml/__init__.py
 nodupe/plugins/network/__init__.py
 nodupe/plugins/similarity/__init__.py
+nodupe/plugins/time_sync/__init__.py
+nodupe/plugins/time_sync/time_sync.py
 nodupe/plugins/video/__init__.py
 tests/__init__.py
 tests/conftest.py
