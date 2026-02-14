@@ -69,11 +69,11 @@ class Compression:
         level: int = 6,
         remove_original: bool = False
     ) -> Path:
-        try:
-            input_path_obj = Compression._ensure_path(input_path)
-            if not input_path_obj.exists():
-                raise CompressionError(f"Input file does not exist: {input_path}")
+        input_path_obj = Compression._ensure_path(input_path)
+        if not input_path_obj.exists():
+            raise CompressionError(f"Input file does not exist: {input_path}")
 
+        try:
             if output_path is None:
                 ext = {'.gz': '.gz', '.bz2': '.bz2', '.xz': '.xz', '.zip': '.zip'}.get(format, f'.{format}')
                 output_path_obj = input_path_obj.with_suffix(input_path_obj.suffix + ext)
@@ -81,7 +81,10 @@ class Compression:
                 output_path_obj = Compression._ensure_path(output_path)
 
             output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            raise CompressionError(f"File compression failed: {e}") from e
 
+        try:
             with open(input_path_obj, 'rb') as f:
                 file_data = f.read()
 
@@ -94,15 +97,18 @@ class Compression:
                     zf.write(input_path_obj, arcname=input_path_obj.name)
             else:
                 raise CompressionError(f"Unsupported format: {format}")
-
-            if remove_original:
-                input_path_obj.unlink()
-
-            return output_path_obj
         except CompressionError:
             raise
         except Exception as e:
             raise CompressionError(f"File compression failed: {e}") from e
+
+        if remove_original:
+            try:
+                input_path_obj.unlink()
+            except Exception as e:
+                raise CompressionError(f"Failed to remove original: {e}") from e
+
+        return output_path_obj
 
     @staticmethod
     def decompress_file(
@@ -115,7 +121,10 @@ class Compression:
             input_path_obj = Compression._ensure_path(input_path)
             if not input_path_obj.exists():
                 raise CompressionError(f"Input file does not exist: {input_path}")
+        except CompressionError:
+            raise
 
+        try:
             detected = format
             if detected is None:
                 suffix = input_path_obj.suffix.lower()
@@ -132,7 +141,10 @@ class Compression:
                 output_path_obj = Compression._ensure_path(output_path)
 
             output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            raise CompressionError(f"File decompression failed: {e}") from e
 
+        try:
             if detected in Compression.DATA_FORMATS:
                 with open(input_path_obj, 'rb') as f:
                     compressed_data = f.read()
@@ -147,15 +159,18 @@ class Compression:
                         output_path_obj = output_path_obj.parent / names[0]
             else:
                 raise CompressionError(f"Unsupported format: {detected}")
-
-            if remove_compressed:
-                input_path_obj.unlink()
-
-            return output_path_obj
         except CompressionError:
             raise
         except Exception as e:
             raise CompressionError(f"File decompression failed: {e}") from e
+
+        if remove_compressed:
+            try:
+                input_path_obj.unlink()
+            except Exception as e:
+                raise CompressionError(f"Failed to remove compressed: {e}") from e
+
+        return output_path_obj
 
     @staticmethod
     def create_archive(
