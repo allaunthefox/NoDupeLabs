@@ -1,5 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
+
 """
-TimeSync Utilities - Core Performance Optimizations
+TimeSync Utilities - Core Performance Optimizations.
 
 This module contains optimized utilities for the TimeSync plugin, including:
 - Parallel NTP client for concurrent network queries
@@ -10,6 +13,27 @@ This module contains optimized utilities for the TimeSync plugin, including:
 
 These utilities are designed to address critical performance bottlenecks in the
 NoDupeLabs TimeSync plugin while maintaining full compatibility and correctness.
+
+Classes:
+    DNSCache: Thread-safe DNS resolution cache with TTL.
+    MonotonicTimeCalculator: Robust timing calculator using monotonic time.
+    TargetedFileScanner: Efficient file system scanner for time fallback.
+    ParallelNTPClient: High-performance parallel NTP client.
+    FastDate64Encoder: Optimized FastDate64 timestamp encoder/decoder.
+    PerformanceMetrics: Performance metrics collector for TimeSync operations.
+
+Functions:
+    get_global_dns_cache: Get global DNS cache instance.
+    get_global_metrics: Get global metrics instance.
+    clear_global_caches: Clear all global caches.
+    performance_timer: Context manager for timing operations.
+
+Example:
+    >>> from nodupe.core.time_sync_utils import ParallelNTPClient, DNSCache
+    >>> dns_cache = DNSCache(ttl=60.0, max_size=200)
+    >>> client = ParallelNTPClient(timeout=5.0, dns_cache=dns_cache)
+    >>> result = client.query_hosts_parallel(["time.google.com"])
+    >>> print(f"Success: {result.success}, Delay: {result.best_response.delay if result.best_response else 'N/A'}")
 """
 
 from __future__ import annotations
@@ -21,8 +45,8 @@ import time
 import threading
 import logging
 from datetime import datetime, timezone
-from typing import Iterable, Optional, Tuple, List, Dict, Any, Callable
-from dataclasses import dataclass
+from typing import Iterable, Optional, Tuple, List, Dict, Any, Callable, Union
+from dataclasses import dataclass, field
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed, Future
 from contextlib import contextmanager
@@ -49,9 +73,25 @@ FASTDATE_FRAC_SCALE = 1 << FASTDATE_FRAC_BITS
 FASTDATE_SECONDS_MAX = (1 << FASTDATE_SECONDS_BITS) - 1
 
 
+# Type aliases
+AddressTuple = Tuple[int, int, int, int, Tuple[str, int]]
+NTPQueryResult = Tuple[str, Exception]
+MetricsDict = Dict[str, Any]
+
+
 @dataclass
 class NTPResponse:
-    """NTP response data structure."""
+    """NTP response data structure.
+    
+    Attributes:
+        server_time: Server timestamp in POSIX format.
+        offset: NTP offset in seconds.
+        delay: Round-trip delay in seconds.
+        host: NTP server hostname.
+        address: Socket address tuple.
+        attempt: Attempt number.
+        timestamp: Response timestamp.
+    """
     server_time: float
     offset: float
     delay: float
@@ -63,44 +103,58 @@ class NTPResponse:
 
 @dataclass
 class ParallelQueryResult:
-    """Result of parallel NTP query."""
+    """Result of parallel NTP query.
+    
+    Attributes:
+        success: Whether query was successful.
+        best_response: Best NTP response found.
+        all_responses: All responses received.
+        errors: List of errors encountered.
+    """
     success: bool
     best_response: Optional[NTPResponse]
     all_responses: List[NTPResponse]
-    errors: List[Tuple[str, Exception]]
+    errors: List[NTPQueryResult]
 
 
 class DNSCache:
-    """
-    Thread-safe DNS resolution cache with TTL.
+    """Thread-safe DNS resolution cache with TTL.
     
     Caches getaddrinfo results to avoid repeated DNS lookups during
     multiple attempts and parallel queries.
+    
+    Attributes:
+        ttl: Time-to-live for cached entries in seconds.
+        max_size: Maximum number of cached entries.
+    
+    Example:
+        >>> cache = DNSCache(ttl=30.0, max_size=100)
+        >>> cache.set("time.google.com", 123, [(2, 2, 17, '', ('216.239.35.0', 123))])
+        >>> result = cache.get("time.google.com", 123)
+        >>> print(f"Cached: {result is not None}")
     """
     
-    def __init__(self, ttl: float = 30.0, max_size: int = 100):
-        """
-        Initialize DNS cache.
+    def __init__(self, ttl: float = 30.0, max_size: int = 100) -> None:
+        """Initialize DNS cache.
         
         Args:
-            ttl: Time-to-live for cached entries in seconds
-            max_size: Maximum number of cached entries
+            ttl: Time-to-live for cached entries in seconds.
+            max_size: Maximum number of cached entries.
         """
         self._ttl = ttl
         self._max_size = max_size
-        self._cache: OrderedDict[str, Tuple[List[Tuple], float]] = OrderedDict()
+        self._cache: OrderedDict[str, Tuple[List[AddressTuple], float]] = OrderedDict()
         self._lock = threading.RLock()
     
-    def get(self, host: str, port: int = 123) -> Optional[List[Tuple]]:
-        """
-        Get cached DNS resolution.
+    def get(self, host: str, port: int = 123) -> Optional[List[AddressTuple]]:
+        """Get cached DNS resolution.
         
         Args:
-            host: Hostname to resolve
-            port: Port number
+            host: Hostname to resolve.
+            port: Port number.
             
         Returns:
-            Cached address list or None if not cached or expired
+            Cached address list or None if not cached or expired.
         """
         key = f"{host}:{port}"
         
@@ -119,14 +173,13 @@ class DNSCache:
             self._cache.move_to_end(key)
             return addresses.copy()
     
-    def set(self, host: str, port: int, addresses: List[Tuple]) -> None:
-        """
-        Cache DNS resolution.
+    def set(self, host: str, port: int, addresses: List[AddressTuple]) -> None:
+        """Cache DNS resolution.
         
         Args:
-            host: Hostname that was resolved
-            port: Port number
-            addresses: List of resolved addresses
+            host: Hostname that was resolved.
+            port: Port number.
+            addresses: List of resolved addresses.
         """
         key = f"{host}:{port}"
         
@@ -147,12 +200,11 @@ class DNSCache:
             self._cache.clear()
     
     def invalidate(self, host: str, port: int = 123) -> None:
-        """
-        Invalidate cache entry for specific host.
+        """Invalidate cache entry for specific host.
         
         Args:
-            host: Hostname to invalidate
-            port: Port number
+            host: Hostname to invalidate.
+            port: Port number.
         """
         key = f"{host}:{port}"
         with self._lock:
@@ -160,50 +212,60 @@ class DNSCache:
 
 
 class MonotonicTimeCalculator:
-    """
-    Robust timing calculator using monotonic time for elapsed measurements.
+    """Robust timing calculator using monotonic time for elapsed measurements.
     
     This class addresses the fragility of wall-clock time by using time.monotonic()
     for elapsed time calculations while still providing wall-clock timestamps
     for NTP packet generation.
+    
+    Example:
+        >>> timer = MonotonicTimeCalculator()
+        >>> wall, mono = timer.start_timing()
+        >>> elapsed = timer.elapsed_monotonic()
+        >>> print(f"Elapsed: {elapsed:.3f}s")
     """
     
-    def __init__(self):
-        """TODO: Document __init__."""
+    def __init__(self) -> None:
+        """Initialize the timing calculator."""
         self._wall_start: Optional[float] = None
         self._mono_start: Optional[float] = None
     
     def start_timing(self) -> Tuple[float, float]:
-        """
-        Start timing and return both wall and monotonic timestamps.
+        """Start timing and return both wall and monotonic timestamps.
         
         Returns:
-            Tuple of (wall_time, monotonic_time)
+            Tuple of (wall_time, monotonic_time).
         """
         self._wall_start = time.time()
         self._mono_start = time.monotonic()
+        assert self._wall_start is not None
+        assert self._mono_start is not None
         return self._wall_start, self._mono_start
     
     def elapsed_monotonic(self) -> float:
-        """
-        Get elapsed time using monotonic clock.
+        """Get elapsed time using monotonic clock.
         
         Returns:
-            Elapsed time in seconds
+            Elapsed time in seconds.
+            
+        Raises:
+            ValueError: If timing not started.
         """
         if self._mono_start is None:
             raise ValueError("Timing not started")
         return time.monotonic() - self._mono_start
     
     def wall_time_from_monotonic(self, mono_elapsed: float) -> float:
-        """
-        Convert monotonic elapsed time to wall time.
+        """Convert monotonic elapsed time to wall time.
         
         Args:
-            mono_elapsed: Elapsed time from monotonic clock
+            mono_elapsed: Elapsed time from monotonic clock.
             
         Returns:
-            Corresponding wall time timestamp
+            Corresponding wall time timestamp.
+            
+        Raises:
+            ValueError: If timing not started.
         """
         if self._wall_start is None:
             raise ValueError("Timing not started")
@@ -213,18 +275,17 @@ class MonotonicTimeCalculator:
     def calculate_ntp_rtt(t1_wall: float, t2_wall: float, 
                          t3_wall: float, t4_mono: float,
                          mono_start: float) -> Tuple[float, float]:
-        """
-        Calculate NTP round-trip delay and offset using monotonic timing.
+        """Calculate NTP round-trip delay and offset using monotonic timing.
         
         Args:
-            t1_wall: Client send time (wall clock)
-            t2_wall: Server receive time (from NTP response)
-            t3_wall: Server send time (from NTP response)
-            t4_mono: Client receive time (monotonic)
-            mono_start: Monotonic start time
+            t1_wall: Client send time (wall clock).
+            t2_wall: Server receive time (from NTP response).
+            t3_wall: Server send time (from NTP response).
+            t4_mono: Client receive time (monotonic).
+            mono_start: Monotonic start time.
             
         Returns:
-            Tuple of (delay, offset) in seconds
+            Tuple of (delay, offset) in seconds.
         """
         # Convert t4_mono to wall time estimate
         t4_wall = t1_wall + (t4_mono - mono_start)
@@ -237,20 +298,27 @@ class MonotonicTimeCalculator:
 
 
 class TargetedFileScanner:
-    """
-    Efficient file system scanner for time fallback.
+    """Efficient file system scanner for time fallback.
     
     Replaces slow recursive glob with targeted scanning of trusted locations
     and limited-depth directory traversal.
+    
+    Attributes:
+        max_files: Maximum number of files to scan.
+        max_depth: Maximum directory depth to traverse.
+    
+    Example:
+        >>> scanner = TargetedFileScanner(max_files=100, max_depth=2)
+        >>> ts = scanner.get_recent_file_time()
+        >>> print(f"Recent: {ts}")
     """
     
-    def __init__(self, max_files: int = 100, max_depth: int = 2):
-        """
-        Initialize file scanner.
+    def __init__(self, max_files: int = 100, max_depth: int = 2) -> None:
+        """Initialize file scanner.
         
         Args:
-            max_files: Maximum number of files to scan
-            max_depth: Maximum directory depth to traverse
+            max_files: Maximum number of files to scan.
+            max_depth: Maximum directory depth to traverse.
         """
         self._max_files = max_files
         self._max_depth = max_depth
@@ -262,20 +330,19 @@ class TargetedFileScanner:
         ]
     
     def get_recent_file_time(self, additional_paths: Optional[List[str]] = None) -> Optional[float]:
-        """
-        Get timestamp from most recently modified file.
+        """Get timestamp from most recently modified file.
         
         Args:
-            additional_paths: Additional paths to search
+            additional_paths: Additional paths to search.
             
         Returns:
-            Most recent file modification time or None if no files found
+            Most recent file modification time or None if no files found.
         """
         search_paths = self._trusted_paths.copy()
         if additional_paths:
             search_paths.extend(additional_paths)
         
-        latest_time = 0
+        latest_time: float = 0.0
         file_count = 0
         
         for path in search_paths:
@@ -283,7 +350,9 @@ class TargetedFileScanner:
                 break
                 
             try:
-                latest_time = max(latest_time, self._scan_path(path, file_count))
+                path_time = self._scan_path(path, file_count)
+                if path_time > latest_time:
+                    latest_time = path_time
                 file_count = min(file_count + 100, self._max_files)  # Estimate files per path
             except (OSError, IOError):
                 continue
@@ -291,11 +360,19 @@ class TargetedFileScanner:
         return latest_time if latest_time > 0 else None
     
     def _scan_path(self, path: str, file_count: int) -> float:
-        """Scan a single path for recent files."""
-        if not os.path.exists(path):
-            return 0
+        """Scan a single path for recent files.
         
-        latest_time = 0
+        Args:
+            path: Path to scan.
+            file_count: Current file count estimate.
+            
+        Returns:
+            Most recent file modification time.
+        """
+        if not os.path.exists(path):
+            return 0.0
+        
+        latest_time: float = 0.0
         
         if os.path.isfile(path):
             try:
@@ -333,30 +410,38 @@ class TargetedFileScanner:
 
 
 class ParallelNTPClient:
-    """
-    High-performance parallel NTP client.
+    """High-performance parallel NTP client.
     
     Performs concurrent queries across multiple hosts and addresses to minimize
     wall-clock time while maintaining accuracy and reliability.
+    
+    Attributes:
+        timeout: Socket timeout for individual queries.
+        max_workers: Maximum concurrent workers.
+        dns_cache: DNS cache for address resolution.
+    
+    Example:
+        >>> client = ParallelNTPClient(timeout=5.0, max_workers=8)
+        >>> result = client.query_hosts_parallel(["time.google.com", "pool.ntp.org"])
+        >>> print(f"Success: {result.success}")
     """
     
     def __init__(self, 
                  timeout: float = DEFAULT_TIMEOUT,
                  max_workers: Optional[int] = None,
-                 dns_cache: Optional[DNSCache] = None):
-        """
-        Initialize parallel NTP client.
+                 dns_cache: Optional[DNSCache] = None) -> None:
+        """Initialize parallel NTP client.
         
         Args:
-            timeout: Socket timeout for individual queries
-            max_workers: Maximum concurrent workers (defaults to CPU count)
-            dns_cache: Optional DNS cache for address resolution
+            timeout: Socket timeout for individual queries.
+            max_workers: Maximum concurrent workers (defaults to CPU count).
+            dns_cache: Optional DNS cache for address resolution.
         """
         self._timeout = timeout
         self._max_workers = max_workers or min(32, (os.cpu_count() or 1) + 4)
         self._dns_cache = dns_cache or DNSCache()
-        self._executor = None
-        self._executor_ref = None
+        self._executor: Optional[ThreadPoolExecutor] = None
+        self._executor_ref: Optional[weakref.ref] = None
     
     @property
     def executor(self) -> ThreadPoolExecutor:
@@ -368,6 +453,7 @@ class ParallelNTPClient:
             )
             # Keep weak reference to detect external shutdown
             self._executor_ref = weakref.ref(self._executor)
+        assert self._executor is not None
         return self._executor
     
     def query_hosts_parallel(self,
@@ -376,21 +462,20 @@ class ParallelNTPClient:
                            max_acceptable_delay: float = DEFAULT_MAX_ACCEPTABLE_DELAY,
                            stop_on_good_result: bool = True,
                            good_delay_threshold: float = 0.1) -> ParallelQueryResult:
-        """
-        Query multiple NTP hosts in parallel.
+        """Query multiple NTP hosts in parallel.
         
         Args:
-            hosts: List of NTP server hostnames
-            attempts_per_host: Number of attempts per host
-            max_acceptable_delay: Maximum acceptable network delay
-            stop_on_good_result: Stop early if a result with low delay is found
-            good_delay_threshold: Delay threshold for "good" result
+            hosts: List of NTP server hostnames.
+            attempts_per_host: Number of attempts per host.
+            max_acceptable_delay: Maximum acceptable network delay.
+            stop_on_good_result: Stop early if a result with low delay is found.
+            good_delay_threshold: Delay threshold for "good" result.
             
         Returns:
-            ParallelQueryResult with best response and statistics
+            ParallelQueryResult with best response and statistics.
         """
         # Resolve all addresses first
-        host_addresses = {}
+        host_addresses: Dict[str, List[AddressTuple]] = {}
         for host in hosts:
             addresses = self._resolve_host_addresses(host)
             if addresses:
@@ -400,7 +485,7 @@ class ParallelNTPClient:
             return ParallelQueryResult(False, None, [], [("No hosts resolved", Exception("DNS resolution failed"))])
         
         # Submit all queries
-        futures_to_query = {}
+        futures_to_query: Dict[Future, Tuple[str, AddressTuple, int]] = {}
         query_id = 0
         
         for host, addresses in host_addresses.items():
@@ -417,9 +502,9 @@ class ParallelNTPClient:
                     query_id += 1
         
         # Collect results
-        responses = []
-        errors = []
-        best_response = None
+        responses: List[NTPResponse] = []
+        errors: List[NTPQueryResult] = []
+        best_response: Optional[NTPResponse] = None
         good_result_found = False
         
         for future in as_completed(futures_to_query, timeout=self._timeout * 2):
@@ -446,7 +531,7 @@ class ParallelNTPClient:
         
         # Cancel remaining futures if we found a good result
         if good_result_found:
-            for future, query_info in futures_to_query.items():
+            for future in futures_to_query:
                 if not future.done():
                     future.cancel()
         
@@ -456,8 +541,15 @@ class ParallelNTPClient:
         
         return ParallelQueryResult(success, best_response, responses, errors)
     
-    def _resolve_host_addresses(self, host: str) -> List[Tuple]:
-        """Resolve host to address list using cache."""
+    def _resolve_host_addresses(self, host: str) -> List[AddressTuple]:
+        """Resolve host to address list using cache.
+        
+        Args:
+            host: Hostname to resolve.
+            
+        Returns:
+            List of address tuples.
+        """
         # Check cache first
         cached = self._dns_cache.get(host)
         if cached:
@@ -466,8 +558,8 @@ class ParallelNTPClient:
         # Resolve and cache
         try:
             addresses = socket.getaddrinfo(host, 123, 0, socket.SOCK_DGRAM)
-            self._dns_cache.set(host, 123, addresses)
-            return addresses
+            self._dns_cache.set(host, 123, addresses)  # type: ignore[arg-type]
+            return addresses  # type: ignore[return-value]
         except socket.gaierror:
             self._dns_cache.set(host, 123, [])  # Cache failure
             return []
@@ -475,19 +567,18 @@ class ParallelNTPClient:
     def _query_single_address(self, 
                             query_id: int,
                             host: str, 
-                            addr_info: Tuple,
+                            addr_info: AddressTuple,
                             attempt: int) -> NTPResponse:
-        """
-        Query a single address and return response.
+        """Query a single address and return response.
         
         Args:
-            query_id: Unique query identifier
-            host: Hostname being queried
-            addr_info: Address info tuple from getaddrinfo
-            attempt: Attempt number
+            query_id: Unique query identifier.
+            host: Hostname being queried.
+            addr_info: Address info tuple from getaddrinfo.
+            attempt: Attempt number.
             
         Returns:
-            NTPResponse with timing data
+            NTPResponse with timing data.
         """
         family, socktype, proto, canonname, sockaddr = addr_info
         
@@ -504,7 +595,7 @@ class ParallelNTPClient:
         NTP_TIMESTAMP_STRUCT.pack_into(packet, 40, sec, frac)
         
         # Send and receive
-        with socket.socket(family, socket.SOCK_DGRAM) as sock:
+        with socket.socket(family, socktype, proto) as sock:
             sock.settimeout(self._timeout)
             sock.sendto(packet, sockaddr)
             
@@ -534,18 +625,37 @@ class ParallelNTPClient:
         )
     
     def _to_ntp(self, ts: float) -> Tuple[int, int]:
-        """Convert POSIX timestamp to NTP format."""
+        """Convert POSIX timestamp to NTP format.
+        
+        Args:
+            ts: POSIX timestamp.
+            
+        Returns:
+            Tuple of (seconds, fraction).
+        """
         ntp = ts + NTP_TO_UNIX
         sec = int(ntp)
         frac = int((ntp - sec) * (1 << 32))
         return sec, frac
     
     def _from_ntp(self, sec: int, frac: int) -> float:
-        """Convert NTP timestamp to POSIX format."""
+        """Convert NTP timestamp to POSIX format.
+        
+        Args:
+            sec: NTP seconds.
+            frac: NTP fraction.
+            
+        Returns:
+            POSIX timestamp.
+        """
         return (sec + float(frac) / (1 << 32)) - NTP_TO_UNIX
     
     def shutdown(self, wait: bool = True) -> None:
-        """Shutdown the thread pool executor."""
+        """Shutdown the thread pool executor.
+        
+        Args:
+            wait: Whether to wait for pending tasks.
+        """
         if self._executor:
             self._executor.shutdown(wait=wait)
             self._executor = None
@@ -553,26 +663,29 @@ class ParallelNTPClient:
 
 
 class FastDate64Encoder:
-    """
-    Optimized FastDate64 timestamp encoder/decoder.
+    """Optimized FastDate64 timestamp encoder/decoder.
     
     Provides high-performance 64-bit timestamp encoding with minimal CPU overhead.
+    
+    Example:
+        >>> encoded = FastDate64Encoder.encode(1700000000.0)
+        >>> decoded = FastDate64Encoder.decode(encoded)
+        >>> print(f"Decoded: {decoded}")
     """
     
     @staticmethod
     def encode(ts: float) -> int:
-        """
-        Encode POSIX timestamp to 64-bit unsigned integer.
+        """Encode POSIX timestamp to 64-bit unsigned integer.
         
         Args:
-            ts: POSIX timestamp in seconds (float)
+            ts: POSIX timestamp in seconds (float).
             
         Returns:
-            64-bit unsigned integer encoding of the timestamp
+            64-bit unsigned integer encoding of the timestamp.
             
         Raises:
-            ValueError: If timestamp is negative
-            OverflowError: If timestamp is too large for encoding
+            ValueError: If timestamp is negative.
+            OverflowError: If timestamp is too large for encoding.
         """
         if ts < 0:
             raise ValueError("Negative timestamps not supported")
@@ -587,14 +700,13 @@ class FastDate64Encoder:
 
     @staticmethod
     def decode(value: int) -> float:
-        """
-        Decode 64-bit unsigned integer to POSIX timestamp.
+        """Decode 64-bit unsigned integer to POSIX timestamp.
         
         Args:
-            value: 64-bit unsigned integer encoding of timestamp
+            value: 64-bit unsigned integer encoding of timestamp.
             
         Returns:
-            POSIX timestamp in seconds (float)
+            POSIX timestamp in seconds (float).
         """
         frac_mask = FASTDATE_FRAC_SCALE - 1
         sec = value >> FASTDATE_FRAC_BITS
@@ -603,14 +715,13 @@ class FastDate64Encoder:
 
     @staticmethod
     def encode_safe(ts: float) -> int:
-        """
-        Safely encode timestamp with bounds checking.
+        """Safely encode timestamp with bounds checking.
         
         Args:
-            ts: POSIX timestamp in seconds
+            ts: POSIX timestamp in seconds.
             
         Returns:
-            Encoded timestamp or 0 if invalid
+            Encoded timestamp or 0 if invalid.
         """
         try:
             return FastDate64Encoder.encode(ts)
@@ -619,14 +730,13 @@ class FastDate64Encoder:
 
     @staticmethod
     def decode_safe(value: int) -> float:
-        """
-        Safely decode timestamp with error handling.
+        """Safely decode timestamp with error handling.
         
         Args:
-            value: 64-bit unsigned integer encoding
+            value: 64-bit unsigned integer encoding.
             
         Returns:
-            Decoded timestamp or 0.0 if invalid
+            Decoded timestamp or 0.0 if invalid.
         """
         try:
             return FastDate64Encoder.decode(value)
@@ -635,15 +745,23 @@ class FastDate64Encoder:
 
 
 class PerformanceMetrics:
-    """
-    Performance metrics collector for TimeSync operations.
+    """Performance metrics collector for TimeSync operations.
     
     Tracks timing, success rates, and other performance indicators.
+    
+    Attributes:
+        metrics: Internal metrics storage.
+    
+    Example:
+        >>> metrics = PerformanceMetrics()
+        >>> metrics.record_ntp_query("time.google.com", 0.05, True, 0.5)
+        >>> summary = metrics.get_summary()
+        >>> print(f"Success rate: {summary['success_rate']}")
     """
     
-    def __init__(self):
-        """TODO: Document __init__."""
-        self._metrics = {
+    def __init__(self) -> None:
+        """Initialize performance metrics collector."""
+        self._metrics: Dict[str, Any] = {
             'ntp_queries': [],
             'dns_cache_hits': 0,
             'dns_cache_misses': 0,
@@ -653,8 +771,15 @@ class PerformanceMetrics:
         }
         self._lock = threading.Lock()
     
-    def record_ntp_query(self, host: str, delay: float, success: bool, duration: float):
-        """Record NTP query metrics."""
+    def record_ntp_query(self, host: str, delay: float, success: bool, duration: float) -> None:
+        """Record NTP query metrics.
+        
+        Args:
+            host: NTP server hostname.
+            delay: Round-trip delay in seconds.
+            success: Whether query was successful.
+            duration: Query duration in seconds.
+        """
         with self._lock:
             self._metrics['ntp_queries'].append({
                 'host': host,
@@ -664,19 +789,27 @@ class PerformanceMetrics:
                 'timestamp': time.time()
             })
     
-    def record_dns_cache_hit(self):
+    def record_dns_cache_hit(self) -> None:
         """Record DNS cache hit."""
         with self._lock:
             self._metrics['dns_cache_hits'] += 1
     
-    def record_dns_cache_miss(self):
+    def record_dns_cache_miss(self) -> None:
         """Record DNS cache miss."""
         with self._lock:
             self._metrics['dns_cache_misses'] += 1
     
     def record_parallel_query(self, num_hosts: int, num_addresses: int, 
-                            success: bool, duration: float, best_delay: float):
-        """Record parallel query metrics."""
+                            success: bool, duration: float, best_delay: float) -> None:
+        """Record parallel query metrics.
+        
+        Args:
+            num_hosts: Number of hosts queried.
+            num_addresses: Total number of addresses.
+            success: Whether query was successful.
+            duration: Total duration in seconds.
+            best_delay: Best delay achieved.
+        """
         with self._lock:
             self._metrics['parallel_queries'].append({
                 'hosts': num_hosts,
@@ -687,8 +820,13 @@ class PerformanceMetrics:
                 'timestamp': time.time()
             })
     
-    def record_fallback_usage(self, method: str, duration: float):
-        """Record fallback method usage."""
+    def record_fallback_usage(self, method: str, duration: float) -> None:
+        """Record fallback method usage.
+        
+        Args:
+            method: Fallback method name.
+            duration: Duration in seconds.
+        """
         with self._lock:
             self._metrics['fallback_usage'].append({
                 'method': method,
@@ -696,8 +834,13 @@ class PerformanceMetrics:
                 'timestamp': time.time()
             })
     
-    def record_error(self, error_type: str, message: str):
-        """Record error occurrence."""
+    def record_error(self, error_type: str, message: str) -> None:
+        """Record error occurrence.
+        
+        Args:
+            error_type: Type of error.
+            message: Error message.
+        """
         with self._lock:
             self._metrics['errors'].append({
                 'type': error_type,
@@ -706,12 +849,16 @@ class PerformanceMetrics:
             })
     
     def get_summary(self) -> Dict[str, Any]:
-        """Get performance metrics summary."""
+        """Get performance metrics summary.
+        
+        Returns:
+            Dictionary containing summary statistics.
+        """
         with self._lock:
             metrics = self._metrics.copy()
         
         # Calculate summary statistics
-        summary = {
+        summary: Dict[str, Any] = {
             'total_queries': len(metrics['ntp_queries']),
             'success_rate': 0.0,
             'avg_delay': 0.0,
@@ -736,17 +883,25 @@ class PerformanceMetrics:
 
 
 # Global instances for shared use
-_global_dns_cache = DNSCache()
-_global_metrics = PerformanceMetrics()
+_global_dns_cache: DNSCache = DNSCache()
+_global_metrics: PerformanceMetrics = PerformanceMetrics()
 
 
 def get_global_dns_cache() -> DNSCache:
-    """Get global DNS cache instance."""
+    """Get global DNS cache instance.
+    
+    Returns:
+        Global DNSCache instance.
+    """
     return _global_dns_cache
 
 
 def get_global_metrics() -> PerformanceMetrics:
-    """Get global metrics instance."""
+    """Get global metrics instance.
+    
+    Returns:
+        Global PerformanceMetrics instance.
+    """
     return _global_metrics
 
 
@@ -757,14 +912,17 @@ def clear_global_caches() -> None:
 
 @contextmanager
 def performance_timer(operation_name: str):
-    """
-    Context manager for timing operations and recording metrics.
+    """Context manager for timing operations and recording metrics.
     
     Args:
-        operation_name: Name of the operation being timed
+        operation_name: Name of the operation being timed.
         
     Yields:
-        Timer context for manual control
+        Timer context for manual control.
+        
+    Example:
+        >>> with performance_timer("scan_files"):
+        ...     pass
     """
     start_time = time.perf_counter()
     try:
