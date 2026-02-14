@@ -219,7 +219,7 @@ class Compression:
                         zf.write(file_path, arcname=arcname)
             elif format in Compression.TAR_MODE_MAP:
                 mode = Compression.TAR_MODE_MAP[format]
-                with tarfile.open(str(output_path_obj), mode) as tf:
+                with tarfile.open(str(output_path_obj), mode) as tf:  # type: ignore[call-overload]
                     for file_path in file_paths:
                         if not file_path.exists():
                             raise CompressionError(f"File not found: {file_path}")
