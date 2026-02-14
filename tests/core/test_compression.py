@@ -6,6 +6,7 @@ import lzma
 import zipfile
 import tarfile
 import tempfile
+import pytest
 from pathlib import Path
 from nodupe.core.compression import Compression, CompressionError
 
@@ -727,3 +728,167 @@ class TestCompression:
             Compression.extract_archive(file1, temp_dir / "out", format='tar')
         except CompressionError:
             pass
+
+    # ============================================================================
+    # Tests for remove_original flag (Lines 93-94)
+    # ============================================================================
+    
+    def test_compress_file_remove_original_coverage(self, temp_dir):
+        """Test that remove_original actually deletes the source file."""
+        test_file = temp_dir / "test.txt"
+        test_file.write_bytes(b"test content for compression")
+        
+        assert test_file.exists()
+        
+        compressed = Compression.compress_file(
+            test_file, 
+            format='gzip',
+            remove_original=True
+        )
+        
+        assert not test_file.exists()
+        assert compressed.exists()
+    
+    # ============================================================================
+    # Tests for remove_compressed flag (Lines 144-147)
+    # ============================================================================
+    
+    def test_decompress_file_remove_compressed_coverage(self, temp_dir):
+        """Test that remove_compressed actually deletes the compressed file."""
+        compressed_file = temp_dir / "test.txt.gz"
+        with gzip.open(compressed_file, 'wb') as f:
+            f.write(b"test content for decompression")
+        
+        assert compressed_file.exists()
+        
+        decompressed = Compression.decompress_file(
+            compressed_file,
+            format='gzip',
+            remove_compressed=True
+        )
+        
+        assert not compressed_file.exists()
+        assert decompressed.exists()
+    
+    # ============================================================================
+    # Tests for exception handlers (Lines 104-105, 147, 195-196, 240)
+    # ============================================================================
+    
+    def test_compress_file_io_error_handler(self, temp_dir, monkeypatch):
+        """Test compress_file exception handler for IO errors."""
+        test_file = temp_dir / "test.txt"
+        test_file.write_bytes(b"content")
+        
+        call_count = [0]
+        original_open = open
+        
+        def mock_open(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] == 2:
+                raise OSError("Simulated disk full error")
+            return original_open(*args, **kwargs)
+        
+        monkeypatch.setattr("builtins.open", mock_open)
+        
+        with pytest.raises(CompressionError, match="File compression failed"):
+            Compression.compress_file(test_file, format='gzip')
+    
+    def test_decompress_file_io_error_handler(self, temp_dir, monkeypatch):
+        """Test decompress_file exception handler for IO errors."""
+        compressed_file = temp_dir / "test.txt.gz"
+        with gzip.open(compressed_file, 'wb') as f:
+            f.write(b"content")
+        
+        call_count = [0]
+        original_open = open
+        
+        def mock_open(*args, **kwargs):
+            call_count[0] += 1
+            if call_count[0] == 2:
+                raise PermissionError("Simulated permission denied")
+            return original_open(*args, **kwargs)
+        
+        monkeypatch.setattr("builtins.open", mock_open)
+        
+        with pytest.raises(CompressionError, match="File decompression failed"):
+            Compression.decompress_file(compressed_file, format='gzip')
+    
+    def test_create_archive_io_error_handler(self, temp_dir, monkeypatch):
+        """Test create_archive exception handler."""
+        test_file = temp_dir / "test.txt"
+        test_file.write_bytes(b"content")
+        output = temp_dir / "archive.zip"
+        
+        def mock_zipfile_init(*args, **kwargs):
+            raise OSError("Simulated storage error")
+        
+        monkeypatch.setattr("zipfile.ZipFile.__init__", mock_zipfile_init)
+        
+        with pytest.raises(CompressionError, match="Archive creation failed"):
+            Compression.create_archive([test_file], output, format='zip')
+    
+    def test_extract_archive_io_error_handler(self, temp_dir, monkeypatch):
+        """Test extract_archive exception handler."""
+        archive_file = temp_dir / "test.zip"
+        test_file = temp_dir / "test.txt"
+        test_file.write_bytes(b"content")
+        
+        with zipfile.ZipFile(archive_file, 'w') as zf:
+            zf.write(test_file, arcname="test.txt")
+        
+        output_dir = temp_dir / "output"
+        
+        original_zipfile = zipfile.ZipFile
+        
+        class MockZipFile(original_zipfile):
+            def extractall(self, *args, **kwargs):
+                raise OSError("Simulated extraction error")
+        
+        monkeypatch.setattr("zipfile.ZipFile", MockZipFile)
+        
+        with pytest.raises(CompressionError, match="Archive extraction failed"):
+            Compression.extract_archive(archive_file, output_dir, format='zip')
+    
+    # ============================================================================
+    # Tests for CompressionError re-raise (Lines 186, 225)
+    # ============================================================================
+    
+    def test_create_archive_compression_error_reraise(self, temp_dir):
+        """Test create_archive re-raises CompressionError."""
+        nonexistent = temp_dir / "nonexistent.txt"
+        output = temp_dir / "archive.zip"
+        
+        with pytest.raises(CompressionError, match="File not found"):
+            Compression.create_archive([nonexistent], output, format='zip')
+    
+    def test_extract_archive_compression_error_reraise(self, temp_dir):
+        """Test extract_archive re-raises CompressionError."""
+        nonexistent = temp_dir / "nonexistent.zip"
+        output_dir = temp_dir / "output"
+        
+        with pytest.raises(CompressionError, match="Archive not found"):
+            Compression.extract_archive(nonexistent, output_dir, format='zip')
+    
+    # ============================================================================
+    # Tests for estimate_compressed_size branches
+    # ============================================================================
+    
+    def test_estimate_compressed_size_all_data_types(self):
+        """Test estimate_compressed_size with all data types for branch coverage."""
+        data_size = 1000
+        
+        formats = ['gzip', 'bz2', 'lzma', 'tar.gz', 'tar.bz2', 'tar.xz']
+        data_types = ['text', 'binary', 'image', 'video']
+        
+        for fmt in formats:
+            for dtype in data_types:
+                result = Compression.estimate_compressed_size(data_size, fmt, dtype)
+                assert isinstance(result, int)
+                assert result > 0
+                assert result <= data_size
+        
+        result = Compression.estimate_compressed_size(data_size, 'unknown', 'text')
+        assert result == 500
+        
+        result = Compression.estimate_compressed_size(data_size, 'gzip', 'unknown')
+        assert result == 500
