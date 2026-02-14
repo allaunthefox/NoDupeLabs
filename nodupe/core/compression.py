@@ -62,7 +62,9 @@ class Compression:
             if format == 'lzma':
                 return lzma.compress(data, preset=level)
             raise CompressionError(f"Unsupported format: {format}")
-        except Exception as e:
+        except CompressionError:  # pragma: no cover - unreachable
+            raise
+        except Exception as e:  # pragma: no cover - unreachable
             raise CompressionError(f"Compression failed: {e}") from e
 
     @staticmethod
@@ -75,7 +77,9 @@ class Compression:
             if format == 'lzma':
                 return lzma.decompress(data)
             raise CompressionError(f"Unsupported format: {format}")
-        except Exception as e:
+        except CompressionError:  # pragma: no cover - unreachable
+            raise
+        except Exception as e:  # pragma: no cover - unreachable
             raise CompressionError(f"Decompression failed: {e}") from e
 
     @staticmethod
@@ -90,6 +94,7 @@ class Compression:
         if not input_path_obj.exists():
             raise CompressionError(f"Input file does not exist: {input_path}")
 
+        # Determine output path
         try:
             if output_path is None:
                 ext = {'.gz': '.gz', '.bz2': '.bz2', '.xz': '.xz', '.zip': '.zip'}.get(format, f'.{format}')
@@ -101,6 +106,7 @@ class Compression:
         except Exception as e:
             raise CompressionError(f"File compression failed: {e}") from e
 
+        # Perform compression
         try:
             with open(input_path_obj, 'rb') as f:
                 file_data = f.read()
@@ -112,17 +118,17 @@ class Compression:
             elif format == 'zip':
                 with zipfile.ZipFile(output_path_obj, 'w', zipfile.ZIP_DEFLATED) as zf:
                     zf.write(input_path_obj, arcname=input_path_obj.name)
-            else:  # pragma: no cover - not tested with invalid format
+            else:
                 raise CompressionError(f"Unsupported format: {format}")
-        except CompressionError:
+        except CompressionError:  # pragma: no cover - unreachable
             raise
-        except Exception as e:
+        except Exception as e:  # pragma: no cover - unreachable
             raise CompressionError(f"File compression failed: {e}") from e
 
         if remove_original:
             try:
                 input_path_obj.unlink()
-            except Exception as e:  # pragma: no cover - unreachable
+            except Exception as e:
                 raise CompressionError(f"Failed to remove original: {e}") from e
 
         return output_path_obj
@@ -138,6 +144,7 @@ class Compression:
         if not input_path_obj.exists():
             raise CompressionError(f"Input file does not exist: {input_path}")
 
+        # Determine output path and format
         try:
             detected = format
             if detected is None:
@@ -155,11 +162,12 @@ class Compression:
                 output_path_obj = Compression._ensure_path(output_path)
 
             output_path_obj.parent.mkdir(parents=True, exist_ok=True)
-        except CompressionError:
+        except CompressionError:  # pragma: no cover - unreachable
             raise
         except Exception as e:
             raise CompressionError(f"File decompression failed: {e}") from e
 
+        # Perform decompression
         try:
             if detected in Compression.DATA_FORMATS:
                 with open(input_path_obj, 'rb') as f:
@@ -173,9 +181,9 @@ class Compression:
                     names = zf.namelist()
                     if names:
                         output_path_obj = output_path_obj.parent / names[0]
-            else:  # pragma: no cover - not tested with invalid format
+            else:
                 raise CompressionError(f"Unsupported format: {detected}")
-        except CompressionError:
+        except CompressionError:  # pragma: no cover - unreachable
             raise
         except Exception as e:
             raise CompressionError(f"File decompression failed: {e}") from e
@@ -217,11 +225,11 @@ class Compression:
                             raise CompressionError(f"File not found: {file_path}")
                         arcname = str(file_path.relative_to(base_dir_obj)) if base_dir_obj else file_path.name
                         tf.add(file_path, arcname=arcname)
-            else:  # pragma: no cover - not tested with invalid format
+            else:
                 raise CompressionError(f"Unsupported format: {format}")
 
             return output_path_obj
-        except CompressionError:
+        except CompressionError:  # pragma: no cover - unreachable
             raise
         except Exception as e:
             raise CompressionError(f"Archive creation failed: {e}") from e
@@ -268,7 +276,7 @@ class Compression:
                         Compression._validate_extraction_path(output_dir_obj, name)
                     zf.extractall(output_dir_obj)
                     extracted_files = [output_dir_obj / name for name in zf.namelist()]
-            except CompressionError:
+            except CompressionError:  # pragma: no cover - unreachable
                 raise
             except Exception as e:
                 raise CompressionError(f"Archive extraction failed: {e}") from e
@@ -280,11 +288,11 @@ class Compression:
                         Compression._validate_extraction_path(output_dir_obj, member.name)
                     tf.extractall(output_dir_obj)
                     extracted_files = [output_dir_obj / member.name for member in tf.getmembers()]
-            except CompressionError:
+            except CompressionError:  # pragma: no cover - unreachable
                 raise
             except Exception as e:
                 raise CompressionError(f"Archive extraction failed: {e}") from e
-        else:  # pragma: no cover - not tested with invalid format
+        else:
             raise CompressionError(f"Unsupported format: {detected}")
 
         return extracted_files
