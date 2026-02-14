@@ -62,9 +62,8 @@ python -m venv .venv
 source .venv/bin/activate  # Linux/Mac
 # .venv\Scripts\activate  # Windows
 
-# Install dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+# Install package with dev dependencies (includes pytest, hypothesis, coverage)
+pip install -e ".[dev]"
 
 # Install pre-commit hooks
 pre-commit install
