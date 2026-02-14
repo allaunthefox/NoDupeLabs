@@ -1,0 +1,2427 @@
+{
+  "version": "1.0",
+  "generated": "2026-02-14T05:02:22.695607",
+  "algorithm": "SHA-512",
+  "files": {
+    ".clinerules/context-window-management.md": {
+      "hash": "10c598e97ecf0cd1708d7f533b2c5c84bcfe5f25c4c6efecb839d5a06ddaf38f658e2d6123db4acebdd841cb7f9fb8a8dd594a29e731c62269f222531dfbf1f1",
+      "size": 1409
+    },
+    ".env": {
+      "hash": "bf6a42d6de59be38cafc73f748359e0ad714f9d0694baf98dedb6c1a07658e10fce1d5561eaa6a209b869b2499bd75152b8bf99486592c4b7e297eae20729d70",
+      "size": 587
+    },
+    ".env.example": {
+      "hash": "f3adf6463fcfd8e02959f059644ed263525de90d1b93771f6b031db8559530277c6f6ee9abdc763a1602a6f8671683a54408b2cd161780981efe76bd2372b74b",
+      "size": 721
+    },
+    ".github/auto-merge-config.json": {
+      "hash": "b400ce99274b2d6d7027c826085320097399906a94d8c7aa296b5affd4ece0218e83c4109ca3c3c8a70db58c2fe65cc50b5d8e7f0637e53ac3ce85223a5d9c87",
+      "size": 1745
+    },
+    ".github/dependabot.yml": {
+      "hash": "1fde04d89cfdf162e52f6b7036f12a0501bd5a80bdc250aca37eea5259fca78a8f7874d60d63190179e77ef4f92db0d44d374981d7af82cab6762911a6f303d4",
+      "size": 814
+    },
+    ".github/settings.yml": {
+      "hash": "db488fad46c540d7ed225f0c07d1217ed17f1e8f946985dec8db91cf41a953e6adeb71f14fbe5d0bbb2a6fc739ff8916511d5a44724422bd26f2a28e93baaadd",
+      "size": 865
+    },
+    ".github/workflows/README.md": {
+      "hash": "555f52ed105441e3a734504696062044207e750e4dad1d2dc279e2f0fd10a0c0e9c72f31e16b3eec5b38a5131ee196cfe0d25251f053de36a216d4809ad9abd4",
+      "size": 3419
+    },
+    ".github/workflows/ci-cd.yml": {
+      "hash": "45cb340b34c662af21d2b91985e8888c78e81344e9ff51380299fdc28b07cb2fab1850fcd648174f1fdb9a7c1cb9a9ce35bd8fab2a25f9533e51ee3cf10c7c7c",
+      "size": 9411
+    },
+    ".github/workflows/ci-comprehensive.yml": {
+      "hash": "7c83018bae66febb9f52466fefdc79fe3d091931ff2f3c2d88fa0c08a69f674958c05c86b4369a93e61b6fe66fbd7205388aed3100c9fd96e182001ce648ffdf",
+      "size": 11513
+    },
+    ".github/workflows/codeql-analysis.yml": {
+      "hash": "0a08c9c564b69457abe63efc1d5f2494bd68737773a77532854184e5a08ec30aa1225864d9da487dcbf5548e227d16e67b8461d67c00c43689fe16bd5a878596",
+      "size": 2525
+    },
+    ".github/workflows/deployment.yml": {
+      "hash": "684342588eda6daccc84cb3b2d21e3b5729c8079f5a8f04a8c0708b0301d1074ceebc22218f3511aa3842d121331d045f58d94d16e3926d1a8b9655c963a9dc8",
+      "size": 1513
+    },
+    ".github/workflows/pr-validation.yml": {
+      "hash": "fad039ad59b09cafccb06f00460d8b0eb2d63edca8aea46479225b8b20219018638bbb28d9589dbd6fd6ae06e6647cb910cadc535d558ef3ec09929e40508305",
+      "size": 597
+    },
+    ".github/workflows/wiki-lint.yml": {
+      "hash": "d6455bd30f4036edad72828484e6de79b36e54e77b39ef8fa145e6d9dc365744ffad46d39933ee5897330738df5eb56a200f8d5795f30a0ce940c72c1e7cdc73",
+      "size": 502
+    },
+    ".github/workflows-disabled/code-quality.yml.disabled": {
+      "hash": "3da99ef1bfecbded984971162f8cd6fc255616e64e1eba6c3410423ec9f7c9536a59b38db561f9b85a845d8485a147eb6c7d5bc84d99bba52de043d0816d744e",
+      "size": 7705
+    },
+    ".github/workflows-disabled/python-testing.yml.disabled": {
+      "hash": "3cd0a35fa8905c12bc38945b391c92aff771368d5cebe30b9a7fc4fa6cdf0f9295ed9b83856b72ed30c4ac8fd8666c46ed1cb5059dcb284f6c51917f7a735e71",
+      "size": 1672
+    },
+    ".github/workflows-disabled/test.yml.disabled": {
+      "hash": "fb5a6735b01ed02499706f3cfbb4629cc66e5df53ed5f4298430eb8f36dc77cfe58e848b19fed6e068c590a99f40e81ed08159e2714b29f8978c06b6d7bb0c06",
+      "size": 2397
+    },
+    ".gitignore": {
+      "hash": "bc30d2a4c6ce84c4fa464c11cdec4bd23a4c79c1929490d8f4378b89b6fc837cf28e8cb18c15cfa20c5563362338453bf8516c1e4ec09f7aa40a64c1784cddf5",
+      "size": 1595
+    },
+    ".mypy_cache/.gitignore": {
+      "hash": "b914cbd94b80a962729361207f7f2e5aa12d7deb6f63d6ea5e0b133bff7a7bf633c32be8c37f399f32703db01988e4673f96538fa4894ffa66a4b62c237543a8",
+      "size": 34
+    },
+    ".mypy_cache/3.9/@plugins_snapshot.json": {
+      "hash": "27c74670adb75075fad058d5ceaf7b20c4e7786c83bae8a32f626f9782af34c9a33c2046ef60fd2a7878d378e29fec851806bbd9a67878f3a9f1cda4830763fd",
+      "size": 2
+    },
+    ".mypy_cache/3.9/_ast.data.json": {
+      "hash": "d774f7b9d1c7e18e76563935b6c31454f86131021ac359e4f89acbf94954907a6d6eb94b302bc8f14877fa660a1f07f1b8aab82bd98a195c7e0ad41d33aaf394",
+      "size": 11365
+    },
+    ".mypy_cache/3.9/_ast.meta.json": {
+      "hash": "2961a5a88e0e4d98982a4d5a75a8b569d134d4b473ba7e7abc9078b38c655cc4891e57b527e013da1dad327918876bab07e300a235be8e896be0fb1c911f8e25",
+      "size": 871
+    },
+    ".mypy_cache/3.9/_blake2.data.json": {
+      "hash": "d8be1e01fd70db213a2aa3e68ca4322c9c522ca5fd19d73dcd75c677f036cbff9cf45caff7938c9d68a5d531e942de5bf84c67c13d5a26d1e64b161b4a5dbfd3",
+      "size": 20882
+    },
+    ".mypy_cache/3.9/_blake2.meta.json": {
+      "hash": "c218c51da67347b9bc8ee3d85f06238c19c092d050e9cfe01f3bed99e2bbd23758aa3df7ce6100ba0001c0e5c19e4fed76b32f1b9c388ce285fbde1ba3314a75",
+      "size": 888
+    },
+    ".mypy_cache/3.9/_bz2.data.json": {
+      "hash": "0e6937ddefc31a33df06126830f55cf2581fcb427fc5bf5a5d09962a20161f75fd73b64fac4ef1a9536814d8282f26d1e34430f89f465c1140338f9cdea64455",
+      "size": 10835
+    },
+    ".mypy_cache/3.9/_bz2.meta.json": {
+      "hash": "f73765fbb0712bf9510a93cb2184c5b8f753030624468e0f933cf915a1e0894225c39524d1d61c1a5d986b45b484d6ee499c0af0c0439abef1e2d5d44462c506",
+      "size": 881
+    },
+    ".mypy_cache/3.9/_codecs.data.json": {
+      "hash": "1b1712616fe0b3c5a74e47479cc0e07c0da8aba5587b03a520251d7c7bd9c00684f42cbbff1d142553cc01047a0c751b405fefce8353b1201e1c9856ae8c341e",
+      "size": 60326
+    },
+    ".mypy_cache/3.9/_codecs.meta.json": {
+      "hash": "b75ccc0b6174941dc5ea9d5be64ea9f67182562bb2fa0588fe12c8937dce124850e7728e3c83cb9b2ac71683282a13b0b5db51ca51b675482c9b1f4210df56b9",
+      "size": 1010
+    },
+    ".mypy_cache/3.9/_collections_abc.data.json": {
+      "hash": "9ad7fb6ac2443bbca5c71cd569def07a5eb8da349d7bc84322da4f01ec01a5b3bcd8e7326c123c8b306608bec70c32659d2457d0221905af479e8e67a718421b",
+      "size": 20345
+    },
+    ".mypy_cache/3.9/_collections_abc.meta.json": {
+      "hash": "0b66b9a148521d5556e935fbc392872e9c8f69e2908b1dde5b6ce8d4537ed3c1815e98a88a976beb86c91ae66b3f2dc72f9132aeb5870b6336b044639f95230a",
+      "size": 894
+    },
+    ".mypy_cache/3.9/_compression.data.json": {
+      "hash": "54eb789633879520f1ace1c46a826ca0b11c886252ca382ef5025dc21202435d6d547821d44e9d27286ec8b718926e2510000e0c17d5af8404dfeb35740db113",
+      "size": 16648
+    },
+    ".mypy_cache/3.9/_compression.meta.json": {
+      "hash": "2fe5c59d3ff5cc9531f2e12e1c2535c481335f84188b69f92222014ab622e388200e543630e4b30fe4d1eeadf45c63f3eea06c53987c180a884f7766d813f5ad",
+      "size": 948
+    },
+    ".mypy_cache/3.9/_contextvars.data.json": {
+      "hash": "9ff65dc56e0f703eb222106d8be182f813b7c76ed81cb17325e4926a6e39aa43399638d10c60c816f6a9bdc01062524d575f6c8eaef1d12fc61039eec10fa8ed",
+      "size": 75410
+    },
+    ".mypy_cache/3.9/_contextvars.meta.json": {
+      "hash": "ffc81b6d1c7d49cc9d42d5bacaf7e64242fcbd6fae34fd1d8ffb59f39a757014ece10f97e51c3e948b5e75aec540deb53c6c5307645d0ddc6296a60f118d6276",
+      "size": 1019
+    },
+    ".mypy_cache/3.9/_ctypes.data.json": {
+      "hash": "df8c3ff24792714dfd695983384fabade1f6e63c44292af7d7989cd11a69b679516833a14f61efc1c53899d82d52b2b94c2f3420617983073cb99ace35114022",
+      "size": 231229
+    },
+    ".mypy_cache/3.9/_ctypes.meta.json": {
+      "hash": "46aba5bd49da1412d06de3cf86546185d10717a444c5394eba240603b80b2db0d60f03f91ae6761c3b1412c5cb7fd7416e64d218279d51c472c4d24260230ce1",
+      "size": 1064
+    },
+    ".mypy_cache/3.9/_frozen_importlib.data.json": {
+      "hash": "695f25953dfa563eb10f2d7ba77bf7d6f73d18083e6c16421f23a40255f9ebb78fd64455159fb8e00100474ab56eb6ba5edd7c3815e800e849aa56e0389c1f6a",
+      "size": 46586
+    },
+    ".mypy_cache/3.9/_frozen_importlib.meta.json": {
+      "hash": "83f4076c4b2e0a96edbc8b0f4dca3651658fc5bd47a35a0e3bde866eae14fdab0c0af726422afc6d97348dacfc98295b9ac5a679018b9a129b2db48280db7cfa",
+      "size": 1292
+    },
+    ".mypy_cache/3.9/_frozen_importlib_external.data.json": {
+      "hash": "4841b04a7da944d3240f2ddea7214a4808feefe63de988a5456cacd86ad18b79266c627d804d8378ae17dd5c89a9b605b84619c681a9b86e32bb5432247882a4",
+      "size": 74595
+    },
+    ".mypy_cache/3.9/_frozen_importlib_external.meta.json": {
+      "hash": "22ff870857ca962e4587620cb5bfaea656b968edb16ae5c5ef14fa6bf3e4f1e74f3398d754cfece7472694eabba545e0938aaf67a043f8cd0b961141f46fe262",
+      "size": 1611
+    },
+    ".mypy_cache/3.9/_hashlib.data.json": {
+      "hash": "82c0ebe7017b17fde4c8ddf41566162c670c51562c39d5d0ce5207688716c028b5f1eed15ef2cf73414f82c3013853b7c3f588eb1414a8f632f39038b5219eec",
+      "size": 50441
+    },
+    ".mypy_cache/3.9/_hashlib.meta.json": {
+      "hash": "8caee69ce5a29e08c72599b5d8abee5c3b3f33b3b2c03057523c4e9a88a8603aaaeda3c634cb8ec29920443c63cb0389276e0c43a3f366c03ca82af6ae03bcee",
+      "size": 1010
+    },
+    ".mypy_cache/3.9/_io.data.json": {
+      "hash": "3af620c7d10eb138a91f1b87179f88907d43c75fca8ae8974f2b181e8bd5fc058136877dc4278c383876bf6847334b4b0541ee57e2e3af31d0046fc45809c067",
+      "size": 123030
+    },
+    ".mypy_cache/3.9/_io.meta.json": {
+      "hash": "743a13fda8baf6d79b9e7ab23cd65c6b942134f5d09cd6c854bb90bdba04ed2452135d0b25d5744ed0daa3051b0b58ef218dccf5df8f4d0e5e6b9f4c561cf519",
+      "size": 1164
+    },
+    ".mypy_cache/3.9/_lzma.data.json": {
+      "hash": "6f42af13ecfd521f79150fbd4c7705a0f8894af877c4f946873dca8fccfb26666919b1bc20f7f598907a7e23ec6819a4af66b69a0b59a2052d6540590701429d",
+      "size": 27101
+    },
+    ".mypy_cache/3.9/_lzma.meta.json": {
+      "hash": "ad7aaeef087a3cfb6cb877272d344fabcb3828f3387a9ba9e05fa1f6b1de049fcb48e48f212c257a128b4eddf464a44b7ff3a0183539fd5ce2af6a93a088eb29",
+      "size": 949
+    },
+    ".mypy_cache/3.9/_pickle.data.json": {
+      "hash": "6427e14e9527e68a696add2f7bfb56b5911c114d2c4f136f50ac7471755bcb8867730fddd185bee84d1b3416dc10a8a3a0b83f4a4153b36b6d772cf70db7873a",
+      "size": 44607
+    },
+    ".mypy_cache/3.9/_pickle.meta.json": {
+      "hash": "b6b0c70f453f88f093badcd8ba7df5c8270a9bda5e1869cccb389df822b74750d78a52802e299e50be359a5709763d136c5915cd1d2f36dd589c26500c88337c",
+      "size": 955
+    },
+    ".mypy_cache/3.9/_queue.data.json": {
+      "hash": "fb9d27b106225b86634d516a26dcfefa0350ef706af6c674d03757c738f1b8855752f5388e93a99e9a378db6ce1414b0d8fb11317e5007452d42d3441b21232a",
+      "size": 14323
+    },
+    ".mypy_cache/3.9/_queue.meta.json": {
+      "hash": "4cdaea943a0b2f1915d79b049d055edebfffd76b339da49c30c462e5e9968ffd4f20c6050041ab8eb5cdb680c85b7e1a65f7b15c246a751efb63d8e9ee8c14f6",
+      "size": 773
+    },
+    ".mypy_cache/3.9/_sitebuiltins.data.json": {
+      "hash": "7ecf226b26096c7e0930ef69a7c10b4adadeffa35a8eaf376a3f7c681a851bd0dc1b272e1a1ea3e1a2782a11f1c59f2814bf56b4052bbbc56295c49a65a69a94",
+      "size": 8948
+    },
+    ".mypy_cache/3.9/_sitebuiltins.meta.json": {
+      "hash": "a15cdc36d8ac02c9c2ddbb18bf36788d09f708e055c75965cba93149df101924d89946620b7701b2cfc347bdb90587074aa79055132fb4981a9b3698fd72a5d2",
+      "size": 838
+    },
+    ".mypy_cache/3.9/_socket.data.json": {
+      "hash": "0814a83af82ea7cd8e9b9831bd81204a72b2af7a3c445eb2452afc6fea647dacb250c1c3ae4338d84c5d80b5a7362f416114d478505cf0301fb0f67172230bad",
+      "size": 146132
+    },
+    ".mypy_cache/3.9/_socket.meta.json": {
+      "hash": "cbb7924092d172589c6a5e2ad1201876bdb459f563a1070d5d75cd6798db95d51534127889372da7b9f40f7dc1a931027d43e0eaf9a3f0dcc03b957a64605b5b",
+      "size": 1010
+    },
+    ".mypy_cache/3.9/_sqlite3.data.json": {
+      "hash": "27f78451f145a56f32cf842853732bdecf0695a0c5c94cc5b34fa4f3781b9f55f92c4390b7fe441433e459e3c14fd503f9098d3fb5102ed37272a87cc7df6d0b",
+      "size": 49726
+    },
+    ".mypy_cache/3.9/_sqlite3.meta.json": {
+      "hash": "67fb85c6d157b10b965667177234f022ed0e45457d8ca19941e08041f7351282cdd302a0395453bf5023cdbf2929b7619b336874854b37cfbe86ced7c923bb0a",
+      "size": 1015
+    },
+    ".mypy_cache/3.9/_struct.data.json": {
+      "hash": "08bddaf37dc8a1735fff6dfb5476133d62904bf81492ace97f2ef2ebdd6710836fb872d9f67f017bf67a677cac1a9454858275e6708cfb128d1023f65a64bb25",
+      "size": 15977
+    },
+    ".mypy_cache/3.9/_struct.meta.json": {
+      "hash": "243b38752cd3f1f1db484d1c7ce0b38c1147480f7fef7944a55621b58907342c9eced79877c0c39a2d658acd975737f591971f603e0b954d46e6c0ec37f2cb28",
+      "size": 899
+    },
+    ".mypy_cache/3.9/_thread.data.json": {
+      "hash": "36ec17ab75b1ea0143cbccc3b326c18c9835f2f02421ab4460cb5d17743dc08da6e1867196b85e3bef1914ea9a04a38ea8cd0f886c9e06f9c0e07dd69d665e44",
+      "size": 60188
+    },
+    ".mypy_cache/3.9/_thread.meta.json": {
+      "hash": "956021fa2148cfd7880503768f7a2bcd1816853fcd1ed3a21ac2e8e2ef31fb911e8fab771fdd4c5604a3849072c1b990f70949a3fc4d4e433aa598527ea970f3",
+      "size": 1124
+    },
+    ".mypy_cache/3.9/_typeshed/__init__.data.json": {
+      "hash": "f793fe89e70d8aac03c1590b43c329d0ed71188b1f41755572ed4f98403c3ca544dc1bb92d5f6ba9c07fd32ea798ece45db093765aadbf743e800b6e6f47aafc",
+      "size": 148257
+    },
+    ".mypy_cache/3.9/_typeshed/__init__.meta.json": {
+      "hash": "1f322b9ffef3b73a501ea1d28a3c9f39a2b280be6f79062d9f0afb73524174163f0258c286b5197777207bb7aa8d03297e064868c7588f30cfdf7dca2de0f566",
+      "size": 1134
+    },
+    ".mypy_cache/3.9/_typeshed/importlib.data.json": {
+      "hash": "bdc66b1b4fdd32bd300879b60e78c07e5613445000161ad750a72b78e26952415a24ec3b578786d9891784fafdddef6c2650297333ef55bf9563e95578b57b06",
+      "size": 7939
+    },
+    ".mypy_cache/3.9/_typeshed/importlib.meta.json": {
+      "hash": "919685b536b4208d921c8268485d18ecf95936f895f706b34cb47383c7833b072c94ecb9ea4e48e9f454b4d9bdc68c30e619b2290b23804d0a2066125fc41c4f",
+      "size": 988
+    },
+    ".mypy_cache/3.9/abc.data.json": {
+      "hash": "ce2b4f102216a20d43e1f696561b91d5a65c3f36f3b1d48214b9ea39dc657aaea5b345c5da98d453666a365f92218f634c76b0ce20ec2d0713edc8289728c2b4",
+      "size": 28973
+    },
+    ".mypy_cache/3.9/abc.meta.json": {
+      "hash": "bb720f9ae319fbebec894677c85463740325b3f52a4460718c39c6ed320a25c3961e03aa10e0c5c656de006b2d12e1e98b8cb421de475fadbfdf81b6323886ac",
+      "size": 891
+    },
+    ".mypy_cache/3.9/argparse.data.json": {
+      "hash": "da97dd65916ebe3eaf5f237c3ef201e80fa47afa691d38ee6ca6dfce0e70b498006418196ce1c5882d7da5fdf55031e4d8257e108bf6202c13dbf17954ecfde1",
+      "size": 240287
+    },
+    ".mypy_cache/3.9/argparse.meta.json": {
+      "hash": "39fbc9f82724a3c3cc01953085c63b5d0d5b3720bd17b84f7a66bcf51d63514bc9469ef91b7b96b7b5d7441c6ee4e279384b90cac273df6089149de3108e28c3",
+      "size": 1008
+    },
+    ".mypy_cache/3.9/ast.data.json": {
+      "hash": "275ec2ecfcbc4ef682436072c637038aa111325b5ed542e5e0fcc2e950925c352453b609ec3df87cf9db481d1cbb46468966a7c1a9034fd4ba6440fffaf8bd61",
+      "size": 412974
+    },
+    ".mypy_cache/3.9/ast.meta.json": {
+      "hash": "289d1f8c763767c987952dfda160780cf44acc557aebe51136c08c4b0dc7e6a5bfa1253bce68e4e7b0f3d0fd61e3d2d28de8d14556a7a9ee6174aad15a872c57",
+      "size": 1057
+    },
+    ".mypy_cache/3.9/builtins.data.json": {
+      "hash": "b632db42ea17852cd3557054ac5f87dac636e1130b62aac4c287cb7a5614f50dff7421504227e10ed280db9c879f07355e91b0d72fce24360545fd0da8d069f1",
+      "size": 1805000
+    },
+    ".mypy_cache/3.9/builtins.meta.json": {
+      "hash": "18c6dc91540eb4704361d21b2e57dd6fa80e4db238b7666f1786878d5eaadb95efc9acc17f73ddfb04dec1b8cea7e5f3997b4ace72464f11605a92a22ec99b6d",
+      "size": 1355
+    },
+    ".mypy_cache/3.9/bz2.data.json": {
+      "hash": "0272e32f764cc2dcc5ef0ff9e6a6d75ad1ad1923f72f1550df0530ee91f6a3e6992d0a2eafcfef3f3b997680592d6128827ea5a1a8c6196d8a15e4b0355752d4",
+      "size": 47044
+    },
+    ".mypy_cache/3.9/bz2.meta.json": {
+      "hash": "b5209bec2d4327070f13413b14f359170f460b4ab29f32e7db27c449b4f3b6597d64695e9a868f40a02e749a985ab87e24722e1736954f6a9a022716821d70a3",
+      "size": 1168
+    },
+    ".mypy_cache/3.9/codecs.data.json": {
+      "hash": "1c1e624a15b31e982358aec5ac54968cbbf62a2f9c0ca2045d945814e273dc18c5f107182a8bf8dfa0b5cd6935ca5f42f6adf32d39dd266837ae3936e3b78dda",
+      "size": 147744
+    },
+    ".mypy_cache/3.9/codecs.meta.json": {
+      "hash": "fd67525ae335db0d7dd319bc95757f4159271e9ca8ba42621b445db469399a677227efa25adc5f3d583818678bd1905c91a5beb4579fbb52b395c8692d107e02",
+      "size": 1064
+    },
+    ".mypy_cache/3.9/collections/__init__.data.json": {
+      "hash": "86f22a1085df9a91b5e17463dd7bbe2ab4979778457a90057ae4cdaf66b9e3979d26120ad2e5b2444034df42a5a0b895b2fed2a6f0bc46a44d366c9912f26098",
+      "size": 834124
+    },
+    ".mypy_cache/3.9/collections/__init__.meta.json": {
+      "hash": "a4b5ced59936fdb2a6948cf46ef56c42886476180864c35cd46657a3d56182dee0e5489377aabf28d67e20be4ab650fb4431b619facb14ce41acd242da0459c7",
+      "size": 1027
+    },
+    ".mypy_cache/3.9/collections/abc.data.json": {
+      "hash": "936b8ef28f3d65269a756def924647c4c1962ac505b79e75887c2455be765c8e824609000faeb51855421732ca7f57575b035139016abdf300a1de767fc46069",
+      "size": 4089
+    },
+    ".mypy_cache/3.9/collections/abc.meta.json": {
+      "hash": "9aae41514fb7ad851559f1a0c9bb12d7923f1939f9cc30c352a3babddf70ec8721c74e889339ceb5bacbd3481cbc2a251d619ce5f141b92fcf32af42a8eaf017",
+      "size": 678
+    },
+    ".mypy_cache/3.9/contextlib.data.json": {
+      "hash": "6a2d3a64d6465b2364bdd4d1c1dee0454af161208f32ade853aab9c9e8cfa623371658f1cae9c22f5564f11a76d7d5b10d492632447f11ba7011a369e8910c0f",
+      "size": 135130
+    },
+    ".mypy_cache/3.9/contextlib.meta.json": {
+      "hash": "46be9b92ba065bf66365627a517d5cfc39d8b8f403660f687db6b3ce619e3bbc65399eccc5ee65621ddf4e180a1a73825de598d83207718ae06889c0cf8470bd",
+      "size": 1013
+    },
+    ".mypy_cache/3.9/contextvars.data.json": {
+      "hash": "d7540d781124e2f08c60609ed31e3480bf054f1d3d4e359a610a32111d5ef54f5a2fcdd9aa11571ab672f34cd4008879916e124295b36bde062b59d35f8e9554",
+      "size": 2643
+    },
+    ".mypy_cache/3.9/contextvars.meta.json": {
+      "hash": "d652ee097952da3a955b913cd1325b6b775d28175cf4cc5d3a9e895d045f76743be46617c35fa7ad34e14282a8bae665f680e59811e8772c14e12fb3d6573e72",
+      "size": 778
+    },
+    ".mypy_cache/3.9/copyreg.data.json": {
+      "hash": "f7b4f876f4b3cd876a489476dc7feb0eae13b600bf80418139d04a318e15204f359218961f7ea2216390ff3c860e10a20f0fb6549f40f80a95f36231dedeb839",
+      "size": 14380
+    },
+    ".mypy_cache/3.9/copyreg.meta.json": {
+      "hash": "9ad8625a2a2574b70dbb9bb9c7b72752122bd2ee2efce61f62b029715a850e0f069e48826aad3adb726bc28a307d6fcc8c265062c01426b637579440128c5d9a",
+      "size": 899
+    },
+    ".mypy_cache/3.9/ctypes/__init__.data.json": {
+      "hash": "fce521833e5a3e296bd4f3826c47c3d886db935a7e7b00c0643cba3f39c19c8fd986e5d5c1291e4ceea4fdc1fe06e79b0859c36cf2bee5b96a849a743b3665c7",
+      "size": 103424
+    },
+    ".mypy_cache/3.9/ctypes/__init__.meta.json": {
+      "hash": "dc0c738c7d3d0d1e598ce35198ce69356a73603b90e3763fcfc53bf591027bdf7ed3b9246914ed986bda414c2f07c0e25d8e8658cc57ba6c5a9207d2ab82c626",
+      "size": 1077
+    },
+    ".mypy_cache/3.9/ctypes/_endian.data.json": {
+      "hash": "66c880c66caab4ea6df958fcc99c8b0d7fa657607fac4036bb887105c86fa6ccdc70a019cec500f2d14bc49e9892e533f02446aa90da89ab711b33417b2f42a6",
+      "size": 4691
+    },
+    ".mypy_cache/3.9/ctypes/_endian.meta.json": {
+      "hash": "2d8e79e4a3caad68d1c99d3de81097c62867b7a3f25d70c102f3f3d096fc517d2fac747f36f492677a93691b2fe3bcd237e162fd021b0ceee2f890ff8ebceb0c",
+      "size": 950
+    },
+    ".mypy_cache/3.9/dataclasses.data.json": {
+      "hash": "f5cf03e1ee841455f70995ca73f580105bb3cd837566d350ee4a21d5d85debbedb6238bd11dc8ed598c45a4c72002caad0859dfb608d8e267399cd5cf0a487e1",
+      "size": 87280
+    },
+    ".mypy_cache/3.9/dataclasses.meta.json": {
+      "hash": "26b0d13525022a8a28c882c0dc3c45aa11aa50a2ddf150073266c505fee43b826f5ab72ceba1cc8ba30d02225e8e096c96cb768cd7d58f121dff9fb89cf458fa",
+      "size": 1072
+    },
+    ".mypy_cache/3.9/datetime.data.json": {
+      "hash": "79c80f6fca471829596c9f69166d2eae0824abd6d4d60092d2985e9d5cf87564d0d4b725411649f25f351eca22e5541e7e5a638f3c7e42e1d79aadf06b0e8f54",
+      "size": 173004
+    },
+    ".mypy_cache/3.9/datetime.meta.json": {
+      "hash": "f5b698f6d4da67b41dbc4b389748452ebd6837b3c5c4818a4387a1ebbf92d4a302539d08ceb6867ccab00d81667d70493dd47e437f306f9f5f2cd8c2e63212a4",
+      "size": 945
+    },
+    ".mypy_cache/3.9/email/__init__.data.json": {
+      "hash": "f4309df1df4d196eb8d05ff24857b1b35f8e5561cc292b41549dd5e34323c2a9214ce98473da2f6c428a8577cac2d764e82433662ced04d42761869f48e6ba7c",
+      "size": 82034
+    },
+    ".mypy_cache/3.9/email/__init__.meta.json": {
+      "hash": "9fd541c00533f8efbdcc672535f670bc61a724d6b4b06e6f786939ddc55a16c5ea2ef1f486b89d0702ea207bea462dc9679c6ca14e8c2f53023a2f90b65c47e9",
+      "size": 1037
+    },
+    ".mypy_cache/3.9/email/_policybase.data.json": {
+      "hash": "8f79cbb04888a2ace6a2c2f3e4fedd5de856042a4850ae7673f9c29a1f23dbdf367b21b9a72888fd3b16a2d96f768c3a47b1a5f982531e760b9d1b665b16a3cf",
+      "size": 55057
+    },
+    ".mypy_cache/3.9/email/_policybase.meta.json": {
+      "hash": "b5d0122468588e783a5aea06212f8a90658aeaec5671ca8f272cd9cde0d6265d54a879b676aa7ebbe3bc57758626cc3a2728e82102f1eac1e27b3166b3778cf1",
+      "size": 981
+    },
+    ".mypy_cache/3.9/email/charset.data.json": {
+      "hash": "5aef11fca702de886f7e9681d8a492c0f230984607cc8eed6516063dfd8a21310ccc1c1f69c2ccabc129d17daff25b6f9f709350b4eb759c62a77703b2272367",
+      "size": 22377
+    },
+    ".mypy_cache/3.9/email/charset.meta.json": {
+      "hash": "a5152225a014f3216668a1ae6e6460b0c86426eab42bc07d42e2e10a2833a2ad15b8f7fca90bc0e25f4194be41cd10637622b24598b232fa99ae04cf69acc50d",
+      "size": 848
+    },
+    ".mypy_cache/3.9/email/contentmanager.data.json": {
+      "hash": "fba76f089f6fb63ceef9518e27374d5079bbc0caf4ff6946d71bd29e58aedd60eaa35372942e83bfb50edd37181f8103b9893da7829f35901eb40207c1708a30",
+      "size": 8157
+    },
+    ".mypy_cache/3.9/email/contentmanager.meta.json": {
+      "hash": "9ee370b52f3727b31089105540d064f4d3dfcf84931df2c3dd40bc187416fa68d6a69d07c7e13349131109f6a71f08780a3bd846a0c4f642664b2ef37d6ae80d",
+      "size": 807
+    },
+    ".mypy_cache/3.9/email/errors.data.json": {
+      "hash": "af65f40023389fa059c415c181a5a0b4a1841cf041c674cb041b3101adedd1132d73079591cf6fbef8f1e41b5df2fb534a77491c7ecd522c3a12e7ad7a0ef70f",
+      "size": 26050
+    },
+    ".mypy_cache/3.9/email/errors.meta.json": {
+      "hash": "46cc5be35ea05fdb19ad3dbed01cd0242b992ad6899fd2e2661d80464b9d710f0f69b927c166cf378ae89d21a4f87ea144cd2f8489b0b6eea16295b764ce1886",
+      "size": 833
+    },
+    ".mypy_cache/3.9/email/header.data.json": {
+      "hash": "0fa03029e2b0bdeb9dc903088ec708d124426ca5e7b53135a8c93c530ea773f61b19a896994f2c6b65bea72815af239c10577e26eb996aab2e95efe3d896de7c",
+      "size": 10854
+    },
+    ".mypy_cache/3.9/email/header.meta.json": {
+      "hash": "b4d8c07b6b90a007fb0edfc047e752f826c3d561adea875b9e812c1cfae3b767345e46badf65d2fbd43db7e860b4ccf12209fe6c47a4d2574e9ebb35a64a2dd1",
+      "size": 846
+    },
+    ".mypy_cache/3.9/email/message.data.json": {
+      "hash": "855734461d32554ae9b32c9c36f2584e915be8bed8af44fdc228eb476928a10b875c6d95f3a39dea7ee08de8ef6efa97e9f8ffeafbe5eed59d86a9cbf78e47df",
+      "size": 208735
+    },
+    ".mypy_cache/3.9/email/message.meta.json": {
+      "hash": "8ba64dd24a354d7de09bacd40dc789a5fbcf733cfa671ad7da23f88458a8a866f8c18e6f86e85e0090d499b24c1d6bae9294975830ff0aa3b561322c338f0e34",
+      "size": 1291
+    },
+    ".mypy_cache/3.9/email/policy.data.json": {
+      "hash": "2acec62a1a1b384c58e1ba271f453e472f2c61b90a6a84aee92cd93f262410a2c6f0304e2c9e874de239a78904c6ed492156e2b72095a71d316db8faa81c3762",
+      "size": 34918
+    },
+    ".mypy_cache/3.9/email/policy.meta.json": {
+      "hash": "814de18dbb34b58ace8b0de99741606905b5f6607a5bd764fe66563ccb9506bed31ac4431110bf2a385b717ffd01873118640cf2f81afb6b21b2bf07d187aa69",
+      "size": 1050
+    },
+    ".mypy_cache/3.9/enum.data.json": {
+      "hash": "17c7f15b9c370c72fb7b05e6bf3869c540d3a7f962d1426a5197cf3a7baffe9a4f5d34673ca8931bc43af985292bc6768fd93ceca0cdeaf8ce3b0ac7204bc186",
+      "size": 88550
+    },
+    ".mypy_cache/3.9/enum.meta.json": {
+      "hash": "bbf4d87b6a391b36da21caf9ad6e4d3a4fb2d3efd8997d7081c551348e6f8cafb871b088474a7a027914a4a40d3290a98b5eaaf59429eb82457cf658fb917532",
+      "size": 1004
+    },
+    ".mypy_cache/3.9/fcntl.data.json": {
+      "hash": "5093b2bc3a45b08a7fcdfe1461066642c03809ca44ca9f6eb298d1eaca34b1f9655317309102e57fbc70143dbb368082873567a1e4019f63890757a9224995be",
+      "size": 32135
+    },
+    ".mypy_cache/3.9/fcntl.meta.json": {
+      "hash": "f9f2b04bd7bc0e7f4824f110579fa2aa80b1559f1baa7269aa05ecbd78333d428cae26c2ce48fe546c736c23da776f855c2a6d13f4a6c3ab63c9bea0feec0320",
+      "size": 884
+    },
+    ".mypy_cache/3.9/functools.data.json": {
+      "hash": "a8c540a04e7dad5d4078ed245fc8b4723eb12f708823cac1e92a8a081714b74ca53393751ab9979b17a28867afe44b543ff33529cbeb8b778b6018a33f3cdb47",
+      "size": 220553
+    },
+    ".mypy_cache/3.9/functools.meta.json": {
+      "hash": "864fd15b562461ad6932aabf9b95dc2af630f34a613ec62896a0c2967a5146adeb401689ac631b0d0492abdc4899a84a7c616aef2418a1535a647566452f071d",
+      "size": 1012
+    },
+    ".mypy_cache/3.9/genericpath.data.json": {
+      "hash": "0c8e7f36a2c027c4897055747249ed11e6fc7300bcd080e48e6b221c99433fe1bf7bcebb1a6b6d6a17503832551a7e66e6c53d7e1ad9f665b91dd8236f01b8e1",
+      "size": 35278
+    },
+    ".mypy_cache/3.9/genericpath.meta.json": {
+      "hash": "9c6df08914616e410da7930c50ed693515eb4a7e6829a577acabbad08af8843a154973db67c90880fe25bb0db33ca1d77c63177bcfef6711865192861e2520b8",
+      "size": 1014
+    },
+    ".mypy_cache/3.9/gzip.data.json": {
+      "hash": "365c401ec7d57e829e41e50919da6709e4363ff6bde4f14c049af9b2eed147b504fd6364531acdee9c212173d565066bb479620a0d4b657b803073570fe1f635",
+      "size": 61207
+    },
+    ".mypy_cache/3.9/gzip.meta.json": {
+      "hash": "ec4efc844400bdf3ec2f3ffba7d428e3bd8fa8ec6df49ecd1013e651d46145c5d6c9901821234a03ae01598cdda6f9020cc729ea8f83e4c1423e19e149140dc8",
+      "size": 1106
+    },
+    ".mypy_cache/3.9/hashlib.data.json": {
+      "hash": "58b2e07076c66909bd0e4ae3d3e6d2f43201d17894da6bf4d4c4ac28a7a40aa05dc0b3159098c96e6dc8853149fc0c5026b73b789fb1ad3f38e896ac0dceb9eb",
+      "size": 6534
+    },
+    ".mypy_cache/3.9/hashlib.meta.json": {
+      "hash": "6da8fb7b9b7b6f499fe4682763780c900af874e633898a017fff7583a89d15ad8ccbe48166c7c304285dea62e4689b936439994251d3387c574b3fe578000a20",
+      "size": 1004
+    },
+    ".mypy_cache/3.9/importlib/__init__.data.json": {
+      "hash": "a2dddfda8b691365de213e2c7fa30e976cfc1529d2fb29ae0c83e294c26d9731285d6ecf1e5bc292743ac0402aea9b48f31d0f3483c1dca6339f99805bd7b82f",
+      "size": 6797
+    },
+    ".mypy_cache/3.9/importlib/__init__.meta.json": {
+      "hash": "5b6f80e8e2e67d3255f194299dfeb279ceb3302034248b9c79129db79633289b85a322edbe2d75c9608a495706c4669e43998f083af5b80aa75ea4911aa4f68c",
+      "size": 1090
+    },
+    ".mypy_cache/3.9/importlib/_bootstrap.data.json": {
+      "hash": "835bb7eeb2b709973ebcfa93b8bf2211b9c5c292a5de034f09de1be7a86697c72ef6d9331f93f8cb34a5af745f1d063ecaad3c08e20b7783aeff4d555eac0e79",
+      "size": 2450
+    },
+    ".mypy_cache/3.9/importlib/_bootstrap.meta.json": {
+      "hash": "738aa5801936d3282e081efd157136bf23377e2e270ebdf61490d9ab1ad8cbfcbd4797676077a6a0fb01b216ff0f6f7d017029606f0254c9e50dd1e236d8baa6",
+      "size": 690
+    },
+    ".mypy_cache/3.9/importlib/_bootstrap_external.data.json": {
+      "hash": "434b2adad1e4c811e7ef1767e6c09778ccecf48a4ec5bd63eac1622564330eb04c11d21a3103952d1769fb4b734f73443fa46e4e2c493b54f42e3a9e53b681d0",
+      "size": 4413
+    },
+    ".mypy_cache/3.9/importlib/_bootstrap_external.meta.json": {
+      "hash": "fab167d288ddf99af435d2c57dfc7939758d552e7366b1d1273348fb55a070b58e21ce2e1736f70261ad07251bbe112d07d461137e07471ef8ff6a49f5e466a9",
+      "size": 717
+    },
+    ".mypy_cache/3.9/importlib/abc.data.json": {
+      "hash": "1214fa872bf7fad1d42941f5bae42ed9d4233de8ef15213e65e0e93155a41f8fcbd3ea37cdfbab2a9ce5f3992e735f4cbb8bf1bf9aea54163ed9bc1cc01d3d42",
+      "size": 66954
+    },
+    ".mypy_cache/3.9/importlib/abc.meta.json": {
+      "hash": "0e77c96d26071b2b769c516068edbf3512e41aed10644d0cc24af5049f2591a6552d70db6ada0ec28b521af82d4eb1fe6f97642ebbff0ef1ccde01a732cfce50",
+      "size": 1591
+    },
+    ".mypy_cache/3.9/importlib/machinery.data.json": {
+      "hash": "e87b8972417b78b48f9fd54cb1d17dc184714e201a62ea0af397497fc27423530feb7b0bf515e9dbaa5c70660cfea4f22836d88ea8e981adb5da51ffc0dd1e53",
+      "size": 4183
+    },
+    ".mypy_cache/3.9/importlib/machinery.meta.json": {
+      "hash": "be0b3e9be08d1f6ac3ac0377ec680c86a1d889939646e20ef8b42ed2d11168ddf48af3377f2bf558de68e10f5ce79f448ffb79993d83bbd53ce8b472692becd6",
+      "size": 996
+    },
+    ".mypy_cache/3.9/importlib/metadata/__init__.data.json": {
+      "hash": "bd186286ed28b5aa0b8bb8dcda0617a3a852ea5efe874c9a3d6c0c4e85471f896eb0d56081439df64fef41c53d34669297f29f948f1918773fba298210ef2a0e",
+      "size": 83003
+    },
+    ".mypy_cache/3.9/importlib/metadata/__init__.meta.json": {
+      "hash": "1e23233ade1b959581920c98af87165913a57202f98d37bb6afe484c54add61565a99dc239fb1a219f8caef36ce152dff1b482138c16d9923354e09092faaf32",
+      "size": 1398
+    },
+    ".mypy_cache/3.9/importlib/util.data.json": {
+      "hash": "f1998e04da5a7e42e4f14981e8356a73630867e4f55e4e90f0fda5a736c41b90db0ec61f4852273c7d644b929e6b9b0941e7ae44c2d91a2ad73234db908a3f9b",
+      "size": 32840
+    },
+    ".mypy_cache/3.9/importlib/util.meta.json": {
+      "hash": "6e41468032d549fcd0f50c2b9e7701093c4a334d74df5c991b3a1b9c59d997e12bd370fb0ae38d50f13ba58dad675cac2fbc6d5506d4b60ebcea5dd2bd2f2c5f",
+      "size": 1435
+    },
+    ".mypy_cache/3.9/io.data.json": {
+      "hash": "785e559085e6ea049a999b3f4773c5f217e1cf59d8e69b731c57d672007edfd7e51afd4f6c286697ef1012dea3d5ae1876cd08de04a11893c43c68a1ee443c75",
+      "size": 9804
+    },
+    ".mypy_cache/3.9/io.meta.json": {
+      "hash": "9d03be52b02893be36ac6bc2bfb256a24b79a170a10ada4359edc44912688413fc73f58a3b5052bbca3b8fefdc90234dcbb2eadf5cd68d8e95818ab6e2b029a0",
+      "size": 866
+    },
+    ".mypy_cache/3.9/json/__init__.data.json": {
+      "hash": "b66bc16d4043786f23a2551a1a0af0e96b49d51c1193b77d02807df51623bb2edcdced0e995d1f8cd1f84ef38acf605663d9a976b44356935745b08263539794",
+      "size": 17301
+    },
+    ".mypy_cache/3.9/json/__init__.meta.json": {
+      "hash": "80ec5323a2babf2cb974c25e88f1902da482ebd5ed9dc6ee6be69c2f462628d7d52dee0db6963b5e033fa0de085f08f9e19e460ba5f0a249b68607a345be09e2",
+      "size": 959
+    },
+    ".mypy_cache/3.9/json/decoder.data.json": {
+      "hash": "d001a96bbaebd8252ff83aa7b6e6d459c6b8ebd5a561d3c08a230845a828975f4cdf113294c24935c09dd56ebe868fe1151f1918f9bef634832ac18e7735dbc7",
+      "size": 16538
+    },
+    ".mypy_cache/3.9/json/decoder.meta.json": {
+      "hash": "3eb8dc4968e4e9c683bb93311437ac0e6ff5c2aa406ab1f9f18b5c8fe7c1a790a4b7cf4e465d84854dd605d7826c008c0fa737ed173763455dd66f22687abe70",
+      "size": 783
+    },
+    ".mypy_cache/3.9/json/encoder.data.json": {
+      "hash": "6c6348d09702e76fd0743686e4d90111415103fbd9d6e0cae59a7d0ab7ff935147317fd6b7fb52e8af7595690f9cfbd5db6a08074dc82dbfd23ac02a40ffd1dc",
+      "size": 13919
+    },
+    ".mypy_cache/3.9/json/encoder.meta.json": {
+      "hash": "e9aef106ced7123a79eb1451a665d53fbbc310c4f043dfe6319370072a29586a05e71e6ed1828401be0f4d3fe8bd01315532538d24a7a485b992c27dfa5d8196",
+      "size": 835
+    },
+    ".mypy_cache/3.9/logging/__init__.data.json": {
+      "hash": "5b947084b1a14ccb37e70f80c69d870367ba2197e8a04f2dadc4d05b29a76eacb43e719e2ed5af893564505d64031a9e000e2942035c01054c3938d78c853354",
+      "size": 177012
+    },
+    ".mypy_cache/3.9/logging/__init__.meta.json": {
+      "hash": "80805e54fe10376b497f6b4ca1e194dfa00d6b0bea55905ae3f3a7ee32a7a82163cb77aa700fcb6a3c9e6eadbefd839634ad3abc476faf329eac2a0d25a38d78",
+      "size": 1406
+    },
+    ".mypy_cache/3.9/lzma.data.json": {
+      "hash": "73f877fa3ce16d805f7afd30787714ab105337c6e23d4407763fe9caee6c4d8a79aa6d1b03af355bfe53e927b08c2108440e9f70346710b5f0e39d89a3e77287",
+      "size": 38716
+    },
+    ".mypy_cache/3.9/lzma.meta.json": {
+      "hash": "16d7ea6b55120f51e48bb19ca3fd837945c181bd4001dec42963afee2e541512da1c9b3b2cd34c9b2b27bbd82f5606cb1dab6753e1e51b55944e92d36cb7af37",
+      "size": 1110
+    },
+    ".mypy_cache/3.9/mimetypes.data.json": {
+      "hash": "65eb92b61b2c423efcff06efe1ee5a4afabbd46ac39a6a81a42a17f5f1b4742c7c4bc8a320230de1cb0b0de18e4cc2359aed24d421d218f989f9653fd8d85818",
+      "size": 19052
+    },
+    ".mypy_cache/3.9/mimetypes.meta.json": {
+      "hash": "047271b32f287459acf5732dc58d2fb229fa2cd81a18fbb42d886fdfa2a46f3a0c34c8acc2f9eb48e0c844c57699a8bbace700a9b924bcb6df7c511e92037eea",
+      "size": 890
+    },
+    ".mypy_cache/3.9/mmap.data.json": {
+      "hash": "932d5f64b3e16cd50b5b493f573b3e5b9959ac53b1e1d14d7972576d8e978ff32667de710cc19ad217d631f079106475c396658c91f0ea21e5fd1a25a91eed25",
+      "size": 39467
+    },
+    ".mypy_cache/3.9/mmap.meta.json": {
+      "hash": "57a8d3eb90f954d8d8fc6ce8aac8c8a922e09e67db4eaf5b51e51ec2be667bb56b97b877088f59019eb5f5be61328849b086eab776d2bfe88fad7f43beb6213f",
+      "size": 1000
+    },
+    ".mypy_cache/3.9/multiprocessing/__init__.data.json": {
+      "hash": "6a3720b0e26b18bc4cf3b8216665de4dcc2269250e2045a9e130877940e875f8ddcbed4d60716cf45eaae83c01da442b9fef299004709ab35f24e1887a49fbf8",
+      "size": 37452
+    },
+    ".mypy_cache/3.9/multiprocessing/__init__.meta.json": {
+      "hash": "9049ad8915d1c72e37ddef919b53998d0e1ffd23a1f203140725e940fd6e1cd45ab0e397ae9cc81ff931d0dc6dd1080d2237ab7cb07e85fb8bf87d71dcb07c4f",
+      "size": 1714
+    },
+    ".mypy_cache/3.9/multiprocessing/connection.data.json": {
+      "hash": "9e6379385a095bc479b774fd278d6b049195bf1fbd2cc1cecc79fa05478ef65ed280088e4338615ef3867777e9995c97adb48235820c26101bdaeb60a3601c09",
+      "size": 57225
+    },
+    ".mypy_cache/3.9/multiprocessing/connection.meta.json": {
+      "hash": "669e85981225fd059a1726ab1bf353bd5cafdcdb33951ea8a2449ee93336201ebc68bf09f9741fc9a913190907d4b035b8e4975c2c3765d104fb909d008b8469",
+      "size": 1103
+    },
+    ".mypy_cache/3.9/multiprocessing/context.data.json": {
+      "hash": "b95d7f05536b3bacdfdf428fc4886fa3e79724937b93e58ac194ee7663a7d6fdf495ad4aae6565f7b3869e8ff7bb1e58e7f5464ff3abcedeac29f37b798c6136",
+      "size": 143833
+    },
+    ".mypy_cache/3.9/multiprocessing/context.meta.json": {
+      "hash": "c641f0cbe99a1e1ac8a807f64d252e432c04e1dda89cd107bfcb5d533c6093d94668978d84f5da7064f4454e19ae6657b5a19b8810094dacf11c1a01bb1b6ae1",
+      "size": 2017
+    },
+    ".mypy_cache/3.9/multiprocessing/managers.data.json": {
+      "hash": "7165b69fa5bc7453ddd943c9b790bd131336a8a6e2d62122319267fba604f51ef3a46efcb06680c7ad785596f0a897269583f83ca4257c24a31a0b464dfb74ba",
+      "size": 261514
+    },
+    ".mypy_cache/3.9/multiprocessing/managers.meta.json": {
+      "hash": "6b01fa5cf33a335df221dcdfbc7bb841f7be3451e063807517b79881212a23f90edfda856b51e69eaf0917a834bade635b7ef751a959aa6e26eaf625be23aa84",
+      "size": 1603
+    },
+    ".mypy_cache/3.9/multiprocessing/pool.data.json": {
+      "hash": "333084a41c5556a9b77eb67842f8e66ec58b28aadb43526c8781fcc67167a540b5d62212258eaba1a858879b69de3eae9928d838cf6b9bcd0ce0896d27569dbf",
+      "size": 69851
+    },
+    ".mypy_cache/3.9/multiprocessing/pool.meta.json": {
+      "hash": "9ef490a28121ba9076ec4ad2ba49e9dbb8f392ecd632920d838c5fbff83464c57219ddf904e67ce4cfb91ee175b85b235dced69fa650d10e6f5337abd961718b",
+      "size": 994
+    },
+    ".mypy_cache/3.9/multiprocessing/popen_fork.data.json": {
+      "hash": "50e47cef5a5be81a7f101aed1076af595653f8d54069e50635c4482e0427a081519959f2782b9b12fda0535d56e6394d0d2090771af03fb658e404c9c4b5a44f",
+      "size": 10606
+    },
+    ".mypy_cache/3.9/multiprocessing/popen_fork.meta.json": {
+      "hash": "2886bae21e7d5bacdca7fda81033e778ea1ad7c19a23a9cd2aaec3daa4c8d9c54cdd50e9ba5cb36d4b3bae714bd4a6c6107aa1986b769221030e1adb855e3c8a",
+      "size": 1002
+    },
+    ".mypy_cache/3.9/multiprocessing/popen_forkserver.data.json": {
+      "hash": "d5691b50ebdef82591ff8bd22f6c1471c0386a36bf44a62cf976291309887843951aa2166f9fa28ecd4af8fc22a464e27af3e64c087ebddcd19f7c6f8e509156",
+      "size": 7121
+    },
+    ".mypy_cache/3.9/multiprocessing/popen_forkserver.meta.json": {
+      "hash": "cf6fd2a1cf5b2869303b62c6c8e9bc19ab5853e0d59f3171e33c074847756016a866645dffaf59dfda7bfab7ae0b36d7e473285d5511833d765fccf78ab3bec7",
+      "size": 1024
+    },
+    ".mypy_cache/3.9/multiprocessing/popen_spawn_posix.data.json": {
+      "hash": "2dce9c9e7176ccdfa7c1428dc1db7fcc85a11648fea2eb815ca449688407ca221202bd69702b33c6d11c0c06cb9f9d1846bc24c9a9a1fa5a87cb6ab39d2aa925",
+      "size": 7853
+    },
+    ".mypy_cache/3.9/multiprocessing/popen_spawn_posix.meta.json": {
+      "hash": "1ae16878d730c655f7f0672cb8532f5b14e6f496de67fb94fcc990342dff0a7e6100d2f25ce0cd666853315a7f26c45f0ce98be31b5d859c126c4714e0f07f53",
+      "size": 1026
+    },
+    ".mypy_cache/3.9/multiprocessing/popen_spawn_win32.data.json": {
+      "hash": "91045f9e162218d203259f1aa0313f1c1dc80b8c6383ee94075bc5e5428d621dd2e592e832f739e5b16e4549133559bb78a93017e6b2e4b894cd62d63e2e257e",
+      "size": 2452
+    },
+    ".mypy_cache/3.9/multiprocessing/popen_spawn_win32.meta.json": {
+      "hash": "b1b86d9531ce5d34fb8586727281dab266d16e54d3e4927dee57b849f77aacea13dccc33462639988c5ecf431157a2f5f5789372517aba0a71bb6ec2ef6b9b48",
+      "size": 956
+    },
+    ".mypy_cache/3.9/multiprocessing/process.data.json": {
+      "hash": "b0103421d8e94a7275f9bcf31d444f5af2b7cf7391f0d077c102f9bc67d97c08aac3293e8a5769d0675bd45c2bcd4e25580fc4902312d2c89f050c31714c59c0",
+      "size": 19918
+    },
+    ".mypy_cache/3.9/multiprocessing/process.meta.json": {
+      "hash": "f1a37de5da3eddcecf0fd621a72087f70d8da744ab220c070ce6c93d1c26223c60f29b292cbef4be8da03b1c800203507aaaafc14cf0cd6eeb8abd0fec351c4a",
+      "size": 805
+    },
+    ".mypy_cache/3.9/multiprocessing/queues.data.json": {
+      "hash": "e6c2a1e52722348b65b6729a172566f2a74ffdf36bc99f4ef210d33daf0c240252e858fe04fa90b032fb2a6702d02270e5edea92a650546d647e3a299050938e",
+      "size": 30532
+    },
+    ".mypy_cache/3.9/multiprocessing/queues.meta.json": {
+      "hash": "0c04a9ff245257b57cb182c9501aaba1c7b4c4a255afb2ab7a986256c26cb19a1b33ce1778cb56145ad31b6fe593b3c3201848fa2da190cb73d6297be2415048",
+      "size": 907
+    },
+    ".mypy_cache/3.9/multiprocessing/reduction.data.json": {
+      "hash": "fb619f00ca95c427c7cb2ae845c3b880d2c7c81181146a05effee721db0004220b081479b330f252d9458ece461ebba2906cabc208a29dfec40ea5376d9f9219",
+      "size": 31948
+    },
+    ".mypy_cache/3.9/multiprocessing/reduction.meta.json": {
+      "hash": "d4fcd13fbcabc1a906dfcd3ba39e09cf0d460f481456e500759cc51242e3c9a28d65a0ce3f6f4a7a4f245f7cec359f260b68b3258c96bd483f79babc8bd851e3",
+      "size": 1419
+    },
+    ".mypy_cache/3.9/multiprocessing/shared_memory.data.json": {
+      "hash": "3ffb791b7735559d8f5026d61821c6c2b010f7fef18f224463df74847718a2467d8e46644b9fd3a8d9466b0db5eb1ca82c6ff20b7ddf843c5bcb105e3040d282",
+      "size": 38314
+    },
+    ".mypy_cache/3.9/multiprocessing/shared_memory.meta.json": {
+      "hash": "4713ce26a1d10a3a2ccc01cac3227309fac223c7c75b48baac5e7ff177d2b205f4e26badb0d89e3097476e7b8984111c8e4daf9abe8dff4bae6b4f85009b4b41",
+      "size": 1053
+    },
+    ".mypy_cache/3.9/multiprocessing/sharedctypes.data.json": {
+      "hash": "a22b0f81f65d077788e7f9e996276ec078f17879f0d20beeadc0b91b581b272ae691a5a62d640b04e0118fcbe81c22bfb8f0dcd88031190ab0d221e08805e36f",
+      "size": 138780
+    },
+    ".mypy_cache/3.9/multiprocessing/sharedctypes.meta.json": {
+      "hash": "f4166171cfc5abec912e83eb6e6d9e95e0f7b17ee6684c2f346c08f27673cf2451a1bf0c27209f2194dcb83dc119b8099cc249f308a2ec69f9128fc09c28d404",
+      "size": 1133
+    },
+    ".mypy_cache/3.9/multiprocessing/spawn.data.json": {
+      "hash": "6fdc84648d9968c3114fafc78c7c9ce8b9564782c35c20d8daa899b87d615461d267371ef82f18e0a76fa36b0cc0daa0d7e46cd3437fa195e87ee47b2133706d",
+      "size": 11155
+    },
+    ".mypy_cache/3.9/multiprocessing/spawn.meta.json": {
+      "hash": "fb2c13f41bef10b38d88ad4bd6f51fbc841c00de78d8c4927ac1788477b2d69ab8c227fe0708ce04398ab1af69ab7d8f24caf36e67847156b173294025a842fa",
+      "size": 855
+    },
+    ".mypy_cache/3.9/multiprocessing/synchronize.data.json": {
+      "hash": "c17841ab75008605b2e6af81841b1c1211ab9c29dbf32da07a6f83deca7bfb211377e895f68fbc6ed9db40d14eeff5a7ee542715c84f7c6fa3c5bb3564e5d237",
+      "size": 32967
+    },
+    ".mypy_cache/3.9/multiprocessing/synchronize.meta.json": {
+      "hash": "c9cd46fb0946291d7d44818fd44de511a132bb50ce81d49420760f985d29fa93486e799c5ec4b7bf9fe423cd58803f8e8e2fc565b6b8d79b0b3546df49e98900",
+      "size": 1069
+    },
+    ".mypy_cache/3.9/multiprocessing/util.data.json": {
+      "hash": "5fbbb1160cb7c8d79c2ffc062e5a4b4bb84789e356d323b81fda20f414437fe83054ddc6c3240c6984e133d0b84b590b7cb41a7ea45acc9beea624d40d08e8db",
+      "size": 49198
+    },
+    ".mypy_cache/3.9/multiprocessing/util.meta.json": {
+      "hash": "a294182693c650f978d33c97f7d51df3b15caba3f32c5a4f3c2fcd7b0055db1ad651ec4adc20595099b436dfd0ebcdbe33a4b7c8362317267d846a299441d9aa",
+      "size": 1029
+    },
+    ".mypy_cache/3.9/nodupe/__init__.data.json": {
+      "hash": "d6e6df07231a07b785c55cefa73a2b0f8281b2f59b3cf6c4ec0b20091ef04c885568b88969356442686a4c2504e26a6364872880ae0c67a7d5c946c5259f9a28",
+      "size": 1804
+    },
+    ".mypy_cache/3.9/nodupe/__init__.meta.json": {
+      "hash": "e0cf456eeff242184c868cdc46131eb5745624f6afd01ce4da2a2742b23f2ed0bdf4433f3b20f1ade14af81c0f45c682a6bf5ad0673127a11d819e5d88b89c0f",
+      "size": 658
+    },
+    ".mypy_cache/3.9/nodupe/core/__init__.data.json": {
+      "hash": "3137cf61529a0f13025d7428ef7e32802254180353c8ec0242fe9e78db07fede0d1904642688345099490b3fe2e3ffa0c2fad9a348a31a99281f62ede9c52dc4",
+      "size": 3817
+    },
+    ".mypy_cache/3.9/nodupe/core/__init__.meta.json": {
+      "hash": "9c3e4150d7cb71f6614ff39a14cbd61fc0de4a522352f8450637cdaad9248323e1bc10cbc122cd101f9ab7fc1d7b86d62dc1f6b79ecc15292a8f3b89730bf7ab",
+      "size": 1093
+    },
+    ".mypy_cache/3.9/nodupe/core/api.data.json": {
+      "hash": "bb4ca8c4d36764f60b372a9d68a6bdd07f3dddd981577d109feeed9a6032d32f2e110ad65a9032ce2303f1bb12d186c3f39bcc5275cd60e720aeb14cbe45955a",
+      "size": 37679
+    },
+    ".mypy_cache/3.9/nodupe/core/api.meta.json": {
+      "hash": "203dcc24a079a30eb2b44b324614630016d6951a2dc2af79072b8010425d0f878f210e6195f4f07d0cc4c2934d1eec95121ce57582dee0735317e3a055cc2e0b",
+      "size": 1083
+    },
+    ".mypy_cache/3.9/nodupe/core/archive_handler.data.json": {
+      "hash": "9ca020561a61be6eaddc30cb047b7165e75d88df0390a318fe7b944967980f320a6cab62166e95e5d0b4203fef2ca17f1268de12fb60865ddae17e1e0acd7ab2",
+      "size": 10112
+    },
+    ".mypy_cache/3.9/nodupe/core/archive_handler.meta.json": {
+      "hash": "011dd3f69075d0557d5af044fd0abc75caf044156d26f9646197b7f873f48b62dadb7e42c57f26da3f35fce8c77a014072a86f47f08a14318aa671fc56cebb69",
+      "size": 1808
+    },
+    ".mypy_cache/3.9/nodupe/core/compression.data.json": {
+      "hash": "170fa538b335c50e0166117992c4dd4771fd0f53561fbcadb3c0827988312cec9637b1004e4d5ceaebf1d4c8dfa5baebc37b18e68f52850a30e9f90f455949fa",
+      "size": 19989
+    },
+    ".mypy_cache/3.9/nodupe/core/compression.meta.json": {
+      "hash": "c6dc5b3fac3c30786a1ebacf3542194ffa3bebdd98a61597f91d7544f92bec0684759d55c17b0407c3e66a9ce499590ded88101b9efe00d8a1e8b25a97c6b774",
+      "size": 9998
+    },
+    ".mypy_cache/3.9/nodupe/core/config.data.json": {
+      "hash": "a8a90f6f6e444112f4c41ba79e27b599afa31eb01589769abdcd630eb40fbc083bab30cf3d1b72892b0684cdf1663af68cd9cbb2175e7761c801a8ece7276dcc",
+      "size": 15149
+    },
+    ".mypy_cache/3.9/nodupe/core/config.meta.json": {
+      "hash": "84d5a584cfedc81bf8f5837b470440111ff56cb42a33b2888873168cdd00ba247e97461c50421fc928c6b62f83391630520a803bad793bde404e8f4794718c1c",
+      "size": 2588
+    },
+    ".mypy_cache/3.9/nodupe/core/container.data.json": {
+      "hash": "f62c94cd82809e396c6aefc08507488d10b9473e1f76cd54061ae05739cd742333903b98951b52c8816529826ce4e4b8c2393f66657b3bb416ec057794e6d147",
+      "size": 10490
+    },
+    ".mypy_cache/3.9/nodupe/core/container.meta.json": {
+      "hash": "3b2e3ea92f5c16621a420b537c2fb60d26841fce93293da7a91af360ddada8eb4cd41a6ad0e37821eed79e1f5f3f04ec1d74f4711a5ffeb8748c6f7288db2785",
+      "size": 741
+    },
+    ".mypy_cache/3.9/nodupe/core/database/__init__.data.json": {
+      "hash": "2ba3108edb27ad2cab3c5f40e699013ed808594bf373ffc620477cbfd48d62c91fad9e3d4162c568eb1c055be04a29719b1d9b0734f33ca6d23886300be3260c",
+      "size": 3883
+    },
+    ".mypy_cache/3.9/nodupe/core/database/__init__.meta.json": {
+      "hash": "218d8f6ab2bcd2f6348907e9b01a797c3b6adf429454e366b15993f49e70a59a74c19d824f59ee0d5d3f8b46373848312645f1504e1f696c0810a445e65c6d3e",
+      "size": 1171
+    },
+    ".mypy_cache/3.9/nodupe/core/database/connection.data.json": {
+      "hash": "84483373f0ff455f8951148d497701a29a9cc7b98aa34e504526b6774fabce6f453d6245a891d8b6a707ca00fae6ea6f65d73d3b743bf3dbcb11ab14ad6529b9",
+      "size": 15488
+    },
+    ".mypy_cache/3.9/nodupe/core/database/connection.meta.json": {
+      "hash": "0c17e469ed7b6539e9236747a752f757e7e42c31516fe5a796d44d95dea39a5f9a022849181b5a22ad7f884e063721af275be60870096c0f8abc3b91e460982d",
+      "size": 1316
+    },
+    ".mypy_cache/3.9/nodupe/core/database/database.data.json": {
+      "hash": "bff1633c4e077d5ffe7696b9fb274f4a5205c02f07e61c7e99e27a379192cf077c993682d7fc04a8f81587057b2789d1bcc528d920d6cb14413e56ee9b2d7049",
+      "size": 219948
+    },
+    ".mypy_cache/3.9/nodupe/core/database/database.meta.json": {
+      "hash": "40c390b250e293984a190f87692c4d35bd5dd02a5ae573489f9546822a13f9cf0d6f146d5933f2b1d3c8240131d888a6f369e520b7cd5849bdd2cf85983cd4a1",
+      "size": 9983
+    },
+    ".mypy_cache/3.9/nodupe/core/database/embeddings.data.json": {
+      "hash": "ab0cae68b69d698355a89991ef233b09a558c171dac58e468f8db52cb6dde1db6bc1638df342fb302baa6486ecbe4cddf5a07c9764e32c73fb2022477920e817",
+      "size": 18868
+    },
+    ".mypy_cache/3.9/nodupe/core/database/embeddings.meta.json": {
+      "hash": "dfe7f5ba4391c6ad85e72d9c14b7bc9ecd334febdc3297496505f0ce0606a8d8372a89edb399d66787152b9f436ca30c91e23b08c28a646883eea1b62a934e54",
+      "size": 1353
+    },
+    ".mypy_cache/3.9/nodupe/core/database/files.data.json": {
+      "hash": "38ff6db6ad06c00a847cdbdefda7afa394a87ed5ac1ee0b80871767ffd31ec45c3083d4f4aac6d5766f5c2f001a0f93ef31bfbcfddbec24ed264a671db8171d7",
+      "size": 19157
+    },
+    ".mypy_cache/3.9/nodupe/core/database/files.meta.json": {
+      "hash": "060f4dbf1c14f158128796bd28539c491d86a944f572d491698402ad65a1978a17ad95eab17bcc33ee75aa89ed30bd069cc63f83497e27725cd36388d624a48d",
+      "size": 1894
+    },
+    ".mypy_cache/3.9/nodupe/core/database/indexing.data.json": {
+      "hash": "d00bdb59e12ca3861cb20eba10075c63f201fa7cf49eca87c862fcc7ee5c055c377c41372ffe405ae3978a1509056b58f6ba734e81950b4e23ce5974291e4ac0",
+      "size": 17752
+    },
+    ".mypy_cache/3.9/nodupe/core/database/indexing.meta.json": {
+      "hash": "f4fcd3c57797460193b59b42b2a98a78d16f17c3aa93aeb0c8ef35b7da7f1e4161ab1ec0596d45f7e43930519f936567472082ea27b2cc8624950bcdb5e168e7",
+      "size": 885
+    },
+    ".mypy_cache/3.9/nodupe/core/database/query.data.json": {
+      "hash": "356ebc11d478b5ede56094d37ea355b3f9b228bae721a9ddf359c79377b77b696fb9a59e81499691ffeb1af4a4fa3784c764938cc51ebd939219d1acec48cc26",
+      "size": 26554
+    },
+    ".mypy_cache/3.9/nodupe/core/database/query.meta.json": {
+      "hash": "5ab0ba5264f721a1af2955cb6dc64f83d570fe17f7497e489ee25a24be7b0d96776aea9a388240ffc05093c5b9976dd3b165bb1d07fd20efd552aa45aeeab5ba",
+      "size": 3348
+    },
+    ".mypy_cache/3.9/nodupe/core/database/schema.data.json": {
+      "hash": "60875c9db0de24f6757a6e41320f5546a7fb028f463d3de4b1cdfba281488f9e36e752210515da3649ca339fcc80e5a2e6820c88f63204ae1c7d9c26e06aa21e",
+      "size": 15474
+    },
+    ".mypy_cache/3.9/nodupe/core/database/schema.meta.json": {
+      "hash": "523b6a7cafc2c5da3268fe584ca99c0658c89dc6090369c4a69eb17d4aad9af53f435b719a3e5ae1802b99a6e01ec7c1a438cc98acdc8ab15788d6de7087fc5a",
+      "size": 1174
+    },
+    ".mypy_cache/3.9/nodupe/core/database/security.data.json": {
+      "hash": "293207bd63c8d50eeba601dab270c83b0464c3e45b2a1c15f1c4b3878351ec11f4ea57862cb298edd1b37568ffba9dd9b0f987f24f26f404efd13ccf668aafcf",
+      "size": 11495
+    },
+    ".mypy_cache/3.9/nodupe/core/database/security.meta.json": {
+      "hash": "434471b88a2aa7e621e7f9a0bd34fe722b36124a49de1a197c0aaf7195d969cef79f93d63f1b33b432586a6ea52dd140c72b5fd8eaeaf5f146ef9b3e1e697821",
+      "size": 1335
+    },
+    ".mypy_cache/3.9/nodupe/core/database/transactions.data.json": {
+      "hash": "e461a4acf84d504f3efd6266bea743303a9034d42c9fb4ea924d67db220cbb4f4aeb87adc4fd37444d9434c8acc445ee3bc32a93b9914ba14b008e611c19121a",
+      "size": 32381
+    },
+    ".mypy_cache/3.9/nodupe/core/database/transactions.meta.json": {
+      "hash": "8ad80dd2b52e8703345e5d338326d9f91005d3c187a6079e4932ab6495c6a0b0712dd14618c945277a6a937a69acbbd6d8e73fab56b58fb700f4bb6f92f29550",
+      "size": 2203
+    },
+    ".mypy_cache/3.9/nodupe/core/incremental.data.json": {
+      "hash": "982a5981a2d164de81cb939e52dfec1157b64a01898d07297b890f0692c6cf4e6da64253daa5da0e197c3b2e59a8c231832a08019600c39f40b6896b16c3b78a",
+      "size": 12794
+    },
+    ".mypy_cache/3.9/nodupe/core/incremental.meta.json": {
+      "hash": "098f38a3b3ce9d1a40a60db112bcb3d5f7ae81f3d379e09463ff7254d6c7f264e76c2e98441b739f3ab12c9e32182267f4373f0c952207424a9988c988d68200",
+      "size": 1412
+    },
+    ".mypy_cache/3.9/nodupe/core/loader.data.json": {
+      "hash": "4d3f87ece9f6e98a7412f05911cc4f31080afefc19d0d78e525fb02d448bd7d74e19741742a7b69a4c44c878ea5c96fec2f6e1838b0cbda661523eb9dc4c6601",
+      "size": 17718
+    },
+    ".mypy_cache/3.9/nodupe/core/loader.meta.json": {
+      "hash": "d369dab2aae9f051e47f492920e5021b59d40f887dc95cae7405c54dc30daed24c366b5adec58b6635487c62c7f618f395a9022a9d3237a28af675589a5ac9a8",
+      "size": 2400
+    },
+    ".mypy_cache/3.9/nodupe/core/main.data.json": {
+      "hash": "3a779c30096f3724a961bf0ecc6fc0431dbda2cdf3f34e6c52ee2aa434f24264cee49412684930daf6dcf451957d3c33ab84704d72de73504945f22fa3795d23",
+      "size": 10640
+    },
+    ".mypy_cache/3.9/nodupe/core/main.meta.json": {
+      "hash": "61a9473a8492276a642ae4c86d4d827e4af78d6ae6a7b0d8274b503f0d9876638c93e74d5304920e17e4cc24d6d17bbd078ae9c8d50789fc245e4be2775c144c",
+      "size": 1278
+    },
+    ".mypy_cache/3.9/nodupe/core/mime_detection.data.json": {
+      "hash": "3e64a0d424edde74f69b6018df7bfb04b47c7c3037e9ae33eecd9d5a26e1215d4df1b4acb90fea9229bf0e8b526835587142e25bda31f01604f2285a4dab646f",
+      "size": 16738
+    },
+    ".mypy_cache/3.9/nodupe/core/mime_detection.meta.json": {
+      "hash": "8c06e6bf4abb05a534f7ce75d181f40ea8519b089a8ef79c5a974734fd14b05877f6bcd9b1e83fed6b3b5dd473f4f4dee1714f031756a9ea3fe3e586fd53c3dc",
+      "size": 1166
+    },
+    ".mypy_cache/3.9/nodupe/core/mmap_handler.data.json": {
+      "hash": "c8ad00863e28e5538b9ce2a4bd6603f6bfc772999a5d2d8cb02ee4f7403d554fe74fa3e2d0a8eae1540995cf60881e35df4e05dff87a7111c206d4663ef504f9",
+      "size": 9037
+    },
+    ".mypy_cache/3.9/nodupe/core/mmap_handler.meta.json": {
+      "hash": "624451757e7223fc1a5b274c7e0f97d05e81abf29a758ff6b2284abe378b24293c9ace3ade515d8ce6872c31237e4183df6596e4dc99299d2b51cbd930ff40eb",
+      "size": 1256
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/__init__.data.json": {
+      "hash": "a41ffa348bd93ae9e6be14f42b2a15c6ad2355abec25eb7c35589e6f78ae16617267552cabaa01f215f8a37a8d2cce6615de3da093a104feb05dafb5865730b8",
+      "size": 3898
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/__init__.meta.json": {
+      "hash": "f59b6088739c7843413f9de730b55a53a15138b014830518954f05fc13026934be1052eb88327b64680435be8cc569a5374ac77636939ca9c6070bc605346680",
+      "size": 1465
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/base.data.json": {
+      "hash": "eaf15dad93eb25071e90ed9b17a2165f2ce3d121fdb9b8bc6b2de60403caff9a906b3532f04645e347e2680b78416c351cf6b2b182d5c90c86f545cd91f363d0",
+      "size": 20969
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/base.meta.json": {
+      "hash": "2c525ae7b0946e28540104ca5164981646692a6a10efa4e843bb964da576d5dcbaae9a417cdca33cd4afaf1f4db734e0ca8f7a391fa2d80ac2e4dffafbdee5ed",
+      "size": 758
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/compatibility.data.json": {
+      "hash": "6de7e7aa53de84272e5c58b858ba4ab67029ed9b51409d6b73b98145a7c7cb132bd3f6e751c1a49295c1494dce57a0b72d3db3e8506c5cf6b7e3e9faebaf23bc",
+      "size": 27568
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/compatibility.meta.json": {
+      "hash": "2da041571e2c46a58af5de3b99169614e92497969220fcae8144eafbb232ece71a20cd1e75df71e59d81da0aa023a1fd4a16fe92733335fecd29c4f8ac6f2828",
+      "size": 3527
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/dependencies.data.json": {
+      "hash": "0fec6f8907a747c71db92e15433602d97111326be02dfcf95557db9366bc78be4d8f9e61ce51845234ee3bc27fe400be181b6ecd05f96ab6fa5d8eed3801a80f",
+      "size": 24023
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/dependencies.meta.json": {
+      "hash": "1abf7f86b5212129621092fa4eeb7d59ebc5c6d78e84e2b657b8c87a55d84e36dec672b6082f07c37ea5f90a91e5389d03fa3b269722b3e0cbca135651ff0c23",
+      "size": 1874
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/discovery.data.json": {
+      "hash": "6fc15e69a4b07fadc4b642ae40b61c1ff16776b1c9d8f57285f72f0b75947d8cdc51f56cf94a2e96cccd10091781fa245a8efedf69e9c8892856d93425d2a5e8",
+      "size": 22444
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/discovery.meta.json": {
+      "hash": "774f5332ce53f319f2820a4a731fe8a5866e2ecc0c82e11361214596d91f8ae41f7ce26becd5fc1a4645bad22ba4d9956df6c4f01112d901aa1d37e938683d57",
+      "size": 1801
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/hot_reload.data.json": {
+      "hash": "ea4ff801563844257eae43ec14fde7eb4c60eb0066ee9976e8fc47156a928b3679f50e16b83be48c6e18e9b7a9a5113777e92ef02071f481f421f68a5ef8ebaa",
+      "size": 17985
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/hot_reload.meta.json": {
+      "hash": "422abd13df7fb8284988379b8aace130d40ef580bd66a6e06be0ed0560c8c92a2ae3bd4048a999138c721b714cb1aebdc4f49e47de5ac51022ee07659a99f2bb",
+      "size": 2063
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/lifecycle.data.json": {
+      "hash": "4ac3d6021e1e90072b6fb178aa585caf8dcdccb4c450752bdac23deb552b214ff51dbf4b2055aaaa9163d7b573a1a2b957910faefbe1b3fef04528768552f797",
+      "size": 23648
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/lifecycle.meta.json": {
+      "hash": "407726d883d4a6ca5cf98ab53d206278d38ab2596a4ca3edefaa4390bb0426063d5957077d5145eff987ab13b8ecae95576c6d3a45ac5f49ed2fb84b98db66b4",
+      "size": 1178
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/loader.data.json": {
+      "hash": "508f6272906c9bb898c1caa1ff871be6fb81d776f3a794508f32bd5cd12a231d43233729b8f0085c6ea01d8f7f7638ec0ba454c209d33dd9933fddf8fdcdae78",
+      "size": 17460
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/loader.meta.json": {
+      "hash": "ab6e0539f91122fe9a92d585c9072e9d546149fb834568cf56e4d99677da18041c0ef554a8f99a0eb2d8c4d89582b7e96c6de2f7928debfac58960fa72cc5f6c",
+      "size": 1626
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/registry.data.json": {
+      "hash": "2e9bff2f736dc29a7aaeb31a67c13c3bfe4ef8d773376ff6e7bab7385ab9301e72a9201f82557ea694d3f5b04ae2b538e5abfb01ab6357aad73b1b3d51096742",
+      "size": 13988
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/registry.meta.json": {
+      "hash": "a5197738bf94c3de7419a5e285d5a36088f92facbb403f571ba02f341638866f3340ad04cfd43f446c9b43b7bd5c8d6e00dee1c7fc5dfb7862e1d3a1f2bc69ef",
+      "size": 1037
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/security.data.json": {
+      "hash": "55d36d613a34879869b2a05021bf22dbd01250382ece90194a1ed721377a12587e0fae173374c0f32e4dc1dce933b3e36164f481216c6689603209b62bb42740",
+      "size": 24624
+    },
+    ".mypy_cache/3.9/nodupe/core/plugin_system/security.meta.json": {
+      "hash": "18665dd26440e903db70d961d71e3749a53e033e26c3f628366e751c2b95518fecb6a5269c0475bda8a6ed6a02b75b49571241f69cdb75a4acaaa1ed2cbf6025",
+      "size": 1803
+    },
+    ".mypy_cache/3.9/nodupe/core/rollback/__init__.data.json": {
+      "hash": "e30a9db13a8cafdd142f4b39d35b95f1acf73bd8c495926e7c2c20a3a07073d068cb8af3fa9c66c5629091e51cd8341057687fb11217bd68d42dac37061859d4",
+      "size": 3073
+    },
+    ".mypy_cache/3.9/nodupe/core/rollback/__init__.meta.json": {
+      "hash": "82a57283013943eda09c888a690e97fd3acc7e317aa0da211a1498626478930cdb5623305c67ddf96c50e5310311957ec0672b3f37b0bf7dfe37ce89e466d56b",
+      "size": 889
+    },
+    ".mypy_cache/3.9/nodupe/core/rollback/manager.data.json": {
+      "hash": "bc91e1fc8361f053a915e67c816e6e1769826373f43a128b1b09b4e7b0002dad66046c6fd5d1e7da20398b70567e08271ace1f312905ff14e44cc629f3f2d20b",
+      "size": 10353
+    },
+    ".mypy_cache/3.9/nodupe/core/rollback/manager.meta.json": {
+      "hash": "52d79e8ac41b6570e4f4556d5075e912136ac241292143fe73bd195b60605ad984452739cfc22f59665bd23a54fce6b3e969de92e47a692902c2e9771b551f58",
+      "size": 815
+    },
+    ".mypy_cache/3.9/nodupe/core/rollback/snapshot.data.json": {
+      "hash": "ac5630b874a7b6f49f058ea2f0c935cc765a5e801a3e6700f578ef3e51360ca929021d356ed255adea2d64d061b0a28391db0436e4b1ab9518191d473fbec03d",
+      "size": 23909
+    },
+    ".mypy_cache/3.9/nodupe/core/rollback/snapshot.meta.json": {
+      "hash": "9013d2a1e240194c6005e6f71ecbda84aaa9b2fa043a1479462f9422c2aadb9b63126abc7b6aa579546254544674c5de5475ea8279a4a56492399c9f70fdd9bb",
+      "size": 1475
+    },
+    ".mypy_cache/3.9/nodupe/core/rollback/transaction.data.json": {
+      "hash": "da325494c7355e9ce664d704f4cea4b00d1cbd2e7ba6f497fe121495c65e5f65376939e30935152cc9daf611398ba1e152fdc1fb437c16e68cd80ff05f5996d3",
+      "size": 25106
+    },
+    ".mypy_cache/3.9/nodupe/core/rollback/transaction.meta.json": {
+      "hash": "6e68054f3acabf1ceb8789596cc79d2c7a44d767d2afaa08c159012368e7cf24779b22b09c423830110852bbb1cbf2ad3b483dd27184b7e3feaa2a6b8aa02636",
+      "size": 1630
+    },
+    ".mypy_cache/3.9/nodupe/core/scan/__init__.data.json": {
+      "hash": "ad599557499a5961d7fdbc7859c87c843a894b5c8fc2d9c0614a7ce1694c6b5a2e3af683c7af571b5e056c54427d6969930d949993f8f636eac0a4bb6784ac4f",
+      "size": 2817
+    },
+    ".mypy_cache/3.9/nodupe/core/scan/__init__.meta.json": {
+      "hash": "e696b0af5b009e4e5e810f4cd591166ea5cd2e793d4e099230f3140c0f9a86e66e2a7ee7166efb9e6b2cc91cdaa5872cd1561b77c9beb58c479426d917b3bc7b",
+      "size": 980
+    },
+    ".mypy_cache/3.9/nodupe/core/scan/hash_autotune.data.json": {
+      "hash": "89fc6bcdd921577dd3916fe653d7d9808273bec122b1c5ea67f15e244d1b57cc16e995ff07f56b620e41f2039cded9b22f0cb3b5d9efad5c60267097fdf9173b",
+      "size": 15689
+    },
+    ".mypy_cache/3.9/nodupe/core/scan/hash_autotune.meta.json": {
+      "hash": "6030ec7cd22e774b5fc295ffb4d8d352ba935e40415f46e7d38a8502d22cec5ba0f538ae45d756e809900276f2a686c03568c9830edfb89be1001b72c72a5921",
+      "size": 2137
+    },
+    ".mypy_cache/3.9/nodupe/core/scan/hasher.data.json": {
+      "hash": "8153419ee54ecff30efcf7bbbd1a54c4bbc7b767967ef17572df1d63fcb4d1744138815ad8a611b2ba79b41b2d8001ed9cd47adda58e0fee47bdcb695e3d2e97",
+      "size": 14463
+    },
+    ".mypy_cache/3.9/nodupe/core/scan/hasher.meta.json": {
+      "hash": "0ee1cd566140fb99f35d368a987dd401476cbe9b4ba29e77ab127565fa4a7211a83e4fabf952bd02a4fb3496b806a0ad3ad0378f3eb847811323668c12c31911",
+      "size": 1212
+    },
+    ".mypy_cache/3.9/nodupe/core/scan/processor.data.json": {
+      "hash": "d51e93a191c0f9f77d6b30950d8f2fc52a6833f0fbe5458fe4b3eb815e172e9990a1829cc47e7cb992069102a8953be92e9ded278388c98dd10c1cb4537cf49c",
+      "size": 17155
+    },
+    ".mypy_cache/3.9/nodupe/core/scan/processor.meta.json": {
+      "hash": "3392e982790810316d1b889815ad6ee749320b1e014f20043388d43fef45463d6d1a2f6a2d26b28b2bb70a4827291dd7a87e23fe56badc05a9b5aadcd426ccf3",
+      "size": 1584
+    },
+    ".mypy_cache/3.9/nodupe/core/scan/progress.data.json": {
+      "hash": "59b75631b337bdc9a1c7008a224b94bd0c08e9cc87e61ef421b2326d3951d859c09fe38f6854f786ceb8dd103c67214444a784c3a76c326f23cb586914885dea",
+      "size": 16804
+    },
+    ".mypy_cache/3.9/nodupe/core/scan/progress.meta.json": {
+      "hash": "152c53241970ae8337b591a5c8dc06329e2d472ef1e4125b54c782caa8bc757a80f0e5e29a7cd989b93c012f019987d6f405cf194c8cdc8406969526fb9ec14f",
+      "size": 2125
+    },
+    ".mypy_cache/3.9/nodupe/core/scan/walker.data.json": {
+      "hash": "973d72c9155415d39476e60191af070edbe08b9a65bde25dcdea26fa0d943a1cd6017214ba4980d93e6976c4be08c182056a8487ea44a23cf25e4604d3d96b13",
+      "size": 16831
+    },
+    ".mypy_cache/3.9/nodupe/core/scan/walker.meta.json": {
+      "hash": "2daf60bf05e71b6b3f59e1378e642f2e9f35733835d1383eab7ef73cef0aedcd98ccd6ff759cee57689f7212f6f1424fd44e2890c9bb78086b457c005533a127",
+      "size": 1939
+    },
+    ".mypy_cache/3.9/os/__init__.data.json": {
+      "hash": "db391ac756452d4592162935f608c3c848425aa8472cb89a8414580862b0811bb9089d9879118437ed6c3ad6f8891d245bdebf63b0720b86b631e5ee3644ed95",
+      "size": 423866
+    },
+    ".mypy_cache/3.9/os/__init__.meta.json": {
+      "hash": "e10352bd54d3274da121ffa99f15b7dc2f631ab1d7333e1569442c0c6eb661feb06502a6b5086a5ea958b5853e418b56e75f624a00044efc07c49ec5eac60088",
+      "size": 1300
+    },
+    ".mypy_cache/3.9/os/path.data.json": {
+      "hash": "4a876ac8145ea44c67c78e6b4a2644681f52164db76c2ac701429d29a82bc2af327781af9c7f64fdd1e3bac1e2650cdcdf3343f1f29ae2a0d7dfe908e109d0d3",
+      "size": 5357
+    },
+    ".mypy_cache/3.9/os/path.meta.json": {
+      "hash": "4befe92f639e55d2580908d063cc496016799a47e27b04a0b57946e0bd08531145828706844269e7e2c66cd107e0794b3f9e9d470452c46c1e1afbb5c5c0fee7",
+      "size": 821
+    },
+    ".mypy_cache/3.9/pathlib/__init__.data.json": {
+      "hash": "b1bb96107ee521532635dff5c2f3ecaedc0a43ebae1f9b3cb97414e39718deda7be3e661163bde44ddb3303dfc12d2ef1862204da0f03fd3e52afcc9b007263d",
+      "size": 113141
+    },
+    ".mypy_cache/3.9/pathlib/__init__.meta.json": {
+      "hash": "64015abf3d69ccf10c7bf2335b7f8e3eace733b67d667ce217d8bf836db9a665b62c230c526e95f7e53902654c4aad5c5ee48035e0fe725d050be308f0ce0022",
+      "size": 1181
+    },
+    ".mypy_cache/3.9/pickle.data.json": {
+      "hash": "2e622c1f2dcdec8268302defd551ffbf8cf828bac8ca7d0560b8dd9efb2bba9958001b6db1526f97d7500460b7fc45db728b4a6a5a6093399f8705aed13d45b6",
+      "size": 51479
+    },
+    ".mypy_cache/3.9/pickle.meta.json": {
+      "hash": "16aa1022a92447d61e75393dc46351fb0414e52396446edd991f83f9b4f7157e561ffc9d39fa948833c722bd473b48f60ddfd9b493004d5d7498fb4b842adf1e",
+      "size": 958
+    },
+    ".mypy_cache/3.9/platform.data.json": {
+      "hash": "a4624da099957e11136b22f69c53b1b8dd6e1cfa6fd4617a7a8bcf23d83f5caee7c0c8a3d79eeb568d3709ff955a2cd918d6e845430ebf1f5e20b1f525a39194",
+      "size": 44494
+    },
+    ".mypy_cache/3.9/platform.meta.json": {
+      "hash": "b413f8625ad5b83634600751bde074def7ce896c033a40c4d717473cfb054591aa18e1a5cbb636fdae0dd2d932337214fc90c1f3adb5657a15c9fb9135bd750b",
+      "size": 891
+    },
+    ".mypy_cache/3.9/posixpath.data.json": {
+      "hash": "a4fd0218b70433e829939523301a257dc5ff9651505070b91fc643309639fd4a38e435fbcb980858cc23333cc961daedcb9a074a9489472363ffee98cb73279b",
+      "size": 132457
+    },
+    ".mypy_cache/3.9/posixpath.meta.json": {
+      "hash": "84bfa9d7933bb7754dcf0fb8ec8f4c4bde2bed8595aef613eb2ecb700c9ebd07e0bb83ece593cca461ee3d71df3e661f40968ccd02afb1de43130d289b2dc5ef",
+      "size": 1073
+    },
+    ".mypy_cache/3.9/queue.data.json": {
+      "hash": "2e7c57b83c1c8e4ba1bc87b438b2bf2511ed60d051b2c8e707a71fd65d5edf1e2c4647d39c76d52fba4392148a0993a2d13e4ed49e4b0c40ae0d5d2c074684a2",
+      "size": 30228
+    },
+    ".mypy_cache/3.9/queue.meta.json": {
+      "hash": "e03518f5046cf76ac1e556291abf16c27545ff71d09829faecdbdfd378c86e2c0e1e5d11b390fb01e7a4047fbf6707ae6282a34b0b503e497c0637a170712890",
+      "size": 1045
+    },
+    ".mypy_cache/3.9/re.data.json": {
+      "hash": "4af1946257e2e987909641735bddad3947a9254e067569d47c1873bd7d8698bdfa9157ab6d0d52ec0d88914edf1fc9214318f8d3b45fe59679238c8bdae44bd3",
+      "size": 267792
+    },
+    ".mypy_cache/3.9/re.meta.json": {
+      "hash": "6f2fdda78502c5490f809341388a3c6f2dcc4a6931011b453b9ad20b1b59d35ef6c0234279cb26a45b881c2f96d9b18fecf9d22f486fac41a45713a97b76e40f",
+      "size": 1180
+    },
+    ".mypy_cache/3.9/resource.data.json": {
+      "hash": "6fd3fd66ced91819f2050a6aa23afcee93d1cdde28f0671bc29012082db58ee83b13819228865f35e3d39bc2364318735e3bf53051f581e341674bc3ad7188e5",
+      "size": 43870
+    },
+    ".mypy_cache/3.9/resource.meta.json": {
+      "hash": "65ed2ec181bc541ddcb5a4e32a7c4222d9c0247731db7de1df5e5f7c736fb0731305849780b9331af8be24376e7098c72a537280ab834932bc709dca898d15e3",
+      "size": 823
+    },
+    ".mypy_cache/3.9/shutil.data.json": {
+      "hash": "a4f7c1b56f2bd0bba9cc09ccbab4af508521d2cbc190a3abe32d19da1902eb674690dfa6cf5c98596d9cce5940cd4eb4bbd841a371ff6d0a43e42d7be9097c85",
+      "size": 108704
+    },
+    ".mypy_cache/3.9/shutil.meta.json": {
+      "hash": "87ac9582c52dbaecd1ae01c72ae80ac6d1da55189a3f592750e44bac8682bf0819dc2f8e3ef944bf91b612e11cce945748ba14deced5a2b943d788e977af8598",
+      "size": 1061
+    },
+    ".mypy_cache/3.9/signal.data.json": {
+      "hash": "a29a8812e34127ccefc7c2722a099ee67354902615d6fd7c18184ab2e73349343cbac727f288814a4d80f8a6d03c1f696b873012d4f907f90042abd6f9cebfcb",
+      "size": 68173
+    },
+    ".mypy_cache/3.9/signal.meta.json": {
+      "hash": "824c458949bcde54253bbd5622b87458fe09ecedf1bfdf640f8cff1d3edbe31f2e25aece94cbad31971e4517233d86f1a27cb81852ab26ce5c377442bcf27c46",
+      "size": 1060
+    },
+    ".mypy_cache/3.9/socket.data.json": {
+      "hash": "d9af14ea2879dd7922d34a231ced1eb45c29896975cd63cfdc79c114f1bf9d9336e6d7839d996ed2688a491d29c9d3b8b196662149835a21e06b6390328d24f9",
+      "size": 152620
+    },
+    ".mypy_cache/3.9/socket.meta.json": {
+      "hash": "681a4a8f5c204075af85d25a4b3ec8a103f7b44694cca5a149e21e76837574d47a455b824790b599163811f6b891055e3b732049a9915f93001d0271b2536b7f",
+      "size": 1181
+    },
+    ".mypy_cache/3.9/sqlite3/__init__.data.json": {
+      "hash": "604b3c7f65280b3e497a953dfa93d179727137a54c454cae1ea7aeb616f1d0441a42f27ffb405801d7e3b49f36f17ad828b1b51ec7d338c46e06c97844a32c4d",
+      "size": 123121
+    },
+    ".mypy_cache/3.9/sqlite3/__init__.meta.json": {
+      "hash": "0c56b5a48431380ff4461f63e0da6c6b21624bb6ea93c3926e4c162bcefdf5499bbef014aca62199cc2235b6f07d0ba2c13fe7ce5e7020c4915ed28eb50e9d0f",
+      "size": 1138
+    },
+    ".mypy_cache/3.9/sqlite3/dbapi2.data.json": {
+      "hash": "26c52df98e4898e25816a898bcd26f933c995eb351787a3dfb316f22ce7f5562a3d1b15ab870e7450eb50ceca7a1674f563674f9434f0575a8eed49e75145a80",
+      "size": 14267
+    },
+    ".mypy_cache/3.9/sqlite3/dbapi2.meta.json": {
+      "hash": "7baf09e1009b08a63888515e5cbeb1faeded3c699f7e9095f46bfe96e5e248177036c18c8034df68137a0791b230be1f006e290068aeca3b000790cb4d469eb4",
+      "size": 1081
+    },
+    ".mypy_cache/3.9/sre_compile.data.json": {
+      "hash": "4bb2c245783479ce08137bfc70700fed7a55d17717b97e24f3e90d7b364909c7bcc71b7a2251d8b4661a29641a5524f5aaf75399c87d071bbb0ee33622b9a21a",
+      "size": 14837
+    },
+    ".mypy_cache/3.9/sre_compile.meta.json": {
+      "hash": "b6d4d1d7651332c2b70199eb7e7780e67798d406750146f4d1b73352fab2643ae6fbe7cb86cd1fcbc693c9c85af5581328ef8414f74ae6e76d5021d91df72af6",
+      "size": 835
+    },
+    ".mypy_cache/3.9/sre_constants.data.json": {
+      "hash": "57ae989801862a6d11c5bed4898d381e61bd9567985ac86bc9db94867a021baeabda05ec0027c81e09bef2fefdadf1907ff2316cb50470e9a870d7a19f0d2d60",
+      "size": 31757
+    },
+    ".mypy_cache/3.9/sre_constants.meta.json": {
+      "hash": "8be4e8ef9bfa2ea664796b5872be90c5fdb8a87b1d1aa843c8727409241b21515d03f93f4d407cfdb1c2f6741caf03d61aef9ad3573eff128e7cde9a3a415fbe",
+      "size": 953
+    },
+    ".mypy_cache/3.9/sre_parse.data.json": {
+      "hash": "3c38e9ec91953387a88fefc27094f3a2f1d097294802d1d215e7937251f19026c9d3b72720b0e3b00a0f9f5ea25579eea46cf36e9bda17a9b76434d0d76542a9",
+      "size": 56429
+    },
+    ".mypy_cache/3.9/sre_parse.meta.json": {
+      "hash": "91ea27f1eeea32c9da123dc58126f4fe1712214bba0557b22ebb4126c07f505b36d88a81997dab2ceda256c1718c1ff554a53e2792a97e080c5ca8d9ccca836a",
+      "size": 1073
+    },
+    ".mypy_cache/3.9/string/__init__.data.json": {
+      "hash": "821c3dc6949e3a162fe89d92cd39ce7a3da40e98a7ae3f50bb32079c164432743e770f2166c39306a0cc8a2848a1a8dbc360d8d967d6d3f11ac981782e22b11c",
+      "size": 34942
+    },
+    ".mypy_cache/3.9/string/__init__.meta.json": {
+      "hash": "014646f9754fde3dd06ee51866fce8093ee68f535d83d8b93dd314f0de2afc2bc15a77354e6375de6e65da120b1f8696f44b864e289c7ca2a5bb084e6dd96121",
+      "size": 1067
+    },
+    ".mypy_cache/3.9/struct.data.json": {
+      "hash": "a04d5b71e114ae9b79bc4b79fa66e382933598f4af2b657fec2807429e2d88cc7fc028e1d8f6badf89c8a913a1de79f6992586f6c0c964ad873fa164145a5b9a",
+      "size": 3548
+    },
+    ".mypy_cache/3.9/struct.meta.json": {
+      "hash": "806b3d327b60ed91f95040c92bd7a1997f9da2054ae99c8ff81149045d848a437b0b01769c5ede7adabdb95a3e6e65a42b85fdf98b2f276fe75dc59064e4dd47",
+      "size": 763
+    },
+    ".mypy_cache/3.9/subprocess.data.json": {
+      "hash": "7335d87469131c5c49a7f0a035d5468067e62d18bc8d0b5f0d26248e9564fb19af5dc31eb6d46c0357252060e111c839c2ddf3b4ef3c6469fdb954d8e4302bd3",
+      "size": 241685
+    },
+    ".mypy_cache/3.9/subprocess.meta.json": {
+      "hash": "6b8bd703fd0e6f0c39afddb684abbf5ef779d3db3eb9b0cc527697cd65b5b4be0ac0848ca67f15d0148b58499162522c748aa55f78ff1f1de6a23765f635f4e5",
+      "size": 1068
+    },
+    ".mypy_cache/3.9/sys/__init__.data.json": {
+      "hash": "d2604bf50b90647f58f444f9c6ee672c81ea59560c925f36cf530b5ebdf05aba0c1d89386861d283481655f1b51a4fd046df1b4b9f79d6390e9329b7c6985030",
+      "size": 152639
+    },
+    ".mypy_cache/3.9/sys/__init__.meta.json": {
+      "hash": "f6e966f73196d45fd5c039c68835a9050fb50a6388ede9d07c585bd8f02696c8aab01b946a0457fc57e4170e997442afffb56feaeebedfa25e69c472da348e9d",
+      "size": 1131
+    },
+    ".mypy_cache/3.9/tarfile.data.json": {
+      "hash": "a1edf8c5c0034c71f2cb7730cb673062eedc0ac9439dfed93cc0b9c35b597c4ff8a1caaf1c8feafec6b4ef65f3a93c10987eebe83772d14254b06cfdf89c1387",
+      "size": 315892
+    },
+    ".mypy_cache/3.9/tarfile.meta.json": {
+      "hash": "a7cb15f10e2cbcb62674818de477c4235dd065b1ce5ffa49b175653375f4ed7b952e3464838d8dede7883e04a31fa7d1bce602d836a5c94964cc78d0b12efb97",
+      "size": 1341
+    },
+    ".mypy_cache/3.9/tempfile.data.json": {
+      "hash": "fb74b1689babbbc034000f0e380c5b4c69dcea67fc3dbcb3b3bfe8e5a153cb64a2ef30d5f3aaba65d37ce2477a09c112205c2e38fbafbad752992d471b35b0ee",
+      "size": 234716
+    },
+    ".mypy_cache/3.9/tempfile.meta.json": {
+      "hash": "fad60247b3c45b0dced5e2c54563b2c807b7a1d50fde0053615283ea7d8626d1fe3a7346794f09ac72e36c791f0e1173a2cf9b39a542ac24d760618cdac34291",
+      "size": 1175
+    },
+    ".mypy_cache/3.9/threading.data.json": {
+      "hash": "167d5742951be3c3a3e06f24d1567cb87886a047f66c649b869b70167b21bcf97524d94865cc5592c32b05967e7e9fc75b1726b6274022dc55aa1f73e41f838c",
+      "size": 71718
+    },
+    ".mypy_cache/3.9/threading.meta.json": {
+      "hash": "c616dc5b454cdee73a93d8238c306883c590b43912d83fefc4b239700a39ef96a9db7aecf390f35827e8988a940a5cd9edc4bbb13ea02e8afecccc74df7e6f6b",
+      "size": 1130
+    },
+    ".mypy_cache/3.9/time.data.json": {
+      "hash": "5f4d6eca9d474287f0e72f2a011dae6d2d53c93a80341d99192f4f658f5a1ec2c23618640e583a6bd1c4c402f66226eac465bc2aeea1dd56ff62634717f388fa",
+      "size": 46229
+    },
+    ".mypy_cache/3.9/time.meta.json": {
+      "hash": "707dbe97dd7c0eda97587cebba06693b41c500374f103aaefd0cb832784668ce8620f9e8272b6a8148b18b9fd68571c37bb22f1bfbc07cf72d0eda5bdece1c77",
+      "size": 882
+    },
+    ".mypy_cache/3.9/traceback.data.json": {
+      "hash": "00e9e23e710ae4c61d518552f36f739cefb40e80be67363b2e33c304c72697a7b5c95c03c5ed9fb206a359bca5e7965f7f460955117d2905475466604d0503e0",
+      "size": 60200
+    },
+    ".mypy_cache/3.9/traceback.meta.json": {
+      "hash": "d509ef3c8b32da945aabef8a19ae886dd4e5519d60f83b32c6de126fe9c6f0a222d052da7a1d75193f726e06552f9e38fc016be37cfc76a64465e7f3ba97b4fe",
+      "size": 1013
+    },
+    ".mypy_cache/3.9/types.data.json": {
+      "hash": "750b42bfc6cd090943f6f78efcfeb3ac9d9c2e617a28151a475f0704ee9638c28f7e3b1e18ec48d32365397357a6f1aedf45c1f4334cb493a51e506e94a41c25",
+      "size": 355880
+    },
+    ".mypy_cache/3.9/types.meta.json": {
+      "hash": "c32694431380308b933d23892e9c91c1bc51466961752edb7eb1217f3ab5c46c3a21d402e6a676256813c21e10cfea1863c95f42c7a7bdd047649ef4d8eac8bb",
+      "size": 1159
+    },
+    ".mypy_cache/3.9/typing.data.json": {
+      "hash": "802ee8ae73304e7039bbaffa2b195d0372ccef4cf5c4f2f9cd41c94e4b7c603b4720caaf164a94d3cd1499ae5cb4ff52ab3b58fc33b9444ae09f2cf9a3a4ad0c",
+      "size": 558570
+    },
+    ".mypy_cache/3.9/typing.meta.json": {
+      "hash": "0734c4542f43dbe2359b3520748a07fb1b10d4a7fa3714be58598c2deff4d8e23c7c322f19c88e41efcdbd001abf7c92e6edd0f0d6f9fab6a2a094052504a77c",
+      "size": 1129
+    },
+    ".mypy_cache/3.9/typing_extensions.data.json": {
+      "hash": "ada86814c477695b9d0cc13d74cc213ba049759e0a153ed09bc9e9c7c9a9cb6eea93b881be656173153535f67454e40b2158bb3a0cdbf78bff57d90fe9d3cbd1",
+      "size": 229193
+    },
+    ".mypy_cache/3.9/typing_extensions.meta.json": {
+      "hash": "a3bee358d4002f56dab8dd48ab0a097133901f4ee7a6bcd130a335ff95512a44b4af7a65b7a810ac01eb5add7f08afa036e276547b00844b4cb167f50916a049",
+      "size": 1199
+    },
+    ".mypy_cache/3.9/uuid.data.json": {
+      "hash": "dee8a51cbc1cab6ff3781e8bb38c5ec07cb331ee3b47573791460d5d285d74b09cbafb34089eb636dade0dfcceb13c3bd77d9cd4c2bf6d459e54e0a35869b996",
+      "size": 38097
+    },
+    ".mypy_cache/3.9/uuid.meta.json": {
+      "hash": "e18ba58d11bea87cf488c38821c9264fcc4f3cc4b15ed570e33afc091232780e9a387d32b1a9c5a4275cafc18cf0de377f3ef1d88b9b2207dfb98221da8ffe8b",
+      "size": 937
+    },
+    ".mypy_cache/3.9/zipfile/__init__.data.json": {
+      "hash": "9b1d14e1a71cf71b7171fd455d6b653e7aa6385ee60ef24a8a9c75b7707ca1d6e950a459a3107dae96b4300abf05ad36097f05ce1b7fc25ba245dfc528f6efc9",
+      "size": 116856
+    },
+    ".mypy_cache/3.9/zipfile/__init__.meta.json": {
+      "hash": "9940f6af909b0be95e7d5aed1e5408e943d5a742f252599b4c331c22c1da2883d17f271585223d1d4e556786652094f874fada915e63846c2024c17c249c0110",
+      "size": 1176
+    },
+    ".mypy_cache/3.9/zlib.data.json": {
+      "hash": "7cf00183e75d02221c4c9eada88858045ca751aa9d3019256bac30778b39f0d98d7b890f44d4742d79e78aaacfe3fe109f9369805b1b8ae25c495136b5426e93",
+      "size": 30442
+    },
+    ".mypy_cache/3.9/zlib.meta.json": {
+      "hash": "c666bd822e7c6520a29d1e5cdaae83f1ee4c4f3205036d916868aae622fb1f75300bf6c80ca03e49195d815a7ac08acccab5ffc5e1f145b02228104d2e3098f6",
+      "size": 882
+    },
+    ".mypy_cache/CACHEDIR.TAG": {
+      "hash": "03c5a677b4f6944acb23ce0de57573236843dc1719097d656d6f48c0e6e1e1a89720c6a51ba2130fdb7ce38793a9b07015cf5c7dbd24c4438f0c77817531cea2",
+      "size": 190
+    },
+    ".mypy_cache/missing_stubs": {
+      "hash": "bfb51b93d3d2825772ba736dfcc44967f466379704c44df4ccb885cec6c4d8dabf8c9f1afba4606986a586cd7a4a8b34fb2a9735b6a714b44417505f9539b779",
+      "size": 11
+    },
+    ".pre-commit-config.yaml": {
+      "hash": "3373683d9bc73588c4f0ae1ea5916e057b4e9254b497db3f769a88b132a91beb6a7c943b18d403d7a852560b1ea38a2112b7dc71c4ee2f9d888055a0683ff192",
+      "size": 2937
+    },
+    ".vscode/settings.json": {
+      "hash": "95b0cfaee10eca937328c663881fea2a26199c64a91e9e5e25b8cbae7d5582e1b8916d13ca1578d668cb589e5cf64b37ed55c09a0bb4158ae569ba9b9ca2524c",
+      "size": 591
+    },
+    "CHANGELOG.md": {
+      "hash": "bb0416ef7fd44a933ddea420f491902a5339fb0cf3d9d88b8d5ffe9d7db1c2c2cf33ad89e56e0f0cb2ef6ed360e59e736dce2903f62e2458499a77ab66588316",
+      "size": 1406
+    },
+    "DOCSTRING_COVERAGE_SOLUTION.md": {
+      "hash": "dbe896c36e41c22358de4aa2afd150e94ebac11ec3f091b2b11c8b8576e690299c8047376fab8b83170aac86eb2a911cf205123a66573ac9bda93f100efa34b0",
+      "size": 2020
+    },
+    "PROJECT_PLAN.md": {
+      "hash": "50fcc6883323de54d4ecb8c84d815d65f73dc1945883b9695bd33d7dbb8347e55088b09d59d1b5c77f0b64ffcfda53a6772eec27ccf3f655d51499bf2c5a64c3",
+      "size": 8490
+    },
+    "Project_Plans/.markdownlintignore": {
+      "hash": "ac6ea81b2e72f54819d7efe1008c7378cde0b50e3da9f797fff2a755ef99bf6aea16a2882ca2bef62355480610d3e9b4400d1a5e581a9306f3d2415e9f3de41d",
+      "size": 21
+    },
+    "Project_Plans/Architecture/ARCHITECTURE.md": {
+      "hash": "904b9a300edd5cf333978c5ea64b0d4f800d40ce362bb1a720a1aea0a9c8d25c48445738e7e0d57f7da9f35fc4c01bf85464d2a97fab755ba4ad874f5140a53c",
+      "size": 11454
+    },
+    "Project_Plans/CI_CD_ERRORS_2025-12-18.md": {
+      "hash": "5d2cf906fdc45b684b288a302d73c4710c7d27d44ce9d6493c0fcbed472c3aeba87fafec48285a72c20359600b92d325f38ad6b2b6509fc43e6e91105f452c42",
+      "size": 8140
+    },
+    "Project_Plans/Features/COMPARISON.md": {
+      "hash": "8154e4363c144edc98082e5a0473b2fed46c525c64d523ce065c1fe90f7c700adf387452b750c864a7665b63a1553280f2231ce12fca27f4b4f88820da9dbecb",
+      "size": 10500
+    },
+    "Project_Plans/Implementation/ROADMAP.md": {
+      "hash": "54bde36308fa027a0853afc5c1163a53d286e6241398890aa3a1b96b2b0686aead12171d81396ea4183880601538fa1759248ba644da5b325e45c9808d6ccff5",
+      "size": 6786
+    },
+    "Project_Plans/Implementation/TEST_COVERAGE_IMPLEMENTATION_TASK.md": {
+      "hash": "2128cfa0779735e3a19957c14bfd4777f417fd179f842e2d3dd12e9d7a59b8640b040bc8ad37ba92c5b57d3a972d5e8aecb1709d4cb73f9e5d8bca41c35e6df9",
+      "size": 20862
+    },
+    "Project_Plans/Legacy/REFERENCE.md": {
+      "hash": "e9617c2f883a6c7f558b341a0c57a75c321178a6f3c829166dab002e94194e4d8c008f7ea25c6638a4922e92465e3ad3d2799fe29d3c00434b4c69f073c5e313",
+      "size": 12655
+    },
+    "Project_Plans/Quality/IMPROVEMENT_PLAN.md": {
+      "hash": "ab6f47b27adfdb1f464d831e3cafe92bbb88544b24418524678d1fc2e46c5b933f087b8d5fba2b1d7042aeff428a66cadd2ecfddabefeda8dbd8293fd9a14760",
+      "size": 12639
+    },
+    "Project_Plans/Quality/TEST_COVERAGE_IMPLEMENTATION_PLAN.md": {
+      "hash": "407e53afa8f3797bbaf3aead079c96f90bec0b27a670d624f0d0c8b0ea7177ade14fb2200c40c867285d797dd4be4304a50d6e081df6e6d8e54fe352612c595b",
+      "size": 13085
+    },
+    "Project_Plans/README.md": {
+      "hash": "d51ad316f8f03159a268406be159ab97ce282ab46a0e21fab2ee5c3569305cb9182527027639726f9bab7cb7f9faedea16803189f8c19ccf40ede4f40198fab1",
+      "size": 22260
+    },
+    "Project_Plans/Specifications/DATABASE_SCHEMA.md": {
+      "hash": "c5b409071657f9ddb78afd49ced6bf0d182f66e3d63f6e93e028696d81d539f44ca9277ea718bc26adc1ac43b8f057667f1174803f97296b61696a944006715d",
+      "size": 16046
+    },
+    "Project_Plans/Specifications/FILE_METADATA_STANDARDS.md": {
+      "hash": "07215cd72616c3818fe40bf602fbde5ec1835aec67a7ecc9f0ce6f198b99d1622a24568d137f8aedc5f93ce92b44bb8809fba64a0f0a7073c4bf8f2592086e2a",
+      "size": 12970
+    },
+    "Project_Plans/Specifications/PYTHON_THREADING.md": {
+      "hash": "3a62c20c64e39fadad79bd6293206a87dd31d962abbb65a4dc08de5cfecd97e794ed599c486056f2cd6e62181dd2d24423c32252e07942ef81595c6d07b64edd",
+      "size": 38628
+    },
+    "Project_Plans/Specifications/README.md": {
+      "hash": "f893af9d87e3882d6459cff454d7d34a4d0a9ea3941193ee803480e03f7697436bfa4450cc9f0363583a8e77806cd93c1d6b96aa84d5270b102aeb0fbeeaccdd",
+      "size": 7399
+    },
+    "Project_Plans/Specifications/TOML_SCHEMA.md": {
+      "hash": "757c9dfcc852330d818809990a45a4468b6c898edb3bd6f3d3b24f87766000606985a213e7e3be5a260df7e4041b88916e4643956ae182438ee38897b2a1005c",
+      "size": 23270
+    },
+    "Project_Plans/TODOS.md": {
+      "hash": "1eafe1812183abfda0ee20b79ce83ea19dbd9c3568c7987dbaad620ea1c117a40caf6576cb66472f99bba32b812ff80d763388d1fbf792b20532a85b974acd45",
+      "size": 9669
+    },
+    "archive/Dangerfile": {
+      "hash": "a0a2dfe8cc4743a1e32f507c6ec2cd50275211861c55598bd535a756aaaa015e61da785b9d1b59a6696b62cbdf4dbe19ecad8132ab24d82bd0c563e08ec58622",
+      "size": 2226
+    },
+    "archive/README.md": {
+      "hash": "ebac2d514ac2fdffd838e5901f89c23d3f3035509df4510655e597f449b31e208419174cf7cb4aa39b81b6dff41ac970e6ed0bb9f97451fae07cc9911c85f08a",
+      "size": 887
+    },
+    "archive/batch_test_info.py": {
+      "hash": "85523170538226164782ceabd66dbb71f0add9013329897fa235fa753e3e3fce7eaf4dab12fe4425aeed3a794c450affdeb320d7157d29ccd8aef32d703398eb",
+      "size": 8486
+    },
+    "archive/coverage.xml": {
+      "hash": "dfefa21e34ec7e5428243243d181b408cf71d8052e0d6e0129ca2fc23317f3702b6fe7f385106f1d237c176293d5df58fb342deb23cb2bdb2942fbede6d18281",
+      "size": 395305
+    },
+    "archive/d": {
+      "hash": "a771d76eec20ff159a592ea6a18386a694257fad76e6205dfcaf9ee6ff60fb95e8b2d31651f1c2a7c5a385cd91cf5e3e26717eedb1ac4163a5f3fa40fdf44c32",
+      "size": 4137
+    },
+    "archive/docs/CLI_VALIDATION_FIX_PLAN.md": {
+      "hash": "caea2856a6b162476cd897969cb476a97ac7e9156f7fe472878fd566cfc8f48d4b5e9fb1c1492a5a1e9cd83f141d21e26be1a34ab75160abea9d463fcc37df12",
+      "size": 8853
+    },
+    "archive/docs/IMPROVEMENT_PLAN.md": {
+      "hash": "a3a81bd5b7abfd6665717c4a479693723c79923919783d6d03d2abb77e697436d3f25d86b0f3dc2dcf77cade978467e1d3f6672f26ccf9f2371573eb3b95463e",
+      "size": 5786
+    },
+    "archive/docs/PERFORMANCE_IMPROVEMENTS_IMPLEMENTATION_PLAN.md": {
+      "hash": "746451134034a39d26a2432dee165a9c3e6cbfbf56f68a8a92a194de377d7eef4e3c747cbb35f26801e14ca18afc9ce0cf8f29dcdadf97f6df40855437a70ba4",
+      "size": 9536
+    },
+    "archive/docs/PERFORMANCE_IMPROVEMENTS_SUMMARY.md": {
+      "hash": "92f24c697f1b22b7acef45e29b92d945373146219daf2f1d3e58d6a9d07d14930a7fe34b4e858a0987b0abc1ece76c7756e36f2d4a251e1cdb406fa2f818f12c",
+      "size": 9932
+    },
+    "archive/docs/PHASED_IMPROVEMENT_PLAN.md": {
+      "hash": "d23e836d46a44e53e02012f4b1021ca5fdabeecb2b0b0991335c2de36a10d9b1705906275ee3da8a7597ed2b2a9cf7acaad24608af245b9e14f078f25821a076",
+      "size": 11476
+    },
+    "archive/docs/PLUGIN_DISCOVERY_ADDITIONS.py": {
+      "hash": "ba8e678df4c0f6fdd48838bffa1fa6d55d5c1543eb1647c59422ad7f480fefbf9b9c62f00874c8da9e73c93d534ea85692189b0a4c6c39908d1ee311e99bee8c",
+      "size": 507
+    },
+    "archive/docs/PLUGIN_DISCOVERY_TEST_FIXES.md": {
+      "hash": "a1a31b6ebd4712a590d9fd99ce98bb9001c9298e2ec94fb3ee6264570751a086af60919f3144cbf357978561eec20e61605e7c36e8d0c4f9181e2c8636f9566a",
+      "size": 3322
+    },
+    "archive/docs/PROJECT_STATUS_REVIEW.md": {
+      "hash": "384a6a2246d2611a560da1722eb843726c7574fe67c6373ec2d6ec70a87514ee15b8765fb6fed6e776573460a83a034db1d49acc094e480d097c7371c0dc96c5",
+      "size": 9927
+    },
+    "archive/docs/PR_UPDATE.md": {
+      "hash": "9ca0ae81c64bc58fa4a8bca336b604c11b02093f160ee4082598d2f74f47bae7b57964c95abeeae8ed4d4be3ab5c8f4e3e3de09dc3ead45866771a2038e4c956",
+      "size": 4616
+    },
+    "archive/docs/REPOSITORY_CONFIGURATION_AUDIT.md": {
+      "hash": "a45258892c59583e1c8281ce712a9915867101fbeff15dacd3085adb11110f11de1828f42f700527576c27d38f27a098cb3f3f156b0db36f2b30fd4a6a61b414",
+      "size": 14462
+    },
+    "archive/docs/REPOSITORY_SECRETS.md": {
+      "hash": "22ad218e727c13c5b78ae9e36036e85c71e1f12abce7e33c7f15241ebcc0ed16144228660c85b9441d5259a6cadc512b8bf55111bfc6ea9288139c2ee30d1f50",
+      "size": 3839
+    },
+    "archive/docs/SECURITY.md": {
+      "hash": "dcde023c4ebabfd8b5a639b81eb8ffeea601a228e0fa2e4b7a5aaf9c2616f650a05c9a1c2d81755d22d39a1801602bad23c607e5fe2019fa229d1cd3114bedfc",
+      "size": 4618
+    },
+    "archive/docs/SESSION_PROGRESS_SUMMARY.md": {
+      "hash": "598321b30d10371fa4e215a3f626b59a3c2a20c547d51573fcb21fb63f2c651851498ea3bb45b89374927361cb95fe4b6ba7a3225f945f9d73793ef35ac91c3c",
+      "size": 11234
+    },
+    "archive/docs/TEST_FAILURE_ANALYSIS.md": {
+      "hash": "f9e98a404d68a2028becea90caadadae2ac97e2387441334d5bf2a6420eaa50e3da0227cdbcb0078f75bfc3e9956a298aa6c67611b2c651e1ccf77809a198b30",
+      "size": 18489
+    },
+    "archive/pylint_report.txt": {
+      "hash": "cf76a864758cd17a3c86055a4bc1497fceb026a003ba6c7f32c4cca9c926245d5615834cba53be54a78dbecdedc6b133480069e954cd6c4e0f286fa2661368d7",
+      "size": 115487
+    },
+    "archive/test_results.xml": {
+      "hash": "71db008e8f7339b91e14de5e1324243f20bbfd2e313009afff8f29ea6aa9faa88ef83e771cd4ac0b8b8a50f1e3df92bac6cd4a1936da1be116b6b6db52939efd",
+      "size": 236
+    },
+    "benchmarks/__init__.py": {
+      "hash": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "size": 0
+    },
+    "benchmarks/benchmark_config.json": {
+      "hash": "ecbfb103f2ff8c40b2107d7feee56292a4b7b8e5ae7c06c29a00927f74873a88a6aa0fe82bbcfb6859deb9bb0d828518d4aec48cf736f65273f9ba555f800647",
+      "size": 871
+    },
+    "benchmarks/parallel_strategy_report.md": {
+      "hash": "66dccf2ec08d85163823895289db28d809aa67c0d38de274043cf88bcfefae82504fb53de7e20b6945835190120596ee24cd2557ca8486e2ffabd15de9ae0143",
+      "size": 686
+    },
+    "benchmarks/performance_benchmarks.py": {
+      "hash": "c1aaccd5a9c68c709ed41cff2234f960ac06b736322be3bf486f30bbaca5077975c19c2d16e9cb419656c9895636fc5743ea45e00fe9514432e364090b818cb1",
+      "size": 27146
+    },
+    "benchmarks/threading_performance_report.md": {
+      "hash": "bb59fb05dd75326a6f4eeb3f0a0a127c15e03aee16ec3f947b423e7d3bdee9e56d36fae5d3bf4bb87212de97c5dca250e46c710013c1b63f33761c8a2ebdac75",
+      "size": 756
+    },
+    "benchmarks/time_sync_benchmarks.py": {
+      "hash": "ca2bc17f9d9ef9b8a3bb0f05bbb3ffa593164216eb844b39ad640feb3e442ba1672787f343f9b827b1a27909675bd55efa8909f13cabbe6006d951986cc3ac4e",
+      "size": 16164
+    },
+    "coverage.xml": {
+      "hash": "5ccdf4ddb6c6cb7f0de10c1b7129d3cd9d3b80c34319c20b67a5597e2c7e8d6cfd5071fe7a4beab1c4bdfccdec80c41161ac6ddbc5f3da79cb85f937ef1b3cf3",
+      "size": 408258
+    },
+    "docs/AUTO_MERGE_GUIDE.md": {
+      "hash": "8960d00a98a5322c9cf733e761346e59b96da97d7f836ed34f6b7b0ac0f555995eb731b5ccad7f885eef75ef6887be20207a1ae8aa45d8155bc09ac5e0a1d1a6",
+      "size": 5757
+    },
+    "docs/CI_FIX_SUMMARY.md": {
+      "hash": "1e6c630d375c7e592910699f3b8db470f8a8ecb8c368ed6d9935356b73e450da4bec92fc9b2b1e34d0c1097634fba12943e782feb2bf26edbd328b6e566b7332",
+      "size": 2932
+    },
+    "docs/CI_WORKFLOW_FIX_SUMMARY.md": {
+      "hash": "66b48e1f1a68992d2461ea56181f88e7bb88147c3d988b7df41eacd396c65c4cb458e136e96ab13ec133c561a68b5f762af36aeaf8458a38961c620958f9756b",
+      "size": 1920
+    },
+    "docs/CONTRIBUTING.md": {
+      "hash": "be832c1e1136a2d736a298ae83f7fd3306fce85f0825d5c43aba38c528cc1152c29455aed788f4179734571d02e0955398a5645b65b2c61dbe9912abc1f4e895",
+      "size": 7786
+    },
+    "docs/DANGER_SETUP.md": {
+      "hash": "7b651b5dde3e2b53500859c403fa8ca2b623dee533244f1810c1a23079db9670a01710e91cf8b50c995f6678d2eafce518b509d6d78ba8712d5913ae1ca23320",
+      "size": 1960
+    },
+    "docs/DOCUMENTATION_SUMMARY.md": {
+      "hash": "d41fbd5a186117202699870931c2244ef2646903bd6f125d5dfb210fcfbd9d5de9fe8a22fefac30c39cdb940abb2fd07c867e6b215a0aa70ef3dac45dc5dbe08",
+      "size": 10664
+    },
+    "docs/ENVIRONMENT_PROTECTION_CONFIGURATION.md": {
+      "hash": "489358095f59f2f3de27e83fe8a5f47e89a00483e24b75679105ab1687f80ae8c6666078817ab04cf5922d5cb758b32a2b0950481ec183583ef548d727d42a10",
+      "size": 9805
+    },
+    "docs/PROJECT_STATUS.md": {
+      "hash": "d1f8918778425fe5d052df05e635d0128f59f531a0f714a10e3f53f413d502e05dd7a1399dd445adc299c095fb0978fc612f27ef86d13cec9179af89ef1e1ac5",
+      "size": 1383
+    },
+    "docs/SECURITY_REVIEW_ARCHIVE_SUPPORT.md": {
+      "hash": "18bdeaf010c5e83b7e33b96185348e78f7dbee2ba773408b3a2970e9e3f1c61cb408bb25eed2e66590e6324a7b4471313d3e61e30b5c409335f744b238c9b74a",
+      "size": 12815
+    },
+    "docs/archive_format_research.md": {
+      "hash": "4bdc62fe4d5c39c0e1a83468a47d23a22db9c0c09f3fc865de4d9dc6f335e872e6b8cbed0a66d0d97a42b8c5ba66ac47a330087259569a8f147f7a5e5b8d5a63",
+      "size": 5075
+    },
+    "docs/cli_test_plan.md": {
+      "hash": "2a507ee70714042f275056e7823c8c84b9d497b163ede83868be2ee55092c0374d1e9260fd9b7c7709e884e24923bd32fa257752ec507fc721e5a81bfb0797c1",
+      "size": 3269
+    },
+    "docs/focus_chain.md": {
+      "hash": "960f488e1303727577d88562b0deee1ea62b9b5a8645d796527a317681eb4d57a08a61340a71eb09b70c55a07069147a163960bd705c13ef761bb1f192c2463f",
+      "size": 16605
+    },
+    "docs/implementation_plan.md": {
+      "hash": "c67f3a2ace43472867e2b20074276894659e6d677b095251464b4e23df6c00e3e497e696bba6d2dd2286631da8da786b9e8fa9895dfae0278ad3d299f582b104",
+      "size": 2167
+    },
+    "docs/integration_test_plan.md": {
+      "hash": "66165bce3fb0230aac7f319b53f7956356c33cacae30eb1d7254102ba4cadd7ba055977b5fb2f8060c059c37b5b3fda9e230c8d5f40fcd23e3968368c2944984",
+      "size": 7925
+    },
+    "implementation_plan.md": {
+      "hash": "3438c22767bd84a03dfe8313328ef20f443e40688d1c74b25045287137cac6bef66a16f76d143ae109762a472b95f52b953da3ec3dacfdd55c06a79bb6d2929d",
+      "size": 3950
+    },
+    "nodupe/__init__.py": {
+      "hash": "05af6ba3e170ac7c8eaeea8a1dd8d758dd242162cabc28f0b3ce1d3345765874b7fba62c87f3d5d5dbf59f7fe5f1f63ff10476956ccf128d7f818712fe2441e1",
+      "size": 26
+    },
+    "nodupe/core/__init__.py": {
+      "hash": "b88b6420026c33e10129fe49b4003c1d8f9c39837e00615131e76bb92e8ea6eed6b24636b3d2532aab03b8d33c93462c31ed5ffae50c0d94851e28f5fb32206f",
+      "size": 1026
+    },
+    "nodupe/core/api.py": {
+      "hash": "079c587f263893e25dc1a7441d119ef5267bf7441d5338f23893ec92797c1593ba4ddc636695ef200ce73b34877772509f99768e5901cd74aa242007f9e00df9",
+      "size": 6252
+    },
+    "nodupe/core/archive_handler.py": {
+      "hash": "32e2f0003494711d1c792f7625eaa67af003c828d0714b8b4e04adada177d36741e7410571ee0f766ef5223286eeaa8f49f8950552b53ff35a26c77491946512",
+      "size": 7157
+    },
+    "nodupe/core/cache/__init__.py": {
+      "hash": "9a8ad662924fe482be11aaab20b1777027194d79047dd2779b5df1b13f743fd37bbc2b5774826a575692063cee3f63a42bfb8833b60b60a8fbd9c99188d548c7",
+      "size": 546
+    },
+    "nodupe/core/cache/embedding_cache.py": {
+      "hash": "bc5dc544ff0f5599647b4c6b490a915d5be3fee8b1a31cff9871effd027639fa181d687f6835950f79ea40cb16b9c7f4ec7083f81193d4d97323c0e12eef5088",
+      "size": 12035
+    },
+    "nodupe/core/cache/hash_cache.py": {
+      "hash": "7e1b309df335d0e5a8c741a040fa63ae1f0d40d724e0c83e0913dc88b76bf1142c6f56ea1e9e13944cc474f0d91229decec0765cf599444906e1093e9d9c22fa",
+      "size": 8764
+    },
+    "nodupe/core/cache/query_cache.py": {
+      "hash": "89b14aaecb050258d06d468611645e4733c19b9f9b94a00e39d92c6126c556b2b17ca4163710075d06e7c4eb23c04b5556cc0af6027fba8c85cc073ccb6979db",
+      "size": 10662
+    },
+    "nodupe/core/cli/__init__.py": {
+      "hash": "2b44e744569ced091896bcb13cc0827dfb871d426f56a45dee26f3aa03fe19e23538baad6a07dc065dd2c03df9a86ce1b16051bcb5ba56320fb30a01051f9025",
+      "size": 28
+    },
+    "nodupe/core/cli/rollback.py": {
+      "hash": "0a5518876e0dba1f9bbea19d841f84376193772097fb598f883a5feb973c887a96171dfe1edaf6a8ab700796e255c625ce0e60bfe4b92d5034dc37e288bf0a64",
+      "size": 2823
+    },
+    "nodupe/core/compression.py": {
+      "hash": "bf15d00684028578650dfc495dc34537e77f049734124ecf812e3f2a3f73091b2afbf813872bc0469d027877332af2954a10b49eceb118952439d6a70109e747",
+      "size": 16019
+    },
+    "nodupe/core/config.py": {
+      "hash": "2ac2c93006d03ce7cd0833126a6358f9beafc09f204d16325fd90a55fae75c09cd14f0af52b6166a954b9bdc3d0ea3c9cac2b573d9bb4f7ba00c756761124eca",
+      "size": 7122
+    },
+    "nodupe/core/container.py": {
+      "hash": "fe5265de76aa68fe6ef71cfabe3c588c1ec676637ee95151d4bcc7930a2aafcf1b2d7a2d74ea356c5364bc9cf44bea75dff3c50dbec48bbda8ebb2d1cb631602",
+      "size": 2998
+    },
+    "nodupe/core/database/__init__.py": {
+      "hash": "c8dd6dc224929dddf35b6bf0a55772e43c2d4c456aa7cc450b41c7dcc1a7af80d6f267d14179e8ccd23e5eba6392a6d57a70bc975a8086008b2e38b140fcaf08",
+      "size": 1146
+    },
+    "nodupe/core/database/connection.py": {
+      "hash": "5988b44caab1b42978e18d8b5065f3787c920b9a3024b292a5b7f5d45be5ab5c1e2e054e024159906918d831f5cf8297f1e1f2eb0eaa405f5f8879e565f14973",
+      "size": 7407
+    },
+    "nodupe/core/database/database.py": {
+      "hash": "f25abc5587187c0f4346af102ec0477b81b4c721a611b77d9b2edd3e978393e4c5cc9674c4c84fcab8952ba630ab44895145329594229ae52f72684ac2fc8046",
+      "size": 29813
+    },
+    "nodupe/core/database/database.py.backup": {
+      "hash": "dd23590521698f2d28c64b0a48b7d1250f67ef707a27424814cd522c322fce704895411d0bbd0b339c5ad27f845a5485b5c51e87279f4eacc41cbf8d7578a98f",
+      "size": 42306
+    },
+    "nodupe/core/database/embeddings.py": {
+      "hash": "ba1df324c95559f22bdf0156a13faad9066a9924748f339493278a43b77759ceb3a0ef603ed6715340bf33954c7b142d0582eed91c5cd0eee2c3a09ab1d1d514",
+      "size": 11302
+    },
+    "nodupe/core/database/files.py": {
+      "hash": "b2303d4d29863f79bf9d036e43bc9c95aaf49b423ed088f31b5bbfd174f803e8ef9c24f520ed624ba086347a09196d0249a426d5c378ae8a5f6cb9f27cea51dd",
+      "size": 12728
+    },
+    "nodupe/core/database/indexing.py": {
+      "hash": "ed1ad3eb835e481145423cb15d734885b826aaff2ca0c8bc38d6a9f8b31b6051ab47f09eca500415000bd44eb0919e17208b1072a65f349517cd6e670ecd6d23",
+      "size": 16218
+    },
+    "nodupe/core/database/query.py": {
+      "hash": "75b7f9761daf387a343b49f280252f5d8e6763d3ceec180fd968d911a79061d63d59e2b75691fe94e44385d26846cd6a314162657ad0b491d11cdd99a285e4a6",
+      "size": 4793
+    },
+    "nodupe/core/database/repository_interface.py": {
+      "hash": "e28cfe0398c1fdebf1b10ec042dad174c6c5679060f23538a6a9e6ad0a086097c3cd197707d3f25cf00edf953524c71e11cebc69d795221981fdceab4ad1a1e0",
+      "size": 4998
+    },
+    "nodupe/core/database/schema.py": {
+      "hash": "1d53086c8f2e7440c2cd2802dfa85bcc181c21ba8c4ee064b604c400bc7e3796fc7725cab849c77f03c3acd7e62f1eabf5563b67221ad6b785e499485b465880",
+      "size": 16001
+    },
+    "nodupe/core/database/security.py": {
+      "hash": "eb23d316838fdb5efc2b14c9888d58bef37a1816ab65ef3c057969972794c75ebcc3d3dd7ba56c0ff9ae0452179710a420597bda041b3fa2abaa5b533d57feb7",
+      "size": 6378
+    },
+    "nodupe/core/database/transactions.py": {
+      "hash": "eb20c536c923095810d805f30719a69e91c7c0335dcbf4c109e393afe42c2929f24b19c44ea41233c4fd597eb5b4d58d4d3596f6d0cf574288868a1683f6431c",
+      "size": 12324
+    },
+    "nodupe/core/deps.py": {
+      "hash": "d390c14a258a038ed65016c77f659f2fe9048d59518a67b79ab7ed2e74e51b3da562ac0a06b9b76828d39a598b6669eac4806988db18cc0eabe9a4b595b24a26",
+      "size": 2835
+    },
+    "nodupe/core/errors.py": {
+      "hash": "5ff7f2d41a2e97e781b72ec517a15d170c4808e7fd30fcd7537e7ed46af967e15954636473c3ea341223748b30f340c3f94233e3c4b09aa31877cf362e7be013",
+      "size": 417
+    },
+    "nodupe/core/filesystem.py": {
+      "hash": "ecb2708ec200ee3fe47aefe2575e018288c178a361078e5ef4b75747fdeb199dbc4cf3ae5748798a3eaf4c62c4bbc6bc2c175bb525b3fbf1748b99ccbbdf5ca9",
+      "size": 9281
+    },
+    "nodupe/core/incremental.py": {
+      "hash": "b6695035a8ff99f042d967e8282148eb45baf65482c5ffb7d9f9bc9f0ef805588613400181eac3d9a0dfdcbe7f3462e04831577d40e3a67edbf70964e7af1959",
+      "size": 3967
+    },
+    "nodupe/core/limits.py": {
+      "hash": "d669a8b4ce0e29f8e5a5647bccaea3cbdb25642ccc59f6839636d981fb7f9bdfe0996897ad6c472f39aa5f2b955a64ded675a45efe87414ef9a4505527125944",
+      "size": 14525
+    },
+    "nodupe/core/loader.py": {
+      "hash": "3dd12af6b903b993798aa8cb584ecb909850ca0e41c3e68d07374dbb28d3820af273758079c8cff94a716c530d4743c6f70f498f5623dfcf831a615454444c07",
+      "size": 21262
+    },
+    "nodupe/core/logging.py": {
+      "hash": "14dec3ccf42d5a949d5800e356a1608e3c079b0fc3fa1b16cb0a805092634e60ad7d19db264f84fc8010d6971afa96bd47bf8c9366ae9581d8ac2e1b9dabc815",
+      "size": 9044
+    },
+    "nodupe/core/main.py": {
+      "hash": "83dba43ac772498f3ff6fcd7c81b27ce2149886453ed77c87e545d3485ad3b59cc657c06e4518d6a7df66665ebaa5b8d14c846718d4a9691bcf6f03b9de411f7",
+      "size": 6557
+    },
+    "nodupe/core/mime_detection.py": {
+      "hash": "a6d9155b9d44e934514d7a21309e0eb68f04ae42a02e2dc822304907f5970f74511fc140ac97a4ef7d53b632856bd2b104b945801b228aff115bae7b845200e5",
+      "size": 10133
+    },
+    "nodupe/core/mmap_handler.py": {
+      "hash": "3879a991e4297724b60254a8a97b637189bd7c805bd89dad15d04802fee011b4713a451ff28582711d10d0079ff661a8d40ddecb2152c41248de8564f73c28f7",
+      "size": 2443
+    },
+    "nodupe/core/parallel.py": {
+      "hash": "e0a36a3376153ab1c6a95a5bf399df5018628fa584378e2e3f65881e093ff66bdf443bf3b191e4f57383591a3c41b148e32d2c7d0265dc53236b133c198c4c61",
+      "size": 25933
+    },
+    "nodupe/core/plugin_system/GRACEFUL_SHUTDOWN_STANDARD.md": {
+      "hash": "cc55fe9260f6e157845d0088c5a8ef9f0154ec433c0d26a8c1280f439d0f2fe34a2f96952442b4bf2ef16ad4078e10aebcaecd048728fb8b34ee8c8ae68c2be7",
+      "size": 17457
+    },
+    "nodupe/core/plugin_system/PLUGIN_DEVELOPMENT_GUIDE.md": {
+      "hash": "e1502cc7a4c0adb94f68007400920ac89250d6d37ccb6e7e1400c843633b4deefff5ba973e741cf67a2f0e30e7d1d47b9f841a0910cc8f532fe8e4db82a94b15",
+      "size": 35146
+    },
+    "nodupe/core/plugin_system/__init__.py": {
+      "hash": "9e5a63145683714ebf7de076b3c59a47cb8c67df7ff9427add69b2bbc18532f21817de88f5818b0fd85d946bb37d7df47c779398de743dab0a8532270b7a7bdf",
+      "size": 740
+    },
+    "nodupe/core/plugin_system/base.py": {
+      "hash": "0fe3f4d8125644dba6f926a66fa2bbbfe11b81d613a6b69081fecfbb12396cdb210fee483ba15c37f031de399e413a460c7d22350f5257441ff71b3152da752c",
+      "size": 1065
+    },
+    "nodupe/core/plugin_system/compatibility.py": {
+      "hash": "2693ef23ee385330a4dbb389faec1fd7a99a079c4bb1705c8596d0fdbbb82c581b69d4c8e7696e6d17482d72a39242b6e3a314f25809419f5f0e953e6446155d",
+      "size": 20842
+    },
+    "nodupe/core/plugin_system/dependencies.py": {
+      "hash": "16b932d6ec0758f2dea49c82934a7e6e2a49008072ad14722a986c7ae5c8947b39e3ce72ad1a6a2b275e731a9c13a000f716e820a795c4c551e799ce64af0443",
+      "size": 11146
+    },
+    "nodupe/core/plugin_system/discovery.py": {
+      "hash": "f28c3fa36b07a22ffd8520654ca6a09138a19cfc2ed069eca3301ad954715907931dc4e3b7ea589443281224ca04bf917a377f274472078a779ad796da9e3154",
+      "size": 15710
+    },
+    "nodupe/core/plugin_system/hot_reload.py": {
+      "hash": "7fa8f032f99d13bb46e94b8c88e476804cd5047fa184d8bc13edcacf4758947a986e43dec0a806c1b4a281299a06f6e542fca9c0e69d56f73f99ab8a54ba9bc6",
+      "size": 13718
+    },
+    "nodupe/core/plugin_system/lifecycle.py": {
+      "hash": "38f4486676c346e2637278c537263f3dac59da4a8ea4576668b792753c6cf8af4c06c19389705a8da23a28b540de76bfcb45eaba25455e343185c7a9c2591c51",
+      "size": 10724
+    },
+    "nodupe/core/plugin_system/loader.py": {
+      "hash": "62f28f31b34b4be6491602d3728169eabfb50d5c0a0e4e591977ca5587566f20a0799584c96782e9ed94abd9848538ab789e0c2c176244f397a207b74a3eae5f",
+      "size": 10494
+    },
+    "nodupe/core/plugin_system/loading_order.py": {
+      "hash": "c1fe2826e27d777e0d27670074fd072ab8ac6000e4bdb91f58f3413df81b120819399db3d42c490b34a8714dabf30c43312de1a1ad620317eeeb0d26233f368b",
+      "size": 30126
+    },
+    "nodupe/core/plugin_system/registry.py": {
+      "hash": "9e0b381df5f4e7ad651f36472b83b7150b7bfaf610d6c377f2689f8a22a0e9c858ab93dbc8f11c00126463ad1bc2e3861689909586b5416d8765034928675b7a",
+      "size": 2561
+    },
+    "nodupe/core/plugin_system/security.py": {
+      "hash": "345004c58dfca57f8552ee3464f02606d8d7de02d35cd5cd5842ea991ccd0063efd112d1de04b10ab8ff7101328f975d18818dffcf629a4a0e9af522a8267cd6",
+      "size": 11398
+    },
+    "nodupe/core/plugins.py": {
+      "hash": "fbf08f04f476017fe9d3740bff687cc8436dc46bd0fa8ddd40bf4b4b4d3ed8c0d1a539efb11281e023d9e5c94ebb447fa450fd36ce5eec5fdfd4f1351f2a1562",
+      "size": 469
+    },
+    "nodupe/core/pools.py": {
+      "hash": "a0a76aae4fc77f66a6a8979eebf880d596b27169dca4e80d7a3d77cb626c978e0cad1ce5d9d280dfaf5f6678d1e23122b6bbb5b6e4439bc5f3e02b0dc04f6479",
+      "size": 21121
+    },
+    "nodupe/core/rollback/__init__.py": {
+      "hash": "51e7b5b0b528f65e6157fe2240217ac4ba767e0ff2e9782c8dfe18429f505ce500b507b9398f999ad04ff7bf43f50307c551fdbfc325f13ceebc961e33aa7109",
+      "size": 923
+    },
+    "nodupe/core/rollback/manager.py": {
+      "hash": "74b6e6eb0b686a9f19d92abd8f2be2f925eeb842123933d229f6971ed30df90f9adeb46d59a3283d068e6d062197a6d15c245b3e5a1ee2b193e704e1002bca52",
+      "size": 2864
+    },
+    "nodupe/core/rollback/snapshot.py": {
+      "hash": "b12802d63fa7505894e9abe2d8581f54a0b2d3838c888f13c7814cf38e0946f71740ce2f359fa7e4b39148997bccc558d2fffa801f4f16bf0fc8c2bfb75f80b7",
+      "size": 12713
+    },
+    "nodupe/core/rollback/transaction.py": {
+      "hash": "d4185ff691565c351116d63d99a99831917d7fabd528a9ae70c17cdb3a49ddaee9fd1c5038c11881b0a58985859c7a1458f055ab208749c8e5ca8f49f57301a2",
+      "size": 5056
+    },
+    "nodupe/core/scan/__init__.py": {
+      "hash": "37a000c3fea2998e702a831cc11f376b3c8db8232fee106e5857d50a311bb92653aff07dd138950cc8dc5068eea26f9b28e709bc5b5ef467a19a00dbce55a871",
+      "size": 705
+    },
+    "nodupe/core/scan/file_info.py": {
+      "hash": "dd756177c4a78f4461a641948e5c83fca28ae3cf2c3baab5c82cdf8fc8a11d4727af5235e680a6b0c6134c6afdd943494b4fcb521af36154e747f4028c4bf40b",
+      "size": 857
+    },
+    "nodupe/core/scan/hash_autotune.py": {
+      "hash": "359276e5861a3e414826cd02150a7d146247de88840e3603e2479f71134a8c72ba2b0570bcf8d09a8c909544686e3f9f412ab2599771c796ff36f7cbfcda89ce",
+      "size": 11551
+    },
+    "nodupe/core/scan/hasher.py": {
+      "hash": "627328725e6dfe296d7634c88f605f15dc8527de9714a5c8366d63cb12db5160f606c7d6f1263c10fe1d07df40365ac973002b89259ab9b2e2da7db42b16581b",
+      "size": 7194
+    },
+    "nodupe/core/scan/processor.py": {
+      "hash": "5df6991c0685733c1374b5bb2f88feff5f8ef30a60811d4c8a53581ed124f98bd2c9be43a3e35db749ff4deb833bcacdee71e24fe6bfa6fa276cad35954cca2f",
+      "size": 9294
+    },
+    "nodupe/core/scan/progress.py": {
+      "hash": "af4c6fed2d3525aba8134e491cdca1d4caa8b7e4720a0c4a881dbce00214f65c6e6acdf3f1d222cbb9fe292e577530559bc8a46d15234763679ff1b3e232901d",
+      "size": 7537
+    },
+    "nodupe/core/scan/walker.py": {
+      "hash": "b3fd80da1fe763c1460666728431ab78cc0e6d86a0c509b277d5bb9ce1050b4b00342946e4f11b3847fdebe58b519a974303233f83d09441642a4c37e3781758",
+      "size": 8070
+    },
+    "nodupe/core/security.py": {
+      "hash": "ddbea819bcef0da1521302d839091def19ae3cdfc92e8409b488aca89d13db9eaecf2580244528e63455315c908223d991bc9d762fe137edb25cc77c2f22f201",
+      "size": 14099
+    },
+    "nodupe/core/time_sync_failure_rules.py": {
+      "hash": "715a6acb6b1af031fd72903cdddc3af62d9989e52b32f4332822ed10ab7119a5282132e78e06fe6d3fd5dc8f327204f1bea93989dbcc90cb6b96bbc7aa3a7f94",
+      "size": 23874
+    },
+    "nodupe/core/time_sync_utils.py": {
+      "hash": "965b08fdac17aee9da458fd72dee572dfdeb43223ceed254feb3c7c9aa1c90de045944d5186a6de4763b97529006dde6644a0244d186d8a337890d11e15fdbf5",
+      "size": 25493
+    },
+    "nodupe/core/validators.py": {
+      "hash": "7daba0a12dcfb4eedff4d6be455f802138d27f0e1aba361d63ed78450666b017b8d7f84b75fa3e93ed1e0c2704990db975bc2c004c658c133db85cf3c0c067ca",
+      "size": 12004
+    },
+    "nodupe/core/version.py": {
+      "hash": "4cdf6a206cb266ad5c098be26d96ce73d7efff390b10253a803efe96980a288a97c275e58334659ebf812be2d1f0d688acaba46358243af8aadccf83c38f4b17",
+      "size": 7101
+    },
+    "nodupe/plugins/__init__.py": {
+      "hash": "2083c78197e3ea76ad9457f68464c59c03faa8fbab7035b953c6c1c44cfd7e457f98e2e793a87404f034ce7d4c1e60fd2b60e3469fa3c8961482205e9e4a2ef6",
+      "size": 23
+    },
+    "nodupe/plugins/commands/__init__.py": {
+      "hash": "bc1a058e7d3dfac5f86ee79bc1ac55d35c69d80c85f6508a7a7c5364f9e93fbe3122ed8192e0acd5b96687669a0ef86e6839bc79516f1fa3d3866970d65142b4",
+      "size": 22861
+    },
+    "nodupe/plugins/commands/apply.py": {
+      "hash": "ad4e38c95d8a50031c712bec204d9f6e2a5b14cec13f77534d17a98aa30ee8f907683e3eac646c1a7702983793ac34acaadd5fcf25ae6d04aae2a23660337ad4",
+      "size": 9099
+    },
+    "nodupe/plugins/commands/plan.py": {
+      "hash": "747bbf521b5cb2215bd2a0c744572ce91ed72c78612669b3ee9dee0d67faa8f5e3a15b999fa80b510b2165e323ea15aa8e6d2b82838884e5774be2d9594d13d2",
+      "size": 7141
+    },
+    "nodupe/plugins/commands/scan.py": {
+      "hash": "bbe30d0922524fdca199cbb3bca708ea0fccdb8713435af9555d7767ccde0f98553bd643b87ad7183e4d7d03472cb6d2c3db7299b51c92ad2b49314ccf5f110b",
+      "size": 7607
+    },
+    "nodupe/plugins/commands/similarity.py": {
+      "hash": "bd8284a15bad13609a84a10cdb4757fcacb15337d2e96ea2feaa371a6aece634cf8214a7571a31dbad5b96b1137222a1e416f19b29eb80dddfdcadf80becbd13",
+      "size": 7856
+    },
+    "nodupe/plugins/commands/verify.py": {
+      "hash": "86d84083b579755a22aca61db45c043267e8819e08e4d006bf18e02a7444d30ea55f3bb5e326b71921325269dc45dec0d48c1de2fdd722a2de77ea5b81dd13e4",
+      "size": 17708
+    },
+    "nodupe/plugins/database/__init__.py": {
+      "hash": "393036e8b418437f13795620d92e2f0964d60f59e8d654a24919d31b1e5291a83fc12b0dd4b3b7c9fdf7f80744a0cb313e399ed1c30c90b2dbbabcd23769a4f9",
+      "size": 31
+    },
+    "nodupe/plugins/database/features.py": {
+      "hash": "009eea7b35c251f15c44ace48a374ac2d5f2ed0a2a451604e7b27f72421ed62dc8776c95b9cc283c8e5b81e64e95972c67065bed19e67f8c07fa8b0c5323aaef",
+      "size": 8180
+    },
+    "nodupe/plugins/database/sharding.py": {
+      "hash": "638366fc7ba0833752e9a0d11e336ea1389b75ff3db12a5b3383f041de7b535ba7836d2d6b57fe1072aca0c4a7df3b064b5a92877683bbeb690e030c881fe4e9",
+      "size": 3319
+    },
+    "nodupe/plugins/gpu/__init__.py": {
+      "hash": "61f23382db5c39ba4b508d1e2f36eae33e16ef7c17f64f37a63771b284a45b9fc2fbeec63cf2feff10517c0d8613dff8c2e9f8dbc7062fc12f033445a94fb2d0",
+      "size": 11647
+    },
+    "nodupe/plugins/leap_year/README.md": {
+      "hash": "024482ae0fa19185a51b2955be699f9843c0e62291b46eef53020691130b9dca3efc3021d66a954d0a0e31ef488014ad918e0c6124a44b55dae5a80915ad9c47",
+      "size": 11808
+    },
+    "nodupe/plugins/leap_year/__init__.py": {
+      "hash": "74dd19e84b2bff38c5816033cb133ff168d4ff5a2787e23f71451afba64b2e9809482df243237632c59a51af20797068e82345f2ec6bb48945aeb68fc684a933",
+      "size": 803
+    },
+    "nodupe/plugins/leap_year/leap_year.py": {
+      "hash": "7b1cae15f1274b6b74b9582cff3634684bb7e2e3519fbf8fbaf4f47c0b437a4cad4c896acb7b2f78e432e448907499a67f130e8b7f6d9f7d7c5649f0e24af108",
+      "size": 19198
+    },
+    "nodupe/plugins/ml/__init__.py": {
+      "hash": "75426da8d340652d6cc22037c511ef761a09eb7072da6dd02b3de81df20f1b31f25667532348ebf4ff846b1dcc02d26badddfdedd7f45b1f4af60b72de1df2d2",
+      "size": 6146
+    },
+    "nodupe/plugins/network/__init__.py": {
+      "hash": "9a8bfe5f10133c85fda139a8a00a88bcb8c64208a37c3fe916473697f0fd5896ff9bc69f7e2eaee788d7bd7d3f8c1e2fcd171f96e4ece0a51edfee03f315ca6f",
+      "size": 10220
+    },
+    "nodupe/plugins/similarity/__init__.py": {
+      "hash": "a68c4777c0f3433e1627ec51d78086633662deb1306395d7d9ad75b28ba2ae9a5ff2b35d140676c9a888713c43d0099eda1679a15ef00815bd982a7e123de74d",
+      "size": 17633
+    },
+    "nodupe/plugins/time_sync/README.md": {
+      "hash": "c3ff8e9536cbc606b21c8a41335142ae1dd98e5d56a0dd39e9e7792a82dffac6010c5f52eb363dec736fb31406ed56533e0b410b1297a1df62555ae9e018ea5f",
+      "size": 12760
+    },
+    "nodupe/plugins/time_sync/__init__.py": {
+      "hash": "e3a3542a403fd6add6a52e5982a107777e2788a232db808619cc7892221a954015f8b224486ec19efb9c96ed1a6be19e025ca96214305d1f4395249f8447c1b2",
+      "size": 1224
+    },
+    "nodupe/plugins/time_sync/time_sync.py": {
+      "hash": "58287e599495f8f0333941a8acfd2488d40b17d14e7bbd162039c3df5e1dcd59f83b971b93d47468f749884824dc0715b9923ffe760d907dd29d370290140368",
+      "size": 49363
+    },
+    "nodupe/plugins/video/__init__.py": {
+      "hash": "aebe40c68507f1b0a701c6a6c9ea749236f6f6f03153f66a4cb573a28177f1435d2135b1e252a7577d56cede9938410ac6da121175780d5897985a755c4317ac",
+      "size": 13507
+    },
+    "nodupe.egg-info/PKG-INFO": {
+      "hash": "8417a53fb4f58d627e83e42a11f6466ce90e8067f67428a255e145c95f548490e067dce627eb892af8a4b46490ed7b4578e28651aac89040d973995123757102",
+      "size": 668
+    },
+    "nodupe.egg-info/SOURCES.txt": {
+      "hash": "781ba3ffa17a478ab3bb95635407406de1345378e54a0181d0db1ef53fe5480b7cabff1fa5fade1ae199eba3499f045115e429d8009451a5af6e2b55ffee723b",
+      "size": 3354
+    },
+    "nodupe.egg-info/dependency_links.txt": {
+      "hash": "be688838ca8686e5c90689bf2ab585cef1137c999b48c70b92f67a5c34dc15697b5d11c982ed6d71be1e1e7f7b4e0733884aa97c3f7a339a8ed03577cf74be09",
+      "size": 1
+    },
+    "nodupe.egg-info/top_level.txt": {
+      "hash": "b36e47237b925f6f6d94623de942e9424137a2cfe18d76bddb869aa6d1360bf01463611348362e83cd2f9793643e9b3051a4c5901688c476f20479a2d2e87cf1",
+      "size": 7
+    },
+    "nodupelabs.png": {
+      "hash": "d0b9976db93264c8bca82ebf0cb40420d97463d46671fa557862597146958c21445eeb3969fbdb3714d73cba8e4b01f009d996e7115f76ca6ca7c480569608e3",
+      "size": 1489421
+    },
+    "pyproject.toml": {
+      "hash": "73b6269be2f514b10a0c78eb94dfb6b7943e48ab19bcddf6b6608c05734fafb446778870f177e8d31d9bd465fdf90a0aa91ae1ddb622f55f4d31ea47218c774d",
+      "size": 6147
+    },
+    "test_results.xml": {
+      "hash": "a6f34b7f81f6def3f12649e8f8c2bc0e743946787a11cc252640bdc02a150343186d2313723821c14618f706d612b63ca897c4662047eef285b94b3286357ab0",
+      "size": 236
+    },
+    "tests/README.md": {
+      "hash": "76beea342292dc1c39a030983dd9c73293f8ca4e7c5d43b193bf141294ea1f92d3e0ff8f4dc485d9b334dffa0a2a27e8d185cca2b79feaa57ede6de2b8b61005",
+      "size": 14873
+    },
+    "tests/__init__.py": {
+      "hash": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "size": 0
+    },
+    "tests/conftest.py": {
+      "hash": "c060c9e9f19899e4ddc11d075b1fd505ec7d543f8300bd124e5292de5f3473f2de4ae122e8b63016105201f5d3f16ae0d14f87771bc8c0e612329d60aeb4bca1",
+      "size": 13525
+    },
+    "tests/core/__init__.py": {
+      "hash": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "size": 0
+    },
+    "tests/core/cache/test_embedding_cache.py": {
+      "hash": "3f02637697c3e4302e6b4e88ff0aef7a7d11dff452fc389910a4ff5dfea68f053e8730c2c0905409232446934a34c8231f127ec72a596069f375063695c89547",
+      "size": 16283
+    },
+    "tests/core/cache/test_hash_cache.py": {
+      "hash": "3f60980abeddd4f0b0a15adcb1e2497c9f03cc2b4dfb7398e6f9aa16f2d3ff53da575032741331d8375f4eaa3f361da83ce334ce9199dad6d58a4b3556e61c7b",
+      "size": 12218
+    },
+    "tests/core/cache/test_query_cache.py": {
+      "hash": "dd2fcfd1750f9cb3873c60717208168e933dc10789fdaf42bb586a7116c3309bcf88832250b08e7a1c32724dd3c6dd599458fc86b467922174bfd71dd8b562e3",
+      "size": 15424
+    },
+    "tests/core/test_api.py": {
+      "hash": "6801c524b58cc6b9a5f419d44b74d62a917b96ac20333fce32620ca6c692067682fbdb2bd720f5d6be7b396e2d3b88ee07f3406b6dc5b72538f84ebf7161be62",
+      "size": 10254
+    },
+    "tests/core/test_archive_handler.py": {
+      "hash": "6c0d1b6b71bd271f008a7ef937116f688811fa1e1ca5ce25ff9fc6761d614a8a498b293b9a23ce20f0077b0270ee36f964bd4d5891a7f482e2f0b266e13669cc",
+      "size": 17099
+    },
+    "tests/core/test_archive_handler_corrected.py": {
+      "hash": "68174f18ae80534f66cd5e33379b7ac356a0245d6964814a4943c1579d69ad184a358cc0b6adbaad56ed35111692ea2987e2bbfc7edab4609397fbcb066d3f2a",
+      "size": 109045
+    },
+    "tests/core/test_cli.py": {
+      "hash": "fcccb97bf5ce4f8602fcbb7a8dc8141c7608f0447a0d3f526747131f5fa03c40a989791b4fe89c6a5fc334286a9ae8ae1dec2a86438303cce6c29cbca541c84a",
+      "size": 8706
+    },
+    "tests/core/test_cli_commands.py": {
+      "hash": "257e65048a5b06964df23bc70323d6bc19b0d02531b7243c30851258a692babddccb698deaa1b245fd8faab3a7c302fc64383c293fb9464711d7122578fb314c",
+      "size": 9947
+    },
+    "tests/core/test_cli_errors.py": {
+      "hash": "4de655e427c75fd59b776200075dcff3d37beabf0c14065b285636824c1a43e9269c09ddcd9dfe2b53b0db942f4c2a2b9d6cb0c676093582d78b9771b7c4eabe",
+      "size": 12475
+    },
+    "tests/core/test_cli_integration.py": {
+      "hash": "59862cf77b9c0802d70adb6b732d890737f3d591beebd9f6181e276998e6d9d698a12da31a2c9bee062e51693bf75e51cfa2ecd6e6c4650fb2ec144b530379ac",
+      "size": 19201
+    },
+    "tests/core/test_compression.py": {
+      "hash": "626b9b6f1e92b5c90b9b8c9f9491023210faf927594c7b9def38ba25bf66e9148de3bf5c60132c4539366dd887a6b7a1fcca743e4895e8529b4beea673db8529",
+      "size": 13392
+    },
+    "tests/core/test_config.py": {
+      "hash": "de947cbb604c55d971202cf4653f913e865864478a89173869e28a0e1a4c14d85501724b077e626b32d28ddd9e66bd34954cc703e45405fb1f7c4af4b2f78b71",
+      "size": 33518
+    },
+    "tests/core/test_container.py": {
+      "hash": "e9b3673134d09160c9c701f030fcd5380f24d6846863cf9fcc2b56d4948e231c1c1866b5c2815dd2d32e3a7c21c57ce37c3fc2908eef2079c70d54570ed4d65b",
+      "size": 9650
+    },
+    "tests/core/test_database.py": {
+      "hash": "003c81d304358bb8a9ef78edb0fcc9de70d954abcad0e98dc200fd91652c81d321d7357df14ec4514d2c652c31ea1ee4d5780271e1df333f7a041f44b751da05",
+      "size": 39778
+    },
+    "tests/core/test_deps.py": {
+      "hash": "e0b7094c01359f687d7504b599748d023bb1fffd50f36e9126fd6b6d5ef0fb34644a63c133fcda2c5eb58c7fb4410e39a9836a1d2700b563946ba6079dbc0b46",
+      "size": 8633
+    },
+    "tests/core/test_errors.py": {
+      "hash": "63e1bb183c30e7ba285059085af82647197b64e06704af259127101959183ebf4f36ba60177e8bdbceedce45d45d5427b0ca33c02b326cfe37433e1e805c3e7d",
+      "size": 8375
+    },
+    "tests/core/test_file_hasher.py": {
+      "hash": "629fa128b0abd82306ede44d692bcb972ef5a6b47a3dde0149d8f4a9ccf06e21c4efbc2760c1c2d159e00cd93d3f443288583047e0e974e65324128ea70b7d84",
+      "size": 10676
+    },
+    "tests/core/test_file_info.py": {
+      "hash": "6cb64ab9be14a9b6d29f86596a7fc8e4041ae3775cc70dc6bdf0ea891f7abab3d41b4d65670ec5f98e199d4f497826e497532359f3794e1a7a2fbbb690268aed",
+      "size": 10286
+    },
+    "tests/core/test_file_processor.py": {
+      "hash": "bc382f7b10eeb733e87976207630c67bbf56efad0a073996952d31402ab70559ecb9f86bf2bd23b78cd47bb468e16b28a4901f8711d3c73273d09c061b3b1f8e",
+      "size": 14647
+    },
+    "tests/core/test_file_walker.py": {
+      "hash": "1ffb9139c7fa2d52c51d693a7b9ecf8b841f0bd946d8cf70e471adb310328f0be3d679c8bad282ccd3e17848e5df5ea061e5ea2770147d4be4771ab3da5f817f",
+      "size": 8129
+    },
+    "tests/core/test_filesystem.py": {
+      "hash": "db52a68aded141882d37023e40394626aaad8d934b1b02498de70d7cd72bfc7d53859b20ae81f0efd1813d056e9138808c0a53a1857a96d1174081c1b936eb2e",
+      "size": 7683
+    },
+    "tests/core/test_incremental.py": {
+      "hash": "201e609591183a24ddcc44772725046d36feac989b6cfbc1696afea0fce400f7bd59fb83b3333cdec13f9440658de02be3c91719b96ad749d46069304c7a0a70",
+      "size": 12658
+    },
+    "tests/core/test_limits.py": {
+      "hash": "94e491c16c9fc52fd87e34053958e07069e1355c9019153978ccd1c4a1e21cc9d24718a5dc584caee5a349279bf4e737d4676d58bc18cbf747b96393702170de",
+      "size": 6512
+    },
+    "tests/core/test_loader.py": {
+      "hash": "c3e70b06558f3153d4efd72b38b6d0caf53ac8ee7e5043eddc767200ab9a83d8824b62f93d3976a0bdab63ff78912cd860410ebcd9a562d7c3679ba813a9358a",
+      "size": 26593
+    },
+    "tests/core/test_logging.py": {
+      "hash": "a5e11fb59110f2fdaf3eec3a70b260119ef44ea2878535f634485f31e8e0fa40377689c7e8f446dfcc6d674d37844d9175accbeb32de98610274d8fbfe085568",
+      "size": 12490
+    },
+    "tests/core/test_mime_detection.py": {
+      "hash": "b96a238e9888023cc014df5c1316d9c1d630c95ff65248ae68c43052ce10e1fe815450e011249c96bb326b112c0a574057ee1c250af72dbe9fcf6862a9c2815f",
+      "size": 3898
+    },
+    "tests/core/test_mmap_handler.py": {
+      "hash": "29e0235b6f5ada37a460fd451517ccb67f94c659838a43a727a3f5f463fdce1d1b65ece8b7be53ff716330ba99eb51f3245b881f67ddc8b5438446d3ae1ab48e",
+      "size": 2583
+    },
+    "tests/core/test_plugin_loading_order.py": {
+      "hash": "57b7206a624a3c7cf58b4c3ce00fca9e773f823f6dd785f166ac9b84cac0abcaeed858ae8478bbb24b2d38c5768ae47f7ff9014382ff74f3d041708e26ba5719",
+      "size": 27937
+    },
+    "tests/core/test_plugins.py": {
+      "hash": "44a3e6b9c7b22ad3af538701de865d6da88436ca10c6243e0b5e852d4d73f58a131c9a762541b24a2c0d6f5a998a49d58ea997c84764cd787fcc28673515193d",
+      "size": 27098
+    },
+    "tests/core/test_progress_tracker.py": {
+      "hash": "6e8ee7243541a6e86423b53bf623da95a253f1b139c795ff5161d441871a2b00bfe9e12d777b0f6c3c7dc48df7517659e6283c26c486f735db646317cf694a02",
+      "size": 4699
+    },
+    "tests/core/test_rollback.py": {
+      "hash": "b730bbd6bd51fd3fc37d21f2a774783aacca7996eb70407ba8d54746040aa5275cd5b7ca32c41ce109ecf2ee2775d1faa3c0dda6be668f700370cdfc8795049b",
+      "size": 4259
+    },
+    "tests/core/test_rollback_idempotent.py": {
+      "hash": "3a10a4c7cfebd7853293b9083dada16e1dfb4b777a759d75c87a7ad4a8856cab1870f54aa514ce62baad309daf3adb54ca2dcd2ab7b05b7d5b371b005b5c5000",
+      "size": 2541
+    },
+    "tests/core/test_security.py": {
+      "hash": "4a3522ea8b69c2cdbd201a5e7af8bc7298a9c5c8e88dde0663c35bcbd74fde95b13cb348e85d1430a255e8206786206a062485c530f11a1786edeb0c7519afc1",
+      "size": 6200
+    },
+    "tests/core/test_time_sync_failure_rules.py": {
+      "hash": "331242ae5a22aca9ef854bd479c01a155000ad74e0456832d31f1d5513d29e925377e1a987250cf8dcc5392fd2586810d7b0478bcb6092de4d61377af37051e6",
+      "size": 19099
+    },
+    "tests/core/test_validators.py": {
+      "hash": "a2c32cda0028c50588f9b168a7766501edbd3d0559530970c461cfdf2416632c1c5cc6681cbce773896cb9441f9fac71272bd514d5d7ae0362c21f230914752d",
+      "size": 7306
+    },
+    "tests/core/test_version.py": {
+      "hash": "5f28438b3b2589b89472d0359faad48ebefc0c7053bd17e071ed29f72cd58d2cae1600231ca44c4dddeab73297fcc8611491dadb466db4e0ac64d69973dad7bb",
+      "size": 4145
+    },
+    "tests/integration/__init__.py": {
+      "hash": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "size": 0
+    },
+    "tests/integration/test_end_to_end_workflows.py": {
+      "hash": "02ad454f42dc4dfeb2503269d0180fed6e035bf51bbb816125ea2e8d12105d49e5e6e0318677e138eeef9818303a166c58b40f772bd9243d1596e4c04638e735",
+      "size": 20918
+    },
+    "tests/integration/test_system_error_recovery.py": {
+      "hash": "0f5e2ec78640ccea400cb44dabc2aeed730d1ae8680a0e8c366c8467439804bb0945133567b94568ebfb241735910be80c0d912ce064336732d8f595003595f6",
+      "size": 24688
+    },
+    "tests/integration/test_system_performance.py": {
+      "hash": "0e74b1afcf346ea7f9f0556de325d121d997dd58908609e641a27bcf4e8311ac0a773f127b304bfc30228693498c3627d0a04572c6430b41af924f79e6d4c7f9",
+      "size": 22690
+    },
+    "tests/integration/test_system_reliability.py": {
+      "hash": "e75f805317bcbe076a9b876ee48c1287e2d66c3c2f556bd344752cbee42f952d0d59ba1b4a52afe321259c1c2c9540b09b94258a801f7add58824d05f8d7f32c",
+      "size": 25516
+    },
+    "tests/integration/test_system_security.py": {
+      "hash": "b3500f7f75954008089e6a44858d18a3064035ef8e30a21b6a663245e1857cc9a65c2f44444697108fc4ac57743c9cd77b912ba60aa902abe1297b4947bf9662",
+      "size": 21877
+    },
+    "tests/performance/test_time_sync_performance.py": {
+      "hash": "3542ee5a4bdd8d9c5d130343d0b628b31d00474ac996b25b4fdc567929572c26f9ae4107f1d425d3837d2f24779e832f3fbdd2793fc5dc561bc9e578ce0fd999",
+      "size": 20565
+    },
+    "tests/plugins/__init__.py": {
+      "hash": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
+      "size": 0
+    },
+    "tests/plugins/test_database_features.py": {
+      "hash": "7991899e021276d0e282fe808d6464782a75fca0f449038847790324c15b16ebcd008fbb45e8168130c6a2a4d2e261883739286228c150b1b783dfc87e6f9c5c",
+      "size": 7924
+    },
+    "tests/plugins/test_leap_year.py": {
+      "hash": "13103a878f380c444128bbe3b625cd354ec0d20f0556267a920685a5fe652bd9c11ff75198b91027ceba2892c574a4ddfdcfc094c8b2a6c97a159e8bd43e8ee0",
+      "size": 16823
+    },
+    "tests/plugins/test_plugin_compatibility.py": {
+      "hash": "661955509a39c2ae89ecb0a17c9cc0a11fe6d863e955ac8252e15d98701ad354996f28af8a29e106aa07d3e47934c416d08f1835b99df3c13a68d3ca50256129",
+      "size": 24236
+    },
+    "tests/plugins/test_plugin_discovery.py": {
+      "hash": "0e9232e6a3d4794232ca2273d12f67b08cf5f47c15b52c2204803126f63ab4094d3ae69a4c2573bff6614af6c232b88f6bb7e2ba871b056fa86c7aa6b6087611",
+      "size": 24936
+    },
+    "tests/plugins/test_plugin_hot_reload.py": {
+      "hash": "0602debb888b4f84b914095fa3f096c93b32754825ee2ad300ded7c26be30a6421376da0f47f740e1b1f1cb857fe3bc3fa80a60a0e790a43f485e80725835cbf",
+      "size": 12021
+    },
+    "tests/plugins/test_plugin_lifecycle.py": {
+      "hash": "b5a68482c63948885a8c1ea285c4998e9dbf3a7ba04b745bc810be9bc3a49d1d0bf91f1dea0b0f5cc569123cfdda3497870a1b6889e84739d4fa9a87f50473d1",
+      "size": 33880
+    },
+    "tests/plugins/test_plugin_loader.py": {
+      "hash": "9441d0bfebc4c366ba7261c5d9c57c06e8c608de9aa94cb7686e1729f6f4b9590c94f3dc5e59d1a07df837b55475bb89c907d8c503328e24d0b3641b5daa4bf5",
+      "size": 18084
+    },
+    "tests/plugins/test_plugin_registry.py": {
+      "hash": "6f6363d28beaacfaa6291c6418ff1b63d94eb7462d10adac2c664a86d74896930f147ab1f3e65e0a22c178c00d537380624b4a7bb975254c9a61782962020435",
+      "size": 10649
+    },
+    "tests/plugins/test_time_sync.py": {
+      "hash": "4955054be85c84c4aa3698401ff0250a854e73b8d274f29ec6a757db9d78f15a6c38b74306a9c8588fa7d3d66a4a50c94526caef460fde064f0992a4f826d7df",
+      "size": 27602
+    },
+    "tests/run_tests.py": {
+      "hash": "0e9488e649f79dd462b7c7f6ddbfb455fa9318e16559ee4bf0749ca233a984e8bb640a740f21548c1cf85a1ef1c916b3aecfece66607a1f4b89ca24b9b26d81b",
+      "size": 2559
+    },
+    "tests/test_basic.py": {
+      "hash": "a61b0a1ab6cf2da0a5246bf8922cc47904cf7d3c2e39c65767313217df1813764ed5498e0111f479258b2a7e43aca4dffd43b7762675b57bc487de163228bb97",
+      "size": 2364
+    },
+    "tests/test_hash_autotune.py": {
+      "hash": "4c4c8a1fd23f2b55f1665e5c09f9fd01b575509c62edb7b2985e602ecf3f61e4ffc6e5e5c10dd18ae66a8389e1ccd0fcbb307bed4edbeb2c1a6928d382cbdd4d",
+      "size": 8439
+    },
+    "tests/test_import.py": {
+      "hash": "2455b7291589891472ef01a8b76f007c8d9db3980f71fc3adba61d8919559869aad13e4a589a7a8d3064233367e89508f79a8f88dcea8bee4e99302a3dc4d0ff",
+      "size": 946
+    },
+    "tests/test_simple_compatibility.py": {
+      "hash": "e5af632362ec4c96f7ec7424d380e2eb41cd4f2c8ce447524355dd2f8bf4f007b8565a8b98351fcec0704ed692b76950628061f9c6f1b4af3a54724d4a90e842",
+      "size": 808
+    },
+    "tests/test_utils.py": {
+      "hash": "4c47f2c7e494bddac2ae5b14f76acc488c2ce059f8fab812c6e781676b82f372bcae408bf500015e19a436e6f4599adc3d75c8b46f9dc1dc9562745c40fa5e74",
+      "size": 14349
+    },
+    "tests/test_verify_plugin.py": {
+      "hash": "04dd2b0f0e51d9c6bbf8138c7f99a4108cf3c5c03035f1c5768fe6afb55eb7dc9cee8d981f9dbb67e6bf1f0680eedc5dc7e0facbcb5df64c058c39574bf286c7",
+      "size": 2130
+    },
+    "tests/utils/README.md": {
+      "hash": "462de52fb2e58a5872fa968c37b0f3e266b35e356b06c8dca75d7e260cc86141eb47123a73c782b2d815f4733e9abe5701f067d3c62d5ec37886c9e5ccd59d0a",
+      "size": 10569
+    },
+    "tests/utils/__init__.py": {
+      "hash": "7a27e8dba44d49f4a24ad3c1dabd3de0587c0a18ac83805ed5ac5ab20d58b9323e123d4918ad98418b102a2a7dd194984e6f1892b7ae08ea55b6529068a5a747",
+      "size": 222
+    },
+    "tests/utils/database.py": {
+      "hash": "d9fa701ffff203234367c719cff303470d1a714683830b5bd5c22f466fdcd7fda5bdc327bb5fe603f018463d0cf8822baa0568a7fc9ea5049abe3a5a415c274c",
+      "size": 10965
+    },
+    "tests/utils/errors.py": {
+      "hash": "93e5f98ae62bf75db0a1ba4f496f4191a4d499d5e35a73da086b4b267ee8adae06e333b7bc83263908b90e6a7b68fdc0cd22f91e42c5c506daeb051ba6da5295",
+      "size": 20868
+    },
+    "tests/utils/filesystem.py": {
+      "hash": "f7d28b349c6ac258fc40d3e8b4798cd2c8e022e6b23822ea1dd746fdda5eee05dc18cfda252de2a92e174711ee7955763d9d8d7843b827077aa67e3a3d9ada76",
+      "size": 11117
+    },
+    "tests/utils/performance.py": {
+      "hash": "3f4f4694dcc3f7a567fc894e9979a11712f60f59ffb77e14db4da174828779f0a0a4580d806ad7ab9c9b5980af8912400a4a47ad5a2e3d7e06959c1856c4e825",
+      "size": 17365
+    },
+    "tests/utils/plugins.py": {
+      "hash": "125af64b6d759e299466ffe26bdc58d1e7463c4b50e46459d33cb2baf33b595cd11812a500f7d6857ffdc2593b161dd82bb6b07661ee5977bcee883618e5dd50",
+      "size": 13084
+    },
+    "tests/utils/validation.py": {
+      "hash": "c153fafaf82d27915abb9a530673bb954a6b3704c13eb4fa58edf2ff370d336dd9b46053bf4a65b648d204f17ef042d4fef6efb8f1b17e249f00cdbf8297676c",
+      "size": 31076
+    },
+    "tests/verify_plugin_compatibility.py": {
+      "hash": "da107dca9525f41dd5b345aa6bf904621aeacfd6b81bef6ee07d42d0795c67b3721d651578bdd9457382633c4fc91a1c59a3d54679b0f9cc3b36cd54602da5a0",
+      "size": 4087
+    },
+    "tools/README.md": {
+      "hash": "9635a1f0a18e92e5acff7325d0538791505c26c0e01dabc16e170913b4276c1e98386d9911ac42414ece39cdbe0ecb918776fe721fca8c231a772000960b5a17",
+      "size": 1902
+    },
+    "tools/analysis/collision_check.py": {
+      "hash": "c76ac1f6002742c575672ddfafaa5a41acdcfb41fca7b880c986fb80588ed459ac74af931048f80bdda2722676274cada9b81b56a6788efa4b8e98182982d64e",
+      "size": 3723
+    },
+    "tools/analysis/deep_idempotence.py": {
+      "hash": "dc3eecde86207644042708e0df191a608bbe10aad23354f9aa3bde375df510ccb9b447f18479c95761095ed7131fa6805ad04b1ba7d5888c5e7175fd45862af6",
+      "size": 3776
+    },
+    "tools/analysis/security_scan.py": {
+      "hash": "07bbca1b5f247d0a7ad92a6e83c78b42b6582da8e66d777daf09c41c7730839041426c36ffa66cf51ccd7ce3dc02dc4ce20c861a68971b9210fdc21617626f36",
+      "size": 4724
+    },
+    "tools/core/api_check.py": {
+      "hash": "5a4c32c1995aebadf9b9e3a1513756aa2201578f3f16445cb2ee9f892101031a7b2d5b4a3cd592b5c0c168b0aa29bf788cd52230423af6a0973c954fc6e81e5d",
+      "size": 2693
+    },
+    "tools/core/check_toml.py": {
+      "hash": "c38ba839b787b39d54d11ac0e66aa6419cf0764f834cc7c5d3a0e4174fa9dc8c1f7789348bc1256e50ccf8ba3e8e3de876a586d9f89ad68ca4c224ac44e306cc",
+      "size": 1137
+    },
+    "tools/core/compliance_scan.py": {
+      "hash": "49701608cf36bce6857cc40261b25404a127b5a8efdaec1d128bad6fa6dacb4e9c57fa4dff548ee0dbb4c127f1d85361931964eea0a625d9b052f7fa2566e3b8",
+      "size": 1917
+    },
+    "tools/core/detect_deprecated.py": {
+      "hash": "ff36d5faa9ce219f20b89f459bbf542304d11f40299e82faa0d963d4b11f65403e527681c1b7282c2e92eb237cf5a69dc879aac4e909c1408b59bd58c9da61c1",
+      "size": 7522
+    },
+    "tools/core/enforce_json_spec.py": {
+      "hash": "c87894d0da0d589254dcc9dc5ddd8cf41637626f1504de5e1e570e8798df9f919056ec4c3028b7c6d6129fb25427ec2a40760384720889d12cb353de123274a9",
+      "size": 4384
+    },
+    "tools/core/enforce_license.py": {
+      "hash": "71cf11258991d9fa6309c5d0c900294a35d3dc25d769f88821013bea80180e5ba4451ef67d4ba383b86808320855e79dc7fa0594ec4af8ecf0ee5cc87b0d0a4b",
+      "size": 4773
+    },
+    "tools/core/enforce_markdown_spec.py": {
+      "hash": "c509aa8ca5adcc01fd753af342471b5c154b9d866e677a038c31fcaa444e628827012eb0b73994d1238aaaddd82945def5c859e2351f9659df585949e8cf260a",
+      "size": 8599
+    },
+    "tools/core/enforce_python_truth.py": {
+      "hash": "b86e32550fcaf1a4581e8433f2b1874e480f4daf1d1bf2e33edc9aee8541403872db76c66dd32dfec0be72caad4c86ac8696d46512587e7a5b1f1417460f1f97",
+      "size": 5766
+    },
+    "tools/core/enforce_text_spec.py": {
+      "hash": "f663bcc1e27cc04ae22995079c02e061feacc1b84b816bd74febe4337282ce9f20cb9e117dc22cb356f9838f74f9ee2d13af323c2595db948c67d8cea15ef866",
+      "size": 6365
+    },
+    "tools/core/enforce_toml_spec.py": {
+      "hash": "0fe04a2088a816640554a0cebb9215813615511ecc84300f5193cd51dcfea7e5b7c167d48cc14ec7a71fe61ff599507208e12255215b9167c29ffe5559afd02e",
+      "size": 4246
+    },
+    "tools/core/enforce_yaml_spec.py": {
+      "hash": "f451ae40eca68022f7470faecc0bf1fe0f963e7452422e35ec5819f8166a4a8a160f634117c3b558a2a92eaa553497edbb9a848543958dd5effde46a0686bd33",
+      "size": 5444
+    },
+    "tools/core/fix_docstrings.py": {
+      "hash": "d5fcd1588275887e30c0173ef24ba14332069bcaefd8d1a34a4a422a2b392a194bd8be95eb3da57a40dfe5711ecf18fcefd7ac9d3040abd82ec9e2dabb8d8613",
+      "size": 2723
+    },
+    "tools/core/generate_integrity.py": {
+      "hash": "70eb1d3b3ca9bf8364e20e2690b74c6c02efc9f31453593a0f5a83356ed8d9260d2edabc05fa2acfe1ed558def0851e4d8638e2bfd89754d2a7ac4955af8c9b0",
+      "size": 4863
+    },
+    "tools/core/strictness_check.py": {
+      "hash": "2b0fdfdc9b26ac9f75b8ef7e6efab109551254c6ba727ec10718a6a2ed88955d575ba719db17ece103bdd45199cba9e988d781cf1b374b3befa06a94d4fa1f96",
+      "size": 1697
+    },
+    "tools/core/verify_idempotence.py": {
+      "hash": "07693fb80e205ea21e2594650f9a44cb3e05bf61f6329306e7e78909b375c52b83c84fd6b919123767342afe58dd5350a02a862b90aa28d19302d11f4d55c4ad",
+      "size": 2727
+    },
+    "tools/plugins/plugin_scaffold.py": {
+      "hash": "22a824187d816ee501d36c1603a0cd37fab385f9dedeefa93284191e8169868584138e45aaf92db6933f43b74920d13b2c50303b15b0c4cb213286fdf8a59adb",
+      "size": 2856
+    },
+    "tools/security/red_team.py": {
+      "hash": "f76c9cafb3ca40475271f4035d06d6bd101f445ad34e0fa3317a69f50bf92aca8fe18e7a3129e3e808cdb63b9c0d87695dbbe1d18d190c2fba5f25e10b40e8b2",
+      "size": 9829
+    },
+    "tools/wiki/.wikiignore": {
+      "hash": "d485ee25d80ba11c9a20fe1329eb0c77df1472777d85a893c3de3202ebb209fcf1417890d7adfa5976450448dfddbb9fc5d206611b9352226019571a89a27c8a",
+      "size": 132
+    },
+    "tools/wiki/enforce_wiki_style.sh": {
+      "hash": "f88e0f19b4f24bbe54e796dc4510d82531f03a84d5ea860794bb9f661a4019d48ae5a728fa1ac085f020681fe4b30ab7ec924cf347bc2b2092ebc0524170ab71",
+      "size": 5385
+    },
+    "wiki/API/CLI.md": {
+      "hash": "e47bea4e79d05b5ad45fa0992e2bc67811b715043101f2061dda79a86f0fd424da125ccd3e9c2b9ddc240831c4898ccf4ffcb357ee429741781522fd1991abd4",
+      "size": 1265
+    },
+    "wiki/API/Configuration.md": {
+      "hash": "42bb8baf4f0f2ca7bbd2afd9ea8c09380115673e6a996ee148658ad30e8ffe68cdf1619a6cb0b69aab6970ba012b17a5ee94aebb9bd58e3f51757b256b09a9f7",
+      "size": 1138
+    },
+    "wiki/API/Snapshot.md": {
+      "hash": "3962e92b7e70e1e2a11382d4e561057094126593874d83ab87dfeb2855216be3d945e2eeacd74e464dd31a0d125cff6e50885c38c0a6cb3564342058e8d21259",
+      "size": 1202
+    },
+    "wiki/API/Transaction.md": {
+      "hash": "de9b4a8481523f058d621dd92e29c029bd94101e5df4d7d63b6a62b2b7de4965629292d130fd6f0968980191f6e29e90bd1534632de9e0a20b8340279b42f0fb",
+      "size": 1503
+    },
+    "wiki/Architecture/Overview.md": {
+      "hash": "e31321c0dc4daedc046c1fbd635266ec824a3e442b48b03026760bce01a11be5280647e1765f6b57146edb2fb4992d83ad6268a073f145b354e0d81036651f4e",
+      "size": 1320
+    },
+    "wiki/Changelog.md": {
+      "hash": "3f90703126ac3793249f48d95674a5ddacfcd2b54c858ae99dae56669c3e9ff5284dc4b970c4a6dc2ba34d1c2ca8941a1c499fcf4a93c13239afdcad438e96ec",
+      "size": 681
+    },
+    "wiki/Development/Contributing.md": {
+      "hash": "e1871b144c5f5d40a2f8d06f882610a4a348b531926699ec8762cf6f98b7a1fa534df74f58916377d6ffa63f5a07741824c28079762d29a3b99b16f288e838af",
+      "size": 1006
+    },
+    "wiki/Development/Plugins.md": {
+      "hash": "6f5749c88221eb28359836af782e9cd4ff3ed997185e9dfb41b209896724a5c9004f0824c845dc663046515fd900f8fc2e4faa39a865d49f0646a8d7b4d128f3",
+      "size": 1424
+    },
+    "wiki/Development/Setup.md": {
+      "hash": "349aa8f2cc8a4ee4ce58f902d27a26364e32e4b6161476a253a3b9929258115378de0ff24dd02716d8989bb202838686c0b5a2112fe6d6edee780c2e6bcf88c5",
+      "size": 1136
+    },
+    "wiki/Getting-Started.md": {
+      "hash": "ff6b0625498b9391bb8d1e40931e2886e72a0d4d5fbf2ca4122294b00c95e194df2dc832b8a41001f45aa87375a178a4c8e8100de1e4fdb4ff5c06125033a496",
+      "size": 1063
+    },
+    "wiki/Home.md": {
+      "hash": "cb2db9aad6ba8f618408e4db68cc1543642ac3caa1626e60123bf472f60a318ac6ae4fbafe67c2ea85e91107299515e11d823e1dbcbb1e8801dddbb7baebf45e",
+      "size": 1032
+    },
+    "wiki/Operations/Configuration.md": {
+      "hash": "17d97072f9a98111366571e28c80ce9c77d9611a459831d535b68543161309906497dcf4121306d69eb7aa280d873b6e3c20bc1e181aeb11d9724f23915d9a19",
+      "size": 744
+    },
+    "wiki/Operations/Rollback-System.md": {
+      "hash": "6dadd788ba2672169cd2645a0711fea591929321b8e6e558fd57e61d8c8b1d80dacb7d8acfac73328eb472c5b73a0a3649315b768f1162ac9f7cee9a2989473d",
+      "size": 6048
+    },
+    "wiki/Operations/Security.md": {
+      "hash": "b2f6d2c1d371cae1d0f5ffe8fd400bdde78b923c524da3aa938687d1b0acefe614d91277acdd2b6b2e27d0af3a52d0832d586efa98ec2efe6e93de6ef52ccca2",
+      "size": 799
+    },
+    "wiki/Testing/Guide.md": {
+      "hash": "00c18da3ebce48fe5c346ee01bc1b7765cf347557a6f2853973eca23500425ff6cc930657c370ab9cbb6b62cf313d006faa30289f42fdb3303a56c484b0793fb",
+      "size": 1084
+    }
+  }
+}

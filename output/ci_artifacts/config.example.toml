@@ -1,0 +1,40 @@
+[core]
+database_path = "~/.nodupe/database.db"
+log_level = "INFO"
+log_file = "~/.nodupe/nodupe.log"
+
+[core.scan]
+follow_symlinks = false
+ignore_hidden = true
+max_file_size_mb = 10000
+
+[core.cache]
+enable_hash_cache = true
+enable_query_cache = true
+max_cache_size_mb = 1024
+
+[plugins]
+scan_dirs = ["nodupe/plugins"]
+auto_load = true
+
+[plugins.commands]
+default_action = "hardlink"
+
+[plugins.ml]
+backend = "auto"
+backend_priority = ["onnx", "cpu"]
+
+[plugins.gpu]
+enabled = true
+backend = "auto"
+
+[plugins.video]
+enabled = true
+backend = "auto"
+backend_priority = ["vidgear", "pyav", "opencv", "ffmpeg"]
+
+[plugins.network]
+enabled = false
+
+[plugins.similarity]
+backend = "faiss"

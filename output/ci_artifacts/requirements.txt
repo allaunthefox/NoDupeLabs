@@ -1,0 +1,28 @@
+# Core requirements for NoDupeLabs
+# Generated for CI/CD pipeline compatibility
+
+# Core Python dependencies
+toml>=0.10.0
+typing-extensions>=4.0.0
+# File handling and hashing
+xxhash>=3.0.0
+# Performance monitoring
+psutil>=5.0.0
+# CLI tools
+click>=8.0.0
+rich>=12.0.0
+# Data processing
+pandas>=1.0.0
+numpy>=1.0.0
+# Similarity and ML
+scikit-learn>=1.0.0
+# Network
+requests>=2.0.0
+# Plugin system
+importlib-metadata>=4.0.0
+pluggy>=1.0.0
+# Security
+cryptography>=3.0.0
+# Compression
+zstandard>=0.15.0
+brotli>=1.0.0

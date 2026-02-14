@@ -1,0 +1,14 @@
+[MASTER]
+load-plugins=pylint.extensions.docparams,pylint.extensions.docstyle
+
+[MESSAGES CONTROL]
+disable=all
+enable=missing-docstring,invalid-name,line-too-long,missing-module-docstring,missing-class-docstring,missing-function-docstring
+
+[FORMAT]
+max-line-length=120
+
+[TYPECHECK]
+ignored-modules=typing_extensions
+
+[BASIC]

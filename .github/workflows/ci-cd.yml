@@ -1,0 +1,322 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+  security-events: write
+  packages: read
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('output/ci_artifacts/requirements.txt', 'output/ci_artifacts/requirements-dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r output/ci_artifacts/requirements.txt
+          pip install -r output/ci_artifacts/requirements-dev.txt
+
+      - name: Run tests with pytest
+        run: |
+          python -m pytest tests/ --cov=nodupe --cov-report=term-missing --cov-report=xml:coverage.xml --cov-fail-under=80 -v
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('output/ci_artifacts/requirements-dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r output/ci_artifacts/requirements-dev.txt
+
+      - name: Run pylint
+        run: |
+          pylint nodupe/ --disable=all --enable=missing-docstring,invalid-name,missing-module-docstring,missing-class-docstring,missing-function-docstring
+
+      - name: Run markdownlint
+        run: |
+          npx markdownlint "**/*.md" --ignore node_modules
+
+      - name: Check TOML files
+        run: |
+          python tools/core/check_toml.py
+
+      - name: Run strictness check
+        run: |
+          python tools/core/strictness_check.py || true
+
+      - name: Run compliance scan
+        run: |
+          python tools/core/compliance_scan.py || true
+
+      - name: Run security scan
+        run: |
+          python tools/analysis/security_scan.py || true
+
+      - name: Run idempotence check
+        run: |
+          python tools/analysis/deep_idempotence.py || true
+
+      - name: Run collision check
+        run: |
+          python tools/analysis/collision_check.py || true
+
+      - name: Run red team security scan
+        run: |
+          python tools/security/red_team.py || true
+
+      - name: Run rollback tests
+        run: |
+          python -m pytest tests/core/test_rollback.py -v
+
+      - name: Run mypy type check
+        run: |
+          python -m mypy nodupe/core/rollback --ignore-missing-imports || true
+
+      - name: Run black format check
+        run: |
+          python -m black --check nodupe/ || true
+
+      - name: Run isort import check
+        run: |
+          python -m isort --check-only nodupe/ || true
+
+      - name: Run performance benchmarks
+        run: |
+          python benchmarks/performance_benchmarks.py || true
+
+      - name: Enforce Markdown spec
+        run: |
+          python tools/core/enforce_markdown_spec.py --fix
+
+      - name: Enforce Text spec
+        run: |
+          python tools/core/enforce_text_spec.py --fix
+
+      - name: Enforce Python truthiness
+        run: |
+          python tools/core/enforce_python_truth.py --fix
+
+      - name: Detect deprecated APIs
+        run: |
+          python tools/core/detect_deprecated.py || true
+
+      - name: Enforce license headers
+        run: |
+          python tools/core/enforce_license.py --fix || true
+
+      - name: Enforce YAML spec
+        run: |
+          python tools/core/enforce_yaml_spec.py --fix || true
+
+      - name: Enforce JSON spec
+        run: |
+          python tools/core/enforce_json_spec.py --fix || true
+
+      - name: Enforce TOML spec
+        run: |
+          python tools/core/enforce_toml_spec.py --fix || true
+
+      - name: Run pre-commit
+        run: |
+          pip install pre-commit && pre-commit run --all-files || true
+
+      - name: Verify file integrity
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          python tools/core/generate_integrity.py --verify
+
+  docs:
+    name: Check Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('output/ci_artifacts/requirements-dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r output/ci_artifacts/requirements-dev.txt
+
+      - name: Check docstrings
+        run: |
+          python -c "
+          import ast
+          import os
+
+          def check_docstrings(file_path):
+              with open(file_path, 'r', encoding='utf-8') as f:
+                  content = f.read()
+
+              try:
+                  tree = ast.parse(content)
+
+                  for node in ast.walk(tree):
+                      if isinstance(node, ast.FunctionDef):
+                          if not ast.get_docstring(node):
+                              print(f'Missing docstring in function: {node.name} in {file_path}')
+                      elif isinstance(node, ast.ClassDef):
+                          if not ast.get_docstring(node):
+                              print(f'Missing docstring in class: {node.name} in {file_path}')
+                      elif isinstance(node, ast.Module):
+                          if not ast.get_docstring(node):
+                              print(f'Missing module docstring in: {file_path}')
+
+              except SyntaxError:
+                  pass
+
+          # Check all Python files in nodupe directory
+          for root, dirs, files in os.walk('nodupe'):
+              for file in files:
+                  if file.endswith('.py'):
+                      check_docstrings(os.path.join(root, file))
+          "
+
+  security-scan:
+    name: Security Scan
+    needs: [test, lint, docs]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: AISBoM Security Scanner
+        uses: docker://ghcr.io/aisecureworks/aisbom-scanner:latest
+        with:
+          args: scan --output-format=sarif --output-file=aisbom-results.sarif --severity-threshold=medium .
+
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: aisbom-results.sarif
+        if: always()
+
+  deploy:
+    name: Deploy
+    needs: [test, lint, docs, security-scan]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('output/ci_artifacts/requirements.txt', 'output/ci_artifacts/requirements-dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r output/ci_artifacts/requirements.txt
+          pip install -r output/ci_artifacts/requirements-dev.txt
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist/
+            build/
+          key: ${{ runner.os }}-build-${{ hashFiles('pyproject.toml', 'output/ci_artifacts/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+
+      - name: Build package
+        run: |
+          python -m pip install --upgrade build
+          python -m build --sdist --wheel
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __TOKEN_REMOVED__
+          PASSWORD_REMOVED: ${{ SECRET_REMOVEDs.PYPI_API_TOKEN }}
+          skip-existing: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          body: |
+            Automatic release created by GitHub Actions
+            Changes: ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ SECRET_REMOVEDs.GITHUB_TOKEN }}

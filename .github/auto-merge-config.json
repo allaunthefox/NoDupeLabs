@@ -1,0 +1,66 @@
+{
+  "auto_merge_config": {
+    "enabled": true,
+    "requirements": {
+      "min_approvals": 1,
+      "ci_success": true,
+      "required_checks": ["CI", "Tests", "Coverage", "Linting"],
+      "no_conflicts": true,
+      "conversation_resolved": true,
+      "semantic_title": true,
+      "linear_history": false
+    },
+    "strategies": {
+      "dependency_updates": {
+        "auto_merge": true,
+        "require_approvals": 0,
+        "max_size": "small"
+      },
+      "documentation": {
+        "auto_merge": true,
+        "require_approvals": 1,
+        "max_size": "medium"
+      },
+      "bug_fixes": {
+        "auto_merge": true,
+        "require_approvals": 1,
+        "max_size": "medium",
+        "require_tests": true
+      },
+      "features": {
+        "auto_merge": false,
+        "require_approvals": 2,
+        "require_tests": true,
+        "require_documentation": true
+      },
+      "breaking_changes": {
+        "auto_merge": false,
+        "require_approvals": 2,
+        "require_extensive_tests": true,
+        "require_changelog": true
+      }
+    },
+    "size_limits": {
+      "small": 100,
+      "medium": 500,
+      "large": 1000
+    },
+    "safety_checks": {
+      "prevent_force_pushes": true,
+      "require_status_success": true,
+      "block_deletions": true,
+      "enforce_linear_history": false,
+      "require_code_owner_approval": true
+    }
+  },
+  "notification_settings": {
+    "auto_merge_success": ["slack", "email"],
+    "auto_merge_failure": ["slack", "email", "github"],
+    "manual_review_required": ["slack", "github"]
+  },
+  "documentation": {
+    "auto_merge_guide": "AUTO_MERGE_GUIDE.md",
+    "pr_template": ".github/PULL_REQUEST_TEMPLATE.md",
+    "contributing_guide": "CONTRIBUTING.md"
+  }
+}
