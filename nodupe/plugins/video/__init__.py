@@ -44,6 +44,7 @@ class FFmpegSubprocessBackend(VideoBackend):
     """Tier 5: FFmpeg CLI backend (always available if ffmpeg binary exists)"""
 
     def __init__(self):
+        """TODO: Document __init__."""
         self.priority = 5
         self._available = self._check_ffmpeg_available()
 
@@ -190,6 +191,7 @@ class OpenCVBackend(VideoBackend):
     """Tier 4: OpenCV backend"""
 
     def __init__(self):
+        """TODO: Document __init__."""
         self.priority = 4
         self._available = self._check_opencv_available()
 
@@ -292,6 +294,7 @@ class VideoBackendManager:
     """Manage multiple video backends with automatic fallback"""
 
     def __init__(self):
+        """TODO: Document __init__."""
         self.backends = []
         self._initialize_backends()
 

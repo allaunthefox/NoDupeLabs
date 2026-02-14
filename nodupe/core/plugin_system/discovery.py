@@ -35,13 +35,15 @@ class PluginInfo:
         dependencies: Optional[List[str]] = None,
         capabilities: Optional[Dict[str, Any]] = None
     ):
+        """Initialize plugin metadata."""
         self.name = name
         self.file_path = file_path
         self.version = version
         self.dependencies = dependencies if dependencies is not None else []
         self.capabilities = capabilities if capabilities is not None else {}
-
+        """Return string representation."""
     def __repr__(self) -> str:
+        """Return string representation."""
         return f"PluginInfo(name='{self.name}', version='{self.version}', file_path='{self.file_path}')"
 
 

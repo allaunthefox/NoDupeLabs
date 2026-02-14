@@ -475,6 +475,7 @@ class PluginLoadingOrder:
         temp_mark = set()
         
         def visit(node: str) -> None:
+            """TODO: Document visit."""
             if node in temp_mark:
                 raise ValueError(f"Circular dependency detected involving {node}")
             
@@ -542,6 +543,7 @@ class PluginLoadingOrder:
         visited = set()
         
         def add_deps(name: str) -> None:
+            """TODO: Document add_deps."""
             if name in visited:
                 return
             visited.add(name)

@@ -499,7 +499,9 @@ def with_timeout(seconds: float):
             time.sleep(10)
     """
     def decorator(func: Callable) -> Callable:
+        """TODO: Document decorator."""
         def wrapper(*args, **kwargs) -> Any:
+            """TODO: Document wrapper."""
             with Limits.time_limit(seconds):
                 return func(*args, **kwargs)
         return wrapper

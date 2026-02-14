@@ -54,9 +54,11 @@ class ScanCommand(Command):
     """Scan directories for duplicates"""
 
     def get_name(self) -> str:
+        """TODO: Document get_name."""
         return "scan"
 
     def get_description(self) -> str:
+        """TODO: Document get_description."""
         return "Scan directories for duplicate files"
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
@@ -198,9 +200,11 @@ class ApplyCommand(Command):
     """Apply actions to duplicates"""
 
     def get_name(self) -> str:
+        """TODO: Document get_name."""
         return "apply"
 
     def get_description(self) -> str:
+        """TODO: Document get_description."""
         return "Apply actions to duplicate files"
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
@@ -385,9 +389,11 @@ class SimilarityCommand(Command):
     """Find similar files using similarity search"""
 
     def get_name(self) -> str:
+        """TODO: Document get_name."""
         return "similarity"
 
     def get_description(self) -> str:
+        """TODO: Document get_description."""
         return "Find similar files using vector similarity search"
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
@@ -557,6 +563,7 @@ class CommandManager:
     """Manage available commands"""
 
     def __init__(self):
+        """TODO: Document __init__."""
         self.commands = {}
         self._register_commands()
 

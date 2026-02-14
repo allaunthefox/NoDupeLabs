@@ -56,6 +56,7 @@ class LeapYearCalculator:
     """
     
     def __init__(self):
+        """TODO: Document __init__."""
         self._leap_year_plugin = None
         self._use_plugin = False
         self._initialize_leap_year_plugin()
@@ -930,6 +931,7 @@ class TimeSyncPlugin(Plugin):
         self._bg_stop.clear()
 
         def _loop():
+            """TODO: Document _loop."""
             if initial_sync:
                 try:
                     self.force_sync()

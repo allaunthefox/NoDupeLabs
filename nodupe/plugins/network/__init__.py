@@ -41,6 +41,7 @@ class LocalStorageBackend(RemoteStorageBackend):
     """Local filesystem backend (always available)"""
 
     def __init__(self, base_dir: str = "remote_storage"):
+        """TODO: Document __init__."""
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(exist_ok=True)
 
@@ -127,6 +128,7 @@ class S3StorageBackend(RemoteStorageBackend):
     """AWS S3 storage backend"""
 
     def __init__(self, bucket_name: str = "nodupe-storage", **kwargs):
+        """TODO: Document __init__."""
         self.bucket_name = bucket_name
         self._available = self._check_s3_available()
         self._client = None
@@ -224,6 +226,7 @@ class NetworkManager:
     """Manage network operations with automatic fallback"""
 
     def __init__(self):
+        """TODO: Document __init__."""
         self.storage_backend = self._initialize_storage_backend()
 
     def _initialize_storage_backend(self) -> RemoteStorageBackend:

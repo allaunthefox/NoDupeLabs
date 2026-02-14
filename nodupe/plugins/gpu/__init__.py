@@ -37,6 +37,7 @@ class CPUFallbackBackend(GPUBackend):
     """CPU fallback backend (always available)"""
 
     def __init__(self):
+        """TODO: Document __init__."""
         self.device_info = {
             'type': 'cpu',
             'name': 'CPU Fallback',
@@ -87,6 +88,7 @@ class CUDABackend(GPUBackend):
     """NVIDIA CUDA backend using PyTorch"""
 
     def __init__(self, device_id: int = 0):
+        """TODO: Document __init__."""
         self.device_id = device_id
         self._available = False
         self.device_info = {}
@@ -173,6 +175,7 @@ class MetalBackend(GPUBackend):
     """Apple Metal backend for M1/M2/M3 GPUs"""
 
     def __init__(self):
+        """TODO: Document __init__."""
         self._available = False
         self.device_info = {}
 

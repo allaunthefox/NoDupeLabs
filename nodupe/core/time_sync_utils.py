@@ -169,6 +169,7 @@ class MonotonicTimeCalculator:
     """
     
     def __init__(self):
+        """TODO: Document __init__."""
         self._wall_start: Optional[float] = None
         self._mono_start: Optional[float] = None
     
@@ -641,6 +642,7 @@ class PerformanceMetrics:
     """
     
     def __init__(self):
+        """TODO: Document __init__."""
         self._metrics = {
             'ntp_queries': [],
             'dns_cache_hits': 0,

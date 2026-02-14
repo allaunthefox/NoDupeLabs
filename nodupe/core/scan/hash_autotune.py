@@ -11,6 +11,7 @@ from typing import Dict, Tuple, Callable, Any
 
 
 def _check_blake3():
+    """TODO: Document _check_blake3."""
     try:
         import importlib.util
         spec = importlib.util.find_spec("blake3")
@@ -24,6 +25,7 @@ def _check_blake3():
 
 
 def _check_xxhash():
+    """TODO: Document _check_xxhash."""
     try:
         import importlib.util
         spec = importlib.util.find_spec("xxhash")
@@ -65,7 +67,9 @@ class HashAutotuner:
                 hashlib.new(algo)
 
                 def create_hashlib_func(algorithm_name: str) -> HashFunction:
+                    """TODO: Document create_hashlib_func."""
                     def hash_func(data: bytes) -> str:
+                        """TODO: Document hash_func."""
                         hasher = hashlib.new(algorithm_name)
                         hasher.update(data)
                         # Handle SHAKE algorithms that require length parameter
@@ -84,6 +88,7 @@ class HashAutotuner:
         # Add BLAKE3 if available
         if HAS_BLAKE3 and BLAKE3_MODULE is not None:
             def blake3_func(data: bytes) -> str:
+                """TODO: Document blake3_func."""
                 if BLAKE3_MODULE:
                     return BLAKE3_MODULE.blake3(data).hexdigest()
                 return hashlib.sha256(data).hexdigest()  # fallback
@@ -92,16 +97,19 @@ class HashAutotuner:
         # Add xxHash if available
         if HAS_XXHASH and XXHASH_MODULE is not None:
             def xxh3_func(data: bytes) -> str:
+                """TODO: Document xxh3_func."""
                 if XXHASH_MODULE:
                     return XXHASH_MODULE.xxh3_64(data).hexdigest()
                 return hashlib.sha256(data).hexdigest()  # fallback
 
             def xxh64_func(data: bytes) -> str:
+                """TODO: Document xxh64_func."""
                 if XXHASH_MODULE:
                     return XXHASH_MODULE.xxh64(data).hexdigest()
                 return hashlib.sha256(data).hexdigest()  # fallback
 
             def xxh128_func(data: bytes) -> str:
+                """TODO: Document xxh128_func."""
                 if XXHASH_MODULE:
                     return XXHASH_MODULE.xxh128(data).hexdigest()
                 return hashlib.sha256(data).hexdigest()  # fallback

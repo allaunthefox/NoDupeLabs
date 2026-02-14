@@ -309,6 +309,7 @@ class PluginLifecycleManager:
         temp_visited = set()
 
         def visit(node):
+            """TODO: Document visit."""
             if node in temp_visited:
                 raise PluginLifecycleError(f"Circular dependency detected: {node}")
             if node not in visited:

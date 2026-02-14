@@ -111,6 +111,7 @@ class ScanPlugin(Plugin):
 
             # Setup filter
             def file_filter(info: Dict[str, Any]) -> bool:
+                """TODO: Document file_filter."""
                 if args.min_size and info['size'] < args.min_size:
                     return False
                 if args.max_size and info['size'] > args.max_size:
@@ -124,6 +125,7 @@ class ScanPlugin(Plugin):
 
             # Setup progress callback
             def progress_callback(p: Dict[str, Any]) -> None:
+                """TODO: Document progress_callback."""
                 if args.verbose:
                     print(
                         f"\rScanning... {p['files_processed']} files ({p['files_per_second']:.1f} f/s)", end="", flush=True)

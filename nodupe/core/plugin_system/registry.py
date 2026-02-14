@@ -15,6 +15,7 @@ class PluginRegistry:
     _container: Any
 
     def __new__(cls) -> 'PluginRegistry':
+        """TODO: Document __new__."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)  # type: ignore
             cls._instance._plugins = {}

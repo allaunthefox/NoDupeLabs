@@ -11,6 +11,7 @@ class FileInfo:
     """Get file information"""
 
     def __init__(self, file_path: Path):
+        """TODO: Document __init__."""
         self.file_path = file_path
 
     def get_info(self) -> Dict[str, Any]:

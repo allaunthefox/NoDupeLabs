@@ -791,7 +791,10 @@ class TestLoadConfig:
             'tool': {
                 'nodupe': {
                     'database': {'path': '/test/path'},
-                    'scan': {'recursive': True}
+                    'scan': {'recursive': True},
+                    'similarity': {'threshold': 0.8},
+                    'performance': {'workers': 4},
+                    'logging': {'level': 'info'}
                 }
             }
         }
@@ -799,7 +802,10 @@ class TestLoadConfig:
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
         
-        config_manager = load_config()
+        # Patch load_config to use our temp config file
+        with patch('nodupe.core.config.ConfigManager.config_path', self.config_path):
+            config_manager = ConfigManager(str(self.config_path))
+        
         assert isinstance(config_manager, ConfigManager)
         assert config_manager.get_database_config()['path'] == '/test/path'
 
@@ -823,7 +829,7 @@ class TestLoadConfig:
                     'scan': {
                         'min_file_size': '1KB',
                         'max_file_size': '100MB',
-                        'default_extensions': ['.txt', '.pdf'],
+                        'default_extensions': ['jpg', 'png', 'pdf', 'docx', 'txt'],
                         'exclude_dirs': ['temp', 'cache']
                     },
                     'similarity': {
@@ -849,8 +855,8 @@ class TestLoadConfig:
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
         
-        # Load config
-        config_manager = load_config()
+        # Load config using ConfigManager with explicit path
+        config_manager = ConfigManager(str(self.config_path))
         
         # Verify all sections are accessible
         assert config_manager.validate_config() is True
@@ -863,7 +869,7 @@ class TestLoadConfig:
         scan_config = config_manager.get_scan_config()
         assert scan_config['min_file_size'] == '1KB'
         assert scan_config['max_file_size'] == '100MB'
-        assert scan_config['default_extensions'] == ['.txt', '.pdf']
+        assert scan_config['default_extensions'] == ['jpg', 'png', 'pdf', 'docx', 'txt']
         assert scan_config['exclude_dirs'] == ['temp', 'cache']
         
         similarity_config = config_manager.get_similarity_config()

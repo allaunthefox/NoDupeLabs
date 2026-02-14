@@ -173,6 +173,7 @@ class DependencyResolver:
         visited = set()
 
         def dfs(node: str) -> bool:
+            """TODO: Document dfs."""
             if node in visited:
                 return False
             if node in visiting:
@@ -218,6 +219,7 @@ class DependencyResolver:
         temp_visited = set()
 
         def visit(node: str) -> bool:
+            """TODO: Document visit."""
             if node in temp_visited:
                 return False  # Cycle detected (shouldn't happen if checked earlier)
             if node in visited:
@@ -294,6 +296,7 @@ class DependencyResolver:
             Dictionary representing dependency tree
         """
         def build_tree(name: str, visited: Set[str] = None) -> Dict[str, Any]:
+            """TODO: Document build_tree."""
             if visited is None:
                 visited = set()
 

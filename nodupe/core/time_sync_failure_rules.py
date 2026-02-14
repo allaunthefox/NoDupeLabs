@@ -51,6 +51,7 @@ class ServerStats:
     recent_delays: deque = None  # Rolling window of recent delays
     
     def __post_init__(self):
+        """TODO: Document __post_init__."""
         if self.failure_reasons is None:
             self.failure_reasons = defaultdict(int)
         if self.recent_delays is None:
@@ -218,6 +219,7 @@ class FailureRuleEngine:
         
         # Sort by: health status, priority, success rate, average delay
         def sort_key(item):
+            """TODO: Document sort_key."""
             host, stats = item
             health_score = 1 if stats.is_healthy else 0
             priority_score = -stats.priority.value  # Lower is better
@@ -484,6 +486,7 @@ class AdaptiveFailureHandler:
     """
     
     def __init__(self, rule_engine: FailureRuleEngine):
+        """TODO: Document __init__."""
         self.rule_engine = rule_engine
         self._network_patterns = defaultdict(list)
         self._last_pattern_update = time.time()

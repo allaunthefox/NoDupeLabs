@@ -34,6 +34,7 @@ class CPUBackend(MLBackend):
     """CPU-based ML backend using pure NumPy (always available)"""
 
     def __init__(self):
+        """TODO: Document __init__."""
         self.dimensions = 128  # Default embedding dimensions
 
     def is_available(self) -> bool:
@@ -75,6 +76,7 @@ class ONNXBackend(MLBackend):
     """ONNX Runtime backend for ML inference"""
 
     def __init__(self, model_path: Optional[str] = None):
+        """TODO: Document __init__."""
         self.dimensions = 128
         self.model_path = model_path
         self._available = False

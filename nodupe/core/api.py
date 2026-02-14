@@ -158,6 +158,7 @@ def api_endpoint(
         metadata: Additional metadata about the endpoint
     """
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        """TODO: Document decorator."""
         API.register_api(endpoint_name, func, metadata)
         return func
     return decorator
@@ -170,8 +171,10 @@ def validate_args(**validators: Callable[[Any], bool]) -> Callable[[Callable[...
         **validators: Dictionary of argument names to validator functions
     """
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        """TODO: Document decorator."""
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
+            """TODO: Document wrapper."""
             # Validate arguments
             sig = func.__code__.co_varnames[:func.__code__.co_argcount]
             bound_args = dict(zip(sig, args))
@@ -186,6 +189,7 @@ def validate_args(**validators: Callable[[Any], bool]) -> Callable[[Callable[...
 
         # Add validator as an attribute to the wrapper function
         def validator_func(*a: Any, **kw: Any) -> bool:
+            """TODO: Document validator_func."""
             sig = func.__code__.co_varnames[:func.__code__.co_argcount]
             bound_args = dict(zip(sig, a))
             bound_args.update(kw)

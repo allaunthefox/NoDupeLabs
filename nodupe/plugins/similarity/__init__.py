@@ -485,6 +485,7 @@ class SimilarityBackendPlugin(Plugin):
     dependencies = []
 
     def __init__(self):
+        """TODO: Document __init__."""
         self.description = "Similarity search backend services"
         self.manager = create_similarity_manager()
 

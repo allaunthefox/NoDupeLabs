@@ -28,6 +28,7 @@ class DatabaseSecurity:
     """Lightweight database security for local file management."""
 
     def __init__(self, db):
+        """TODO: Document __init__."""
         self.db = db
 
     def validate_input(self, data: Any, data_type: Optional[str] = None) -> bool:

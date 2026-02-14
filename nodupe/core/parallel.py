@@ -658,6 +658,7 @@ def parallel_filter(
     """
     # Create pairs of (item, keep_bool)
     def check_item(item):
+        """TODO: Document check_item."""
         return (item, predicate(item))
 
     results = Parallel.map_parallel(check_item, items, workers, use_processes, use_interpreters)
@@ -687,6 +688,7 @@ def parallel_partition(
     """
     # Create pairs of (item, predicate_result)
     def check_item(item):
+        """TODO: Document check_item."""
         return (item, predicate(item))
 
     results = Parallel.map_parallel(check_item, items, workers, use_processes, use_interpreters)
@@ -725,6 +727,7 @@ def parallel_starmap(
         # Returns [3, 7, 11]
     """
     def wrapper(args):
+        """TODO: Document wrapper."""
         return func(*args)
 
     return Parallel.map_parallel(wrapper, args_list, workers, use_processes, use_interpreters)
