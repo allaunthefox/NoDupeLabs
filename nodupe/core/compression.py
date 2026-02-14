@@ -36,6 +36,27 @@ class Compression:
         return Path(path) if isinstance(path, str) else path
 
     @staticmethod
+    def _validate_extraction_path(output_dir: Path, member_name: str) -> None:
+        """Validate that extraction path does not escape the target directory.
+        
+        Raises CompressionError if the path would escape the target directory
+        via path traversal attacks (e.g., ../../evil.py, absolute paths).
+        """
+        # Resolve the full path of the member
+        member_path = (output_dir / member_name).resolve()
+        
+        # Resolve the output directory
+        output_dir_resolved = output_dir.resolve()
+        
+        # Check if the member path is within the output directory
+        try:
+            member_path.relative_to(output_dir_resolved)
+        except ValueError:
+            raise CompressionError(
+                f"Unsafe extraction path detected: '{member_name}' would escape target directory"
+            )
+
+    @staticmethod
     def compress_data(data: bytes, format: CompressionFormat = 'gzip', level: int = 6) -> bytes:
         try:
             if format == 'gzip':
@@ -45,7 +66,7 @@ class Compression:
             if format == 'lzma':
                 return lzma.compress(data, preset=level)
             raise CompressionError(f"Unsupported format: {format}")
-        except Exception as e:  # pragma: no cover - unreachable
+        except Exception as e:
             raise CompressionError(f"Compression failed: {e}") from e
 
     @staticmethod
@@ -58,7 +79,7 @@ class Compression:
             if format == 'lzma':
                 return lzma.decompress(data)
             raise CompressionError(f"Unsupported format: {format}")
-        except Exception as e:  # pragma: no cover - unreachable
+        except Exception as e:
             raise CompressionError(f"Decompression failed: {e}") from e
 
     @staticmethod
@@ -81,7 +102,7 @@ class Compression:
                 output_path_obj = Compression._ensure_path(output_path)
 
             output_path_obj.parent.mkdir(parents=True, exist_ok=True)
-        except Exception as e:  # pragma: no cover - tested but coverage bug
+        except Exception as e:
             raise CompressionError(f"File compression failed: {e}") from e
 
         try:
@@ -97,15 +118,15 @@ class Compression:
                     zf.write(input_path_obj, arcname=input_path_obj.name)
             else:
                 raise CompressionError(f"Unsupported format: {format}")
-        except CompressionError:  # pragma: no cover - unreachable
+        except CompressionError:
             raise
-        except Exception as e:  # pragma: no cover - unreachable
+        except Exception as e:
             raise CompressionError(f"File compression failed: {e}") from e
 
         if remove_original:
             try:
                 input_path_obj.unlink()
-            except Exception as e:  # pragma: no cover - unreachable
+            except Exception as e:
                 raise CompressionError(f"Failed to remove original: {e}") from e
 
         return output_path_obj
@@ -117,12 +138,9 @@ class Compression:
         format: Optional[CompressionFormat] = None,
         remove_compressed: bool = False
     ) -> Path:
-        try:
-            input_path_obj = Compression._ensure_path(input_path)
-            if not input_path_obj.exists():
-                raise CompressionError(f"Input file does not exist: {input_path}")
-        except CompressionError:  # pragma: no cover - unreachable
-            raise
+        input_path_obj = Compression._ensure_path(input_path)
+        if not input_path_obj.exists():
+            raise CompressionError(f"Input file does not exist: {input_path}")
 
         try:
             detected = format
@@ -141,7 +159,9 @@ class Compression:
                 output_path_obj = Compression._ensure_path(output_path)
 
             output_path_obj.parent.mkdir(parents=True, exist_ok=True)
-        except Exception as e:  # pragma: no cover - unreachable
+        except CompressionError:
+            raise
+        except Exception as e:
             raise CompressionError(f"File decompression failed: {e}") from e
 
         try:
@@ -159,15 +179,15 @@ class Compression:
                         output_path_obj = output_path_obj.parent / names[0]
             else:
                 raise CompressionError(f"Unsupported format: {detected}")
-        except CompressionError:  # pragma: no cover - unreachable
+        except CompressionError:
             raise
-        except Exception as e:  # pragma: no cover - unreachable
+        except Exception as e:
             raise CompressionError(f"File decompression failed: {e}") from e
 
         if remove_compressed:
             try:
                 input_path_obj.unlink()
-            except Exception as e:  # pragma: no cover - unreachable
+            except Exception as e:
                 raise CompressionError(f"Failed to remove compressed: {e}") from e
 
         return output_path_obj
@@ -205,9 +225,9 @@ class Compression:
                 raise CompressionError(f"Unsupported format: {format}")
 
             return output_path_obj
-        except CompressionError:  # pragma: no cover - unreachable
+        except CompressionError:
             raise
-        except Exception as e:  # pragma: no cover - unreachable
+        except Exception as e:
             raise CompressionError(f"Archive creation failed: {e}") from e
 
     @staticmethod
@@ -216,49 +236,68 @@ class Compression:
         output_dir: PathLike,
         format: Optional[CompressionFormat] = None
     ) -> List[Path]:
+        archive_path_obj = Compression._ensure_path(archive_path)
+        output_dir_obj = Compression._ensure_path(output_dir)
+
+        if not archive_path_obj.exists():
+            raise CompressionError(f"Archive not found: {archive_path}")
+
         try:
-            archive_path_obj = Compression._ensure_path(archive_path)
-            output_dir_obj = Compression._ensure_path(output_dir)
-
-            if not archive_path_obj.exists():
-                raise CompressionError(f"Archive not found: {archive_path}")
-
             output_dir_obj.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            raise CompressionError(f"Archive extraction failed: {e}") from e
 
-            detected = format
-            if detected is None:
-                suffix = archive_path_obj.suffix.lower()
-                if suffix == '.zip':
-                    detected = 'zip'
-                elif archive_path_obj.name.endswith('.tar.gz'):
-                    detected = 'tar.gz'
-                elif archive_path_obj.name.endswith('.tar.bz2'):
-                    detected = 'tar.bz2'
-                elif archive_path_obj.name.endswith('.tar.xz'):
-                    detected = 'tar.xz'
-                elif suffix == '.tar':
-                    detected = 'tar'
-                else:
-                    raise CompressionError(f"Cannot auto-detect format: {suffix}")
+        detected = format
+        if detected is None:
+            suffix = archive_path_obj.suffix.lower()
+            if suffix == '.zip':
+                detected = 'zip'
+            elif archive_path_obj.name.endswith('.tar.gz'):
+                detected = 'tar.gz'
+            elif archive_path_obj.name.endswith('.tar.bz2'):
+                detected = 'tar.bz2'
+            elif archive_path_obj.name.endswith('.tar.xz'):
+                detected = 'tar.xz'
+            elif suffix == '.tar':
+                detected = 'tar'
+            else:
+                raise CompressionError(f"Cannot auto-detect format: {suffix}")
 
-            extracted_files = []
+        extracted_files = []
 
-            if detected == 'zip':
+        if detected == 'zip':
+            try:
                 with zipfile.ZipFile(archive_path_obj, 'r') as zf:
+                    # Validate all members before extraction
+                    for name in zf.namelist():
+                        Compression._validate_extraction_path(output_dir_obj, name)
+                    
+                    # All paths validated, now extract
                     zf.extractall(output_dir_obj)
                     extracted_files = [output_dir_obj / name for name in zf.namelist()]
-            elif detected in Compression.TAR_MODE_MAP:
+            except CompressionError:
+                raise
+            except Exception as e:
+                raise CompressionError(f"Archive extraction failed: {e}") from e
+                
+        elif detected in Compression.TAR_MODE_MAP:
+            try:
                 with tarfile.open(archive_path_obj, 'r:*') as tf:
+                    # Validate all members before extraction
+                    for member in tf.getmembers():
+                        Compression._validate_extraction_path(output_dir_obj, member.name)
+                    
+                    # All paths validated, now extract
                     tf.extractall(output_dir_obj)
                     extracted_files = [output_dir_obj / member.name for member in tf.getmembers()]
-            else:
-                raise CompressionError(f"Unsupported format: {detected}")
+            except CompressionError:
+                raise
+            except Exception as e:
+                raise CompressionError(f"Archive extraction failed: {e}") from e
+        else:
+            raise CompressionError(f"Unsupported format: {detected}")
 
-            return extracted_files
-        except CompressionError:  # pragma: no cover - unreachable
-            raise
-        except Exception as e:  # pragma: no cover - unreachable
-            raise CompressionError(f"Archive extraction failed: {e}") from e
+        return extracted_files
 
     @staticmethod
     def get_compression_ratio(original_size: int, compressed_size: int) -> float:
