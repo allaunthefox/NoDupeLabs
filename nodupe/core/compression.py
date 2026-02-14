@@ -198,6 +198,71 @@ class Compression:
         return output_path
 
     @staticmethod
+    def extract_archive(
+        archive_path: PathLike,
+        output_dir: PathLike,
+        format: Optional[str] = None
+    ) -> List[Path]:
+        """Extract archive (zip, tar, tar.gz, tar.bz2, tar.xz) to output directory.
+        
+        Args:
+            archive_path: Path to the archive file
+            output_dir: Directory to extract to
+            format: Optional format hint ('zip', 'tar', 'tar.gz', etc.)
+            
+        Returns:
+            List of extracted file paths
+            
+        Raises:
+            CompressionError: If archive cannot be extracted
+        """
+        archive_path = Compression._ensure_path(archive_path)
+        output_dir = Compression._ensure_path(output_dir)
+        
+        if not archive_path.exists():
+            raise CompressionError("Archive not found")
+        
+        # Auto-detect format if not provided
+        detected = format
+        if detected is None:
+            suffix = archive_path.suffix.lower()
+            if suffix == '.zip':
+                detected = 'zip'
+            elif archive_path.name.endswith('.tar.gz'):
+                detected = 'tar.gz'
+            elif archive_path.name.endswith('.tar.bz2'):
+                detected = 'tar.bz2'
+            elif archive_path.name.endswith('.tar.xz'):
+                detected = 'tar.xz'
+            elif suffix == '.tar':
+                detected = 'tar'
+            else:
+                raise CompressionError(f"Cannot auto-detect format for: {archive_path}")
+        
+        output_dir.mkdir(parents=True, exist_ok=True)
+        extracted_files: List[Path] = []
+        
+        if detected == 'zip':
+            with zipfile.ZipFile(archive_path, 'r') as zf:
+                # Validate all paths before extracting
+                for name in zf.namelist():
+                    Compression._validate_extraction_path(output_dir, name)
+                zf.extractall(output_dir)
+                extracted_files = [output_dir / name for name in zf.namelist()]
+                
+        elif detected in Compression.TAR_MODE_MAP:
+            with tarfile.open(archive_path, 'r:*') as tf:
+                # Validate all paths before extracting
+                for member in tf.getmembers():
+                    Compression._validate_extraction_path(output_dir, member.name)
+                tf.extractall(output_dir)
+                extracted_files = [output_dir / member.name for member in tf.getmembers()]
+        else:
+            raise CompressionError(f"Unsupported format: {detected}")
+        
+        return extracted_files
+
+    @staticmethod
     def get_compression_ratio(original: int, compressed: int) -> float:
         return original / compressed if compressed else 0.0
 
