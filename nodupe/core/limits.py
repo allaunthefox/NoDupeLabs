@@ -21,7 +21,7 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import Optional, Callable, Any
+from typing import Optional, Callable, Any, Union
 from contextlib import contextmanager
 import threading
 
@@ -170,7 +170,7 @@ class Limits:
             raise LimitsError(f"File handle check failed: {e}") from e
 
     @staticmethod
-    def check_file_size(file_path: Path, max_bytes: int) -> bool:
+    def check_file_size(file_path: Union[str, Path], max_bytes: int) -> bool:
         """Check if file size is under limit.
 
         Args:
@@ -184,16 +184,15 @@ class Limits:
             LimitsError: If file exceeds limit
         """
         try:
-            if isinstance(file_path, str):
-                file_path = Path(file_path)
+            path_obj = Path(file_path) if isinstance(file_path, str) else file_path
 
-            if not file_path.exists():
+            if not path_obj.exists():
                 return True
 
-            size = file_path.stat().st_size
+            size = path_obj.stat().st_size
             if size > max_bytes:
                 raise LimitsError(
-                    f"File size {size} bytes exceeds limit {max_bytes} bytes: {file_path}"
+                    f"File size {size} bytes exceeds limit {max_bytes} bytes: {path_obj}"
                 )
 
             return True

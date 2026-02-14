@@ -38,8 +38,8 @@ class ProgressTracker:
     def __init__(self):
         """Initialize progress tracker."""
         self._lock = threading.Lock()
-        self._start_time = 0
-        self._last_update_time = 0
+        self._start_time: float = 0.0
+        self._last_update_time: float = 0.0
         self._total_items = 0
         self._completed_items = 0
         self._total_bytes = 0
@@ -98,21 +98,20 @@ class ProgressTracker:
             elapsed = time.monotonic() - self._start_time if self._start_time > 0 else 0
 
             # Calculate rates
-            items_per_second = self._completed_items / elapsed if elapsed > 0 else 0
-            bytes_per_second = self._processed_bytes / elapsed if elapsed > 0 else 0
+            items_per_second: float = self._completed_items / elapsed if elapsed > 0 else 0.0
+            bytes_per_second: float = self._processed_bytes / elapsed if elapsed > 0 else 0.0
 
             # Calculate estimates
             remaining_items = max(0, self._total_items - self._completed_items)
             remaining_bytes = max(0, self._total_bytes - self._processed_bytes)
 
+            time_remaining: float = 0.0
             if items_per_second > 0:
                 time_remaining = remaining_items / items_per_second
             elif bytes_per_second > 0:
                 time_remaining = remaining_bytes / bytes_per_second
-            else:
-                time_remaining = 0
 
-            percent_complete = 0
+            percent_complete: float = 0.0
             if self._total_items > 0:
                 percent_complete = (self._completed_items / self._total_items) * 100
             elif self._total_bytes > 0:

@@ -43,8 +43,8 @@ class FileWalker:
         self._file_count = 0
         self._dir_count = 0
         self._error_count = 0
-        self._start_time = 0
-        self._last_update = 0
+        self._start_time: float = 0.0
+        self._last_update: float = 0.0
         self._archive_handler = SecurityHardenedArchiveHandler()
         self._enable_archive_support = True
 

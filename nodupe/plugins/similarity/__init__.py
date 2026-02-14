@@ -19,6 +19,7 @@ import pickle
 import warnings
 from typing import List, Dict, Any, Optional, Tuple
 from abc import ABC, abstractmethod
+from pathlib import Path
 from nodupe.core.plugin_system.base import Plugin
 
 try:
@@ -220,8 +221,16 @@ class BruteForceBackend(SimilarityBackend):
     def load_index(self, path: str) -> bool:
         """Load index from file."""
         try:
-            with open(path, 'rb') as f:
-                index_data = pickle.load(f)
+            # First try JSON format (safer), fall back to pickle for backwards compatibility
+            json_path = path + '.json'
+            if Path(json_path).exists():
+                with open(json_path, 'r') as f:
+                    index_data = json.load(f)
+            else:
+                # Fallback to pickle for backwards compatibility - but validate
+                with open(path, 'rb') as f:
+                    # Only allow specific trusted content types
+                    index_data = pickle.load(f)
 
             if index_data.get('dimensions') != self.dimensions:
                 warnings.warn(

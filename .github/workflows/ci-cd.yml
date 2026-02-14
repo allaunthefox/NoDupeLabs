@@ -88,6 +88,95 @@ jobs:
         run: |
           npx markdownlint "**/*.md" --ignore node_modules
 
+      - name: Check TOML files
+        run: |
+          python tools/core/check_toml.py
+
+      - name: Run strictness check
+        run: |
+          python tools/core/strictness_check.py || true
+
+      - name: Run compliance scan
+        run: |
+          python tools/core/compliance_scan.py || true
+
+      - name: Run security scan
+        run: |
+          python tools/analysis/security_scan.py || true
+
+      - name: Run idempotence check
+        run: |
+          python tools/analysis/deep_idempotence.py || true
+
+      - name: Run collision check
+        run: |
+          python tools/analysis/collision_check.py || true
+
+      - name: Run red team security scan
+        run: |
+          python tools/security/red_team.py || true
+
+      - name: Run rollback tests
+        run: |
+          python -m pytest tests/core/test_rollback.py -v
+
+      - name: Run mypy type check
+        run: |
+          python -m mypy nodupe/core/rollback --ignore-missing-imports || true
+
+      - name: Run black format check
+        run: |
+          python -m black --check nodupe/ || true
+
+      - name: Run isort import check
+        run: |
+          python -m isort --check-only nodupe/ || true
+
+      - name: Run performance benchmarks
+        run: |
+          python benchmarks/performance_benchmarks.py || true
+
+      - name: Enforce Markdown spec
+        run: |
+          python tools/core/enforce_markdown_spec.py --fix
+
+      - name: Enforce Text spec
+        run: |
+          python tools/core/enforce_text_spec.py --fix
+
+      - name: Enforce Python truthiness
+        run: |
+          python tools/core/enforce_python_truth.py --fix
+
+      - name: Detect deprecated APIs
+        run: |
+          python tools/core/detect_deprecated.py || true
+
+      - name: Enforce license headers
+        run: |
+          python tools/core/enforce_license.py --fix || true
+
+      - name: Enforce YAML spec
+        run: |
+          python tools/core/enforce_yaml_spec.py --fix || true
+
+      - name: Enforce JSON spec
+        run: |
+          python tools/core/enforce_json_spec.py --fix || true
+
+      - name: Enforce TOML spec
+        run: |
+          python tools/core/enforce_toml_spec.py --fix || true
+
+      - name: Run pre-commit
+        run: |
+          pip install pre-commit && pre-commit run --all-files || true
+
+      - name: Verify file integrity
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          python tools/core/generate_integrity.py --verify
+
   docs:
     name: Check Documentation
     runs-on: ubuntu-latest

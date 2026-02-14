@@ -12,7 +12,7 @@ import random
 import logging
 from enum import Enum
 from dataclasses import dataclass
-from typing import List, Dict, Optional, Tuple, Callable
+from typing import List, Dict, Optional, Tuple, Callable, Any
 from collections import defaultdict, deque
 from datetime import datetime, timedelta
 
@@ -491,7 +491,7 @@ class AdaptiveFailureHandler:
         self._network_patterns = defaultdict(list)
         self._last_pattern_update = time.time()
     
-    def analyze_network_pattern(self) -> Dict[str, any]:
+    def analyze_network_pattern(self) -> Dict[str, Any]:
         """Analyze current network patterns and return recommendations."""
         if time.time() - self._last_pattern_update < 60:  # Update every minute
             return self._get_cached_pattern()
@@ -597,7 +597,7 @@ class AdaptiveFailureHandler:
         
         return recommendations
     
-    def _get_cached_pattern(self) -> Dict[str, any]:
+    def _get_cached_pattern(self) -> Dict[str, Any]:
         """Get the most recent cached pattern analysis."""
         if not self._network_patterns:
             return {'pattern': 'unknown', 'recommendation': 'insufficient_data'}

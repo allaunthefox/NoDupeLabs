@@ -46,6 +46,50 @@ Show version information.
 nodupe version
 ```
 
+### Rollback Commands
+
+#### rollback list
+
+List snapshots or transactions.
+
+```bash
+nodupe rollback --list
+nodupe rollback --snapshots
+nodupe rollback --transactions
+```
+
+#### rollback create
+
+Create a snapshot of specified paths.
+
+```bash
+nodupe rollback create <path1> [path2 ...]
+```
+
+#### rollback restore
+
+Restore files from a snapshot.
+
+```bash
+nodupe rollback restore <snapshot_id>
+```
+
+#### rollback delete
+
+Delete a snapshot.
+
+```bash
+nodupe rollback delete <snapshot_id>
+```
+
+#### rollback undo
+
+Undo the last transaction.
+
+```bash
+nodupe rollback undo
+```
+
 ## Exit Codes
 
 | Code | Meaning |

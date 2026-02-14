@@ -193,7 +193,7 @@ class CompatibilityChecker:
             deps = plugin_info['dependencies']
             if isinstance(deps, dict):
                 # Cast to proper dict type for type checking
-                typed_deps = cast(Dict[Any, Any], deps)
+                typed_deps = deps
                 deps_dict: Dict[str, str] = {}
                 for item_key, item_value in typed_deps.items():
                     try:

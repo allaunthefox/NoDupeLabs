@@ -47,9 +47,19 @@ class DatabaseSecurity:
         if data is None:
             raise InputValidationError("Input data cannot be None")
 
-        # Type checking if specified
-        if data_type and not isinstance(data, eval(data_type)):
-            raise InputValidationError(f"Expected {data_type}, got {type(data)}")
+        # Type checking if specified - use safe type lookup instead of eval
+        if data_type:
+            # Safe type mapping - only allow known types
+            safe_types = {
+                'str': str, 'int': int, 'float': float, 'bool': bool,
+                'list': list, 'dict': dict, 'tuple': tuple, 'set': set,
+                'bytes': bytes, 'bytearray': bytearray
+            }
+            expected_type = safe_types.get(data_type)
+            if expected_type is None:
+                raise InputValidationError(f"Unknown type: {data_type}")
+            if not isinstance(data, expected_type):
+                raise InputValidationError(f"Expected {data_type}, got {type(data)}")
 
         # String validation
         if isinstance(data, str):

@@ -59,8 +59,9 @@ class Incremental:
 
         try:
             with open(checkpoint_file, 'r') as f:
-                return json.load(f)
-        except (json.JSONDecodeError, UnicodeDecodeError):
+                data = json.load(f)
+                return dict(data) if isinstance(data, dict) else None
+        except (json.JSONDecodeError, UnicodeDecodeError, OSError):
             # Invalid JSON or corrupted file
             return None
 

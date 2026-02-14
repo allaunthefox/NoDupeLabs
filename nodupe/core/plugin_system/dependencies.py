@@ -15,7 +15,7 @@ Dependencies:
 """
 
 from enum import Enum
-from typing import Dict, List, Set, Any, Tuple
+from typing import Dict, List, Set, Any, Tuple, Optional
 from .base import Plugin
 
 
@@ -295,7 +295,7 @@ class DependencyResolver:
         Returns:
             Dictionary representing dependency tree
         """
-        def build_tree(name: str, visited: Set[str] = None) -> Dict[str, Any]:
+        def build_tree(name: str, visited: Optional[Set[str]] = None) -> Dict[str, Any]:
             """TODO: Document build_tree."""
             if visited is None:
                 visited = set()

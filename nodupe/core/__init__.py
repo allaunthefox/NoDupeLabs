@@ -23,15 +23,17 @@ from .container import ServiceContainer, container
 # Utility modules
 from .mmap_handler import MMAPHandler
 from .incremental import Incremental
+# New API package
 from .api import (
-    API,
-    APILevel,
-    stable_api,
-    beta_api,
-    experimental_api,
-    deprecated,
+    APIVersion,
+    OpenAPIGenerator,
+    RateLimiter,
+    SchemaValidator,
+    rate_limited,
+    validate_request,
+    validate_response,
     api_endpoint,
-    validate_args,
+    cors,
 )
 
 
@@ -45,12 +47,14 @@ __all__ = [
     # Utilities
     'MMAPHandler',
     'Incremental',
-    'API',
-    'APILevel',
-    'stable_api',
-    'beta_api',
-    'experimental_api',
-    'deprecated',
+    # API
+    'APIVersion',
+    'OpenAPIGenerator',
+    'RateLimiter',
+    'SchemaValidator',
+    'rate_limited',
+    'validate_request',
+    'validate_response',
     'api_endpoint',
-    'validate_args',
+    'cors',
 ]

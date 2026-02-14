@@ -1,0 +1,117 @@
+# Pre-commit hooks for NoDupeLabs
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Python formatting
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        args: ["--line-length=80"]
+
+  # Import sorting
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile=black", "--line-length=80"]
+
+  # Linting
+  - repo: https://github.com/pycqa/pylint
+    rev: v3.3.1
+    hooks:
+      - id: pylint
+        args:
+          - "--disable=all"
+          - "--enable=missing-docstring,invalid-name"
+
+  # Type checking
+  - repo: https://github.com/python/mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        args: ["--ignore-missing-imports", "--strict"]
+
+  # Markdown linting
+  - repo: https://github.com/DavidAnson/markdownlint
+    rev: v0.43.0
+    hooks:
+      - id: markdownlint
+        args: ["--config=.markdownlint.json"]
+
+  # YAML linting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.1
+    hooks:
+      - id: prettier
+        types: [yaml]
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+
+  # Detect secrets
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+
+  # End-of-file fixer
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+
+  # Trailing whitespace
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: ["--markdown-linebr-config=.markdownlint.json"]
+
+  # Check for merge conflicts
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+
+  # Check for added large files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+
+  # Python executable
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: python-execute-notebooks
+
+  # NoDupeLabs custom hooks
+  - repo: local
+    hooks:
+      - id: enforce-markdown-spec
+        name: Enforce Markdown spec
+        entry: python tools/core/enforce_markdown_spec.py --check
+        language: system
+        types: [markdown]
+        pass_filenames: false
+
+      - id: enforce-text-spec
+        name: Enforce Text spec
+        entry: python tools/core/enforce_text_spec.py --check
+        language: system
+        types: [text]
+        pass_filenames: false
+
+      - id: enforce-python-truth
+        name: Enforce Python truthiness
+        entry: python tools/core/enforce_python_truth.py --check
+        language: system
+        types: [python]
+        pass_filenames: false

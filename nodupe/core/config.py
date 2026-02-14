@@ -10,12 +10,12 @@ import sys
 from typing import Dict, Any, Optional
 
 try:
-    import toml
+    import tomli as toml
 except ImportError:
-    # We'll handle the missing toml dependency gracefully in the class if needed,
-    # or let the import error propagate if it's a hard dependency for this module.
-    # For now, we will re-raise properly or handle it in __init__
-    toml = None
+    try:
+        import toml
+    except ImportError:
+        toml = None
 
 
 class ConfigManager:
@@ -32,15 +32,13 @@ class ConfigManager:
             FileNotFoundError: If configuration file is not found.
             ValueError: If configuration file is invalid.
         """
+        self.config_path = config_path or "pyproject.toml"
         if toml is None:
             print("[WARN] toml package not found. Using default configuration.")
-            self.config = {}
-            # Verify if we should load defaults here or if main.py resource detection fills it in.
-            # self._load_config() # Can't load file without toml
+            self.config: Dict[str, Any] = {}
             return
 
-        self.config_path = config_path or "pyproject.toml"
-        self.config: Dict[str, Any] = {}
+        self.config = {}
         self._load_config()
 
     def _load_config(self) -> None:
@@ -61,27 +59,27 @@ class ConfigManager:
 
     def get_nodupe_config(self) -> Dict[str, Any]:
         """Get the NoDupeLabs configuration section."""
-        return self.config['tool']['nodupe']
+        return dict(self.config['tool']['nodupe'])
 
     def get_database_config(self) -> Dict[str, Any]:
         """Get the database configuration."""
-        return self.get_nodupe_config().get('database', {})
+        return dict(self.get_nodupe_config().get('database', {}))
 
     def get_scan_config(self) -> Dict[str, Any]:
         """Get the scan configuration."""
-        return self.get_nodupe_config().get('scan', {})
+        return dict(self.get_nodupe_config().get('scan', {}))
 
     def get_similarity_config(self) -> Dict[str, Any]:
         """Get the similarity configuration."""
-        return self.get_nodupe_config().get('similarity', {})
+        return dict(self.get_nodupe_config().get('similarity', {}))
 
     def get_performance_config(self) -> Dict[str, Any]:
         """Get the performance configuration."""
-        return self.get_nodupe_config().get('performance', {})
+        return dict(self.get_nodupe_config().get('performance', {}))
 
     def get_logging_config(self) -> Dict[str, Any]:
         """Get the logging configuration."""
-        return self.get_nodupe_config().get('logging', {})
+        return dict(self.get_nodupe_config().get('logging', {}))
 
     def get_config_value(self, section: str, key: str, default: Any = None) -> Any:
         """Get a specific configuration value.

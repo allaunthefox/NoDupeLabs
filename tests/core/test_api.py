@@ -1,299 +1,283 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2025 Allaun
+
 """Test API module functionality."""
 
 import pytest
-from typing import Dict, Any, Callable
 from nodupe.core.api import (
-    API,
-    APILevel,
-    stable_api,
-    beta_api,
-    experimental_api,
-    deprecated,
+    APIVersion,
+    OpenAPIGenerator,
+    RateLimiter,
+    SchemaValidator,
+    rate_limited,
+    validate_request,
+    validate_response,
     api_endpoint,
-    validate_args
+    cors,
 )
 
 
-class TestAPILevel:
-    """Test APILevel enum."""
+class TestAPIVersion:
+    """Test APIVersion class."""
 
-    def test_api_level_values(self):
-        """Test APILevel enum values."""
-        assert APILevel.STABLE.value == "stable"
-        assert APILevel.BETA.value == "beta"
-        assert APILevel.EXPERIMENTAL.value == "experimental"
-        assert APILevel.DEPRECATED.value == "deprecated"
+    def test_init_default_version(self):
+        """Test API version initialization with default."""
+        api = APIVersion()
+        assert api.current_version == "v1"
+        assert "v1" in api.supported_versions
+
+    def test_register_version(self):
+        """Test registering a new version."""
+        api = APIVersion()
+        api.register_version("v2")
+        assert "v2" in api.supported_versions
+
+    def test_set_current_version(self):
+        """Test setting current version."""
+        api = APIVersion()
+        api.register_version("v2")
+        api.set_current_version("v2")
+        assert api.current_version == "v2"
+
+    def test_set_current_version_invalid(self):
+        """Test setting invalid version raises error."""
+        api = APIVersion()
+        with pytest.raises(ValueError):
+            api.set_current_version("v999")
+
+    def test_deprecate_version(self):
+        """Test deprecating a version."""
+        api = APIVersion()
+        api.deprecate_version("v1", "v2")
+        assert api.is_version_deprecated("v1")
+
+    def test_is_version_supported(self):
+        """Test checking version support."""
+        api = APIVersion()
+        assert api.is_version_supported("v1") is True
+        assert api.is_version_supported("v999") is False
+
+    def test_get_deprecation_message(self):
+        """Test getting deprecation message."""
+        api = APIVersion()
+        api.deprecate_version("v1", "v2")
+        msg = api.get_deprecation_message("v1")
+        assert "v1" in msg
+        assert "v2" in msg
 
 
-class TestAPIDecorators:
-    """Test API stability decorators."""
+class TestOpenAPIGenerator:
+    """Test OpenAPIGenerator class."""
 
-    def test_stable_api_decorator(self):
-        """Test stable_api decorator."""
-        @stable_api
+    def test_init(self):
+        """Test OpenAPI generator initialization."""
+        gen = OpenAPIGenerator()
+        assert gen.openapi_version == "3.1.2"
+        assert gen.info["title"] == "NoDupeLabs API"
+
+    def test_set_info(self):
+        """Test setting API info."""
+        gen = OpenAPIGenerator()
+        gen.set_info("Test API", "2.0.0", "Test description")
+        assert gen.info["title"] == "Test API"
+        assert gen.info["version"] == "2.0.0"
+        assert gen.info["description"] == "Test description"
+
+    def test_add_server(self):
+        """Test adding server."""
+        gen = OpenAPIGenerator()
+        gen.add_server("https://api.example.com", "Production")
+        assert len(gen.servers) == 1
+        assert gen.servers[0]["url"] == "https://api.example.com"
+
+    def test_add_path(self):
+        """Test adding path."""
+        gen = OpenAPIGenerator()
+        gen.add_path("/users", "get", {"200": {"description": "Success"}})
+        assert "/users" in gen.paths
+        assert "get" in gen.paths["/users"]
+
+    def test_add_schema(self):
+        """Test adding schema."""
+        gen = OpenAPIGenerator()
+        gen.add_schema("User", {"type": "object", "properties": {}})
+        assert "User" in gen.components["schemas"]
+
+    def test_generate_spec(self):
+        """Test generating spec."""
+        gen = OpenAPIGenerator()
+        spec = gen.generate_spec()
+        assert "openapi" in spec
+        assert "info" in spec
+        assert "paths" in spec
+
+    def test_to_json(self):
+        """Test converting to JSON."""
+        gen = OpenAPIGenerator()
+        json_str = gen.to_json()
+        assert "openapi" in json_str
+
+    def test_validate_spec_valid(self):
+        """Test validating valid spec."""
+        gen = OpenAPIGenerator()
+        result = gen.validate_spec()
+        assert result["valid"] is True
+        assert len(result["errors"]) == 0
+
+
+class TestRateLimiter:
+    """Test RateLimiter class."""
+
+    def test_init(self):
+        """Test rate limiter initialization."""
+        limiter = RateLimiter(requests_per_minute=60)
+        assert limiter.requests_per_minute == 60
+
+    def test_check_rate_limit_first_request(self):
+        """Test first request is allowed."""
+        limiter = RateLimiter(requests_per_minute=60)
+        assert limiter.check_rate_limit("client1") is True
+
+    def test_check_rate_limit_under_limit(self):
+        """Test requests under limit are allowed."""
+        limiter = RateLimiter(requests_per_minute=5)
+        for _ in range(5):
+            assert limiter.check_rate_limit("client1") is True
+
+    def test_check_rate_limit_over_limit(self):
+        """Test requests over limit are blocked."""
+        limiter = RateLimiter(requests_per_minute=2)
+        limiter.check_rate_limit("client1")
+        limiter.check_rate_limit("client1")
+        # Third request should be blocked
+        assert limiter.check_rate_limit("client1") is False
+
+    def test_throttle_returns_wait_time(self):
+        """Test throttle returns wait time."""
+        limiter = RateLimiter(requests_per_minute=1)
+        limiter.check_rate_limit("client1")
+        wait = limiter.throttle("client1")
+        assert wait >= 0
+
+
+class TestRateLimitedDecorator:
+    """Test rate_limited decorator."""
+
+    def test_decorator_allows_requests(self):
+        """Test decorator allows requests under limit."""
+        @rate_limited(requests_per_minute=60)
         def test_func():
-            return "test"
+            return "success"
 
-        assert hasattr(test_func, '_stable_api')
-        assert hasattr(test_func, '_api_level')
-        assert test_func._api_level == APILevel.STABLE
-        assert test_func() == "test"
-
-    def test_beta_api_decorator(self):
-        """Test beta_api decorator."""
-        @beta_api
-        def test_func():
-            return "test"
-
-        assert hasattr(test_func, '_beta_api')
-        assert hasattr(test_func, '_api_level')
-        assert test_func._api_level == APILevel.BETA
-        assert test_func() == "test"
-
-    def test_experimental_api_decorator(self):
-        """Test experimental_api decorator."""
-        @experimental_api
-        def test_func():
-            return "test"
-
-        assert hasattr(test_func, '_experimental_api')
-        assert hasattr(test_func, '_api_level')
-        assert test_func._api_level == APILevel.EXPERIMENTAL
-        assert test_func() == "test"
-
-    def test_deprecated_decorator(self):
-        """Test deprecated decorator."""
-        @deprecated
-        def test_func():
-            return "test"
-
-        assert hasattr(test_func, '_deprecated')
-        assert hasattr(test_func, '_api_level')
-        assert test_func._api_level == APILevel.DEPRECATED
-        assert test_func() == "test"
+        result = test_func()
+        assert result == "success"
 
 
-class TestAPIClass:
-    """Test API class functionality."""
+class TestSchemaValidator:
+    """Test SchemaValidator class."""
 
-    def test_register_and_get_endpoint(self):
-        """Test registering and retrieving API endpoints."""
-        def test_func():
-            return "test"
+    def test_init(self):
+        """Test validator initialization."""
+        validator = SchemaValidator()
+        assert validator.strict_mode is False
 
-        API.register_api("test_endpoint", test_func)
-        endpoint = API.get_endpoint("test_endpoint")
-        assert endpoint is test_func
-        assert endpoint() == "test"
+    def test_validate_string(self):
+        """Test validating string type."""
+        validator = SchemaValidator()
+        result = validator.validate({"type": "string"}, "hello")
+        assert result is True
 
-    def test_get_nonexistent_endpoint(self):
-        """Test getting non-existent endpoint."""
-        endpoint = API.get_endpoint("nonexistent")
-        assert endpoint is None
+    def test_validate_integer(self):
+        """Test validating integer type."""
+        validator = SchemaValidator()
+        result = validator.validate({"type": "integer"}, 42)
+        assert result is True
 
-    def test_list_endpoints(self):
-        """Test listing all registered endpoints."""
-        def func1():
-            return "func1"
-
-        def func2():
-            return "func2"
-
-        API.register_api("endpoint1", func1)
-        API.register_api("endpoint2", func2)
-
-        endpoints = API.list_endpoints()
-        assert "endpoint1" in endpoints
-        assert "endpoint2" in endpoints
-        assert len(endpoints) >= 2
-
-    def test_get_metadata(self):
-        """Test getting endpoint metadata."""
-        def test_func():
-            return "test"
-
-        metadata = {"version": "1.0", "description": "Test endpoint"}
-        API.register_api("test_endpoint", test_func, metadata)
-
-        retrieved_metadata = API.get_metadata("test_endpoint")
-        assert retrieved_metadata == metadata
-
-    def test_get_nonexistent_metadata(self):
-        """Test getting metadata for non-existent endpoint."""
-        metadata = API.get_metadata("nonexistent")
-        assert metadata is None
-
-    def test_validate_api_call_valid(self):
-        """Test validating valid API call."""
-        @validate_args(arg1=lambda x: x > 0)
-        def test_func(arg1: int):
-            return arg1 * 2
-
-        API.register_api("validated_endpoint", test_func)
-
-        assert API.validate_api_call("validated_endpoint", 5) is True
-        assert API.validate_api_call("validated_endpoint", -1) is False
-
-    def test_validate_api_call_nonexistent(self):
-        """Test validating call to non-existent endpoint."""
-        assert API.validate_api_call("nonexistent", 1, 2, 3) is False
-
-    def test_call_endpoint_success(self):
-        """Test calling endpoint successfully."""
-        def test_func(arg1: int, arg2: str):
-            return f"{arg1}:{arg2}"
-
-        API.register_api("test_endpoint", test_func)
-        result = API.call_endpoint("test_endpoint", 42, "hello")
-        assert result == "42:hello"
-
-    def test_call_endpoint_nonexistent(self):
-        """Test calling non-existent endpoint."""
-        with pytest.raises(ValueError, match="Endpoint 'nonexistent' not registered"):
-            API.call_endpoint("nonexistent", 1, 2, 3)
-
-    def test_call_endpoint_invalid_args(self):
-        """Test calling endpoint with invalid arguments."""
-        @validate_args(arg1=lambda x: x > 0)
-        def test_func(arg1: int):
-            return arg1 * 2
-
-        API.register_api("validated_endpoint", test_func)
-
-        with pytest.raises(ValueError, match="Invalid arguments for endpoint 'validated_endpoint'"):
-            API.call_endpoint("validated_endpoint", -1)
+    def test_validate_invalid_type(self):
+        """Test validating invalid type raises error."""
+        validator = SchemaValidator()
+        with pytest.raises(Exception):
+            validator.validate({"type": "string"}, 42)
 
 
-class TestAPIEndpointDecorator:
+class TestApiEndpointDecorator:
     """Test api_endpoint decorator."""
 
-    def test_api_endpoint_decorator(self):
-        """Test api_endpoint decorator functionality."""
-        @api_endpoint("test_endpoint", {"version": "1.0"})
+    def test_decorator_basic(self):
+        """Test basic decorator functionality."""
+        @api_endpoint()
         def test_func():
             return "test"
 
-        # Check that the function was registered
-        endpoint = API.get_endpoint("test_endpoint")
-        assert endpoint is test_func
-
-        # Check metadata
-        metadata = API.get_metadata("test_endpoint")
-        assert metadata == {"version": "1.0"}
-
-        # Check function still works
-        assert test_func() == "test"
+        result = test_func()
+        assert result == "test"
 
 
-class TestValidateArgsDecorator:
-    """Test validate_args decorator."""
+class TestCorsDecorator:
+    """Test cors decorator."""
 
-    def test_validate_args_success(self):
-        """Test validate_args with valid arguments."""
-        @validate_args(arg1=lambda x: x > 0, arg2=lambda x: len(x) > 3)
-        def test_func(arg1: int, arg2: str):
-            return f"{arg1}:{arg2}"
+    def test_decorator_adds_cors_headers(self):
+        """Test decorator adds CORS headers."""
+        @cors(origins=["https://example.com"])
+        def test_func():
+            return {"data": "test"}
 
-        result = test_func(5, "hello")
-        assert result == "5:hello"
-
-    def test_validate_args_failure(self):
-        """Test validate_args with invalid arguments."""
-        @validate_args(arg1=lambda x: x > 0, arg2=lambda x: len(x) > 3)
-        def test_func(arg1: int, arg2: str):
-            return f"{arg1}:{arg2}"
-
-        with pytest.raises(ValueError, match="Validation failed for argument 'arg1'"):
-            test_func(-1, "hello")
-
-        with pytest.raises(ValueError, match="Validation failed for argument 'arg2'"):
-            test_func(5, "hi")
-
-    def test_validate_args_partial_args(self):
-        """Test validate_args with partial arguments."""
-        @validate_args(arg1=lambda x: x > 0, arg2=lambda x: len(x) > 3)
-        def test_func(arg1: int, arg2: str = "default"):
-            return f"{arg1}:{arg2}"
-
-        # Should work with valid arg1 and default arg2
-        result = test_func(5)
-        assert result == "5:default"
-
-        # Should fail with invalid arg1
-        with pytest.raises(ValueError, match="Validation failed for argument 'arg1'"):
-            test_func(-1)
+        result = test_func()
+        assert "_cors" in result
+        assert "Access-Control-Allow-Origin" in result["_cors"]
 
 
 class TestAPIIntegration:
     """Test API integration scenarios."""
 
-    def test_complete_api_workflow(self):
-        """Test complete API workflow from registration to execution."""
-        # Clear any existing endpoints for clean test
-        API._registered_endpoints.clear()
-        API._api_metadata.clear()
+    def test_complete_versioning_workflow(self):
+        """Test complete API versioning workflow."""
+        api = APIVersion()
+        
+        # Register versions
+        api.register_version("v1")
+        api.register_version("v2")
+        
+        # Set current
+        api.set_current_version("v2")
+        
+        # Deprecate old
+        api.deprecate_version("v1", "v2")
+        
+        # Verify
+        assert api.is_version_supported("v1")
+        assert api.is_version_supported("v2")
+        assert api.is_version_deprecated("v1")
+        assert api.get_deprecation_message("v1") != ""
 
-        # Create a function with validation - order matters: api_endpoint
-        # first, then validate_args
-        @api_endpoint("user_info", {"version": "1.0",
-                      "description": "Get user information"})
-        @validate_args(user_id=lambda x: x > 0, name=lambda x: len(x) > 2)
-        def get_user_info(user_id: int, name: str):
-            return {"id": user_id, "name": name}
+    def test_complete_openapi_workflow(self):
+        """Test complete OpenAPI generation workflow."""
+        gen = OpenAPIGenerator()
+        
+        # Configure
+        gen.set_info("Test API", "1.0.0", "Test")
+        gen.add_server("https://api.test.com")
+        gen.add_path("/users", "get", {"200": {"description": "List users"}})
+        gen.add_schema("User", {"type": "object"})
+        
+        # Generate
+        spec = gen.generate_spec()
+        
+        # Validate
+        result = gen.validate_spec()
+        assert result["valid"] is True
 
-        # Test registration
-        assert "user_info" in API.list_endpoints()
-        assert API.get_endpoint("user_info") is not None
-        assert API.get_metadata("user_info") == {
-            "version": "1.0", "description": "Get user information"}
-
-        # Test validation - now with proper validator, it should validate
-        # correctly
-        assert API.validate_api_call(
-            "user_info", 1, "John") is True   # Valid arguments
-        assert API.validate_api_call(
-            "user_info", -1, "John") is False  # Invalid user_id
-        assert API.validate_api_call(
-            "user_info", 1, "Jo") is False    # Invalid name
-
-        # Test successful call
-        result = API.call_endpoint("user_info", 1, "John")
-        assert result == {"id": 1, "name": "John"}
-
-        # Test invalid call
-        with pytest.raises(ValueError, match="Invalid arguments for endpoint 'user_info'"):
-            API.call_endpoint("user_info", -1, "John")
-
-    def test_api_stability_decorators_with_endpoints(self):
-        """Test API stability decorators combined with API endpoints."""
-        @stable_api
-        @api_endpoint("stable_func")
-        def stable_function():
-            return "stable"
-
-        @beta_api
-        @api_endpoint("beta_func")
-        def beta_function():
-            return "beta"
-
-        @experimental_api
-        @api_endpoint("experimental_func")
-        def experimental_function():
-            return "experimental"
-
-        @deprecated
-        @api_endpoint("deprecated_func")
-        def deprecated_function():
-            return "deprecated"
-
-        # Test that all functions are registered
-        assert API.get_endpoint("stable_func") is stable_function
-        assert API.get_endpoint("beta_func") is beta_function
-        assert API.get_endpoint("experimental_func") is experimental_function
-        assert API.get_endpoint("deprecated_func") is deprecated_function
-
-        # Test that stability markers are preserved
-        assert stable_function._api_level == APILevel.STABLE
-        assert beta_function._api_level == APILevel.BETA
-        assert experimental_function._api_level == APILevel.EXPERIMENTAL
-        assert deprecated_function._api_level == APILevel.DEPRECATED
+    def test_rate_limiting_workflow(self):
+        """Test complete rate limiting workflow."""
+        limiter = RateLimiter(requests_per_minute=3)
+        
+        # First 3 should pass
+        assert limiter.check_rate_limit("client1") is True
+        assert limiter.check_rate_limit("client1") is True
+        assert limiter.check_rate_limit("client1") is True
+        
+        # 4th should fail
+        assert limiter.check_rate_limit("client1") is False
+        
+        # Different client should pass
+        assert limiter.check_rate_limit("client2") is True

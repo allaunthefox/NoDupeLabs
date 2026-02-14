@@ -1,0 +1,206 @@
+openapi: 3.1.2
+info:
+  title: NoDupeLabs API
+  summary: CLI tool for duplicate file detection and management
+  description: |
+    NoDupeLabs is a Python library and CLI tool for detecting, managing,
+    and removing duplicate files. It provides a plugin architecture for
+    extensible similarity detection algorithms.
+
+    ## Features
+    - Fast duplicate detection using various similarity algorithms
+    - Plugin system for custom algorithms
+    - Parallel processing for large file sets
+    - Database-backed file tracking
+    - Incremental scanning support
+
+    ## API Stability
+    This specification describes the CLI commands. The internal Python API
+    uses decorator-based stability markers (STABLE, BETA, EXPERIMENTAL).
+  version: 1.0.0
+  contact:
+    name: NoDupeLabs Support
+    url: https://github.com/allaunthefox/NoDupeLabs
+  license:
+    name: MIT
+    identifier: MIT
+  termsOfService: https://github.com/allaunthefox/NoDupeLabs/blob/main/LICENSE
+
+servers:
+  - url: https://localhost
+    description: Local execution (CLI only)
+
+tags:
+  - name: Core
+    description: Core CLI commands
+  - name: Plugin
+    description: Plugin management commands
+  - name: Config
+    description: Configuration commands
+
+paths:
+  /version:
+    get:
+      operationId: getVersion
+      summary: Show version information
+      description: |
+        Displays the current version of NoDupeLabs CLI,
+        platform information, and system configuration details.
+      tags:
+        - Core
+      responses:
+        '200':
+          description: Version information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionInfo'
+              example:
+                version: 1.0.0
+                platform: ssd
+                cores: 8
+                ram_gb: 16
+        '1':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /plugin:
+    get:
+      operationId: listPlugins
+      summary: List loaded plugins
+      description: |
+        Lists all currently loaded plugins with their names and versions.
+      tags:
+        - Plugin
+      parameters:
+        - name: verbose
+          in: query
+          description: Show detailed plugin information
+          schema:
+            type: boolean
+          example: false
+      responses:
+        '200':
+          description: List of plugins
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginList'
+              example:
+                plugins:
+                  - name: hash
+                    version: 1.0.0
+                    type: similarity
+                  - name: database
+                    version: 1.0.0
+                    type: storage
+        '1':
+          description: Error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    VersionInfo:
+      type: object
+      description: Version and system information
+      required:
+        - version
+      properties:
+        version:
+          type: string
+          description: Semantic version
+          example: 1.0.0
+        platform:
+          type: string
+          description: Drive type (ssd/hdd)
+          example: ssd
+        cores:
+          type: integer
+          description: Detected CPU cores
+          example: 8
+        ram_gb:
+          type: integer
+          description: Available RAM in GB
+          example: 16
+
+    PluginList:
+      type: object
+      description: List of loaded plugins
+      required:
+        - plugins
+      properties:
+        plugins:
+          type: array
+          items:
+            $ref: '#/components/schemas/PluginInfo'
+
+    PluginInfo:
+      type: object
+      description: Plugin metadata
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Plugin name
+          example: hash
+        version:
+          type: string
+          description: Plugin version
+          example: 1.0.0
+        type:
+          type: string
+          description: Plugin category
+          enum:
+            - similarity
+            - storage
+            - command
+            - time_sync
+
+    Error:
+      type: object
+      description: Error response
+      required:
+        - message
+      properties:
+        code:
+          type: integer
+          description: Error code
+          example: 1
+        message:
+          type: string
+          description: Error message
+          example: Command failed
+
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: X-API-Key
+      in: header
+      description: API key for authenticated endpoints
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
