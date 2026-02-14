@@ -57,10 +57,14 @@ This project adheres to a code of conduct that promotes a welcoming and inclusiv
 git clone https://github.com/allaunthefox/NoDupeLabs.git
 cd NoDupeLabs
 
-# Create and activate virtual environment
+# Create and activate virtual environment (PEP 668 compliant)
 python -m venv .venv
 source .venv/bin/activate  # Linux/Mac
 # .venv\Scripts\activate  # Windows
+
+# Verify you're in the virtual environment
+# (pip will now install to .venv, not system Python)
+which pip  # Should show .venv/bin/pip
 
 # Install package with dev dependencies (includes pytest, hypothesis, coverage)
 pip install -e ".[dev]"
@@ -68,6 +72,9 @@ pip install -e ".[dev]"
 # Install pre-commit hooks
 pre-commit install
 ```
+
+**Note:** The `--break-system-packages` flag is NOT needed when using a virtual environment. 
+The `venv` module creates an isolated environment that bypasses PEP 668 externally-managed restrictions.
 
 ### Running the Project
 
