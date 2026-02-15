@@ -49,7 +49,7 @@ class CPUBackend(MLBackend):
         try:
             # Create random embeddings for demonstration
             embeddings = []
-            for item in data:
+            for _ in data:
                 # Simple hash-based embedding for demonstration
                 if isinstance(item, str):
                     # Convert string to numerical representation
@@ -112,7 +112,7 @@ class ONNXBackend(MLBackend):
         try:
             # Placeholder: actual implementation would use ONNX model
             embeddings = []
-            for item in data:
+            for _ in data:
                 # Convert data to format expected by ONNX model
                 # This is a placeholder - actual implementation would preprocess data
                 embedding = np.random.randn(self.dimensions).tolist()

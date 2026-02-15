@@ -118,12 +118,11 @@ class ScanCommand(Command):
         try:
             from nodupe.scan.walker import FileWalker
             from nodupe.scan.processor import FileProcessor
-            from nodupe.scan.hasher import FileHasher
 
             # Initialize scanner components
             walker = FileWalker()
             processor = FileProcessor()
-            hasher = FileHasher()
+# hasher = FileHasher()  # Not currently used
 
             # Configure scanner
             scan_config = {

@@ -51,7 +51,7 @@ class FFmpegSubprocessBackend(VideoBackend):
     def _check_ffmpeg_available(self) -> bool:
         """Check if ffmpeg binary is available in PATH"""
         try:
-            result = subprocess.run(['ffmpeg', '-version'],
+            subprocess.run(['ffmpeg', '-version'],
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE,
                                     check=True)
@@ -85,7 +85,7 @@ class FFmpegSubprocessBackend(VideoBackend):
                 output_pattern
             ]
 
-            result = subprocess.run(cmd,
+            subprocess.run(cmd,
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE,
                                     check=True)
@@ -131,7 +131,7 @@ class FFmpegSubprocessBackend(VideoBackend):
                 '-i', video_path
             ]
 
-            result = subprocess.run(cmd,
+            subprocess.run(cmd,
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE,
                                     check=False)
