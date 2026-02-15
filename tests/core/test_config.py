@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 import json
-import toml
+import tomlkit as toml
 from typing import Dict, Any
 
 from nodupe.core.config import ConfigManager, load_config

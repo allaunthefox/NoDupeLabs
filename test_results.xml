@@ -1,1 +1,200 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="11" time="5.189" timestamp="2026-02-15T21:52:07.608445+01:00" hostname="vmi2997710"><testcase classname="tests.core.test_compression" name="test_compress_decompress_data_all_formats" time="0.050"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_compression" name="test_invalid_format_data" time="0.001"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_compression" name="test_compress_data_exception" time="0.001"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_compression" name="test_file_compression_and_removal" time="0.011"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_compression" name="test_file_not_found" time="0.000"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_compression" name="test_decompress_file" time="0.007"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_compression" name="test_decompress_auto_detect_failure" time="0.001"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_compression" name="test_zip_compression" time="0.002"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_compression" name="test_zip_path_traversal" time="0.004"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_compression" name="test_get_ratio" time="0.001"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_compression" name="test_estimate_size_branches" time="0.002"><properties><property name="test_type" value="standard" /></properties></testcase></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="27" skipped="0" tests="33" time="6.547" timestamp="2026-02-15T23:29:12.002981+01:00" hostname="vmi2997710"><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_initialization" time="0.005"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_with_custom_path" time="0.004"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_missing_toml_module" time="0.002"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_missing_config_file" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="Failed: DID NOT RAISE &lt;class 'FileNotFoundError'&gt;">tests/core/test_config.py:66: in test_config_manager_missing_config_file
+    with pytest.raises(FileNotFoundError, match="Configuration file not found"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE &lt;class 'FileNotFoundError'&gt;</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_invalid_toml" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tests/core/test_config.py:74: in test_config_manager_invalid_toml
+    with pytest.raises(ValueError, match="Error parsing TOML file"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE &lt;class 'ValueError'&gt;</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_missing_nodupe_section" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tests/core/test_config.py:88: in test_config_manager_missing_nodupe_section
+    with pytest.raises(ValueError, match="missing \\[tool.nodupe\\] section"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE &lt;class 'ValueError'&gt;</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_nodupe_config" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:106: in test_get_nodupe_config
+    nodupe_config = config_manager.get_nodupe_config()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_database_config" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:130: in test_get_database_config
+    db_config = config_manager.get_database_config()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:66: in get_database_config
+    return dict(self.get_nodupe_config().get('database', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_scan_config" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:155: in test_get_scan_config
+    scan_config = config_manager.get_scan_config()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:70: in get_scan_config
+    return dict(self.get_nodupe_config().get('scan', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_similarity_config" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:181: in test_get_similarity_config
+    similarity_config = config_manager.get_similarity_config()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:74: in get_similarity_config
+    return dict(self.get_nodupe_config().get('similarity', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_performance_config" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:206: in test_get_performance_config
+    performance_config = config_manager.get_performance_config()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:78: in get_performance_config
+    return dict(self.get_nodupe_config().get('performance', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_logging_config" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:230: in test_get_logging_config
+    logging_config = config_manager.get_logging_config()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:82: in get_logging_config
+    return dict(self.get_nodupe_config().get('logging', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_config_value" time="0.004"><properties><property name="test_type" value="standard" /></properties><failure message="AssertionError: assert None == '/test/path'">tests/core/test_config.py:254: in test_get_config_value
+    assert path == '/test/path'
+E   AssertionError: assert None == '/test/path'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_validate_config_success" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:282: in test_validate_config_success
+    assert config_manager.validate_config() is True
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:109: in validate_config
+    nodupe_config = self.get_nodupe_config()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_validate_config_missing_section" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:302: in test_validate_config_missing_section
+    assert config_manager.validate_config() is False
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:109: in validate_config
+    nodupe_config = self.get_nodupe_config()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_validate_config_missing_multiple_sections" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:319: in test_validate_config_missing_multiple_sections
+    assert config_manager.validate_config() is False
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:109: in validate_config
+    nodupe_config = self.get_nodupe_config()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_default_behavior" time="0.001"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:330: in test_config_manager_default_behavior
+    assert config_manager.get_nodupe_config() == {}
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_with_minimal_config" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:356: in test_config_manager_with_minimal_config
+    assert config_manager.validate_config() is True
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:109: in validate_config
+    nodupe_config = self.get_nodupe_config()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_nested_values" time="0.004"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:401: in test_config_manager_nested_values
+    db_config = config_manager.get_database_config()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:66: in get_database_config
+    return dict(self.get_nodupe_config().get('database', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_array_values" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:438: in test_config_manager_array_values
+    scan_config = config_manager.get_scan_config()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:70: in get_scan_config
+    return dict(self.get_nodupe_config().get('scan', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_boolean_values" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:475: in test_config_manager_boolean_values
+    scan_config = config_manager.get_scan_config()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:70: in get_scan_config
+    return dict(self.get_nodupe_config().get('scan', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_numeric_values" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:518: in test_config_manager_numeric_values
+    db_config = config_manager.get_database_config()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:66: in get_database_config
+    return dict(self.get_nodupe_config().get('database', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_string_values" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:562: in test_config_manager_string_values
+    db_config = config_manager.get_database_config()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:66: in get_database_config
+    return dict(self.get_nodupe_config().get('database', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_concurrent_access" time="0.011"><properties><property name="test_type" value="standard" /></properties><failure message="AssertionError: assert 10 == 0&#10; +  where 10 = len([KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool')])">tests/core/test_config.py:624: in test_config_manager_concurrent_access
+    assert len(errors) == 0
+E   AssertionError: assert 10 == 0
+E    +  where 10 = len([KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool')])</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_large_config" time="0.236"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:656: in test_config_manager_large_config
+    scan_config = config_manager.get_scan_config()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:70: in get_scan_config
+    return dict(self.get_nodupe_config().get('scan', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_special_characters" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:695: in test_config_manager_special_characters
+    db_config = config_manager.get_database_config()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:66: in get_database_config
+    return dict(self.get_nodupe_config().get('database', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_error_handling" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tests/core/test_config.py:713: in test_config_manager_error_handling
+    with pytest.raises(ValueError, match="Error parsing TOML file"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE &lt;class 'ValueError'&gt;</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_memory_usage" time="0.176"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_serialization" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:763: in test_config_manager_serialization
+    assert unpickled_manager.get_database_config()['path'] == '/test/path'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:66: in get_database_config
+    return dict(self.get_nodupe_config().get('database', {}))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestLoadConfig" name="test_load_config_default" time="0.001"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_config.TestLoadConfig" name="test_load_config_with_custom_path" time="0.004"><properties><property name="test_type" value="standard" /></properties><failure message="AttributeError: &lt;class 'nodupe.core.config.ConfigManager'&gt; does not have the attribute 'config_path'">tests/core/test_config.py:806: in test_load_config_with_custom_path
+    with patch('nodupe.core.config.ConfigManager.config_path', self.config_path):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.14/unittest/mock.py:1503: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+/usr/lib/python3.14/unittest/mock.py:1473: in get_original
+    raise AttributeError(
+E   AttributeError: &lt;class 'nodupe.core.config.ConfigManager'&gt; does not have the attribute 'config_path'</failure></testcase><testcase classname="tests.core.test_config.TestLoadConfig" name="test_load_config_missing_file" time="0.001"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_config.TestLoadConfig" name="test_load_config_integration" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:862: in test_load_config_integration
+    assert config_manager.validate_config() is True
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:109: in validate_config
+    nodupe_config = self.get_nodupe_config()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+nodupe/core/config.py:62: in get_nodupe_config
+    return dict(self.config['tool']['nodupe'])
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'tool'</failure></testcase></testsuite></testsuites>
