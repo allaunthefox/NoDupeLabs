@@ -7,13 +7,11 @@ import bz2
 import lzma
 import tarfile
 import zipfile
-import shutil
 from pathlib import Path
 from typing import Optional, List, Union
 
 
 PathLike = Union[str, Path]
-CompressionFormat = str
 
 
 class CompressionError(Exception):
