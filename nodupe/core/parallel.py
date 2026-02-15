@@ -396,7 +396,7 @@ class Parallel:
             # For now, assume CPU-bound if not specified
             # In real implementation, you might inspect the function
             import inspect
-            sig = inspect.signature(func)
+            _sig = inspect.signature(func)
             task_type = 'cpu'  # Default assumption
 
         # Determine best executor strategy

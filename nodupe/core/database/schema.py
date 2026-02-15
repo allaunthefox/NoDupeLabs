@@ -194,7 +194,7 @@ class DatabaseSchema:
             cursor.execute("PRAGMA foreign_keys = ON")
 
             # Create all tables
-            for table_name, table_sql in self.TABLES.items():
+            for _, table_sql in self.TABLES.items():
                 cursor.execute(table_sql)
 
             # Create all indexes

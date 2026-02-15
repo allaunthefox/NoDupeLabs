@@ -10,7 +10,7 @@ and version-aware request handling.
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, Optional, Set
 from dataclasses import dataclass
 
 

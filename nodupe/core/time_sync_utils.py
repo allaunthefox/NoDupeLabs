@@ -44,8 +44,8 @@ import struct
 import time
 import threading
 import logging
-from typing import Iterable, Optional, Tuple, List, Dict, Any, Callable, Union
-from dataclasses import dataclass, field
+from typing import Iterable, Optional, Tuple, List, Dict, Any
+from dataclasses import dataclass
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed, Future
 from contextlib import contextmanager
@@ -579,7 +579,7 @@ class ParallelNTPClient:
         Returns:
             NTPResponse with timing data.
         """
-        family, socktype, proto, canonname, sockaddr = addr_info
+        family, socktype, proto, _, sockaddr = addr_info
         
         # Prepare NTP packet
         packet = bytearray(48)

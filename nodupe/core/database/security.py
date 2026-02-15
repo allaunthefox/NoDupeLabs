@@ -12,7 +12,7 @@ This module provides essential security features for the local SQLite database:
 
 import re
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 class SecurityError(Exception):
     """Base security exception"""
