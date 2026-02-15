@@ -1,8 +1,6 @@
-import os
 import gzip
 import zipfile
 import pytest
-from pathlib import Path
 from nodupe.core.compression import Compression, CompressionError
 
 
