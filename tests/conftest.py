@@ -195,7 +195,7 @@ def mock_config() -> Generator[Dict[str, Any], None, None]:
 def temp_config_file(temp_dir: Path, mock_config: Dict[str, Any]) -> Generator[Path, None, None]:
     """Create a temporary configuration file."""
     config_file = temp_dir / "config.toml"
-    import toml
+    import tomlkit as toml
 
     with open(config_file, "w") as f:
         toml.dump(mock_config, f)
