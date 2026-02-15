@@ -169,7 +169,7 @@ class EmbeddingCache:
 
             # Collect keys to remove
             keys_to_remove = []
-            for cache_key, (embedding, timestamp) in self._cache.items():
+            for cache_key, (_embedding, _timestamp) in self._cache.items():
                 # Check TTL expiration
                 if current_time - timestamp > self.ttl_seconds:
                     keys_to_remove.append(cache_key)
@@ -302,7 +302,7 @@ class EmbeddingCache:
         Returns:
             List of (key, similarity) tuples sorted by similarity descending
         """
-        reference_embedding = self.get_embedding(key)
+        reference__embedding = self.get_embedding(key)
         if reference_embedding is None:
             return []
 
@@ -331,7 +331,7 @@ class EmbeddingCache:
         """
         embeddings = []
         for key in keys:
-            embedding = self.get_embedding(key)
+            _embedding = self.get_embedding(key)
             if embedding is not None:
                 embeddings.append(embedding)
 
@@ -339,7 +339,7 @@ class EmbeddingCache:
             return None
 
         # Calculate average
-        avg_embedding = []
+        avg__embedding = []
         num_embeddings = len(embeddings)
 
         # Get dimension from first embedding

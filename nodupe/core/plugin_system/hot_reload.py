@@ -22,7 +22,8 @@ import logging
 import sys
 import os
 from pathlib import Path
-from typing import Dict, Optional, Any, Set
+from typing import Set
+# Set removedDict, Optional, Any, Set
 from .loader import PluginLoader
 from .lifecycle import PluginLifecycleManager
 
@@ -86,8 +87,8 @@ class PluginHotReload:
             return False
             
         try:
-            import fcntl
-            import struct
+            # fcntl removed
+            # struct removed
             
             # Create inotify file descriptor
             self._inotify_fd = os.open('/proc/sys/kernel/osrelease', os.O_RDONLY)
@@ -135,7 +136,7 @@ class PluginHotReload:
             
         try:
             import ctypes
-            import fcntl
+            # fcntl removed
             
             libc = ctypes.CDLL('libc.so.6', use_errno=True)
             
@@ -195,7 +196,7 @@ class PluginHotReload:
             
         try:
             import ctypes
-            import struct
+            # struct removed
             
             # Read events (non-blocking)
             event_size = 16  # sizeof(struct inotify_event)
