@@ -319,8 +319,7 @@ class Parallel:
                                     )
                                 except Exception:
                                     pass
-                            for r in batch_result:
-                                yield r
+                            yield from batch_result
                 elif use_processes and prefer_map:
                     # Auto-balance chunksize: smaller chunks reduce per-task overhead but increase scheduling;
                     # use a conservative factor to amortize pickling/IPC work.
@@ -328,8 +327,7 @@ class Parallel:
                         chunksize = max(1, len(items) // (max(1, workers) * chunk_factor))
                     except Exception:
                         chunksize = 1
-                    for result in executor.map(func, items, chunksize=chunksize):
-                        yield result
+                    yield from executor.map(func, items, chunksize=chunksize)
                 else:
                     # Use bounded submission for threads or when prefer_map is False for processes
                     it = iter(items)

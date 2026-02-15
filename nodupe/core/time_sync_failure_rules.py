@@ -608,18 +608,18 @@ class AdaptiveFailureHandler:
 
 
 # Global failure rule engine instance
-_global_failure_rules = None
+GLOBAL_FAILURE_RULES = None
 
 
 def get_failure_rules() -> FailureRuleEngine:
     """Get the global failure rule engine instance."""
-    global _global_failure_rules
-    if _global_failure_rules is None:
-        _global_failure_rules = FailureRuleEngine()
-    return _global_failure_rules
+    global GLOBAL_FAILURE_RULES
+    if GLOBAL_FAILURE_RULES is None:
+        GLOBAL_FAILURE_RULES = FailureRuleEngine()
+    return GLOBAL_FAILURE_RULES
 
 
 def reset_failure_rules():
     """Reset the global failure rule engine."""
-    global _global_failure_rules
-    _global_failure_rules = FailureRuleEngine()
+    global GLOBAL_FAILURE_RULES
+    GLOBAL_FAILURE_RULES = FailureRuleEngine()
