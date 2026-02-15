@@ -10,7 +10,6 @@ from pathlib import Path
 import platform
 import os
 import multiprocessing
-from typing import TYPE_CHECKING
 try:
     import psutil
 except ImportError:

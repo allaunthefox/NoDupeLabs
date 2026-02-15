@@ -4,8 +4,6 @@
 """Database query functionality."""
 
 from typing import Any, Dict, List, Optional, Tuple
-import sqlite3
-import time
 
 
 class DatabaseQuery:

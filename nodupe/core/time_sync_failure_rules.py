@@ -8,7 +8,6 @@ including NTP server connection rules, fallback hierarchies, and graceful degrad
 from __future__ import annotations
 
 import time
-import random
 import logging
 from enum import Enum
 from dataclasses import dataclass

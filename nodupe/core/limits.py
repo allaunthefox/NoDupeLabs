@@ -122,9 +122,9 @@ class Limits:
             elif hasattr(os, 'getrusage'):
                 import resource
                 # This is less accurate but works on macOS
-                soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
-                # Can't get exact count, return 0
-                return 0
+                # Get the hard limit to return as fallback estimate
+                _, hard_limit = resource.getrlimit(resource.RLIMIT_NOFILE)
+                return min(1024, hard_limit)
 
             # Fallback
             return 0
@@ -150,7 +150,7 @@ class Limits:
             if max_handles is None:
                 if hasattr(os, 'getrusage'):
                     import resource
-                    soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+                    soft, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
                     max_handles = soft
                 else:
                     # Default conservative limit
