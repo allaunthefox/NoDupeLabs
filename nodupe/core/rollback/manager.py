@@ -2,8 +2,7 @@
 
 from typing import Any, Callable, List, Optional
 
-from .snapshot import Snapshot, SnapshotManager
-from .transaction import Operation, TransactionLog
+from .transaction import TransactionLog
 
 
 class RollbackManager:

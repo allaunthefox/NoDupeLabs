@@ -136,7 +136,7 @@ class PluginDiscovery:
 
             return discovered_plugins
 
-        except Exception as e:
+        except Exception as _:
             # Return empty list on any exception
             return []
 
