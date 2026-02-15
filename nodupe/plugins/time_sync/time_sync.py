@@ -35,8 +35,8 @@ import logging
 from nodupe.core.plugin_system import Plugin
 from nodupe.core.time_sync_utils import (
     ParallelNTPClient,
-    
-    
+
+
     TargetedFileScanner,
     FastDate64Encoder,
     get_global_dns_cache,
@@ -50,17 +50,17 @@ logger = logging.getLogger(__name__)
 class LeapYearCalculator:
     """
     Leap year calculator with plugin integration and fallback.
-    
+
     This class provides leap year calculations using the LeapYear plugin
     when available, with automatic fallback to built-in calculations.
     """
-    
+
     def __init__(self):
         """TODO: Document __init__."""
         self._leap_year_plugin = None
         self._use_plugin = False
         self._initialize_leap_year_plugin()
-    
+
     def _initialize_leap_year_plugin(self):
         """Initialize the LeapYear plugin if available."""
         try:
@@ -73,17 +73,17 @@ class LeapYearCalculator:
             self._leap_year_plugin = None
             self._use_plugin = False
             logger.debug(f"LeapYear plugin not available, using built-in calculations: {e}")
-    
+
     def is_leap_year(self, year: int) -> bool:
         """
         Determine if a year is a leap year.
-        
+
         Uses the LeapYear plugin if available, otherwise falls back
         to built-in Gregorian calendar calculation.
-        
+
         Args:
             year: Year to check
-            
+
         Returns:
             True if the year is a leap year, False otherwise
         """
@@ -95,33 +95,33 @@ class LeapYearCalculator:
                 return self._is_leap_year_builtin(year)
         else:
             return self._is_leap_year_builtin(year)
-    
+
     def _is_leap_year_builtin(self, year: int) -> bool:
         """
         Built-in Gregorian calendar leap year calculation.
-        
+
         Gregorian algorithm: divisible by 4, except centuries unless divisible by 400
-        
+
         Args:
             year: Year to check
-            
+
         Returns:
             True if the year is a leap year, False otherwise
         """
         return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
-    
+
     def get_days_in_february(self, year: int) -> int:
         """
         Get the number of days in February for a given year.
-        
+
         Args:
             year: Year to check
-            
+
         Returns:
             29 if leap year, 28 otherwise
         """
         return 29 if self.is_leap_year(year) else 28
-    
+
     def is_plugin_available(self) -> bool:
         """Check if the LeapYear plugin is available and being used."""
         return self._use_plugin
@@ -130,7 +130,7 @@ class LeapYearCalculator:
 NTP_TO_UNIX = 2208988800  # seconds between 1900-01-01 and 1970-01-01
 DEFAULT_SERVERS = (
     "time.google.com",
-    "time.cloudflare.com", 
+    "time.cloudflare.com",
     "time.apple.com",
     "time.windows.com",
     "time.facebook.com",
@@ -159,17 +159,17 @@ class TimeSyncDisabledError(RuntimeError):
 class TimeSyncPlugin(Plugin):
     """
     TimeSync Plugin for NTP-based time synchronization and FastDate64 encoding.
-    
+
     This plugin provides:
     1. Accurate time synchronization using NTP servers (preferred)
     2. Fallback to local time resources when NTP is unavailable
     3. FastDate64 64-bit timestamp encoding for compact storage
     4. Monotonic timekeeping immune to system clock changes
     5. Background synchronization with configurable intervals
-    
+
     The plugin integrates with the NoDupeLabs plugin system and provides
     both synchronous and asynchronous time synchronization capabilities.
-    
+
     Fallback Strategy:
     - Primary: NTP synchronization (preferred method)
     - Fallback 1: System RTC with monotonic correction
@@ -190,7 +190,7 @@ class TimeSyncPlugin(Plugin):
     ):
         """
         Initialize the TimeSync plugin.
-        
+
         Args:
             servers: List of NTP servers to query (defaults to Google, Cloudflare, pool)
             timeout: Socket timeout for NTP queries in seconds
@@ -456,7 +456,7 @@ class TimeSyncPlugin(Plugin):
                 timeout=self.timeout,
                 dns_cache=get_global_dns_cache()
             )
-            
+
             result = parallel_client.query_hosts_parallel(
                 hosts=self.servers,
                 attempts_per_host=self.attempts,
@@ -464,24 +464,24 @@ class TimeSyncPlugin(Plugin):
                 stop_on_good_result=True,
                 good_delay_threshold=0.1
             )
-            
+
             parallel_client.shutdown(wait=False)
-        
+
         if not result.success or result.best_response is None:
             raise RuntimeError("No successful NTP responses")
-        
+
         best = result.best_response
         host = best.host
         server_time = best.server_time
         offset = best.offset
         delay = best.delay
-        
+
         if delay > self.max_acceptable_delay:
             raise RuntimeError(f"NTP reply from {host} too noisy (delay={delay:.3f}s)")
-        
+
         self._apply_new_measurement(server_time, offset, delay)
         logger.info(f"Time synchronized with {host}, offset: {offset:.3f}s, delay: {delay:.3f}s")
-        
+
         # Record performance metrics
         get_global_metrics().record_parallel_query(
             num_hosts=len(self.servers),
@@ -490,7 +490,7 @@ class TimeSyncPlugin(Plugin):
             duration=0.0,  # Would need to measure actual duration
             best_delay=delay
         )
-        
+
         return host, server_time, offset, delay
 
     def maybe_sync(self) -> Optional[Tuple[str, float, float, float]]:
@@ -508,18 +508,18 @@ class TimeSyncPlugin(Plugin):
     def sync_with_fallback(self) -> Tuple[str, float, float, float]:
         """
         Attempt NTP synchronization with fallback to local time resources.
-        
+
         Fallback Strategy:
         1. Primary: NTP synchronization (preferred method)
         2. Fallback 1: System RTC with monotonic correction
         3. Fallback 2: System time (time.time()) if RTC unavailable
         4. Fallback 3: File timestamp fallback using recent files
         5. Fallback 4: Pure monotonic time (when no other options available)
-        
+
         Returns:
             Tuple of (source, server_time, offset, delay) where source indicates
             the method used ('ntp', 'rtc', 'system', 'file', or 'monotonic')
-            
+
         Raises:
             TimeSyncDisabledError if the instance is disabled
         """
@@ -539,15 +539,15 @@ class TimeSyncPlugin(Plugin):
         try:
             rtc_time = self._get_rtc_time()
             monotonic_time = time.monotonic()
-            
+
             # Calculate offset between RTC and monotonic
             offset = rtc_time - monotonic_time
             delay = 0.0  # No network delay for local RTC
-            
+
             self._apply_new_measurement(rtc_time, offset, delay)
             logger.info("Successfully synchronized using system RTC")
             return ("rtc", rtc_time, offset, delay)
-            
+
         except Exception as e:
             logger.warning(f"RTC fallback failed, trying system time: {e}")
 
@@ -557,50 +557,50 @@ class TimeSyncPlugin(Plugin):
             monotonic_start = time.monotonic()
             system_time = time.time()
             monotonic_end = time.monotonic()
-            
+
             # Use midpoint for better accuracy
             monotonic_time = (monotonic_start + monotonic_end) / 2.0
-            
+
             # Validate system time is reasonable (not too far in the past or future)
             current_time = time.time()
             if system_time < 1262304000:  # Before year 2010
                 raise RuntimeError("System time appears invalid (too far in the past)")
             if abs(system_time - current_time) > 300:  # More than 5 minutes difference
                 raise RuntimeError("System time appears unstable (large drift detected)")
-            
+
             # Calculate offset between system time and monotonic
             offset = system_time - monotonic_time
             delay = 0.0
-            
+
             self._apply_new_measurement(system_time, offset, delay)
             logger.info("Successfully synchronized using system time")
             return ("system", system_time, offset, delay)
-            
+
         except Exception as e:
             logger.warning(f"System time fallback failed ({e}), trying file timestamp: {e}")
 
         # Fallback 3: File timestamp fallback using recent files
         try:
             file_time = self._get_file_timestamp()
-            
+
             # Capture monotonic time simultaneously with file access
             monotonic_start = time.monotonic()
             monotonic_end = time.monotonic()
             monotonic_time = (monotonic_start + monotonic_end) / 2.0
-            
+
             # Additional validation: ensure file time isn't too old or too new
             current_time = time.time()
             if abs(file_time - current_time) > 86400:  # More than 24 hours difference
                 raise RuntimeError("File timestamp appears stale (too old or future)")
-            
+
             # Calculate offset between file time and monotonic
             offset = file_time - monotonic_time
             delay = 0.0
-            
+
             self._apply_new_measurement(file_time, offset, delay)
             logger.info("Successfully synchronized using file timestamp")
             return ("file", file_time, offset, delay)
-            
+
         except Exception as e:
             logger.warning(f"File timestamp fallback failed ({e}), using pure monotonic time: {e}")
 
@@ -611,31 +611,31 @@ class TimeSyncPlugin(Plugin):
             monotonic_start = time.monotonic()
             monotonic_end = time.monotonic()
             monotonic_time = (monotonic_start + monotonic_end) / 2.0
-            
+
             # Use file timestamp as base, adjusted by monotonic time
             # This gives us a reasonable date while maintaining monotonic progression
             estimated_time = file_time + (monotonic_time - monotonic_start)
-            
+
             # Validate the estimated time isn't too far in the past or future
             current_time = time.time()
             if abs(estimated_time - current_time) > 86400:  # More than 24 hours difference
                 logger.warning(f"File-based time estimation seems stale: {abs(estimated_time - current_time)/3600:.1f} hours difference")
                 # Fall back to pure monotonic if estimation is too far off
                 raise RuntimeError("File-based time estimation too stale")
-            
+
             offset = estimated_time - monotonic_time
             delay = 0.0
-            
+
             self._apply_new_measurement(estimated_time, offset, delay)
             logger.info(f"Using monotonic time with file-based date estimation from {file_time}")
             return ("monotonic_estimated", estimated_time, offset, delay)
-            
+
         except Exception as e:
             # Final fallback: pure monotonic time (no date concept)
             monotonic_time = time.monotonic()
             offset = 0.0
             delay = 0.0
-            
+
             self._apply_new_measurement(monotonic_time, offset, delay)
             logger.warning("Using pure monotonic time (no date concept available) - certificate validation may fail")
             return ("monotonic", monotonic_time, offset, delay)
@@ -643,10 +643,10 @@ class TimeSyncPlugin(Plugin):
     def get_authenticated_time(self, format: str = "iso8601") -> str:
         """
         Retrieves the current high-precision network time using a multi-layer fallback system.
-        
+
         This method provides cryptographically verified time through NTS when available,
         with automatic fallback to standard NTP and local Hardware RTC for maximum reliability.
-        
+
         Fallback Strategy:
         1. Primary: NTS (Network Time Security) - cryptographically verified
         2. Fallback 1: Standard NTP - network-based time synchronization
@@ -654,7 +654,7 @@ class TimeSyncPlugin(Plugin):
         4. Fallback 3: System time - time.time() when RTC unavailable
         5. Fallback 4: File timestamp - recent file modification times
         6. Fallback 5: Pure monotonic time - last resort when no external reference available
-        
+
         Args:
             format: Output format for the time. Supported formats:
                 - "iso8601" (default): ISO-8601 format (e.g., "2025-12-18T15:03:24.123456Z")
@@ -662,14 +662,14 @@ class TimeSyncPlugin(Plugin):
                 - "rfc3339": RFC 3339 format (same as ISO-8601)
                 - "human": Human-readable format (e.g., "2025-12-18 15:03:24.123456 UTC")
                 - "failure": Special format that returns [Null Time - Failure] when all methods fail
-        
+
         Returns:
             Time string in the specified format with microsecond precision, or
             "[Null Time - Failure]" if all time sources fail and format="failure"
-            
+
         Raises:
             TimeSyncDisabledError: If the plugin is disabled
-            
+
         Behavioral Guidelines:
             - Trust Factor: This time is cryptographically verified via NTS when available.
               If NTS fails, it falls back to standard NTP.
@@ -681,7 +681,7 @@ class TimeSyncPlugin(Plugin):
             - Failure Mode: When format="failure" and all methods fail, returns "[Null Time - Failure]"
             - Production Hardening: Includes monotonic gap handling, file timestamp freshness checks,
               and step vs slew strategy for large time corrections.
-        
+
         Example usage:
             >>> plugin = TimeSyncPlugin()
             >>> plugin.get_authenticated_time()
@@ -698,31 +698,31 @@ class TimeSyncPlugin(Plugin):
         try:
             sync_result = self.sync_with_fallback()
             source, _, _, _ = sync_result
-            
+
             # Get current corrected time
             current_time = self.get_corrected_time()
-            
+
             # Production Hardening: Check for certificate validation capability
             if source == "monotonic":
                 logger.warning("WARNING: Using pure monotonic time - certificate validation may fail due to lack of date concept")
             elif source == "monotonic_estimated":
                 logger.info("Using monotonic time with date estimation - suitable for most applications")
-            
+
             # Format the time based on the requested format
             if format.lower() in ["iso8601", "rfc3339"]:
                 # Convert to ISO-8601 format
                 dt = datetime.fromtimestamp(current_time, tz=timezone.utc)
                 result = dt.isoformat(timespec="microseconds").replace("+00:00", "Z")
-                
+
             elif format.lower() == "unix":
                 # Return Unix timestamp as string
                 result = f"{current_time:.6f}"
-                
+
             elif format.lower() == "human":
                 # Human-readable format
                 dt = datetime.fromtimestamp(current_time, tz=timezone.utc)
                 result = dt.strftime("%Y-%m-%d %H:%M:%S.%f UTC")
-                
+
             else:
                 raise ValueError(f"Unsupported format: {format}. Supported formats: iso8601, unix, rfc3339, human, failure")
 
@@ -730,21 +730,21 @@ class TimeSyncPlugin(Plugin):
             if source != "ntp":
                 logger.warning(f"Time obtained via {source} fallback (not NTP/NTS). "
                               f"Time may have slight drift from network time.")
-            
+
             return result
-            
+
         except Exception as e:
             # All fallback methods failed
             logger.error(f"All time synchronization methods failed: {e}")
-            
+
             # Check if failure format is requested
             if format.lower() == "failure":
                 logger.critical("CRITICAL: All time sources have failed. Disabling TimeSync plugin to prevent log spam.")
                 logger.critical("TimeSync plugin is shutting down. Metadata timestamping will use system time.")
-                
+
                 # Gracefully disable the plugin to prevent endless error spam
                 self.disable()
-                
+
                 return "[Null Time - Failure]"
             else:
                 # Re-raise the exception for other formats
@@ -753,74 +753,74 @@ class TimeSyncPlugin(Plugin):
     def _get_file_timestamp(self) -> float:
         """
         Get time from recent file timestamps as a fallback.
-        
+
         This uses the optimized TargetedFileScanner for efficient file system scanning
         with limited depth and early cutoff to avoid blocking on large filesystems.
-        
+
         Returns:
             Current time based on the most recent file timestamp in seconds since Unix epoch
-            
+
         Raises:
             RuntimeError: If no suitable files are found or access fails
         """
         # Use optimized file scanner for better performance
         scanner = TargetedFileScanner(max_files=100, max_depth=2)
-        
+
         # Additional paths to search beyond the scanner's trusted paths
         additional_paths = [
             os.path.expanduser("~"),
             os.getcwd(),
         ]
-        
+
         try:
             file_time = scanner.get_recent_file_time(additional_paths)
-            
+
             if file_time is None:
                 raise RuntimeError("No suitable recent files found")
-            
+
             logger.info(f"Using file timestamp from optimized scanner: {file_time}")
             return file_time
-            
+
         except Exception as e:
             logger.warning(f"Optimized file scanner failed: {e}")
             # Fallback to simple approach if scanner fails
             return self._get_file_timestamp_fallback()
-    
+
     def _get_file_timestamp_fallback(self) -> float:
         """
         Fallback file timestamp method using simple glob approach.
-        
+
         This is used if the optimized scanner fails.
         """
         import os
         import glob
-        
+
         # Common locations to search for recently modified files
         search_paths = [
             "/tmp",
-            "/var/tmp", 
+            "/var/tmp",
             "/var/log",
             os.path.expanduser("~"),
             os.getcwd(),
         ]
-        
+
         # File patterns to look for (avoiding system-critical files)
         patterns = [
             "*.tmp",
             "*.log",
-            "*.txt", 
+            "*.txt",
             "*.json",
             "*.py",
             "*cache*",
         ]
-        
+
         latest_time = 0
         latest_file = None
-        
+
         for base_path in search_paths:
             if not os.path.exists(base_path):
                 continue
-                
+
             for pattern in patterns:
                 try:
                     # Use glob to find files matching pattern
@@ -829,7 +829,7 @@ class TimeSyncPlugin(Plugin):
                         try:
                             # Get file modification time
                             mtime = os.path.getmtime(file_path)
-                            
+
                             # Validate timestamp is reasonable (not too far in the past)
                             if mtime > 1000000000:  # After year 2002
                                 if mtime > latest_time:
@@ -838,11 +838,11 @@ class TimeSyncPlugin(Plugin):
                         except (OSError, IOError):
                             # Skip files we can't access
                             continue
-                            
+
                 except Exception:
                     # Skip patterns that cause errors
                     continue
-        
+
         if latest_time > 0:
             logger.info(f"Using file timestamp from fallback scanner: {latest_file}: {latest_time}")
             return latest_time
@@ -852,32 +852,32 @@ class TimeSyncPlugin(Plugin):
     def _get_rtc_time(self) -> float:
         """
         Get time from system Real-Time Clock (RTC).
-        
+
         This provides a system time reference when NTP is unavailable.
-        
+
         Returns:
             Current time from system RTC in seconds since Unix epoch
-            
+
         Raises:
             RuntimeError: If RTC access fails
         """
         try:
             # Use time.time() to get system RTC time
             rtc_time = time.time()
-            
+
             # Validate that we got a reasonable timestamp
             if rtc_time < 1000000000:  # Before year 2002
                 raise RuntimeError("RTC time appears invalid (too far in the past)")
-            
+
             return rtc_time
-            
+
         except Exception as e:
             raise RuntimeError(f"Failed to read system RTC: {e}")
 
     def get_sync_status(self) -> dict:
         """
         Get detailed synchronization status including fallback information.
-        
+
         Returns:
             Dictionary with synchronization status and method used
         """
@@ -891,7 +891,7 @@ class TimeSyncPlugin(Plugin):
                 "monotonic_base": self._base_monotonic,
                 "server_time_base": self._base_server_time
             }
-            
+
             if self._base_server_time is not None and self._base_monotonic is not None:
                 # Determine sync method based on the source of the base time
                 if self._last_delay and self._last_delay > 0:
@@ -902,9 +902,9 @@ class TimeSyncPlugin(Plugin):
                     status["has_external_reference"] = True
                 else:
                     status["sync_method"] = "monotonic"
-                
+
                 status["sync_time"] = self._base_server_time
-            
+
             return status
 
     # ---- background worker ----
@@ -937,7 +937,7 @@ class TimeSyncPlugin(Plugin):
                     self.force_sync()
                 except Exception as e:
                     logger.warning(f"Initial background sync failed: {e}")
-            
+
             while not self._bg_stop.wait(timeout=interval):
                 try:
                     self.force_sync()
@@ -993,15 +993,15 @@ class TimeSyncPlugin(Plugin):
     def encode_fastdate64(ts: float) -> int:
         """
         Encode POSIX timestamp (float seconds) to 64-bit unsigned integer.
-        
+
         Uses the optimized FastDate64Encoder for better performance.
-        
+
         Args:
             ts: POSIX timestamp in seconds (float)
-            
+
         Returns:
             64-bit unsigned integer encoding of the timestamp
-            
+
         Raises:
             ValueError: If timestamp is negative
             OverflowError: If timestamp is too large for encoding
@@ -1012,12 +1012,12 @@ class TimeSyncPlugin(Plugin):
     def decode_fastdate64(value: int) -> float:
         """
         Decode 64-bit unsigned integer to POSIX timestamp (float seconds).
-        
+
         Uses the optimized FastDate64Encoder for better performance.
-        
+
         Args:
             value: 64-bit unsigned integer encoding of timestamp
-            
+
         Returns:
             POSIX timestamp in seconds (float)
         """
@@ -1027,19 +1027,19 @@ class TimeSyncPlugin(Plugin):
     def encode_fastdate(ts: float) -> int:
         """
         Encode POSIX timestamp to 32-bit integer (FastDate).
-        
+
         Based on Ben Joffe's FastDate algorithm.
         Reference: https://www.benjoffe.com/fast-date
-        
+
         Uses 22 bits for seconds (supports ~47 days from epoch)
         and 10 bits for fractional seconds (millisecond precision).
-        
+
         Args:
             ts: POSIX timestamp in seconds (float)
-            
+
         Returns:
             32-bit integer encoding of the timestamp
-            
+
         Raises:
             ValueError: If timestamp is negative or too large
         """
@@ -1047,35 +1047,35 @@ class TimeSyncPlugin(Plugin):
         FASTDATE32_FRAC_BITS = 10
         FASTDATE32_FRAC_SCALE = 1 << FASTDATE32_FRAC_BITS
         FASTDATE32_SECONDS_MAX = (1 << FASTDATE32_SECONDS_BITS) - 1
-        
+
         if ts < 0:
             raise ValueError("Negative timestamps not supported")
 
         sec = int(ts)
         frac = int((ts - sec) * FASTDATE32_FRAC_SCALE)
-        
+
         if sec > FASTDATE32_SECONDS_MAX:
             raise ValueError(f"Timestamp seconds {sec} too large for {FASTDATE32_SECONDS_BITS}-bit field")
-        
+
         return (sec << FASTDATE32_FRAC_BITS) | (frac & (FASTDATE32_FRAC_SCALE - 1))
 
     @staticmethod
     def decode_fastdate(value: int) -> float:
         """
         Decode 32-bit integer to POSIX timestamp (FastDate).
-        
+
         Based on Ben Joffe's FastDate algorithm.
         Reference: https://www.benjoffe.com/fast-date
-        
+
         Args:
             value: 32-bit integer encoding of timestamp
-            
+
         Returns:
             POSIX timestamp in seconds (float)
         """
         FASTDATE32_FRAC_BITS = 10
         FASTDATE32_FRAC_SCALE = 1 << FASTDATE32_FRAC_BITS
-        
+
         frac_mask = FASTDATE32_FRAC_SCALE - 1
         sec = value >> FASTDATE32_FRAC_BITS
         frac = value & frac_mask
@@ -1085,19 +1085,19 @@ class TimeSyncPlugin(Plugin):
     def encode_safedate(ts: float) -> int:
         """
         Encode POSIX timestamp to safe 32-bit integer (SafeDate).
-        
+
         Based on Ben Joffe's SafeDate algorithm.
         Reference: https://www.benjoffe.com/safe-date
-        
+
         Uses offset from year 2024 to support a reasonable range
         with 32-bit integers while maintaining millisecond precision.
-        
+
         Args:
             ts: POSIX timestamp in seconds (float)
-            
+
         Returns:
             32-bit integer encoding of the timestamp
-            
+
         Raises:
             ValueError: If timestamp is outside supported range
         """
@@ -1106,32 +1106,32 @@ class TimeSyncPlugin(Plugin):
         SAFEDATE_FRAC_BITS = 10
         SAFEDATE_FRAC_SCALE = 1 << SAFEDATE_FRAC_BITS
         SAFEDATE_SECONDS_MAX = (1 << SAFEDATE_SECONDS_BITS) - 1
-        
+
         # Convert to seconds since SAFEDATE_EPOCH_OFFSET
         epoch_2024 = 1704067200  # Approximate Unix timestamp for 2024-01-01
         relative_seconds = int(ts - epoch_2024)
-        
+
         if relative_seconds < 0:
             raise ValueError("Timestamp too far in the past (before 2024)")
         if relative_seconds > SAFEDATE_SECONDS_MAX:
             raise ValueError(f"Timestamp too far in the future (exceeds {SAFEDATE_SECONDS_MAX} seconds from 2024)")
-        
+
         # Get fractional part
         frac = int((ts - int(ts)) * SAFEDATE_FRAC_SCALE)
-        
+
         return (relative_seconds << SAFEDATE_FRAC_BITS) | (frac & (SAFEDATE_FRAC_SCALE - 1))
 
     @staticmethod
     def decode_safedate(value: int) -> float:
         """
         Decode safe 32-bit integer to POSIX timestamp (SafeDate).
-        
+
         Based on Ben Joffe's SafeDate algorithm.
         Reference: https://www.benjoffe.com/safe-date
-        
+
         Args:
             value: 32-bit integer encoding of timestamp
-            
+
         Returns:
             POSIX timestamp in seconds (float)
         """
@@ -1139,21 +1139,21 @@ class TimeSyncPlugin(Plugin):
         SAFEDATE_FRAC_BITS = 10
         SAFEDATE_FRAC_SCALE = 1 << SAFEDATE_FRAC_BITS
         epoch_2024 = 1704067200  # Approximate Unix timestamp for 2024-01-01
-        
+
         frac_mask = SAFEDATE_FRAC_SCALE - 1
         relative_seconds = value >> SAFEDATE_FRAC_BITS
         frac = value & frac_mask
-        
+
         return epoch_2024 + float(relative_seconds) + (float(frac) / SAFEDATE_FRAC_SCALE)
 
     @staticmethod
     def fastdate64_to_iso(value: int) -> str:
         """
         Convert FastDate64 value to ISO 8601 string.
-        
+
         Args:
             value: FastDate64 encoded timestamp
-            
+
         Returns:
             ISO 8601 formatted timestamp string
         """
@@ -1165,10 +1165,10 @@ class TimeSyncPlugin(Plugin):
     def iso_to_fastdate64(iso: str) -> int:
         """
         Convert ISO 8601 string to FastDate64 value.
-        
+
         Args:
             iso: ISO 8601 formatted timestamp string
-            
+
         Returns:
             FastDate64 encoded timestamp
         """
@@ -1211,17 +1211,17 @@ class TimeSyncPlugin(Plugin):
     def is_leap_year(self, year: int) -> bool:
         """
         Determine if a year is a leap year using the LeapYear plugin or built-in calculation.
-        
+
         This method integrates with the LeapYear plugin when available for optimal
         performance using Ben Joffe's fast algorithm, with automatic fallback to
         built-in Gregorian calendar calculations.
-        
+
         Args:
             year: Year to check (e.g., 2024)
-            
+
         Returns:
             True if the year is a leap year, False otherwise
-            
+
         Example:
             >>> plugin.is_leap_year(2024)
             True
@@ -1233,13 +1233,13 @@ class TimeSyncPlugin(Plugin):
     def get_days_in_february(self, year: int) -> int:
         """
         Get the number of days in February for a given year.
-        
+
         Args:
             year: Year to check (e.g., 2024)
-            
+
         Returns:
             29 if leap year, 28 otherwise
-            
+
         Example:
             >>> plugin.get_days_in_february(2024)
             29
@@ -1251,10 +1251,10 @@ class TimeSyncPlugin(Plugin):
     def is_leap_year_plugin_available(self) -> bool:
         """
         Check if the LeapYear plugin is available and being used for calculations.
-        
+
         Returns:
             True if LeapYear plugin is loaded and active, False if using built-in calculations
-            
+
         Example:
             >>> plugin.is_leap_year_plugin_available()
             True

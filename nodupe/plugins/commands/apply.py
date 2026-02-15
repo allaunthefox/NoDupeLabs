@@ -83,25 +83,25 @@ class ApplyPlugin(Plugin):
             if hasattr(args, 'input') and args.input is None:
                 print("[ERROR] Input file is required")
                 return 1
-            
+
             # Validate input file exists
             if hasattr(args, 'input') and args.input:
                 import os
                 if not os.path.exists(args.input):
                     print(f"[ERROR] Input file does not exist: {args.input}")
                     return 1
-            
+
             # Validate action is one of the allowed choices
             valid_actions = ['delete', 'move', 'copy', 'list']
             if args.action not in valid_actions:
                 print(f"[ERROR] Invalid action: {args.action}. Must be one of: {', '.join(valid_actions)}")
                 return 1
-            
+
             # Validate destination for move/copy actions
             if args.action in ['move', 'copy'] and not args.destination:
                 print("[ERROR] --destination is required for move/copy actions")
                 return 1
-            
+
             # Validate target directory for move/copy
             if args.action in ['move', 'copy']:
                 if hasattr(args, 'destination') and args.destination:
@@ -109,7 +109,7 @@ class ApplyPlugin(Plugin):
                     if not os.path.exists(args.destination):
                         print(f"[ERROR] Target directory does not exist: {args.destination}")
                         return 1
-            
+
             print(f"[PLUGIN] Executing apply command: {args.action}")
 
             # 1. Get services

@@ -48,44 +48,44 @@ class ServerStats:
     last_failure: Optional[float] = None
     failure_reasons: Dict[FailureReason, int] = None
     recent_delays: deque = None  # Rolling window of recent delays
-    
+
     def __post_init__(self):
         """TODO: Document __post_init__."""
         if self.failure_reasons is None:
             self.failure_reasons = defaultdict(int)
         if self.recent_delays is None:
             self.recent_delays = deque(maxlen=10)  # Keep last 10 delays
-    
+
     @property
     def success_rate(self) -> float:
         """Calculate success rate as percentage."""
         if self.total_attempts == 0:
             return 0.0
         return (self.success_count / self.total_attempts) * 100
-    
+
     @property
     def avg_delay(self) -> float:
         """Calculate average delay from recent measurements."""
         if not self.recent_delays:
             return 0.0
         return sum(self.recent_delays) / len(self.recent_delays)
-    
+
     @property
     def is_healthy(self) -> bool:
         """Determine if server is considered healthy."""
         if self.total_attempts < 3:
             return True  # Not enough data yet
-        
+
         # Server is unhealthy if success rate is below 50%
         return self.success_rate >= 50.0
-    
+
     def record_success(self, delay: float):
         """Record a successful connection."""
         self.success_count += 1
         self.total_attempts += 1
         self.last_success = time.time()
         self.recent_delays.append(delay)
-    
+
     def record_failure(self, reason: FailureReason):
         """Record a failed connection."""
         self.failure_count += 1
@@ -108,12 +108,12 @@ class ConnectionAttempt:
 class FailureRuleEngine:
     """
     Rule engine for handling NTP server connection failures and retries.
-    
+
     Implements intelligent retry strategies, server health monitoring,
     and graceful fallback hierarchies.
     """
-    
-    def __init__(self, 
+
+    def __init__(self,
                  max_retries: int = 3,
                  base_retry_delay: float = 1.0,
                  max_retry_delay: float = 30.0,
@@ -121,7 +121,7 @@ class FailureRuleEngine:
                  failure_decay_hours: float = 24.0):
         """
         Initialize the failure rule engine.
-        
+
         Args:
             max_retries: Maximum number of retries per server
             base_retry_delay: Base delay between retries (exponential backoff)
@@ -134,15 +134,15 @@ class FailureRuleEngine:
         self.max_retry_delay = max_retry_delay
         self.health_check_interval = health_check_interval
         self.failure_decay_hours = failure_decay_hours
-        
+
         self.server_stats: Dict[str, ServerStats] = {}
         self.connection_history: List[ConnectionAttempt] = []
         self._last_health_check = time.time()
-    
+
     def get_server_priority(self, host: str) -> ServerPriority:
         """Determine server priority based on hostname."""
         host_lower = host.lower()
-        
+
         if any(provider in host_lower for provider in ['google', 'cloudflare']):
             return ServerPriority.PRIMARY
         elif any(provider in host_lower for provider in ['apple', 'microsoft', 'windows']):
@@ -151,24 +151,24 @@ class FailureRuleEngine:
             return ServerPriority.TERTIARY
         else:
             return ServerPriority.FALLBACK
-    
-    def should_retry_server(self, host: str, attempt_count: int, 
+
+    def should_retry_server(self, host: str, attempt_count: int,
                           last_failure_reason: Optional[FailureReason] = None) -> Tuple[bool, float]:
         """
         Determine if a server should be retried and when.
-        
+
         Args:
             host: Server hostname
             attempt_count: Number of previous attempts
             last_failure_reason: Reason for last failure
-            
+
         Returns:
             Tuple of (should_retry, delay_seconds)
         """
         if attempt_count >= self.max_retries:
             logger.debug(f"Server {host} reached max retries ({self.max_retries})")
             return False, 0.0
-        
+
         # Check server health
         stats = self.server_stats.get(host)
         if stats and not stats.is_healthy:
@@ -176,34 +176,34 @@ class FailureRuleEngine:
             delay = min(self.max_retry_delay, self.base_retry_delay * (2 ** attempt_count))
             logger.warning(f"Server {host} is unhealthy, retrying in {delay:.1f}s")
             return True, delay
-        
+
         # Standard exponential backoff
         delay = self.base_retry_delay * (2 ** attempt_count)
         delay = min(delay, self.max_retry_delay)
-        
+
         # Additional delay for certain failure types
         if last_failure_reason == FailureReason.TIMEOUT:
             delay *= 1.5
         elif last_failure_reason == FailureReason.NETWORK_ERROR:
             delay *= 1.2
-        
+
         return True, delay
-    
-    def select_best_servers(self, available_hosts: List[str], 
+
+    def select_best_servers(self, available_hosts: List[str],
                           max_selections: int = 4) -> List[str]:
         """
         Select the best servers based on health and priority.
-        
+
         Args:
             available_hosts: List of available server hosts
             max_selections: Maximum number of servers to select
-            
+
         Returns:
             List of selected server hosts in priority order
         """
         # Update server stats if needed
         self._decay_old_failures()
-        
+
         # Create or update server stats
         servers_with_stats = []
         for host in available_hosts:
@@ -212,10 +212,10 @@ class FailureRuleEngine:
                     host=host,
                     priority=self.get_server_priority(host)
                 )
-            
+
             stats = self.server_stats[host]
             servers_with_stats.append((host, stats))
-        
+
         # Sort by: health status, priority, success rate, average delay
         def sort_key(item):
             """TODO: Document sort_key."""
@@ -224,94 +224,94 @@ class FailureRuleEngine:
             priority_score = -stats.priority.value  # Lower is better
             success_score = stats.success_rate / 100.0
             delay_score = -stats.avg_delay if stats.avg_delay > 0 else 0
-            
+
             return (health_score, priority_score, success_score, delay_score)
-        
+
         sorted_servers = sorted(servers_with_stats, key=sort_key, reverse=True)
         selected = [host for host, _ in sorted_servers[:max_selections]]
-        
+
         logger.info(f"Selected servers: {selected}")
         return selected
-    
+
     def should_fallback_to_rtc(self) -> bool:
         """
         Determine if we should fallback to RTC based on recent failure patterns.
-        
+
         Returns:
             True if RTC fallback is warranted
         """
         if len(self.connection_history) < 5:
             return False
-        
+
         # Check last 10 attempts
         recent_attempts = self.connection_history[-10:]
         total_attempts = len(recent_attempts)
         failed_attempts = sum(1 for attempt in recent_attempts if not attempt.success)
-        
+
         # Fallback if 80% or more recent attempts failed
         failure_rate = failed_attempts / total_attempts if total_attempts > 0 else 0
-        
+
         if failure_rate >= 0.8:
             logger.warning(f"High failure rate ({failure_rate:.1%}), falling back to RTC")
             return True
-        
+
         return False
-    
+
     def should_use_file_fallback(self) -> bool:
         """
         Determine if we should use file timestamp fallback.
-        
+
         Returns:
             True if file fallback is warranted
         """
         if len(self.connection_history) < 10:
             return False
-        
+
         # Check last 20 attempts
         recent_attempts = self.connection_history[-20:]
         total_attempts = len(recent_attempts)
         failed_attempts = sum(1 for attempt in recent_attempts if not attempt.success)
-        
+
         # File fallback if 90% or more recent attempts failed
         failure_rate = failed_attempts / total_attempts if total_attempts > 0 else 0
-        
+
         if failure_rate >= 0.9:
             logger.warning(f"Very high failure rate ({failure_rate:.1%}), using file fallback")
             return True
-        
+
         return False
-    
+
     def should_use_monotonic_only(self) -> bool:
         """
         Determine if we should use pure monotonic time only.
-        
+
         Returns:
             True if only monotonic time should be used
         """
         if len(self.connection_history) < 20:
             return False
-        
+
         # Check last 50 attempts
         recent_attempts = self.connection_history[-50:]
         total_attempts = len(recent_attempts)
         failed_attempts = sum(1 for attempt in recent_attempts if not attempt.success)
-        
+
         # Pure monotonic if 95% or more recent attempts failed
         failure_rate = failed_attempts / total_attempts if total_attempts > 0 else 0
-        
+
         if failure_rate >= 0.95:
             logger.critical(f"Critical failure rate ({failure_rate:.1%}), using monotonic only")
             return True
-        
+
         return False
-    
+
     def get_connection_strategy(self, available_hosts: List[str]) -> ConnectionStrategy:
         """
         Determine the optimal connection strategy based on current conditions.
-        
+
         Args:
             available_hosts: List of available server hosts
-            
+
         Returns:
             ConnectionStrategy with optimal parameters
         """
@@ -319,7 +319,7 @@ class FailureRuleEngine:
         if time.time() - self._last_health_check > self.health_check_interval:
             self._perform_health_check()
             self._last_health_check = time.time()
-        
+
         # Determine fallback level
         if self.should_use_monotonic_only():
             fallback_level = FallbackLevel.MONOTONIC_ONLY
@@ -329,10 +329,10 @@ class FailureRuleEngine:
             fallback_level = FallbackLevel.RTC_FALLBACK
         else:
             fallback_level = FallbackLevel.NTP_ONLY
-        
+
         # Select servers based on health
         selected_servers = self.select_best_servers(available_hosts)
-        
+
         # Adjust retry strategy based on failure patterns
         avg_success_rate = self._calculate_average_success_rate()
         if avg_success_rate < 30:
@@ -341,7 +341,7 @@ class FailureRuleEngine:
             retry_strategy = RetryStrategy.MODERATE
         else:
             retry_strategy = RetryStrategy.AGGRESSIVE
-        
+
         return ConnectionStrategy(
             servers=selected_servers,
             max_retries=self._get_adaptive_retries(retry_strategy),
@@ -350,15 +350,15 @@ class FailureRuleEngine:
             fallback_level=fallback_level,
             retry_strategy=retry_strategy
         )
-    
+
     def record_attempt(self, attempt: ConnectionAttempt):
         """Record a connection attempt for analysis."""
         self.connection_history.append(attempt)
-        
+
         # Keep only last 1000 attempts
         if len(self.connection_history) > 1000:
             self.connection_history.pop(0)
-        
+
         # Update server stats
         stats = self.server_stats.get(attempt.host)
         if not stats:
@@ -367,16 +367,16 @@ class FailureRuleEngine:
                 priority=self.get_server_priority(attempt.host)
             )
             self.server_stats[attempt.host] = stats
-        
+
         if attempt.success:
             stats.record_success(attempt.delay or 0.0)
         else:
             stats.record_failure(attempt.failure_reason or FailureReason.NETWORK_ERROR)
-    
+
     def get_server_health_report(self) -> Dict[str, Dict]:
         """Get health report for all servers."""
         self._decay_old_failures()
-        
+
         report = {}
         for host, stats in self.server_stats.items():
             report[host] = {
@@ -389,19 +389,19 @@ class FailureRuleEngine:
                 'last_failure': stats.last_failure,
                 'failure_reasons': dict(stats.failure_reasons)
             }
-        
+
         return report
-    
+
     def _decay_old_failures(self):
         """Decay old failure counts based on time."""
         cutoff_time = time.time() - (self.failure_decay_hours * 3600)
-        
+
         for stats in self.server_stats.values():
             if stats.last_success and stats.last_success > cutoff_time:
                 # Reduce failure count for servers with recent successes
                 stats.failure_count = max(0, stats.failure_count - 1)
                 stats.total_attempts = stats.success_count + stats.failure_count
-    
+
     def _perform_health_check(self):
         """Perform periodic health checks on servers."""
         for stats in self.server_stats.values():
@@ -410,31 +410,31 @@ class FailureRuleEngine:
                 time_since_success = time.time() - stats.last_success
                 if time_since_success > 1800:  # 30 minutes
                     logger.warning(f"Server {stats.host} has no success in {time_since_success/60:.1f} minutes")
-    
+
     def _calculate_average_success_rate(self) -> float:
         """Calculate average success rate across all servers."""
         if not self.server_stats:
             return 50.0  # Default
-        
+
         total_success = sum(stats.success_count for stats in self.server_stats.values())
         total_attempts = sum(stats.total_attempts for stats in self.server_stats.values())
-        
+
         if total_attempts == 0:
             return 50.0
-        
+
         return (total_success / total_attempts) * 100
-    
+
     def _get_adaptive_retries(self, strategy: 'RetryStrategy') -> int:
         """Get adaptive retry count based on strategy."""
         base_retries = self.max_retries
-        
+
         if strategy == RetryStrategy.CONSERVATIVE:
             return max(2, base_retries - 1)
         elif strategy == RetryStrategy.AGGRESSIVE:
             return min(5, base_retries + 1)
         else:
             return base_retries
-    
+
     def _get_adaptive_timeout(self, strategy: 'RetryStrategy') -> float:
         """Get adaptive timeout based on strategy."""
         if strategy == RetryStrategy.CONSERVATIVE:
@@ -443,7 +443,7 @@ class FailureRuleEngine:
             return 2.0
         else:
             return 3.0
-    
+
     def _get_adaptive_parallelism(self, strategy: 'RetryStrategy') -> bool:
         """Get adaptive parallelism setting based on strategy."""
         if strategy == RetryStrategy.CONSERVATIVE:
@@ -483,42 +483,42 @@ class AdaptiveFailureHandler:
     Adaptive failure handler that learns from network patterns
     and adjusts behavior accordingly.
     """
-    
+
     def __init__(self, rule_engine: FailureRuleEngine):
         """TODO: Document __init__."""
         self.rule_engine = rule_engine
         self._network_patterns = defaultdict(list)
         self._last_pattern_update = time.time()
-    
+
     def analyze_network_pattern(self) -> Dict[str, Any]:
         """Analyze current network patterns and return recommendations."""
         if time.time() - self._last_pattern_update < 60:  # Update every minute
             return self._get_cached_pattern()
-        
+
         # Analyze recent connection history
         if len(self.rule_engine.connection_history) < 10:
             return {'pattern': 'insufficient_data', 'recommendation': 'continue_monitoring'}
-        
+
         recent_attempts = self.rule_engine.connection_history[-50:]
-        
+
         # Calculate failure patterns
         hourly_failures = self._calculate_hourly_failures(recent_attempts)
         failure_by_reason = self._calculate_failure_reasons(recent_attempts)
         success_by_server = self._calculate_success_by_server(recent_attempts)
-        
+
         # Determine pattern
         avg_hourly_failures = sum(hourly_failures.values()) / max(1, len(hourly_failures))
-        
+
         if avg_hourly_failures > 20:
             pattern = 'high_failure_network'
         elif avg_hourly_failures > 5:
             pattern = 'moderate_failure_network'
         else:
             pattern = 'healthy_network'
-        
+
         # Generate recommendations
         recommendations = self._generate_recommendations(pattern, failure_by_reason, success_by_server)
-        
+
         result = {
             'pattern': pattern,
             'recommendations': recommendations,
@@ -528,12 +528,12 @@ class AdaptiveFailureHandler:
                 'success_by_server': success_by_server
             }
         }
-        
+
         self._network_patterns[pattern].append(result)
         self._last_pattern_update = time.time()
-        
+
         return result
-    
+
     def _calculate_hourly_failures(self, attempts: List[ConnectionAttempt]) -> Dict[int, int]:
         """Calculate failures per hour."""
         hourly_failures = defaultdict(int)
@@ -542,7 +542,7 @@ class AdaptiveFailureHandler:
                 hour = datetime.fromtimestamp(attempt.attempt_time).hour
                 hourly_failures[hour] += 1
         return hourly_failures
-    
+
     def _calculate_failure_reasons(self, attempts: List[ConnectionAttempt]) -> Dict[str, int]:
         """Calculate failure reasons distribution."""
         reasons = defaultdict(int)
@@ -550,59 +550,59 @@ class AdaptiveFailureHandler:
             if not attempt.success and attempt.failure_reason:
                 reasons[attempt.failure_reason.value] += 1
         return reasons
-    
+
     def _calculate_success_by_server(self, attempts: List[ConnectionAttempt]) -> Dict[str, float]:
         """Calculate success rate by server."""
         server_stats = defaultdict(lambda: {'success': 0, 'total': 0})
-        
+
         for attempt in attempts:
             server_stats[attempt.host]['total'] += 1
             if attempt.success:
                 server_stats[attempt.host]['success'] += 1
-        
+
         success_rates = {}
         for host, stats in server_stats.items():
             if stats['total'] > 0:
                 success_rates[host] = (stats['success'] / stats['total']) * 100
-        
+
         return success_rates
-    
+
     def _generate_recommendations(self, pattern: str, failure_reasons: Dict, success_rates: Dict) -> List[str]:
         """Generate recommendations based on pattern analysis."""
         recommendations = []
-        
+
         if pattern == 'high_failure_network':
             recommendations.append('Switch to conservative retry strategy')
             recommendations.append('Reduce parallel query count')
             recommendations.append('Increase timeout values')
             recommendations.append('Prioritize primary servers only')
-        
+
         elif pattern == 'moderate_failure_network':
             recommendations.append('Use moderate retry strategy')
             recommendations.append('Monitor server health closely')
             recommendations.append('Consider geographic server distribution')
-        
+
         # Check for specific failure reasons
         if failure_reasons.get('timeout', 0) > 10:
             recommendations.append('Increase timeout due to network latency')
-        
+
         if failure_reasons.get('dns_failure', 0) > 5:
             recommendations.append('Check DNS configuration or use IP addresses')
-        
+
         # Check server-specific issues
         for host, rate in success_rates.items():
             if rate < 30:
                 recommendations.append(f'Exclude {host} due to poor performance')
-        
+
         return recommendations
-    
+
     def _get_cached_pattern(self) -> Dict[str, Any]:
         """Get the most recent cached pattern analysis."""
         if not self._network_patterns:
             return {'pattern': 'unknown', 'recommendation': 'insufficient_data'}
-        
+
         # Return the most recent pattern
-        latest_pattern = max(self._network_patterns.keys(), 
+        latest_pattern = max(self._network_patterns.keys(),
                            key=lambda p: len(self._network_patterns[p]))
         return self._network_patterns[latest_pattern][-1] if self._network_patterns[latest_pattern] else {}
 

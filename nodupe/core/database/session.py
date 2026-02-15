@@ -24,35 +24,35 @@ from contextlib import contextmanager
 
 class DatabaseSession:
     """Database session management.
-    
+
     Provides context managers for managing database sessions with automatic
     commit/rollback handling.
-    
+
     Example:
         >>> session = DatabaseSession(connection)
         >>> with session.begin() as conn:
         ...     conn.execute("INSERT ...")
     """
-    
+
     def __init__(self, connection: Any) -> None:
         """Initialize database session.
-        
+
         Args:
             connection: Database connection instance.
         """
         self.connection = connection
         self._active = False
-    
+
     @contextmanager
     def begin(self):
         """Begin a database session.
-        
+
         Yields:
             Database connection for the session.
-        
+
         Raises:
             Exception: Re-raises any exception after rollback.
-        
+
         Example:
             >>> with session.begin() as conn:
             ...     conn.execute("INSERT ...")
@@ -67,14 +67,14 @@ class DatabaseSession:
             raise
         finally:
             self._active = False
-    
+
     @property
     def is_active(self) -> bool:
         """Check if session is active.
-        
+
         Returns:
             True if session is active.
-        
+
         Example:
             >>> session.is_active
             False

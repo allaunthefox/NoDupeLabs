@@ -51,7 +51,7 @@ def require_auth(func: Callable[..., Any]) -> Callable[..., Any]:
 def cache_response(ttl: int = 300) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to cache API responses."""
     _cache: Dict[str, tuple[Any, float]] = {}
-    
+
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:

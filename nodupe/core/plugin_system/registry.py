@@ -51,11 +51,11 @@ class PluginRegistry:
     def register_plugin(self, plugin: Plugin) -> None:
         """Alias for register() for backward compatibility."""
         return self.register(plugin)
-    
+
     def get_all_plugins(self) -> list:
         """Alias for get_plugins() for backward compatibility."""
         return self.get_plugins()
-    
+
     def clear(self) -> None:
         """Clear all registered plugins."""
         self._plugins.clear()

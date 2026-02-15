@@ -21,29 +21,29 @@ from typing import Any, Dict
 
 class DatabaseCleanup:
     """Database cleanup and maintenance.
-    
+
     Provides methods for cleaning up the database, including vacuuming,
     removing temporary data, and other maintenance tasks.
-    
+
     Example:
         >>> cleanup = DatabaseCleanup(connection)
         >>> result = cleanup.vacuum()
     """
-    
+
     def __init__(self, connection: Any) -> None:
         """Initialize database cleanup.
-        
+
         Args:
             connection: Database connection instance.
         """
         self.connection = connection
-    
+
     def vacuum(self) -> Dict[str, Any]:
         """Vacuum the database to reclaim space.
-        
+
         Returns:
             Dictionary with status and message.
-        
+
         Example:
             >>> cleanup.vacuum()
             {'status': 'success', 'message': 'Database vacuumed'}
@@ -55,13 +55,13 @@ class DatabaseCleanup:
             return {"status": "success", "message": "Database vacuumed"}
         except Exception as e:
             return {"status": "error", "message": str(e)}
-    
+
     def analyze(self) -> Dict[str, Any]:
         """Analyze database for query optimization.
-        
+
         Returns:
             Dictionary with status and message.
-        
+
         Example:
             >>> cleanup.analyze()
             {'status': 'success', 'message': 'Database analyzed'}
@@ -73,13 +73,13 @@ class DatabaseCleanup:
             return {"status": "success", "message": "Database analyzed"}
         except Exception as e:
             return {"status": "error", "message": str(e)}
-    
+
     def integrity_check(self) -> Dict[str, Any]:
         """Run integrity check on the database.
-        
+
         Returns:
             Dictionary with integrity check results.
-        
+
         Example:
             >>> cleanup.integrity_check()
             {'status': 'ok', 'integrity': 'ok'}
@@ -95,13 +95,13 @@ class DatabaseCleanup:
             }
         except Exception as e:
             return {"status": "error", "message": str(e)}
-    
+
     def clear_temp_tables(self) -> Dict[str, Any]:
         """Clear temporary tables from database.
-        
+
         Returns:
             Dictionary with status and message.
-        
+
         Example:
             >>> cleanup.clear_temp_tables()
             {'status': 'success', 'message': 'Temp tables cleared'}
@@ -113,10 +113,10 @@ class DatabaseCleanup:
                 "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'temp_%'"
             )
             tables = cursor.fetchall()
-            
+
             for (table_name,) in tables:
                 conn.execute(f"DROP TABLE IF EXISTS {table_name}")
-            
+
             conn.commit()
             return {
                 "status": "success",

@@ -14,7 +14,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 class SchemaValidationError(Exception):
     """Exception raised when schema validation fails."""
-    
+
     def __init__(self, message: str, errors: Optional[List[str]] = None) -> None:
         """Initialize validation error."""
         self.message = message
@@ -24,15 +24,15 @@ class SchemaValidationError(Exception):
 
 class SchemaValidator:
     """JSON Schema Validator.
-    
+
     Provides JSON schema validation for API requests and responses.
     Implements a subset of JSON Schema draft-07 validation.
     """
-    
+
     def __init__(self, strict_mode: bool = False) -> None:
         """Initialize schema validator."""
         self.strict_mode = strict_mode
-    
+
     def validate(self, schema: Dict[str, Any], data: Any) -> bool:
         """Validate data against a JSON schema."""
         errors: List[str] = []
@@ -40,14 +40,14 @@ class SchemaValidator:
         if errors:
             raise SchemaValidationError("Validation failed", errors)
         return True
-    
+
     def _validate_recursive(self, schema: Dict[str, Any], data: Any, path: str, errors: List[str]) -> bool:
         """Recursively validate data against schema."""
         if "type" in schema:
             if not self._check_type(data, schema["type"]):
                 errors.append(f"{path}: expected {schema['type']}, got {type(data).__name__}")
         return len(errors) == 0 or not self.strict_mode
-    
+
     def _check_type(self, data: Any, expected_type: str) -> bool:
         """Check if data matches expected type."""
         if expected_type == "string":

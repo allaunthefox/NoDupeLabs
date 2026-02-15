@@ -18,22 +18,22 @@ logger = logging.getLogger(__name__)
 
 class PluginLoadOrder(Enum):
     """Explicit plugin loading order levels."""
-    
+
     # Core infrastructure - must load first
     CORE_INFRASTRUCTURE = 1
-    
+
     # System utilities - depend on core infrastructure
     SYSTEM_UTILITIES = 2
-    
+
     # Database and storage - depend on system utilities
     STORAGE_SERVICES = 3
-    
+
     # Processing and analysis - depend on storage
     PROCESSING_SERVICES = 4
-    
+
     # User interface and commands - depend on processing
     UI_COMMANDS = 5
-    
+
     # Specialized plugins - depend on UI/commands
     SPECIALIZED_PLUGINS = 6
 
@@ -62,7 +62,7 @@ class PluginDependencyError(PluginLoadingError):
 
 class PluginLoadingOrder:
     """Manages explicit plugin loading order and dependencies."""
-    
+
     def __init__(self):
         """Initialize the plugin loading order manager."""
         self._plugin_info: Dict[str, PluginLoadInfo] = {}
@@ -72,13 +72,13 @@ class PluginLoadingOrder:
         self._dependency_graph: Dict[str, Set[str]] = {}
         self._reverse_dependencies: Dict[str, Set[str]] = {}
         self._load_callbacks: Dict[str, List[Callable]] = defaultdict(list)
-        
+
         # Initialize known plugin order
         self._initialize_known_plugins()
-    
+
     def _initialize_known_plugins(self):
         """Initialize known plugin loading order and dependencies."""
-        
+
         # Core Infrastructure (must load first)
         core_plugins = [
             PluginLoadInfo(
@@ -138,7 +138,7 @@ class PluginLoadingOrder:
                 description="Security services"
             ),
         ]
-        
+
         # System Utilities (depend on core infrastructure)
         utility_plugins = [
             PluginLoadInfo(
@@ -206,7 +206,7 @@ class PluginLoadingOrder:
                 description="Leap year calculations"
             ),
         ]
-        
+
         # Storage Services (depend on system utilities)
         storage_plugins = [
             PluginLoadInfo(
@@ -242,7 +242,7 @@ class PluginLoadingOrder:
                 description="MIME type detection"
             ),
         ]
-        
+
         # Processing Services (depend on storage)
         processing_plugins = [
             PluginLoadInfo(
@@ -270,7 +270,7 @@ class PluginLoadingOrder:
                 description="Hash autotuning"
             ),
         ]
-        
+
         # UI/Commands (depend on processing)
         ui_plugins = [
             PluginLoadInfo(
@@ -290,7 +290,7 @@ class PluginLoadingOrder:
                 description="Command implementations"
             ),
         ]
-        
+
         # Specialized Plugins (depend on UI/commands)
         specialized_plugins = [
             PluginLoadInfo(
@@ -334,164 +334,164 @@ class PluginLoadingOrder:
                 description="Plan operations"
             ),
         ]
-        
+
         # Register all plugins
         all_plugins = (
-            core_plugins + utility_plugins + storage_plugins + 
+            core_plugins + utility_plugins + storage_plugins +
             processing_plugins + ui_plugins + specialized_plugins
         )
-        
+
         for plugin_info in all_plugins:
             self.register_plugin(plugin_info)
-    
+
     def register_plugin(self, plugin_info: PluginLoadInfo) -> None:
         """Register a plugin with its loading requirements.
-        
+
         Args:
             plugin_info: Plugin loading information
         """
         self._plugin_info[plugin_info.name] = plugin_info
         self._load_order_groups[plugin_info.load_order].append(plugin_info.name)
-        
+
         # Build dependency graph
         self._dependency_graph[plugin_info.name] = set(plugin_info.required_dependencies)
         self._reverse_dependencies[plugin_info.name] = set()
-        
+
         # Update reverse dependencies
         for dep in plugin_info.required_dependencies:
             if dep not in self._reverse_dependencies:
                 self._reverse_dependencies[dep] = set()
             self._reverse_dependencies[dep].add(plugin_info.name)
-    
+
     def get_load_order(self) -> List[PluginLoadOrder]:
         """Get the plugin loading order levels.
-        
+
         Returns:
             List of load order levels in sequence
         """
         return list(PluginLoadOrder)
-    
+
     def get_plugins_for_order(self, order: PluginLoadOrder) -> List[str]:
         """Get plugins that should be loaded at a specific order level.
-        
+
         Args:
             order: Load order level
-            
+
         Returns:
             List of plugin names for this order level
         """
         return self._load_order_groups.get(order, [])
-    
+
     def get_required_dependencies(self, plugin_name: str) -> List[str]:
         """Get required dependencies for a plugin.
-        
+
         Args:
             plugin_name: Name of the plugin
-            
+
         Returns:
             List of required dependency names
         """
         if plugin_name not in self._plugin_info:
             return []
         return self._plugin_info[plugin_name].required_dependencies
-    
+
     def get_optional_dependencies(self, plugin_name: str) -> List[str]:
         """Get optional dependencies for a plugin.
-        
+
         Args:
             plugin_name: Name of the plugin
-            
+
         Returns:
             List of optional dependency names
         """
         if plugin_name not in self._plugin_info:
             return []
         return self._plugin_info[plugin_name].optional_dependencies
-    
+
     def is_critical(self, plugin_name: str) -> bool:
         """Check if a plugin is critical (failure prevents other plugins).
-        
+
         Args:
             plugin_name: Name of the plugin
-            
+
         Returns:
             True if plugin is critical
         """
         if plugin_name not in self._plugin_info:
             return False
         return self._plugin_info[plugin_name].critical
-    
+
     def get_plugin_info(self, plugin_name: str) -> Optional[PluginLoadInfo]:
         """Get plugin loading information.
-        
+
         Args:
             plugin_name: Name of the plugin
-            
+
         Returns:
             PluginLoadInfo if found, None otherwise
         """
         return self._plugin_info.get(plugin_name)
-    
+
     def validate_dependencies(self, plugin_name: str, available_plugins: Set[str]) -> Tuple[bool, List[str]]:
         """Validate that all required dependencies are available.
-        
+
         Args:
             plugin_name: Name of the plugin to validate
             available_plugins: Set of currently available plugins
-            
+
         Returns:
             Tuple of (is_valid, missing_dependencies)
         """
         if plugin_name not in self._plugin_info:
             return True, []
-        
+
         required_deps = set(self._plugin_info[plugin_name].required_dependencies)
         missing = required_deps - available_plugins
-        
+
         return len(missing) == 0, list(missing)
-    
+
     def get_load_sequence(self, plugin_names: List[str]) -> List[str]:
         """Get the optimal loading sequence for a set of plugins.
-        
+
         Args:
             plugin_names: List of plugin names to load
-            
+
         Returns:
             Ordered list of plugin names for loading (includes dependencies)
         """
         # Build complete set including all dependencies
         all_required = set(plugin_names)
-        
+
         # Add all dependencies recursively
         for plugin_name in plugin_names:
             if plugin_name in self._plugin_info:
                 deps = self.get_dependency_chain(plugin_name)
                 all_required.update(deps)
-        
+
         # Build dependency graph for all required plugins
         requested_set = all_required
         load_sequence = []
         visited = set()
         temp_mark = set()
-        
+
         def visit(node: str) -> None:
             """TODO: Document visit."""
             if node in temp_mark:
                 raise ValueError(f"Circular dependency detected involving {node}")
-            
+
             if node not in visited:
                 temp_mark.add(node)
-                
+
                 # Visit dependencies first
                 if node in self._dependency_graph:
                     for dep in self._dependency_graph[node]:
                         if dep in requested_set:
                             visit(dep)
-                
+
                 temp_mark.remove(node)
                 visited.add(node)
                 load_sequence.append(node)
-        
+
         # Sort plugins by load order first, then process
         plugins_by_order = {}
         for plugin_name in requested_set:
@@ -500,83 +500,83 @@ class PluginLoadingOrder:
                 if order not in plugins_by_order:
                     plugins_by_order[order] = []
                 plugins_by_order[order].append(plugin_name)
-        
+
         # Process in load order
         for order in self.get_load_order():
             if order in plugins_by_order:
                 for plugin_name in plugins_by_order[order]:
                     visit(plugin_name)
-        
+
         return load_sequence
-    
+
     def get_critical_plugins(self) -> List[str]:
         """Get all critical plugins that must load successfully.
-        
+
         Returns:
             List of critical plugin names
         """
         return [name for name, info in self._plugin_info.items() if info.critical]
-    
+
     def get_plugin_description(self, plugin_name: str) -> str:
         """Get plugin description.
-        
+
         Args:
             plugin_name: Name of the plugin
-            
+
         Returns:
             Plugin description
         """
         if plugin_name in self._plugin_info:
             return self._plugin_info[plugin_name].description
         return "Unknown plugin"
-    
+
     def get_dependency_chain(self, plugin_name: str) -> List[str]:
         """Get the full dependency chain for a plugin.
-        
+
         Args:
             plugin_name: Name of the plugin
-            
+
         Returns:
             List of dependencies in loading order
         """
         chain = []
         visited = set()
-        
+
         def add_deps(name: str) -> None:
             """TODO: Document add_deps."""
             if name in visited:
                 return
             visited.add(name)
-            
+
             if name in self._dependency_graph:
                 for dep in self._dependency_graph[name]:
                     add_deps(dep)
-            
+
             if name in self._plugin_info:
                 chain.append(name)
-        
+
         add_deps(plugin_name)
         return chain[:-1]  # Remove the plugin itself, return only dependencies
-    
+
     def validate_load_sequence(self, plugin_names: List[str]) -> Tuple[bool, List[str], List[str]]:
         """Validate a complete plugin load sequence for dependencies and conflicts.
-        
+
         Args:
             plugin_names: List of plugin names to load
-            
+
         Returns:
             Tuple of (is_valid, missing_dependencies, circular_dependencies)
         """
         missing_deps = []
         circular_deps = []
-        
+
         # Check for circular dependencies
         try:
             self.get_load_sequence(plugin_names)
         except ValueError as e:
             if "Circular dependency" in str(e):
                 circular_deps.append(str(e))
-        
+
         # Check all dependencies are available
         for plugin_name in plugin_names:
             if plugin_name in self._plugin_info:
@@ -584,15 +584,15 @@ class PluginLoadingOrder:
                 for dep in required_deps:
                     if dep not in plugin_names and dep not in self._plugin_info:
                         missing_deps.append(f"{plugin_name} requires {dep}")
-        
+
         return len(missing_deps) == 0 and len(circular_deps) == 0, missing_deps, circular_deps
-    
+
     def get_safe_load_sequence(self, plugin_names: List[str]) -> Tuple[List[str], List[str]]:
         """Get a safe loading sequence that handles failures gracefully.
-        
+
         Args:
             plugin_names: List of plugin names to load
-            
+
         Returns:
             Tuple of (safe_sequence, excluded_plugins_due_to_missing_deps)
         """
@@ -602,25 +602,25 @@ class PluginLoadingOrder:
         except ValueError:
             # If there are circular dependencies, fall back to simple ordering
             optimal_sequence = self._fallback_load_sequence(plugin_names)
-        
+
         # Group by load order and criticality
         safe_sequence = []
         excluded = []
-        
+
         # Process by load order levels
         for order in self.get_load_order():
             order_plugins = [p for p in optimal_sequence if p in self._load_order_groups[order]]
-            
+
             # Separate critical and non-critical plugins
             critical_plugins = [p for p in order_plugins if self.is_critical(p)]
             non_critical_plugins = [p for p in order_plugins if not self.is_critical(p)]
-            
+
             # Load critical plugins first (they must succeed)
             safe_sequence.extend(critical_plugins)
-            
+
             # Load non-critical plugins after critical ones
             safe_sequence.extend(non_critical_plugins)
-        
+
         # Check for missing dependencies and exclude plugins that can't load
         available_for_validation = set(safe_sequence)
         for plugin_name in list(safe_sequence):
@@ -628,9 +628,9 @@ class PluginLoadingOrder:
             if not is_valid:
                 safe_sequence.remove(plugin_name)
                 excluded.append(f"{plugin_name} (missing: {', '.join(missing)})")
-        
+
         return safe_sequence, excluded
-    
+
     def _fallback_load_sequence(self, plugin_names: List[str]) -> List[str]:
         """Fallback sequence generator when optimal fails."""
         # Sort by load order, then by name for deterministic ordering
@@ -642,107 +642,107 @@ class PluginLoadingOrder:
             )
         )
         return sorted_plugins
-    
+
     def get_failure_impact_analysis(self, failed_plugin: str, loaded_plugins: List[str]) -> Dict[str, List[str]]:
         """Analyze the impact of a plugin failure on other plugins.
-        
+
         Args:
             failed_plugin: Name of the failed plugin
             loaded_plugins: List of plugins that have been loaded
-            
+
         Returns:
             Dict mapping plugin names to lists of affected dependencies
         """
         impact = {}
-        
+
         # Find plugins that depend on the failed plugin
         for plugin_name in loaded_plugins:
             if plugin_name == failed_plugin:
                 continue
-                
+
             if plugin_name in self._plugin_info:
                 deps = self._plugin_info[plugin_name].required_dependencies
                 if failed_plugin in deps:
                     if failed_plugin not in impact:
                         impact[failed_plugin] = []
                     impact[failed_plugin].append(plugin_name)
-        
+
         return impact
-    
+
     def should_continue_loading(self, failed_plugin: str, loaded_plugins: List[str]) -> Tuple[bool, str]:
         """Determine if loading should continue after a plugin failure.
-        
+
         Args:
             failed_plugin: Name of the failed plugin
             loaded_plugins: List of plugins that have been loaded
-            
+
         Returns:
             Tuple of (should_continue, reason)
         """
         if not self.is_critical(failed_plugin):
             return True, f"Non-critical plugin {failed_plugin} failed, continuing"
-        
+
         # Critical plugin failed - analyze impact
         impact = self.get_failure_impact_analysis(failed_plugin, loaded_plugins)
         affected_critical = []
-        
+
         for affected_plugin in impact.get(failed_plugin, []):
             if self.is_critical(affected_plugin):
                 affected_critical.append(affected_plugin)
-        
+
         if affected_critical:
             return False, f"Critical plugin {failed_plugin} failed, affecting: {', '.join(affected_critical)}"
-        
+
         return True, f"Critical plugin {failed_plugin} failed but no other critical plugins depend on it"
-    
+
     def get_load_priorities(self, plugin_names: List[str]) -> List[Tuple[str, int]]:
         """Get loading priorities for plugins based on dependencies and criticality.
-        
+
         Args:
             plugin_names: List of plugin names
-            
+
         Returns:
             List of (plugin_name, priority) tuples sorted by priority (higher = loads first)
         """
         priorities = []
-        
+
         for plugin_name in plugin_names:
             if plugin_name not in self._plugin_info:
                 continue
-                
+
             info = self._plugin_info[plugin_name]
-            
+
             # Base priority on load order (lower order = higher priority)
             base_priority = (6 - info.load_order.value) * 100
-            
+
             # Add criticality bonus
             critical_bonus = 50 if info.critical else 0
-            
+
             # Add dependency count bonus (plugins with more dependents should load first)
             dependency_bonus = len(self._reverse_dependencies.get(plugin_name, set())) * 10
-            
+
             # Add configured priority
             configured_priority = info.load_priority
-            
+
             total_priority = base_priority + critical_bonus + dependency_bonus + configured_priority
             priorities.append((plugin_name, total_priority))
-        
+
         # Sort by priority descending
         priorities.sort(key=lambda x: x[1], reverse=True)
         return priorities
-    
+
     def register_load_callback(self, plugin_name: str, callback: Callable) -> None:
         """Register a callback to be called when a plugin is loaded.
-        
+
         Args:
             plugin_name: Name of the plugin
             callback: Function to call when plugin loads
         """
         self._load_callbacks[plugin_name].append(callback)
-    
+
     def notify_plugin_loaded(self, plugin_name: str) -> None:
         """Notify all callbacks that a plugin has been loaded.
-        
+
         Args:
             plugin_name: Name of the loaded plugin
         """
@@ -751,10 +751,10 @@ class PluginLoadingOrder:
                 callback(plugin_name)
             except Exception as e:
                 logger.error(f"Error in load callback for {plugin_name}: {e}")
-    
+
     def get_plugin_statistics(self) -> Dict[str, Any]:
         """Get statistics about the plugin loading order configuration.
-        
+
         Returns:
             Dict containing plugin statistics
         """
@@ -765,20 +765,20 @@ class PluginLoadingOrder:
             'dependency_counts': {},
             'plugins_with_optional_deps': []
         }
-        
+
         # Count plugins by order
         for order in self.get_load_order():
             stats['plugins_by_order'][order.name] = len(self.get_plugins_for_order(order))
-        
+
         # Count dependencies
         for plugin_name, deps in self._dependency_graph.items():
             stats['dependency_counts'][plugin_name] = len(deps)
-        
+
         # Find plugins with optional dependencies
         for plugin_name, info in self._plugin_info.items():
             if info.optional_dependencies:
                 stats['plugins_with_optional_deps'].append(plugin_name)
-        
+
         return stats
 
 
@@ -788,7 +788,7 @@ _global_loading_order = None
 
 def get_plugin_loading_order() -> PluginLoadingOrder:
     """Get the global plugin loading order instance.
-    
+
     Returns:
         PluginLoadingOrder instance
     """
