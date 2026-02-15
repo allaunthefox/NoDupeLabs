@@ -35,8 +35,8 @@ import logging
 from nodupe.core.plugin_system import Plugin
 from nodupe.core.time_sync_utils import (
     ParallelNTPClient,
-    MonotonicTimeCalculator,
-    DNSCache,
+    
+    
     TargetedFileScanner,
     FastDate64Encoder,
     get_global_dns_cache,
@@ -347,7 +347,7 @@ class TimeSyncPlugin(Plugin):
         Query a single getaddrinfo entry. Returns (server_time, offset, delay).
         Raises socket.timeout / OSError / ValueError on error.
         """
-        family, socktype, proto, canonname, sockaddr = addr_info
+        family, _, _, _, sockaddr = addr_info
         packet = bytearray(48)
         packet[0] = 0x23  # LI=0, VN=4, Mode=3
 
@@ -697,7 +697,7 @@ class TimeSyncPlugin(Plugin):
         # Try to get the best available time source
         try:
             sync_result = self.sync_with_fallback()
-            source, server_time, offset, delay = sync_result
+            source, _, _, _ = sync_result
             
             # Get current corrected time
             current_time = self.get_corrected_time()
@@ -1101,7 +1101,7 @@ class TimeSyncPlugin(Plugin):
         Raises:
             ValueError: If timestamp is outside supported range
         """
-        SAFEDATE_EPOCH_OFFSET = 2024  # Offset to year 2024
+        _SAFEDATE_EPOCH_OFFSET = 2024  # Offset to year 2024
         SAFEDATE_SECONDS_BITS = 22
         SAFEDATE_FRAC_BITS = 10
         SAFEDATE_FRAC_SCALE = 1 << SAFEDATE_FRAC_BITS
@@ -1135,7 +1135,7 @@ class TimeSyncPlugin(Plugin):
         Returns:
             POSIX timestamp in seconds (float)
         """
-        SAFEDATE_EPOCH_OFFSET = 2024
+        _SAFEDATE_EPOCH_OFFSET = 2024
         SAFEDATE_FRAC_BITS = 10
         SAFEDATE_FRAC_SCALE = 1 << SAFEDATE_FRAC_BITS
         epoch_2024 = 1704067200  # Approximate Unix timestamp for 2024-01-01

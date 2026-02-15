@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import time
 import threading
-from typing import List, Tuple, Optional, Union, Iterator
+from typing import List, Tuple, Optional, Iterator
 import logging
 from functools import lru_cache
 

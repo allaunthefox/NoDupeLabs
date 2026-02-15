@@ -115,7 +115,7 @@ class PlanPlugin(Plugin):
 
             # 3. Apply Strategy
             print(f"[PLUGIN] Applying strategy '{args.strategy}'...")
-            for file_hash, group in groups.items():
+            for _, group in groups.items():
                 if len(group) < 2:
                     continue
 
