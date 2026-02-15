@@ -35,7 +35,7 @@ from contextlib import contextmanager
 from .connection import DatabaseConnection
 from .schema import DatabaseSchema
 from .indexing import DatabaseIndexing
-from .transactions import DatabaseTransaction, DatabaseTransactions
+from .transactions import DatabaseTransaction
 from .query import (
     DatabaseQuery,
     DatabaseBatch,
@@ -44,7 +44,6 @@ from .query import (
     DatabaseBackup,
     DatabaseMigration,
     DatabaseRecovery,
-    DatabaseOptimization,
 )
 from .security import DatabaseSecurity
 from .logging_ import DatabaseLogging

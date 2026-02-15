@@ -168,7 +168,7 @@ class DatabaseRecovery:
                     raise Exception("Database integrity check failed")
                 return False
             return True
-        except Exception as e:
+        except Exception as _:
             if raise_on_error:
                 raise
             return False

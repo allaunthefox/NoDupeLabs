@@ -24,7 +24,6 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Callable
 import time
 from ..archive_handler import ArchiveHandler as SecurityHardenedArchiveHandler
-from ..mime_detection import MIMEDetection
 
 
 class FileWalker:

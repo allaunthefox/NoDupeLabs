@@ -11,9 +11,9 @@ import time
 import logging
 from enum import Enum
 from dataclasses import dataclass
-from typing import List, Dict, Optional, Tuple, Callable, Any
+from typing import List, Dict, Optional, Tuple, Any
 from collections import defaultdict, deque
-from datetime import datetime, timedelta
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -219,7 +219,7 @@ class FailureRuleEngine:
         # Sort by: health status, priority, success rate, average delay
         def sort_key(item):
             """TODO: Document sort_key."""
-            host, stats = item
+            stats = item[1]
             health_score = 1 if stats.is_healthy else 0
             priority_score = -stats.priority.value  # Lower is better
             success_score = stats.success_rate / 100.0
