@@ -19,7 +19,7 @@ class DatabaseShardingPlugin(Plugin):
     """
     Database sharding functionality plugin.
     """
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """TODO: Document __init__."""
         super().__init__()
@@ -67,10 +67,10 @@ class DatabaseShardingPlugin(Plugin):
         """TODO: Document create_shard."""
         if not self._is_valid_identifier(shard_name):
             raise ValueError(f"Invalid shard name: {shard_name}")
-        
+
         if db_path is None:
             db_path = os.path.join(os.path.dirname(self.config.get('db_path', '.')), f"{shard_name}.db")
-        
+
         shard_conn = sqlite3.connect(db_path)
         try:
             shard_conn.execute("""
@@ -84,7 +84,7 @@ class DatabaseShardingPlugin(Plugin):
             shard_conn.commit()
         finally:
             shard_conn.close()
-        
+
         self._shards[shard_name] = db_path
         logger.info(f"Created shard '{shard_name}' at {db_path}")
         return db_path
@@ -110,7 +110,7 @@ class DatabaseReplicationPlugin(Plugin):
     Database replication functionality plugin.
     Provides data redundancy and high availability.
     """
-    
+
     def __init__(self):
         """TODO: Document __init__."""
         super().__init__()
@@ -166,7 +166,7 @@ class DatabaseExportPlugin(Plugin):
     Database export functionality plugin.
     Provides data export capabilities in various formats.
     """
-    
+
     def __init__(self):
         """TODO: Document __init__."""
         super().__init__()
@@ -222,7 +222,7 @@ class DatabaseImportPlugin(Plugin):
     Database import functionality plugin.
     Provides data import capabilities from various formats.
     """
-    
+
     def __init__(self):
         """TODO: Document __init__."""
         super().__init__()

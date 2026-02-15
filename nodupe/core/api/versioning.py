@@ -25,41 +25,41 @@ class VersionedFunction:
 
 class APIVersion:
     """API Version Manager.
-    
+
     Manages API versions and provides version-aware routing for endpoints.
     Supports multiple API versions with deprecation warnings.
     """
-    
+
     def __init__(self, default_version: str = "v1") -> None:
         """Initialize API version manager."""
         self.current_version: str = default_version
         self.supported_versions: Set[str] = {default_version}
         self.versioned_functions: Dict[str, Dict[str, VersionedFunction]] = {}
         self._deprecated_versions: Dict[str, str] = {}
-    
+
     def register_version(self, version: str) -> None:
         """Register a new API version."""
         self.supported_versions.add(version)
-    
+
     def set_current_version(self, version: str) -> None:
         """Set the current/default API version."""
         if version not in self.supported_versions:
             raise ValueError(f"Version {version} not registered.")
         self.current_version = version
-    
+
     def deprecate_version(self, version: str, deprecated_by: Optional[str] = None) -> None:
         """Mark an API version as deprecated."""
         if version in self.supported_versions:
             self._deprecated_versions[version] = deprecated_by or "future"
-    
+
     def is_version_supported(self, version: str) -> bool:
         """Check if a version is supported."""
         return version in self.supported_versions
-    
+
     def is_version_deprecated(self, version: str) -> bool:
         """Check if a version is deprecated."""
         return version in self._deprecated_versions
-    
+
     def get_deprecation_message(self, version: str) -> str:
         """Get deprecation message for a version."""
         replacement = self._deprecated_versions.get(version, "future")
@@ -71,18 +71,18 @@ def versioned(version: str, deprecated: bool = False) -> Callable[[Callable[...,
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         func._api_version = version
         func._api_deprecated = deprecated
-        
+
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             if deprecated:
                 import warnings
                 warnings.warn(f"API version {version} is deprecated", DeprecationWarning, stacklevel=2)
             return func(*args, **kwargs)
-        
+
         wrapper._api_version = version
         wrapper._api_deprecated = deprecated
         return wrapper
-    
+
     return decorator
 
 

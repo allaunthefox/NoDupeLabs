@@ -41,7 +41,7 @@ class PluginHotReload:
 
     Monitors plugin files for changes and triggers reload sequence:
     Shutdown -> Unload -> Reload Code -> Instantiate -> Register -> Initialize
-    
+
     Uses inotify on Linux for efficient file monitoring, falls back to polling
     on other platforms or if inotify is unavailable.
     """
@@ -71,7 +71,7 @@ class PluginHotReload:
         self._thread: Optional[threading.Thread] = None
         self.logger = logging.getLogger(__name__)
         self._lock = threading.Lock()
-        
+
         # Inotify support (Linux only)
         self._inotify_fd: Optional[int] = None
         self._watch_descriptors: Dict[int, Dict[str, Any]] = {}
@@ -79,77 +79,77 @@ class PluginHotReload:
 
     def _init_inotify(self) -> bool:
         """Initialize inotify on Linux if available.
-        
+
         Returns:
             True if inotify is available and initialized, False otherwise
         """
         if not sys.platform.startswith('linux'):
             return False
-            
+
         try:
             # fcntl removed
             # struct removed
-            
+
             # Create inotify file descriptor
             self._inotify_fd = os.open('/proc/sys/kernel/osrelease', os.O_RDONLY)
             os.close(self._inotify_fd)
-            
+
             # Try to create inotify instance
             self._inotify_fd = os.open('/dev/null', os.O_RDONLY)
             os.close(self._inotify_fd)
-            
+
             # Actually create inotify fd
             self._inotify_fd = os.open('/proc/sys/kernel/osrelease', os.O_RDONLY)
             os.close(self._inotify_fd)
-            
+
             # Use inotify_init1 system call
             import ctypes
             libc = ctypes.CDLL('libc.so.6', use_errno=True)
             IN_NONBLOCK = 0x800
             fd = libc.inotify_init1(IN_NONBLOCK)
-            
+
             if fd < 0:
                 return False
-                
+
             self._inotify_fd = fd
-            
+
             # Set non-blocking
             flags = fcntl.fcntl(fd, fcntl.F_GETFL)
             fcntl.fcntl(fd, fcntl.F_SETFL, flags | os.O_NONBLOCK)
-            
+
             self.logger.debug("Initialized inotify for file monitoring")
             return True
-            
+
         except (ImportError, OSError, AttributeError):
             self.logger.debug("inotify not available, using polling fallback")
             return False
 
     def _add_inotify_watch(self, plugin_name: str, path: Path) -> None:
         """Add an inotify watch for a plugin file.
-        
+
         Args:
             plugin_name: Name of plugin
             path: Path to plugin file
         """
         if not self._use_inotify or self._inotify_fd is None:
             return
-            
+
         try:
             import ctypes
             # fcntl removed
-            
+
             libc = ctypes.CDLL('libc.so.6', use_errno=True)
-            
+
             # Watch for file modifications and moves
             mask = IN_MODIFY | IN_MOVED_TO | IN_CREATE | IN_DELETE | IN_MOVE_SELF | IN_DELETE_SELF
-            
+
             # Add watch
             wd = libc.inotify_add_watch(
                 self._inotify_fd,
                 str(path.parent).encode(),
                 mask
             )
-            
+
             if wd >= 0:
                 self._watch_descriptors[wd] = {
                     'plugin_name': plugin_name,
@@ -157,35 +157,35 @@ class PluginHotReload:
                     'filename': path.name
                 }
                 self.logger.debug(f"Added inotify watch for {plugin_name}")
-                
+
         except Exception as e:
             self.logger.warning(f"Failed to add inotify watch for {plugin_name}: {e}")
 
     def _remove_inotify_watch(self, plugin_name: str) -> None:
         """Remove inotify watch for a plugin.
-        
+
         Args:
             plugin_name: Name of plugin to remove watch for
         """
         if not self._use_inotify or self._inotify_fd is None:
             return
-            
+
         try:
             import ctypes
-            
+
             libc = ctypes.CDLL('libc.so.6', use_errno=True)
-            
+
             # Find and remove watch
             wds_to_remove = []
             for wd, info in self._watch_descriptors.items():
                 if info['plugin_name'] == plugin_name:
                     wds_to_remove.append(wd)
-            
+
             for wd in wds_to_remove:
                 libc.inotify_rm_watch(self._inotify_fd, wd)
                 del self._watch_descriptors[wd]
                 self.logger.debug(f"Removed inotify watch for {plugin_name}")
-                
+
         except Exception as e:
             self.logger.warning(f"Failed to remove inotify watch for {plugin_name}: {e}")
 
@@ -193,44 +193,44 @@ class PluginHotReload:
         """Check for inotify events and handle file changes."""
         if not self._use_inotify or self._inotify_fd is None:
             return
-            
+
         try:
             import ctypes
             # struct removed
-            
+
             # Read events (non-blocking)
             event_size = 16  # sizeof(struct inotify_event)
             buffer = ctypes.create_string_buffer(4096)
-            
+
             bytes_read = os.read(self._inotify_fd, buffer)
             if not bytes_read:
                 return
-                
+
             # Parse events
             offset = 0
             while offset < len(bytes_read):
                 # Parse inotify_event structure
                 wd, mask, cookie, name_len = struct.unpack_from('iIII', bytes_read, offset)
                 offset += event_size
-                
+
                 # Get filename if present
                 filename = ""
                 if name_len > 0:
                     filename = bytes_read[offset:offset + name_len].rstrip(b'\0').decode()
                     offset += name_len
-                
+
                 # Check if this event matches any of our watched files
                 if wd in self._watch_descriptors:
                     info = self._watch_descriptors[wd]
-                    
+
                     # Only reload if the specific file was modified
                     if filename == info['filename'] and mask & (IN_MODIFY | IN_MOVED_TO | IN_CREATE):
                         plugin_name = info['plugin_name']
                         self.logger.info(f"Detected change in plugin {plugin_name} via inotify, reloading...")
-                        
+
                         # Perform reload
                         self._reload_plugin(plugin_name, info['path'])
-                        
+
                         # Update mtime to prevent duplicate reloads
                         try:
                             with self._lock:
@@ -238,7 +238,7 @@ class PluginHotReload:
                                     self._watched_plugins[plugin_name]['mtime'] = info['path'].stat().st_mtime
                         except:
                             pass
-                        
+
         except (OSError, UnicodeDecodeError):
             # No events or read error, ignore
             pass

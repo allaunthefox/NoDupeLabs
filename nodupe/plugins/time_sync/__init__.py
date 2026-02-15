@@ -19,12 +19,12 @@ Environment variables:
 
 Example usage:
     from nodupe.plugins.time_sync import TimeSyncPlugin
-    
+
     plugin = TimeSyncPlugin()
     plugin.enable()
     corrected_time = plugin.get_corrected_time()
     compact_ts = plugin.get_corrected_fast64()
-    
+
     # Get authenticated time with multi-layer fallback
     authenticated_time = plugin.get_authenticated_time()
     unix_timestamp = plugin.get_authenticated_time(format="unix")

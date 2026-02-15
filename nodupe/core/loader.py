@@ -400,7 +400,7 @@ class CoreLoader:
         # Configure max workers - use 2x CPU cores for better parallelism
         # but cap at reasonable limits based on system resources
         max_workers = cpu_cores * 2
-        
+
         # Apply limits based on RAM
         if ram_gb <= 2:
             max_workers = min(max_workers, 2)
@@ -412,7 +412,7 @@ class CoreLoader:
             max_workers = min(max_workers, 16)
         else:
             max_workers = min(max_workers, 32)
-            
+
         system_info['max_workers'] = max_workers
 
         # Configure batch size

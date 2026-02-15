@@ -79,7 +79,7 @@ class ScanPlugin(Plugin):
             if not args.paths:
                 print("[ERROR] No paths provided. Please specify at least one directory to scan.")
                 return 1
-            
+
             # Check if paths exist
             import os
             valid_paths = []
@@ -88,7 +88,7 @@ class ScanPlugin(Plugin):
                     print(f"[ERROR] Path does not exist: {path}")
                     return 1
                 valid_paths.append(path)
-            
+
             print(f"[PLUGIN] Executing scan command: {valid_paths}")
             start_time = time.monotonic()
 

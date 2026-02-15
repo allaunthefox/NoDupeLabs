@@ -60,7 +60,7 @@ class PluginDiscovery:
 
     def initialize(self, container):
         """Initialize plugin discovery with dependency container.
-        
+
         Args:
             container: Dependency container instance
         """
@@ -111,13 +111,13 @@ class PluginDiscovery:
                         # For mocks, assume it's a file if we can't check
                         # This ensures all mock items reach _extract_plugin_info
                         is_py_file = True
-                    
+
                     if is_py_file:
                         plugin_info = self._extract_plugin_info(item)
                         if plugin_info:
                             discovered_plugins.append(plugin_info)
                             self._discovered_plugins.append(plugin_info)
-                    
+
                     # Handle directories recursively
                     elif recursive:
                         try:
@@ -129,7 +129,7 @@ class PluginDiscovery:
                         except (AttributeError, TypeError):
                             # For mocks that aren't files, skip directory check
                             pass
-                        
+
                 except PluginDiscoveryError:
                     # Continue discovering other plugins even if one fails
                     continue
@@ -197,7 +197,7 @@ class PluginDiscovery:
                 if plugin.name == plugin_name:
                     return plugin
             return None
-        
+
         # Otherwise search in the provided directories
         for directory in search_directories:
             try:
@@ -382,7 +382,7 @@ class PluginDiscovery:
         has_imports = 'import' in content
         has_class = 'class' in content
         has_methods = 'def ' in content
-        
+
         # For testing, we need to be more lenient
         # The test content doesn't have initialize/shutdown/get_capabilities
         # So we'll accept any Python file with imports and classes/functions

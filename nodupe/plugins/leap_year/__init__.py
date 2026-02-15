@@ -15,7 +15,7 @@ Algorithm source: https://www.benjoffe.com/fast-leap-year
 
 Example usage:
     from nodupe.plugins.leap_year import LeapYearPlugin
-    
+
     plugin = LeapYearPlugin()
     is_leap = plugin.is_leap_year(2024)
     leap_years = plugin.find_leap_years(2000, 2050)

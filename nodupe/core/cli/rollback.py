@@ -18,7 +18,7 @@ def list_cmd(snapshots, transactions):
     """List snapshots or transactions."""
     snapshot_mgr = SnapshotManager()
     tx_log = TransactionLog()
-    
+
     if snapshots or not transactions:
         click.echo("=== Snapshots ===")
         snaps = snapshot_mgr.list_snapshots()
@@ -26,7 +26,7 @@ def list_cmd(snapshots, transactions):
             click.echo("No snapshots found.")
         for s in snaps:
             click.echo(f"  {s['snapshot_id']}: {s['timestamp']} ({s['file_count']} files)")
-    
+
     if transactions:
         click.echo("\n=== Transactions ===")
         txs = tx_log.list_transactions()
@@ -41,10 +41,10 @@ def list_cmd(snapshots, transactions):
 def create_cmd(paths):
     """Create a snapshot of specified paths."""
     snapshot_mgr = SnapshotManager()
-    
+
     path_list = [str(Path(p).absolute()) for p in paths]
     snapshot = snapshot_mgr.create_snapshot(path_list)
-    
+
     click.echo(f"Created snapshot: {snapshot.snapshot_id}")
     click.echo(f"  Files: {len(snapshot.files)}")
 
@@ -54,7 +54,7 @@ def create_cmd(paths):
 def restore_cmd(snapshot_id):
     """Restore files from a snapshot."""
     snapshot_mgr = SnapshotManager()
-    
+
     success = snapshot_mgr.restore_snapshot(snapshot_id)
     if success:
         click.echo(f"Restored snapshot: {snapshot_id}")
@@ -68,7 +68,7 @@ def restore_cmd(snapshot_id):
 def delete_cmd(snapshot_id):
     """Delete a snapshot."""
     snapshot_mgr = SnapshotManager()
-    
+
     success = snapshot_mgr.delete_snapshot(snapshot_id)
     if success:
         click.echo(f"Deleted snapshot: {snapshot_id}")
@@ -82,7 +82,7 @@ def undo_cmd():
     snapshot_mgr = SnapshotManager()
     tx_log = TransactionLog()
     manager = RollbackManager(snapshot_mgr, tx_log)
-    
+
     success = manager.undo_last_operation()
     if success:
         click.echo("Undid last operation")
