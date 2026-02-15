@@ -44,7 +44,6 @@ import struct
 import time
 import threading
 import logging
-from datetime import datetime, timezone
 from typing import Iterable, Optional, Tuple, List, Dict, Any, Callable, Union
 from dataclasses import dataclass, field
 from collections import OrderedDict

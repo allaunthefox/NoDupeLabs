@@ -12,8 +12,6 @@ This module provides essential security features for the local SQLite database:
 
 import re
 import os
-import sqlite3
-from pathlib import Path
 from typing import Any, Dict, Optional
 
 class SecurityError(Exception):
