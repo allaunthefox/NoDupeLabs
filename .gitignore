@@ -137,3 +137,7 @@ nodupe.egg-info/
 *.sqlite
 *.sqlite3
 output/
+
+# Editor settings
+.vscode/
+.clinerules/
