@@ -141,5 +141,4 @@ output/
 # Editor settings
 .vscode/
 .clinerules/
-.pre-commit-config.yaml
 megalinter-reports/
