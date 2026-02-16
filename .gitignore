@@ -143,3 +143,17 @@ docs/_build/
 # Windows
 Thumbs.db
 *.pyc
+
+# Testing
+.pytest_cache/
+.hypothesis/
+htmlcov/
+.coverage
+coverage.xml
+
+# Python tools
+.mypy_cache/
+.ruff_cache/
+
+# Build outputs
+nodupe.egg-info/
