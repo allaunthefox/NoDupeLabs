@@ -1,0 +1,26 @@
+name: Dead Code Detection
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  dead-code:
+    runs-on: ubuntu-latest
+    name: Dead Code Detection
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dead
+        run: pip install dead
+
+      - name: Run dead code detection
+        run: dead . --exit-zero-even-if-found
