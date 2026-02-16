@@ -2,7 +2,7 @@
 
 import time
 
-from nodupe.core.cache.embedding_cache import EmbeddingCache, EmbeddingCacheError
+from nodupe.tools.ml.embedding_cache import EmbeddingCache, EmbeddingCacheError
 
 
 class TestEmbeddingCache:

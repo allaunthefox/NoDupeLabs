@@ -13,8 +13,10 @@ from .tool_system.registry import PluginRegistry
 # Create tool manager instance
 tool_manager = PluginRegistry()
 PluginManager = PluginRegistry
+ToolManager = PluginRegistry
 
 __all__ = [
     'PluginManager',
+    'ToolManager',
     'tool_manager'
 ]

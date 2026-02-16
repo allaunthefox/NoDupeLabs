@@ -36,7 +36,7 @@ from collections.abc import Iterable
 from datetime import datetime, timezone
 from typing import Optional
 
-from nodupe.core.tool_system import Tool
+from nodupe.core.tool_system import Tool, ToolMetadata
 
 from .sync_utils import (
     FastDate64Encoder,

@@ -31,7 +31,52 @@ Example usage:
     human_readable = tool.get_authenticated_time(format="human")
 """
 
-from .time_sync import TimeSyncTool
+import socket as socket
+from logging import getLogger
+
+from .time_sync_tool import time_synchronizationTool as _time_sync_impl
+from .time_sync_tool import logger as logger
+
+# Backwards-compatible public name expected by tests and external callers
+class TimeSyncTool(_time_sync_impl):
+    """Compatibility wrapper exposing the historical `TimeSyncTool` name.
+
+    Delegates all behavior to the underlying implementation but provides any
+    missing abstract methods required by the `Tool` interface and preserves
+    historical defaults expected by the test-suite.
+    """
+
+    def __init__(
+        self,
+        servers: Optional[Iterable[str]] | None = None,
+        timeout: float = 3.0,
+        attempts: int = 2,
+        max_acceptable_delay: float = 0.5,
+        smoothing_alpha: float = 0.3,
+        **kwargs,
+    ) -> None:
+        # Historical default server list used by the test-suite
+        default_servers = ["time.google.com", "time.cloudflare.com", "pool.ntp.org"]
+        if servers is None:
+            servers = default_servers
+        super().__init__(
+            servers=servers,
+            timeout=timeout,
+            attempts=attempts,
+            max_acceptable_delay=max_acceptable_delay,
+            smoothing_alpha=smoothing_alpha,
+            **kwargs,
+        )
+
+    @property
+    def name(self) -> str:
+        # Historical public name (capitalized) expected by tests
+        return "TimeSync"
+
+    def describe_usage(self) -> str:  # concrete implementation required by Tool
+        return (
+            "TimeSyncTool - NTP-based time synchronization and FastDate64 helpers."
+        )
 
 
-__all__ = ["TimeSyncTool"]
+__all__ = ["TimeSyncTool", "socket", "logger"]

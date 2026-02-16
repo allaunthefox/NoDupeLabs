@@ -10,7 +10,7 @@ from unittest.mock import MagicMock
 import pytest
 
 # Import all utility modules
-from tests.utils import database, errors, filesystem, performance, tools, validation
+from tests.utils import database, errors, filesystem, performance, plugins, validation
 
 
 def test_filesystem_utilities():
@@ -110,7 +110,7 @@ def test_database_utilities():
 def test_tool_utilities():
     """Test tool utility functions"""
     # Test create_mock_tool
-    mock_tool = tools.create_mock_tool("test_tool")
+    mock_tool = plugins.create_mock_tool("test_tool")
     assert mock_tool.name == "test_tool"
     assert mock_tool.metadata["version"] == "1.0.0"
 
@@ -123,17 +123,17 @@ def test_tool_utilities():
             {"name": "tool2", "version": "2.0.0"}
         ]
 
-        tool_paths = tools.create_tool_directory_structure(base_path, tool_defs)
+        tool_paths = plugins.create_tool_directory_structure(base_path, tool_defs)
         assert len(tool_paths) == 2
         assert (base_path / "tool1" / "tool1.py").exists()
         assert (base_path / "tool2" / "tool2.py").exists()
 
     # Test mock_tool_loader
-    mock_loader = tools.mock_tool_loader()
+    mock_loader = plugins.mock_tool_loader()
     assert isinstance(mock_loader, MagicMock)
 
     # Test create_tool_test_scenarios
-    scenarios = tools.create_tool_test_scenarios()
+    scenarios = plugins.create_tool_test_scenarios()
     assert len(scenarios) == 3
 
     # Test create_tool_dependency_graph
@@ -143,13 +143,13 @@ def test_tool_utilities():
         {"name": "tool_c", "dependencies": ["tool_a", "tool_b"]}
     ]
 
-    graph = tools.create_tool_dependency_graph(tool_defs_with_deps)
+    graph = plugins.create_tool_dependency_graph(tool_defs_with_deps)
     assert graph["tool_a"] == ["tool_b"]
     assert graph["tool_c"] == ["tool_a", "tool_b"]
 
     # Test test_tool_dependency_resolution
     resolution_order = ["tool_b", "tool_a", "tool_c"]
-    assert tools.test_tool_dependency_resolution(graph, resolution_order)
+    assert plugins.test_tool_dependency_resolution(graph, resolution_order)
 
 def test_performance_utilities():
     """Test performance utility functions"""
