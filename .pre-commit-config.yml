@@ -1,0 +1,66 @@
+# Local CI Gate - Pre-commit hooks
+# Mirrors CI gates: MegaLinter, TruffleHog, Dead Code, Code Smells
+# Run: pre-commit install
+# To bypass: git commit --no-verify
+
+repos:
+  # ===== PYTHON LINTING (matches MegaLinter PYTHON_) =====
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args: [--max-line-length=120, --ignore=E501, W503]
+
+  # ===== PYTHON FORMATTING (matches MegaLinter) =====
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        args: [--line-length=120]
+
+  # ===== IMPORT SORTING (matches MegaLinter) =====
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile=black, --line-length=120]
+
+  # ===== YAML LINTING =====
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+
+  # ===== JSON LINTING =====
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-json
+
+  # ===== TRUFFLEHOG (matches CI: TruffleHog OSS) =====
+  # Pin to a specific version to avoid unexpected behavior changes
+  - repo: https://github.com/trufflesecurity/trufflehog
+    rev: v3.93.3
+    hooks:
+      - id: trufflehog
+        args: [--only-verified]
+        stages: [commit]
+
+  # ===== SECRET DETECTION (matches CI) =====
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: detect-private-key
+
+  # ===== FILE FIXES =====
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+
+  # ===== SHELL SCRIPT LINTING =====
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
