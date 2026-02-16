@@ -7,6 +7,7 @@ These tests mock network operations to avoid real UDP calls and ensure reliable 
 
 import threading
 import time
+import socket
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 

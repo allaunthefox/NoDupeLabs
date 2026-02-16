@@ -78,5 +78,12 @@ class TimeSyncTool(_time_sync_impl):
             "TimeSyncTool - NTP-based time synchronization and FastDate64 helpers."
         )
 
+    @staticmethod
+    def _get_exception_class():
+        """Return the exception class used for disabled/network errors (compat shim)."""
+        from .time_sync_tool import time_synchronizationDisabledError
+
+        return time_synchronizationDisabledError
+
 
 __all__ = ["TimeSyncTool", "socket", "logger"]

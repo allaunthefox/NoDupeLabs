@@ -229,6 +229,9 @@ class time_synchronizationTool(Tool):
         self._bg_thread: Optional[threading.Thread] = None
         self._bg_stop = threading.Event()
 
+        # Leap-year helper (tool may use LeapYear tool when available)
+        self._leap_year_calculator = LeapYearCalculator()
+
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool."""

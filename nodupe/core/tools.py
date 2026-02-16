@@ -7,13 +7,13 @@ This module provides tool management functionality for the core system.
 It serves as a compatibility layer and re-exports the tool system components.
 """
 
-from .tool_system.registry import PluginRegistry
+from .tool_system.registry import ToolRegistry
 
 
 # Create tool manager instance
-tool_manager = PluginRegistry()
-PluginManager = PluginRegistry
-ToolManager = PluginRegistry
+tool_manager = ToolRegistry()
+PluginManager = ToolRegistry
+ToolManager = ToolRegistry
 
 __all__ = [
     'PluginManager',
