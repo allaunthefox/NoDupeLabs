@@ -3,7 +3,7 @@
 import time
 import tempfile
 from pathlib import Path
-from nodupe.core.cache.hash_cache import HashCache, HashCacheError
+from nodupe.tools.hashing.hash_cache import HashCache, HashCacheError
 
 
 class TestHashCache:

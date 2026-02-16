@@ -3,7 +3,7 @@
 import pytest
 import time
 from pathlib import Path
-from nodupe.core.scan.progress import ProgressTracker
+from nodupe.tools.scanner_engine.progress import ProgressTracker
 
 
 class TestProgressTracker:
