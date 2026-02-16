@@ -1,4 +1,4 @@
-name: Super-Linter
+name: MegaLinter
 
 on:
   push:
@@ -7,22 +7,23 @@ on:
     branches: [main]
 
 jobs:
-  super-lint:
-    name: Lint code base
+  megalinter:
+    name: MegaLinter
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: read
       statuses: write
+      checks: write
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Super-Linter
-        uses: super-linter/super-linter@v8.5.0
+      - name: MegaLinter
+        uses: oxsecurity/megalinter/v8@latest
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MEGALINTER_CONFIG_IS_CONTAINER_RUNTIME: none
