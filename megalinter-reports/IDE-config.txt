@@ -15,3 +15,13 @@ trivy (REPOSITORY)
 trivy-sbom (REPOSITORY)
   - vscode:
     - VSCode Trivy: https://marketplace.visualstudio.com/items?itemName=AquaSecurityOfficial.trivy-vulnerability-scanner
+
+v8r (YAML)
+  - eclipse:
+    - native support: https://www.eclipse.org/
+  - idea:
+    - native support: https://www.jetbrains.com/products/#type=ide
+  - vim:
+    - vison: https://github.com/Quramy/vison
+  - vscode:
+    - native support: https://code.visualstudio.com/

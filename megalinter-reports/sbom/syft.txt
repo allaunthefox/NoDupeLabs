@@ -1,4 +1,4 @@
-[0000]  WARN no explicit name and version provided for directory source, deriving artifact ID from the given path (which is not ideal)
+[0001]  WARN no explicit name and version provided for directory source, deriving artifact ID from the given path (which is not ideal)
 NAME                                                  VERSION     TYPE                             
 SecureStackCo/actions-abom                            v0.1.5      github-action                    
 actions/cache                                         v4          github-action  (+1 duplicate)    
