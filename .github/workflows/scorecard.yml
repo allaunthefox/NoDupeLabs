@@ -1,0 +1,37 @@
+name: Scorecard supply-chain security
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '37 5 * * 6'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+      id-token: write
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: "Run Scorecard"
+        uses: ossf/scorecard-action@v2
+        with:
+          results-file: results.sarif
+          results-format: sarif
+          publish-results: true
+
+      - name: "Upload results to GitHub"
+        uses: github/codeql-action/upload-security-results@v3
+        with:
+          sarif_file: results.sarif
+          category: scorecard
