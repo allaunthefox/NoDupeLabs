@@ -15,7 +15,10 @@ except ImportError:
     try:
         import toml
     except ImportError:
-        toml = None
+        try:
+            import tomlkit as toml
+        except ImportError:
+            toml = None
 
 
 class ConfigManager:
@@ -44,6 +47,10 @@ class ConfigManager:
     def _load_config(self) -> None:
         """Load the TOML configuration file."""
         if not os.path.exists(self.config_path):
+            # If it's the default path, just be empty. If explicit, raise.
+            if self.config_path == "pyproject.toml":
+                self.config = {}
+                return
             raise FileNotFoundError(
                 f"Configuration file {self.config_path} not found")
 
@@ -59,7 +66,10 @@ class ConfigManager:
 
     def get_nodupe_config(self) -> Dict[str, Any]:
         """Get the NoDupeLabs configuration section."""
-        return dict(self.config['tool']['nodupe'])
+        try:
+            return dict(self.config.get('tool', {}).get('nodupe', {}))
+        except (AttributeError, TypeError, KeyError):
+            return {}
 
     def get_database_config(self) -> Dict[str, Any]:
         """Get the database configuration."""
@@ -117,13 +127,16 @@ class ConfigManager:
         return True
 
 
-def load_config() -> ConfigManager:
+def load_config(config_path: Optional[str] = None) -> ConfigManager:
     """Load the NoDupeLabs configuration.
+
+    Args:
+        config_path: Optional path to the configuration file.
 
     Returns:
         ConfigManager instance with loaded configuration
     """
-    return ConfigManager()
+    return ConfigManager(config_path)
 
 
 # Example usage and testing

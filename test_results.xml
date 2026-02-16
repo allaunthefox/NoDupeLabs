@@ -1,200 +1,311 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="27" skipped="0" tests="33" time="6.547" timestamp="2026-02-15T23:29:12.002981+01:00" hostname="vmi2997710"><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_initialization" time="0.005"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_with_custom_path" time="0.004"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_missing_toml_module" time="0.002"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_missing_config_file" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="Failed: DID NOT RAISE &lt;class 'FileNotFoundError'&gt;">tests/core/test_config.py:66: in test_config_manager_missing_config_file
-    with pytest.raises(FileNotFoundError, match="Configuration file not found"):
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E   Failed: DID NOT RAISE &lt;class 'FileNotFoundError'&gt;</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_invalid_toml" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tests/core/test_config.py:74: in test_config_manager_invalid_toml
-    with pytest.raises(ValueError, match="Error parsing TOML file"):
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E   Failed: DID NOT RAISE &lt;class 'ValueError'&gt;</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_missing_nodupe_section" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tests/core/test_config.py:88: in test_config_manager_missing_nodupe_section
-    with pytest.raises(ValueError, match="missing \\[tool.nodupe\\] section"):
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E   Failed: DID NOT RAISE &lt;class 'ValueError'&gt;</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_nodupe_config" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:106: in test_get_nodupe_config
-    nodupe_config = config_manager.get_nodupe_config()
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_database_config" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:130: in test_get_database_config
-    db_config = config_manager.get_database_config()
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:66: in get_database_config
-    return dict(self.get_nodupe_config().get('database', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_scan_config" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:155: in test_get_scan_config
-    scan_config = config_manager.get_scan_config()
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:70: in get_scan_config
-    return dict(self.get_nodupe_config().get('scan', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_similarity_config" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:181: in test_get_similarity_config
-    similarity_config = config_manager.get_similarity_config()
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:74: in get_similarity_config
-    return dict(self.get_nodupe_config().get('similarity', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_performance_config" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:206: in test_get_performance_config
-    performance_config = config_manager.get_performance_config()
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:78: in get_performance_config
-    return dict(self.get_nodupe_config().get('performance', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_logging_config" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:230: in test_get_logging_config
-    logging_config = config_manager.get_logging_config()
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:82: in get_logging_config
-    return dict(self.get_nodupe_config().get('logging', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_get_config_value" time="0.004"><properties><property name="test_type" value="standard" /></properties><failure message="AssertionError: assert None == '/test/path'">tests/core/test_config.py:254: in test_get_config_value
-    assert path == '/test/path'
-E   AssertionError: assert None == '/test/path'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_validate_config_success" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:282: in test_validate_config_success
-    assert config_manager.validate_config() is True
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:109: in validate_config
-    nodupe_config = self.get_nodupe_config()
-                    ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_validate_config_missing_section" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:302: in test_validate_config_missing_section
-    assert config_manager.validate_config() is False
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:109: in validate_config
-    nodupe_config = self.get_nodupe_config()
-                    ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_validate_config_missing_multiple_sections" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:319: in test_validate_config_missing_multiple_sections
-    assert config_manager.validate_config() is False
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:109: in validate_config
-    nodupe_config = self.get_nodupe_config()
-                    ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_default_behavior" time="0.001"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:330: in test_config_manager_default_behavior
-    assert config_manager.get_nodupe_config() == {}
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_with_minimal_config" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:356: in test_config_manager_with_minimal_config
-    assert config_manager.validate_config() is True
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:109: in validate_config
-    nodupe_config = self.get_nodupe_config()
-                    ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_nested_values" time="0.004"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:401: in test_config_manager_nested_values
-    db_config = config_manager.get_database_config()
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:66: in get_database_config
-    return dict(self.get_nodupe_config().get('database', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_array_values" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:438: in test_config_manager_array_values
-    scan_config = config_manager.get_scan_config()
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:70: in get_scan_config
-    return dict(self.get_nodupe_config().get('scan', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_boolean_values" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:475: in test_config_manager_boolean_values
-    scan_config = config_manager.get_scan_config()
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:70: in get_scan_config
-    return dict(self.get_nodupe_config().get('scan', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_numeric_values" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:518: in test_config_manager_numeric_values
-    db_config = config_manager.get_database_config()
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:66: in get_database_config
-    return dict(self.get_nodupe_config().get('database', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_string_values" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:562: in test_config_manager_string_values
-    db_config = config_manager.get_database_config()
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:66: in get_database_config
-    return dict(self.get_nodupe_config().get('database', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_concurrent_access" time="0.011"><properties><property name="test_type" value="standard" /></properties><failure message="AssertionError: assert 10 == 0&#10; +  where 10 = len([KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool')])">tests/core/test_config.py:624: in test_config_manager_concurrent_access
-    assert len(errors) == 0
-E   AssertionError: assert 10 == 0
-E    +  where 10 = len([KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool'), KeyError('tool')])</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_large_config" time="0.236"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:656: in test_config_manager_large_config
-    scan_config = config_manager.get_scan_config()
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:70: in get_scan_config
-    return dict(self.get_nodupe_config().get('scan', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_special_characters" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:695: in test_config_manager_special_characters
-    db_config = config_manager.get_database_config()
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:66: in get_database_config
-    return dict(self.get_nodupe_config().get('database', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_error_handling" time="0.002"><properties><property name="test_type" value="standard" /></properties><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tests/core/test_config.py:713: in test_config_manager_error_handling
-    with pytest.raises(ValueError, match="Error parsing TOML file"):
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-E   Failed: DID NOT RAISE &lt;class 'ValueError'&gt;</failure></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_memory_usage" time="0.176"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_config.TestConfigManager" name="test_config_manager_serialization" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:763: in test_config_manager_serialization
-    assert unpickled_manager.get_database_config()['path'] == '/test/path'
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:66: in get_database_config
-    return dict(self.get_nodupe_config().get('database', {}))
-                ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase><testcase classname="tests.core.test_config.TestLoadConfig" name="test_load_config_default" time="0.001"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_config.TestLoadConfig" name="test_load_config_with_custom_path" time="0.004"><properties><property name="test_type" value="standard" /></properties><failure message="AttributeError: &lt;class 'nodupe.core.config.ConfigManager'&gt; does not have the attribute 'config_path'">tests/core/test_config.py:806: in test_load_config_with_custom_path
-    with patch('nodupe.core.config.ConfigManager.config_path', self.config_path):
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/usr/lib/python3.14/unittest/mock.py:1503: in __enter__
-    original, local = self.get_original()
-                      ^^^^^^^^^^^^^^^^^^^
-/usr/lib/python3.14/unittest/mock.py:1473: in get_original
-    raise AttributeError(
-E   AttributeError: &lt;class 'nodupe.core.config.ConfigManager'&gt; does not have the attribute 'config_path'</failure></testcase><testcase classname="tests.core.test_config.TestLoadConfig" name="test_load_config_missing_file" time="0.001"><properties><property name="test_type" value="standard" /></properties></testcase><testcase classname="tests.core.test_config.TestLoadConfig" name="test_load_config_integration" time="0.003"><properties><property name="test_type" value="standard" /></properties><failure message="KeyError: 'tool'">tests/core/test_config.py:862: in test_load_config_integration
-    assert config_manager.validate_config() is True
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:109: in validate_config
-    nodupe_config = self.get_nodupe_config()
-                    ^^^^^^^^^^^^^^^^^^^^^^^^
-nodupe/core/config.py:62: in get_nodupe_config
-    return dict(self.config['tool']['nodupe'])
-                ^^^^^^^^^^^^^^^^^^^
-E   KeyError: 'tool'</failure></testcase></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="33" failures="0" skipped="0" tests="33" time="2.370" timestamp="2026-02-16T08:00:53.776037+01:00" hostname="vmi2997710"><testcase classname="" name="tests.core.test_archive_handler_corrected" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_archive_handler_corrected.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_archive_handler_corrected.py:11: in &lt;module&gt;
+    from nodupe.core.archive_handler import ArchiveHandler, ArchiveHandlerError
+E   ModuleNotFoundError: No module named 'nodupe.core.archive_handler'</error></testcase><testcase classname="" name="tests.core.test_cli_commands" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_cli_commands.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_cli_commands.py:20: in &lt;module&gt;
+    from nodupe.tools.commands.scan import ScanTool
+nodupe/tools/commands/scan.py:25: in &lt;module&gt;
+    from nodupe.core.scan.processor import FileProcessor
+E   ModuleNotFoundError: No module named 'nodupe.core.scan'</error></testcase><testcase classname="" name="tests.core.test_cli_errors" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_cli_errors.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_cli_errors.py:19: in &lt;module&gt;
+    from nodupe.tools.commands.scan import ScanTool
+nodupe/tools/commands/scan.py:25: in &lt;module&gt;
+    from nodupe.core.scan.processor import FileProcessor
+E   ModuleNotFoundError: No module named 'nodupe.core.scan'</error></testcase><testcase classname="" name="tests.core.test_cli_integration" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_cli_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_cli_integration.py:21: in &lt;module&gt;
+    from nodupe.tools.commands.scan import ScanTool
+nodupe/tools/commands/scan.py:25: in &lt;module&gt;
+    from nodupe.core.scan.processor import FileProcessor
+E   ModuleNotFoundError: No module named 'nodupe.core.scan'</error></testcase><testcase classname="" name="tests.core.test_compression_filesystem" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_compression_filesystem.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_compression_filesystem.py:14: in &lt;module&gt;
+    from nodupe.core.compression import Compression, CompressionError
+E   ModuleNotFoundError: No module named 'nodupe.core.compression'</error></testcase><testcase classname="" name="tests.core.test_compression_properties" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_compression_properties.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_compression_properties.py:6: in &lt;module&gt;
+    from nodupe.core.compression import Compression, CompressionError
+E   ModuleNotFoundError: No module named 'nodupe.core.compression'</error></testcase><testcase classname="" name="tests.core.test_compression_stress" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_compression_stress.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_compression_stress.py:15: in &lt;module&gt;
+    from nodupe.core.compression import Compression, CompressionError
+E   ModuleNotFoundError: No module named 'nodupe.core.compression'</error></testcase><testcase classname="" name="tests.core.test_errors" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_errors.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_errors.py:4: in &lt;module&gt;
+    from nodupe.core.errors import (
+E   ImportError: cannot import name 'ToolError' from 'nodupe.core.errors' (/home/prod/Workspaces/repos/github/NoDupeLabs/nodupe/core/errors.py)</error></testcase><testcase classname="" name="tests.core.test_file_info" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_file_info.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_file_info.py:6: in &lt;module&gt;
+    from nodupe.tools.scanner_engine.file_info import FileInfo
+nodupe/tools/scanner_engine/__init__.py:20: in &lt;module&gt;
+    from .walker import FileWalker, create_file_walker
+nodupe/tools/scanner_engine/walker.py:27: in &lt;module&gt;
+    from ..archive_interface import ArchiveHandlerInterface
+E   ModuleNotFoundError: No module named 'nodupe.tools.archive_interface'</error></testcase><testcase classname="" name="tests.core.test_file_processor" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_file_processor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_file_processor.py:6: in &lt;module&gt;
+    from nodupe.tools.scanner_engine.processor import FileProcessor, create_file_processor
+nodupe/tools/scanner_engine/__init__.py:20: in &lt;module&gt;
+    from .walker import FileWalker, create_file_walker
+nodupe/tools/scanner_engine/walker.py:27: in &lt;module&gt;
+    from ..archive_interface import ArchiveHandlerInterface
+E   ModuleNotFoundError: No module named 'nodupe.tools.archive_interface'</error></testcase><testcase classname="" name="tests.core.test_file_walker" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_file_walker.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_file_walker.py:7: in &lt;module&gt;
+    from nodupe.tools.scanner_engine.walker import FileWalker, create_file_walker
+nodupe/tools/scanner_engine/__init__.py:20: in &lt;module&gt;
+    from .walker import FileWalker, create_file_walker
+nodupe/tools/scanner_engine/walker.py:27: in &lt;module&gt;
+    from ..archive_interface import ArchiveHandlerInterface
+E   ModuleNotFoundError: No module named 'nodupe.tools.archive_interface'</error></testcase><testcase classname="" name="tests.core.test_filesystem" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_filesystem.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_filesystem.py:5: in &lt;module&gt;
+    from nodupe.core.filesystem import Filesystem, FilesystemError
+E   ModuleNotFoundError: No module named 'nodupe.core.filesystem'</error></testcase><testcase classname="" name="tests.core.test_incremental" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_incremental.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_incremental.py:9: in &lt;module&gt;
+    from nodupe.tools.scanner_engine.incremental import Incremental
+nodupe/tools/scanner_engine/__init__.py:20: in &lt;module&gt;
+    from .walker import FileWalker, create_file_walker
+nodupe/tools/scanner_engine/walker.py:27: in &lt;module&gt;
+    from ..archive_interface import ArchiveHandlerInterface
+E   ModuleNotFoundError: No module named 'nodupe.tools.archive_interface'</error></testcase><testcase classname="" name="tests.core.test_log_compressor" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_log_compressor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_log_compressor.py:5: in &lt;module&gt;
+    from nodupe.core.log_compressor import LogCompressor
+E   ModuleNotFoundError: No module named 'nodupe.core.log_compressor'</error></testcase><testcase classname="" name="tests.core.test_mmap_handler" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_mmap_handler.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_mmap_handler.py:6: in &lt;module&gt;
+    from nodupe.core.mmap_handler import MMAPHandler
+E   ModuleNotFoundError: No module named 'nodupe.core.mmap_handler'</error></testcase><testcase classname="" name="tests.core.test_plugins" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_plugins.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_plugins.py:5: in &lt;module&gt;
+    from nodupe.core.tools import (
+nodupe/core/tools.py:10: in &lt;module&gt;
+    from .tool_system.registry import PluginRegistry
+E   ImportError: cannot import name 'PluginRegistry' from 'nodupe.core.tool_system.registry' (/home/prod/Workspaces/repos/github/NoDupeLabs/nodupe/core/tool_system/registry.py)</error></testcase><testcase classname="" name="tests.core.test_progress_tracker" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_progress_tracker.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_progress_tracker.py:6: in &lt;module&gt;
+    from nodupe.tools.scanner_engine.progress import ProgressTracker
+nodupe/tools/scanner_engine/__init__.py:20: in &lt;module&gt;
+    from .walker import FileWalker, create_file_walker
+nodupe/tools/scanner_engine/walker.py:27: in &lt;module&gt;
+    from ..archive_interface import ArchiveHandlerInterface
+E   ModuleNotFoundError: No module named 'nodupe.tools.archive_interface'</error></testcase><testcase classname="" name="tests.core.test_rollback" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_rollback.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_rollback.py:6: in &lt;module&gt;
+    from nodupe.core.rollback import (
+E   ModuleNotFoundError: No module named 'nodupe.core.rollback'</error></testcase><testcase classname="" name="tests.core.test_rollback_idempotent" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_rollback_idempotent.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_rollback_idempotent.py:5: in &lt;module&gt;
+    from nodupe.core.rollback import SnapshotManager
+E   ModuleNotFoundError: No module named 'nodupe.core.rollback'</error></testcase><testcase classname="" name="tests.core.test_security" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_security.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_security.py:5: in &lt;module&gt;
+    from nodupe.core.security import Security, SecurityError
+E   ModuleNotFoundError: No module named 'nodupe.core.security'</error></testcase><testcase classname="" name="tests.core.test_time_sync_failure_rules" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_time_sync_failure_rules.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_time_sync_failure_rules.py:13: in &lt;module&gt;
+    from nodupe.core.time_sync_failure_rules import (
+E   ModuleNotFoundError: No module named 'nodupe.core.time_sync_failure_rules'</error></testcase><testcase classname="" name="tests.core.test_time_sync_utils" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_time_sync_utils.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_time_sync_utils.py:6: in &lt;module&gt;
+    from nodupe.core.time_sync_utils import (
+E   ModuleNotFoundError: No module named 'nodupe.core.time_sync_utils'</error></testcase><testcase classname="" name="tests.core.test_validators" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_validators.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_validators.py:5: in &lt;module&gt;
+    from nodupe.core.validators import Validators, ValidationError
+E   ModuleNotFoundError: No module named 'nodupe.core.validators'</error></testcase><testcase classname="" name="tests.integration.test_end_to_end_workflows" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/integration/test_end_to_end_workflows.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_end_to_end_workflows.py:20: in &lt;module&gt;
+    from nodupe.tools.commands.scan import ScanTool
+nodupe/tools/commands/scan.py:25: in &lt;module&gt;
+    from nodupe.core.scan.processor import FileProcessor
+E   ModuleNotFoundError: No module named 'nodupe.core.scan'</error></testcase><testcase classname="" name="tests.integration.test_system_error_recovery" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/integration/test_system_error_recovery.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_system_error_recovery.py:18: in &lt;module&gt;
+    from nodupe.tools.commands.scan import ScanTool
+nodupe/tools/commands/scan.py:25: in &lt;module&gt;
+    from nodupe.core.scan.processor import FileProcessor
+E   ModuleNotFoundError: No module named 'nodupe.core.scan'</error></testcase><testcase classname="" name="tests.integration.test_system_performance" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/integration/test_system_performance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_system_performance.py:18: in &lt;module&gt;
+    from nodupe.tools.commands.scan import ScanTool
+nodupe/tools/commands/scan.py:25: in &lt;module&gt;
+    from nodupe.core.scan.processor import FileProcessor
+E   ModuleNotFoundError: No module named 'nodupe.core.scan'</error></testcase><testcase classname="" name="tests.integration.test_system_reliability" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/integration/test_system_reliability.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_system_reliability.py:18: in &lt;module&gt;
+    from nodupe.tools.commands.scan import ScanTool
+nodupe/tools/commands/scan.py:25: in &lt;module&gt;
+    from nodupe.core.scan.processor import FileProcessor
+E   ModuleNotFoundError: No module named 'nodupe.core.scan'</error></testcase><testcase classname="" name="tests.integration.test_system_security" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/integration/test_system_security.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_system_security.py:17: in &lt;module&gt;
+    from nodupe.tools.commands.scan import ScanTool
+nodupe/tools/commands/scan.py:25: in &lt;module&gt;
+    from nodupe.core.scan.processor import FileProcessor
+E   ModuleNotFoundError: No module named 'nodupe.core.scan'</error></testcase><testcase classname="" name="tests.performance.test_time_sync_performance" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/performance/test_time_sync_performance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/performance/test_time_sync_performance.py:14: in &lt;module&gt;
+    from nodupe.tools.time_sync import TimeSyncTool
+nodupe/tools/time_sync/__init__.py:34: in &lt;module&gt;
+    from .time_sync import TimeSyncTool
+E   ModuleNotFoundError: No module named 'nodupe.tools.time_sync.time_sync'</error></testcase><testcase classname="" name="tests.plugins.test_time_sync" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/plugins/test_time_sync.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/plugins/test_time_sync.py:14: in &lt;module&gt;
+    from nodupe.tools.time_sync import TimeSyncTool
+nodupe/tools/time_sync/__init__.py:34: in &lt;module&gt;
+    from .time_sync import TimeSyncTool
+E   ModuleNotFoundError: No module named 'nodupe.tools.time_sync.time_sync'</error></testcase><testcase classname="" name="tests.test_hash_autotune" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/test_hash_autotune.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_hash_autotune.py:7: in &lt;module&gt;
+    from nodupe.core.scan.hash_autotune import (
+E   ModuleNotFoundError: No module named 'nodupe.core.scan'</error></testcase><testcase classname="" name="tests.test_utils" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/test_utils.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_utils.py:12: in &lt;module&gt;
+    from tests.utils import (
+tests/utils/__init__.py:6: in &lt;module&gt;
+    from .tools import *
+E   ModuleNotFoundError: No module named 'tests.utils.tools'</error></testcase><testcase classname="" name="tests.test_verify_plugin" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/test_verify_plugin.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_verify_plugin.py:9: in &lt;module&gt;
+    from nodupe.tools.commands.verify import VerifyTool
+nodupe/tools/commands/verify.py:28: in &lt;module&gt;
+    from nodupe.core.database.files import FileRepository
+E   ModuleNotFoundError: No module named 'nodupe.core.database'</error></testcase></testsuite></testsuites>

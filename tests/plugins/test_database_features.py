@@ -1,38 +1,38 @@
-"""Tests for database feature plugins."""
+"""Tests for database feature tools."""
 
 import os
 import tempfile
 import pytest
 from unittest.mock import Mock
 
-from nodupe.plugins.database.features import (
-    DatabaseShardingPlugin,
-    DatabaseReplicationPlugin,
-    DatabaseExportPlugin,
-    DatabaseImportPlugin
+from nodupe.tools.database.features import (
+    DatabaseShardingTool,
+    DatabaseReplicationTool,
+    DatabaseExportTool,
+    DatabaseImportTool
 )
 
 
-class TestDatabaseShardingPlugin:
-    """Test DatabaseShardingPlugin functionality."""
+class TestDatabaseShardingTool:
+    """Test DatabaseShardingTool functionality."""
     
     def test_initialization(self):
-        """Test plugin initialization."""
-        plugin = DatabaseShardingPlugin()
+        """Test tool initialization."""
+        tool = DatabaseShardingTool()
         
-        assert plugin.name == "DatabaseSharding"
-        assert plugin.version == "1.0.0"
-        assert plugin.dependencies == []
-        assert plugin.get_capabilities() == {
+        assert tool.name == "DatabaseSharding"
+        assert tool.version == "1.0.0"
+        assert tool.dependencies == []
+        assert tool.get_capabilities() == {
             "sharding": True,
             "horizontal_partitioning": True,
             "create_shard": True,
         }
     
     def test_metadata(self):
-        """Test plugin metadata."""
-        plugin = DatabaseShardingPlugin()
-        metadata = plugin.metadata
+        """Test tool metadata."""
+        tool = DatabaseShardingTool()
+        metadata = tool.metadata
         
         assert metadata.name == "DatabaseSharding"
         assert metadata.version == "1.0.0"
@@ -42,23 +42,23 @@ class TestDatabaseShardingPlugin:
         assert "sharding" in metadata.tags
     
     def test_initialize_shutdown(self):
-        """Test plugin initialization and shutdown."""
-        plugin = DatabaseShardingPlugin()
+        """Test tool initialization and shutdown."""
+        tool = DatabaseShardingTool()
         container = Mock()
         
         # This should not raise an exception
-        plugin.initialize(container)
-        plugin.shutdown(container)
+        tool.initialize(container)
+        tool.shutdown(container)
     
     def test_create_shard(self):
         """Test shard creation."""
-        plugin = DatabaseShardingPlugin()
+        tool = DatabaseShardingTool()
         
         with tempfile.TemporaryDirectory() as temp_dir:
             shard_path = os.path.join(temp_dir, "test_shard.db")
             
             # Create a shard
-            result_path = plugin.create_shard("test_shard", shard_path)
+            result_path = tool.create_shard("test_shard", shard_path)
             
             # Verify the path is correct
             assert result_path == shard_path
@@ -66,40 +66,40 @@ class TestDatabaseShardingPlugin:
     
     def test_create_shard_invalid_name(self):
         """Test shard creation with invalid name."""
-        plugin = DatabaseShardingPlugin()
+        tool = DatabaseShardingTool()
         
         with pytest.raises(ValueError):
-            plugin.create_shard("invalid name with spaces")
+            tool.create_shard("invalid name with spaces")
     
     def test_list_shards(self):
         """Test listing shards."""
-        plugin = DatabaseShardingPlugin()
+        tool = DatabaseShardingTool()
         
         # Initially empty
-        shards = plugin.list_shards()
+        shards = tool.list_shards()
         assert shards == []
 
 
-class TestDatabaseReplicationPlugin:
-    """Test DatabaseReplicationPlugin functionality."""
+class TestDatabaseReplicationTool:
+    """Test DatabaseReplicationTool functionality."""
     
     def test_initialization(self):
-        """Test plugin initialization."""
-        plugin = DatabaseReplicationPlugin()
+        """Test tool initialization."""
+        tool = DatabaseReplicationTool()
         
-        assert plugin.name == "DatabaseReplication"
-        assert plugin.version == "1.0.0"
-        assert plugin.dependencies == []
-        assert plugin.get_capabilities() == {
+        assert tool.name == "DatabaseReplication"
+        assert tool.version == "1.0.0"
+        assert tool.dependencies == []
+        assert tool.get_capabilities() == {
             "replication": True,
             "data_redundancy": True,
             "sync_data": True,
         }
     
     def test_metadata(self):
-        """Test plugin metadata."""
-        plugin = DatabaseReplicationPlugin()
-        metadata = plugin.metadata
+        """Test tool metadata."""
+        tool = DatabaseReplicationTool()
+        metadata = tool.metadata
         
         assert metadata.name == "DatabaseReplication"
         assert metadata.version == "1.0.0"
@@ -109,35 +109,35 @@ class TestDatabaseReplicationPlugin:
         assert "replication" in metadata.tags
     
     def test_initialize_shutdown(self):
-        """Test plugin initialization and shutdown."""
-        plugin = DatabaseReplicationPlugin()
+        """Test tool initialization and shutdown."""
+        tool = DatabaseReplicationTool()
         container = Mock()
         
         # This should not raise an exception
-        plugin.initialize(container)
-        plugin.shutdown(container)
+        tool.initialize(container)
+        tool.shutdown(container)
 
 
-class TestDatabaseExportPlugin:
-    """Test DatabaseExportPlugin functionality."""
+class TestDatabaseExportTool:
+    """Test DatabaseExportTool functionality."""
     
     def test_initialization(self):
-        """Test plugin initialization."""
-        plugin = DatabaseExportPlugin()
+        """Test tool initialization."""
+        tool = DatabaseExportTool()
         
-        assert plugin.name == "DatabaseExport"
-        assert plugin.version == "1.0.0"
-        assert plugin.dependencies == []
-        assert plugin.get_capabilities() == {
+        assert tool.name == "DatabaseExport"
+        assert tool.version == "1.0.0"
+        assert tool.dependencies == []
+        assert tool.get_capabilities() == {
             "export": True,
             "data_migration": True,
             "format_conversion": True,
         }
     
     def test_metadata(self):
-        """Test plugin metadata."""
-        plugin = DatabaseExportPlugin()
-        metadata = plugin.metadata
+        """Test tool metadata."""
+        tool = DatabaseExportTool()
+        metadata = tool.metadata
         
         assert metadata.name == "DatabaseExport"
         assert metadata.version == "1.0.0"
@@ -147,35 +147,35 @@ class TestDatabaseExportPlugin:
         assert "export" in metadata.tags
     
     def test_initialize_shutdown(self):
-        """Test plugin initialization and shutdown."""
-        plugin = DatabaseExportPlugin()
+        """Test tool initialization and shutdown."""
+        tool = DatabaseExportTool()
         container = Mock()
         
         # This should not raise an exception
-        plugin.initialize(container)
-        plugin.shutdown(container)
+        tool.initialize(container)
+        tool.shutdown(container)
 
 
-class TestDatabaseImportPlugin:
-    """Test DatabaseImportPlugin functionality."""
+class TestDatabaseImportTool:
+    """Test DatabaseImportTool functionality."""
     
     def test_initialization(self):
-        """Test plugin initialization."""
-        plugin = DatabaseImportPlugin()
+        """Test tool initialization."""
+        tool = DatabaseImportTool()
         
-        assert plugin.name == "DatabaseImport"
-        assert plugin.version == "1.0.0"
-        assert plugin.dependencies == []
-        assert plugin.get_capabilities() == {
+        assert tool.name == "DatabaseImport"
+        assert tool.version == "1.0.0"
+        assert tool.dependencies == []
+        assert tool.get_capabilities() == {
             "import": True,
             "data_migration": True,
             "format_conversion": True,
         }
     
     def test_metadata(self):
-        """Test plugin metadata."""
-        plugin = DatabaseImportPlugin()
-        metadata = plugin.metadata
+        """Test tool metadata."""
+        tool = DatabaseImportTool()
+        metadata = tool.metadata
         
         assert metadata.name == "DatabaseImport"
         assert metadata.version == "1.0.0"
@@ -185,39 +185,39 @@ class TestDatabaseImportPlugin:
         assert "import" in metadata.tags
     
     def test_initialize_shutdown(self):
-        """Test plugin initialization and shutdown."""
-        plugin = DatabaseImportPlugin()
+        """Test tool initialization and shutdown."""
+        tool = DatabaseImportTool()
         container = Mock()
         
         # This should not raise an exception
-        plugin.initialize(container)
-        plugin.shutdown(container)
+        tool.initialize(container)
+        tool.shutdown(container)
 
 
 class TestDatabaseFeatureIntegration:
-    """Test integration between database feature plugins."""
+    """Test integration between database feature tools."""
     
-    def test_all_plugins_compatible_with_registry(self):
-        """Test that all plugins are compatible with the plugin registry."""
-        plugins = [
-            DatabaseShardingPlugin(),
-            DatabaseReplicationPlugin(),
-            DatabaseExportPlugin(),
-            DatabaseImportPlugin()
+    def test_all_tools_compatible_with_registry(self):
+        """Test that all tools are compatible with the tool registry."""
+        tools = [
+            DatabaseShardingTool(),
+            DatabaseReplicationTool(),
+            DatabaseExportTool(),
+            DatabaseImportTool()
         ]
         
-        for plugin in plugins:
+        for tool in tools:
             # Verify all required properties exist
-            assert hasattr(plugin, 'name')
-            assert hasattr(plugin, 'version')
-            assert hasattr(plugin, 'dependencies')
-            assert hasattr(plugin, 'get_capabilities')
-            assert hasattr(plugin, 'metadata')
-            assert hasattr(plugin, 'initialize')
-            assert hasattr(plugin, 'shutdown')
+            assert hasattr(tool, 'name')
+            assert hasattr(tool, 'version')
+            assert hasattr(tool, 'dependencies')
+            assert hasattr(tool, 'get_capabilities')
+            assert hasattr(tool, 'metadata')
+            assert hasattr(tool, 'initialize')
+            assert hasattr(tool, 'shutdown')
             
             # Verify metadata properties
-            metadata = plugin.metadata
+            metadata = tool.metadata
             assert hasattr(metadata, 'name')
             assert hasattr(metadata, 'version')
             assert hasattr(metadata, 'author')
@@ -227,9 +227,9 @@ class TestDatabaseFeatureIntegration:
 
 
 def test_metadata_immutability():
-    """Test that plugin metadata is immutable."""
-    plugin = DatabaseShardingPlugin()
-    metadata = plugin.metadata
+    """Test that tool metadata is immutable."""
+    tool = DatabaseShardingTool()
+    metadata = tool.metadata
     
     # Attempt to modify metadata should raise an exception
     try:

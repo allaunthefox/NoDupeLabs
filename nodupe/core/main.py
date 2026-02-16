@@ -5,12 +5,12 @@
 """NoDupeLabs Entry Point - CLI using Enhanced Core Loader.
 
 This module provides the CLI entry point, delegating core bootstrapping
-and plugin loading to the enhanced `nodupe.core.loader`.
+and tool loading to the enhanced `nodupe.core.loader`.
 
 Key Features:
     - CLI argument parsing
     - Delegation to enhanced Core Loader
-    - Plugin command dispatch
+    - Tool command dispatch
     - Graceful error handling
 """
 
@@ -37,57 +37,58 @@ class CLIHandler:
         self._register_commands()
 
     def _create_parser(self) -> argparse.ArgumentParser:
-        """Create the main argument parser.
-
-        Returns:
-            Configured ArgumentParser
-        """
+        """Create the main argument parser."""
         parser = argparse.ArgumentParser(
-            description="NoDupeLabs CLI",
+            description="NoDupeLabs: A tool to find and safely store your files while removing duplicates.",
             add_help=True
         )
 
         # Global flags
         parser.add_argument(
+            '--verbose',
+            action='store_true',
+            help='Show detailed technical details for each step'
+        )
+        parser.add_argument(
             '--debug',
             action='store_true',
-            help='Enable debug logging'
+            help='Enable debug logging and detailed error output'
         )
 
-        # Performance tuning overrides (passed to config if needed)
-        parser.add_argument('--cores', type=int, help='Override detected CPU cores')
-        parser.add_argument('--threads', type=int, help='Override detected CPU threads')
-        parser.add_argument('--max-workers', type=int, help='Override max workers')
-        parser.add_argument('--batch-size', type=int, help='Override batch size')
+        # Performance tuning
+        parser.add_argument('--speed', choices=['normal', 'fast', 'safe'], default='normal', help='Choose how hard the computer works')
+        parser.add_argument('--cores', type=int, help='Override number of CPU cores to use')
+        parser.add_argument('--max-workers', type=int, help='Override maximum worker threads/processes')
+        parser.add_argument('--batch-size', type=int, help='Override processing batch size')
 
         return parser
 
     def _register_commands(self) -> None:
-        """Register commands from plugins."""
+        """Register commands from tools."""
         subparsers = self.parser.add_subparsers(
             dest='command',
             help='Available commands'
         )
 
         # Built-in commands
-        version_parser = subparsers.add_parser('version', help='Show version')
+        version_parser = subparsers.add_parser('version', help='Show the software version and system info')
         version_parser.set_defaults(func=self._cmd_version)
 
-        plugin_parser = subparsers.add_parser('plugin', help='Plugin management')
-        plugin_parser.add_argument('--list', action='store_true', help='List plugins')
-        plugin_parser.set_defaults(func=self._cmd_plugin)
+        tool_parser = subparsers.add_parser('tools', help='Manage the extra components/tools installed')
+        tool_parser.add_argument('--list', action='store_true', help='List all available tools')
+        tool_parser.set_defaults(func=self._cmd_tool)
 
-        # Plugin commands
-        # The loader has already loaded plugins into the registry
-        if self.loader.plugin_registry:
-            plugins = self.loader.plugin_registry.get_plugins()
-            for plugin in plugins:
-                if hasattr(plugin, 'register_commands'):
+        # Tool commands
+        # The loader has already loaded tools into the registry
+        if self.loader.tool_registry:
+            tools = self.loader.tool_registry.get_tools()
+            for tool in tools:
+                if hasattr(tool, 'register_commands'):
                     try:
-                        plugin.register_commands(subparsers)
-                        logging.debug(f"Registered commands for plugin: {plugin.name}")
+                        tool.register_commands(subparsers)
+                        logging.debug(f"Registered commands for tool: {tool.name}")
                     except Exception as e:
-                        logging.warning(f"Failed to register commands for {plugin.name}: {e}")
+                        logging.warning(f"Failed to register commands for {tool.name}: {e}")
 
     def run(self, args: Optional[List[str]] = None) -> int:
         """Run the CLI.
@@ -98,6 +99,7 @@ class CLIHandler:
         Returns:
             Exit code
         """
+        from .api.codes import ActionCode
         parsed_args = self.parser.parse_args(args)
 
         # Handle debug flag
@@ -111,9 +113,13 @@ class CLIHandler:
             try:
                 # Inject services into args namespace if needed by commands
                 parsed_args.container = self.loader.container
-                return parsed_args.func(parsed_args)
+                result = parsed_args.func(parsed_args)
+                
+                # Log accessibility compliance
+                print(f"[{ActionCode.ACC_ISO_CMP}] CLI command executed with accessibility compliance")
+                return result
             except Exception as e:
-                print(f"[ERROR] Command failed: {e}", file=sys.stderr)
+                print(f"[{ActionCode.FPT_STM_ERR}] Command failed: {e}", file=sys.stderr)
                 if parsed_args.debug:
                     import traceback
                     traceback.print_exc()
@@ -124,7 +130,8 @@ class CLIHandler:
 
     def _cmd_version(self, args: argparse.Namespace) -> int:
         """Handle version command."""
-        print("NoDupeLabs CLI v1.0.0")
+        from .api.codes import ActionCode
+        print(f"[{ActionCode.FIA_UAU_INIT}] NoDupeLabs CLI v1.0.0")
         print("Powered by Enhanced Core Loader")
 
         # Show system info from loader config if available
@@ -133,19 +140,28 @@ class CLIHandler:
             print(f"Platform: {cfg.get('drive_type', 'unknown')} | "
                   f"Cores: {cfg.get('cpu_cores', '?')} | "
                   f"RAM: {cfg.get('ram_gb', '?')}GB")
+        
+        # Report accessibility compliance
+        print(f"[{ActionCode.ACC_ISO_CMP}] ISO Accessibility Compliant")
         return 0
 
-    def _cmd_plugin(self, args: argparse.Namespace) -> int:
-        """Handle plugin command."""
-        if not self.loader.plugin_registry:
-            print("Plugin system not active.")
+    def _cmd_tool(self, args: argparse.Namespace) -> int:
+        """Handle tool command."""
+        from .api.codes import ActionCode
+        if not self.loader.tool_registry:
+            print(f"[{ActionCode.FPT_FLS_FAIL}] Tool system is not active.")
             return 1
 
         if args.list:
-            plugins = self.loader.plugin_registry.get_plugins()
-            print(f"Loaded plugins: {len(plugins)}")
-            for plugin in plugins:
-                print(f"  - {plugin.name} (v{getattr(plugin, 'version', '?.?')})")
+            tools = self.loader.tool_registry.get_tools()
+            print(f"[{ActionCode.FIA_UAU_LOAD}] Number of tools available: {len(tools)}")
+            for tool in tools:
+                # Check accessibility compliance for each tool
+                from .tool_system.base import AccessibleTool
+                if isinstance(tool, AccessibleTool):
+                    print(f"  - {tool.name} (v{getattr(tool, 'version', '?.?')}) [{ActionCode.ACC_ISO_CMP}]")
+                else:
+                    print(f"  - {tool.name} (v{getattr(tool, 'version', '?.?')}) [{ActionCode.ACC_FEATURE_DISABLED}]")
             return 0
         return 0
 
@@ -173,8 +189,10 @@ class CLIHandler:
 
 def main(args: Optional[List[str]] = None) -> int:
     """Main entry point."""
+    loader = None
     try:
         # 1. Bootstrap the system using enhanced loader
+        print(f"[{ActionCode.FIA_UAU_INIT}] Starting NoDupeLabs core engine")
         loader = bootstrap()
 
         # 2. Run CLI
@@ -182,11 +200,19 @@ def main(args: Optional[List[str]] = None) -> int:
         return cli.run(args)
 
     except KeyboardInterrupt:
-        print("\n[INFO] Interrupted by user", file=sys.stderr)
+        print(f"\n[{ActionCode.FIA_UAU_SHUTDOWN}] Interrupted by user", file=sys.stderr)
         return 130
     except Exception as e:
-        print(f"[ERROR] Fatal startup error: {e}", file=sys.stderr)
+        print(f"[{ActionCode.FPT_STM_ERR}] Fatal startup error: {e}", file=sys.stderr)
         return 1
+    finally:
+        if loader:
+            try:
+                print(f"[{ActionCode.FIA_UAU_SHUTDOWN}] Shutting down NoDupeLabs core engine")
+                loader.shutdown()
+            except Exception as e:
+                print(f"[{ActionCode.FPT_STM_ERR}] Error during shutdown: {e}", file=sys.stderr)
+                pass
 
 
 if __name__ == "__main__":

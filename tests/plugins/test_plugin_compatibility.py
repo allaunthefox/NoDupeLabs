@@ -1,21 +1,21 @@
-"""Test plugin compatibility functionality."""
+"""Test tool compatibility functionality."""
 
 import pytest
 from unittest.mock import MagicMock
 from typing import List
-from nodupe.core.plugin_system.compatibility import PluginCompatibility
-from nodupe.core.plugin_system.compatibility import PluginCompatibilityError
-from nodupe.core.plugin_system.base import Plugin
+from nodupe.core.tool_system.compatibility import ToolCompatibility
+from nodupe.core.tool_system.compatibility import ToolCompatibilityError
+from nodupe.core.tool_system.base import Tool
 
 
-class TestPluginCompatibility:
-    """Test plugin compatibility core functionality."""
+class TestToolCompatibility:
+    """Test tool compatibility core functionality."""
 
-    def test_plugin_compatibility_initialization(self):
-        """Test plugin compatibility initialization."""
-        compatibility = PluginCompatibility()
+    def test_tool_compatibility_initialization(self):
+        """Test tool compatibility initialization."""
+        compatibility = ToolCompatibility()
         assert compatibility is not None
-        assert isinstance(compatibility, PluginCompatibility)
+        assert isinstance(compatibility, ToolCompatibility)
 
         # Test that it has expected attributes
         assert hasattr(compatibility, 'check_compatibility')
@@ -23,22 +23,22 @@ class TestPluginCompatibility:
         assert hasattr(compatibility, 'initialize')
         assert hasattr(compatibility, 'shutdown')
 
-    def test_plugin_compatibility_with_container(self):
-        """Test plugin compatibility with dependency container."""
+    def test_tool_compatibility_with_container(self):
+        """Test tool compatibility with dependency container."""
         from nodupe.core.container import ServiceContainer
 
-        compatibility = PluginCompatibility()
+        compatibility = ToolCompatibility()
         container = ServiceContainer()
 
         # Initialize compatibility with container
         compatibility.initialize(container)
         assert compatibility.container is container
 
-    def test_plugin_compatibility_lifecycle(self):
-        """Test plugin compatibility lifecycle operations."""
+    def test_tool_compatibility_lifecycle(self):
+        """Test tool compatibility lifecycle operations."""
         from nodupe.core.container import ServiceContainer
 
-        compatibility = PluginCompatibility()
+        compatibility = ToolCompatibility()
         container = ServiceContainer()
 
         # Test initialization
@@ -54,18 +54,18 @@ class TestPluginCompatibility:
         assert compatibility.container is container
 
 
-class TestPluginCompatibilityOperations:
-    """Test plugin compatibility operations."""
+class TestToolCompatibilityOperations:
+    """Test tool compatibility operations."""
 
     def test_check_compatibility(self):
-        """Test checking plugin compatibility."""
-        compatibility = PluginCompatibility()
+        """Test checking tool compatibility."""
+        compatibility = ToolCompatibility()
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             @property
             def name(self) -> str:
-                return "test_plugin"
+                return "test_tool"
 
             @property
             def version(self) -> str:
@@ -87,10 +87,10 @@ class TestPluginCompatibilityOperations:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
         # Check compatibility
-        report = compatibility.check_compatibility(test_plugin)
+        report = compatibility.check_compatibility(test_tool)
         assert report is not None
         assert isinstance(report, dict)
 
@@ -101,13 +101,13 @@ class TestPluginCompatibilityOperations:
 
     def test_get_compatibility_report(self):
         """Test getting compatibility report."""
-        compatibility = PluginCompatibility()
+        compatibility = ToolCompatibility()
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             @property
             def name(self) -> str:
-                return "test_plugin"
+                return "test_tool"
 
             @property
             def version(self) -> str:
@@ -129,29 +129,29 @@ class TestPluginCompatibilityOperations:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
         # Get compatibility report
-        report = compatibility.get_compatibility_report(test_plugin)
+        report = compatibility.get_compatibility_report(test_tool)
         assert report is not None
         assert isinstance(report, dict)
 
         # Verify report structure
-        assert "plugin_name" in report
-        assert "plugin_version" in report
+        assert "tool_name" in report
+        assert "tool_version" in report
         assert "compatibility_status" in report
         assert "compatibility_issues" in report
         assert "compatibility_warnings" in report
 
-    def test_check_compatible_plugin(self):
-        """Test checking compatible plugin."""
-        compatibility = PluginCompatibility()
+    def test_check_compatible_tool(self):
+        """Test checking compatible tool."""
+        compatibility = ToolCompatibility()
 
-        # Create a compatible test plugin
-        class CompatiblePlugin(Plugin):
+        # Create a compatible test tool
+        class CompatibleTool(Tool):
             @property
             def name(self) -> str:
-                return "compatible_plugin"
+                return "compatible_tool"
 
             @property
             def version(self) -> str:
@@ -173,22 +173,22 @@ class TestPluginCompatibilityOperations:
             def get_capabilities(self):
                 return {"test": True}
 
-        compatible_plugin = CompatiblePlugin()
+        compatible_tool = CompatibleTool()
 
         # Check compatibility
-        report = compatibility.check_compatibility(compatible_plugin)
+        report = compatibility.check_compatibility(compatible_tool)
         assert report["compatible"] is True
         assert len(report["issues"]) == 0
 
-    def test_check_incompatible_plugin(self):
-        """Test checking incompatible plugin."""
-        compatibility = PluginCompatibility()
+    def test_check_incompatible_tool(self):
+        """Test checking incompatible tool."""
+        compatibility = ToolCompatibility()
 
-        # Create an incompatible test plugin
-        class IncompatiblePlugin(Plugin):
+        # Create an incompatible test tool
+        class IncompatibleTool(Tool):
             @property
             def name(self) -> str:
-                return "incompatible_plugin"
+                return "incompatible_tool"
 
             @property
             def version(self) -> str:
@@ -210,26 +210,26 @@ class TestPluginCompatibilityOperations:
             def get_capabilities(self):
                 return {"test": True}
 
-        incompatible_plugin = IncompatiblePlugin()
+        incompatible_tool = IncompatibleTool()
 
         # Check compatibility
-        report = compatibility.check_compatibility(incompatible_plugin)
+        report = compatibility.check_compatibility(incompatible_tool)
         assert report["compatible"] is False
         assert len(report["issues"]) > 0
 
 
-class TestPluginCompatibilityEdgeCases:
-    """Test plugin compatibility edge cases."""
+class TestToolCompatibilityEdgeCases:
+    """Test tool compatibility edge cases."""
 
-    def test_check_plugin_with_no_dependencies(self):
-        """Test checking plugin with no dependencies."""
-        compatibility = PluginCompatibility()
+    def test_check_tool_with_no_dependencies(self):
+        """Test checking tool with no dependencies."""
+        compatibility = ToolCompatibility()
 
-        # Create a plugin with no dependencies
-        class NoDepsPlugin(Plugin):
+        # Create a tool with no dependencies
+        class NoDepsTool(Tool):
             @property
             def name(self) -> str:
-                return "no_deps_plugin"
+                return "no_deps_tool"
 
             @property
             def version(self) -> str:
@@ -251,19 +251,19 @@ class TestPluginCompatibilityEdgeCases:
             def get_capabilities(self):
                 return {"test": True}
 
-        no_deps_plugin = NoDepsPlugin()
+        no_deps_tool = NoDepsTool()
 
         # Check compatibility
-        report = compatibility.check_compatibility(no_deps_plugin)
+        report = compatibility.check_compatibility(no_deps_tool)
         assert report is not None
         assert report["compatible"] is True
 
-    def test_check_plugin_with_empty_name(self):
-        """Test checking plugin with empty name."""
-        compatibility = PluginCompatibility()
+    def test_check_tool_with_empty_name(self):
+        """Test checking tool with empty name."""
+        compatibility = ToolCompatibility()
 
-        # Create a plugin with empty name
-        class EmptyNamePlugin(Plugin):
+        # Create a tool with empty name
+        class EmptyNameTool(Tool):
             @property
             def name(self) -> str:
                 return ""
@@ -288,23 +288,23 @@ class TestPluginCompatibilityEdgeCases:
             def get_capabilities(self):
                 return {"test": True}
 
-        empty_name_plugin = EmptyNamePlugin()
+        empty_name_tool = EmptyNameTool()
 
         # Check compatibility
-        report = compatibility.check_compatibility(empty_name_plugin)
+        report = compatibility.check_compatibility(empty_name_tool)
         assert report is not None
         assert report["compatible"] is False
         assert len(report["issues"]) > 0
 
-    def test_check_plugin_with_invalid_version(self):
-        """Test checking plugin with invalid version."""
-        compatibility = PluginCompatibility()
+    def test_check_tool_with_invalid_version(self):
+        """Test checking tool with invalid version."""
+        compatibility = ToolCompatibility()
 
-        # Create a plugin with invalid version
-        class InvalidVersionPlugin(Plugin):
+        # Create a tool with invalid version
+        class InvalidVersionTool(Tool):
             @property
             def name(self) -> str:
-                return "invalid_version_plugin"
+                return "invalid_version_tool"
 
             @property
             def version(self) -> str:
@@ -326,23 +326,23 @@ class TestPluginCompatibilityEdgeCases:
             def get_capabilities(self):
                 return {"test": True}
 
-        invalid_version_plugin = InvalidVersionPlugin()
+        invalid_version_tool = InvalidVersionTool()
 
         # Check compatibility
-        report = compatibility.check_compatibility(invalid_version_plugin)
+        report = compatibility.check_compatibility(invalid_version_tool)
         assert report is not None
         assert report["compatible"] is False
         assert len(report["issues"]) > 0
 
-    def test_check_plugin_with_missing_methods(self):
-        """Test checking plugin with missing required methods."""
-        compatibility = PluginCompatibility()
+    def test_check_tool_with_missing_methods(self):
+        """Test checking tool with missing required methods."""
+        compatibility = ToolCompatibility()
 
-        # Create a plugin missing required methods
-        class IncompletePlugin(Plugin):
+        # Create a tool missing required methods
+        class IncompleteTool(Tool):
             @property
             def name(self) -> str:
-                return "incomplete_plugin"
+                return "incomplete_tool"
 
             @property
             def version(self) -> str:
@@ -356,29 +356,29 @@ class TestPluginCompatibilityEdgeCases:
                 # Missing initialize and shutdown methods
                 pass
 
-        incomplete_plugin = IncompletePlugin()
+        incomplete_tool = IncompleteTool()
 
         # Check compatibility
-        report = compatibility.check_compatibility(incomplete_plugin)
+        report = compatibility.check_compatibility(incomplete_tool)
         assert report is not None
         assert report["compatible"] is False
         assert len(report["issues"]) > 0
 
 
-class TestPluginCompatibilityPerformance:
-    """Test plugin compatibility performance."""
+class TestToolCompatibilityPerformance:
+    """Test tool compatibility performance."""
 
-    def test_mass_plugin_compatibility_checking(self):
-        """Test mass plugin compatibility checking."""
-        compatibility = PluginCompatibility()
+    def test_mass_tool_compatibility_checking(self):
+        """Test mass tool compatibility checking."""
+        compatibility = ToolCompatibility()
 
-        # Create many test plugins
-        plugins = []
+        # Create many test tools
+        tools = []
         for i in range(100):
-            class TestPlugin(Plugin):
+            class TestTool(Tool):
                 @property
                 def name(self) -> str:
-                    return f"test_plugin_{i}"
+                    return f"test_tool_{i}"
 
                 @property
                 def version(self) -> str:
@@ -388,7 +388,7 @@ class TestPluginCompatibilityPerformance:
                 def dependencies(self) -> List[str]:
                     return ["core>=1.0.0"]
 
-                def __init__(self, plugin_id):
+                def __init__(self, tool_id):
                     self.initialized = False
 
                 def initialize(self, container):
@@ -400,28 +400,28 @@ class TestPluginCompatibilityPerformance:
                 def get_capabilities(self):
                     return {"test": True}
 
-            test_plugin = TestPlugin(i)
-            plugins.append(test_plugin)
+            test_tool = TestTool(i)
+            tools.append(test_tool)
 
-        # Check compatibility for all plugins
-        for plugin in plugins:
-            report = compatibility.check_compatibility(plugin)
+        # Check compatibility for all tools
+        for tool in tools:
+            report = compatibility.check_compatibility(tool)
             assert report is not None
             assert isinstance(report, dict)
 
-    def test_plugin_compatibility_performance(self):
-        """Test plugin compatibility performance."""
+    def test_tool_compatibility_performance(self):
+        """Test tool compatibility performance."""
         import time
 
-        compatibility = PluginCompatibility()
+        compatibility = ToolCompatibility()
 
-        # Create many test plugins
-        plugins = []
+        # Create many test tools
+        tools = []
         for i in range(1000):
-            class TestPlugin(Plugin):
+            class TestTool(Tool):
                 @property
                 def name(self) -> str:
-                    return f"perf_plugin_{i}"
+                    return f"perf_tool_{i}"
 
                 @property
                 def version(self) -> str:
@@ -431,7 +431,7 @@ class TestPluginCompatibilityPerformance:
                 def dependencies(self) -> List[str]:
                     return ["core>=1.0.0"]
 
-                def __init__(self, plugin_id):
+                def __init__(self, tool_id):
                     self.initialized = False
 
                 def initialize(self, container):
@@ -443,34 +443,34 @@ class TestPluginCompatibilityPerformance:
                 def get_capabilities(self):
                     return {"test": True}
 
-            test_plugin = TestPlugin(i)
-            plugins.append(test_plugin)
+            test_tool = TestTool(i)
+            tools.append(test_tool)
 
         # Test compatibility checking performance
         start_time = time.time()
-        for plugin in plugins:
-            compatibility.check_compatibility(plugin)
+        for tool in tools:
+            compatibility.check_compatibility(tool)
         compatibility_time = time.time() - start_time
 
         # Should be fast operation
         assert compatibility_time < 1.0
 
 
-class TestPluginCompatibilityIntegration:
-    """Test plugin compatibility integration scenarios."""
+class TestToolCompatibilityIntegration:
+    """Test tool compatibility integration scenarios."""
 
     def test_compatibility_with_registry(self):
         """Test compatibility integration with registry."""
-        from nodupe.core.plugin_system.registry import PluginRegistry
+        from nodupe.core.tool_system.registry import ToolRegistry
 
-        compatibility = PluginCompatibility()
-        registry = PluginRegistry()
+        compatibility = ToolCompatibility()
+        registry = ToolRegistry()
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             @property
             def name(self) -> str:
-                return "test_plugin"
+                return "test_tool"
 
             @property
             def version(self) -> str:
@@ -492,28 +492,28 @@ class TestPluginCompatibilityIntegration:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
         # Check compatibility
-        report = compatibility.check_compatibility(test_plugin)
+        report = compatibility.check_compatibility(test_tool)
         assert report is not None
         assert isinstance(report, dict)
 
     def test_compatibility_with_loader(self):
         """Test compatibility integration with loader."""
-        from nodupe.core.plugin_system.loader import PluginLoader
-        from nodupe.core.plugin_system.registry import PluginRegistry
+        from nodupe.core.tool_system.loader import ToolLoader
+        from nodupe.core.tool_system.registry import ToolRegistry
 
-        compatibility = PluginCompatibility()
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+        compatibility = ToolCompatibility()
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             @property
             def name(self) -> str:
-                return "test_plugin"
+                return "test_tool"
 
             @property
             def version(self) -> str:
@@ -535,49 +535,49 @@ class TestPluginCompatibilityIntegration:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
-        # Load plugin
-        loaded_plugin = loader.load_plugin(test_plugin)
+        # Load tool
+        loaded_tool = loader.load_tool(test_tool)
 
         # Check compatibility
-        report = compatibility.check_compatibility(loaded_plugin)
+        report = compatibility.check_compatibility(loaded_tool)
         assert report is not None
         assert isinstance(report, dict)
 
 
-class TestPluginCompatibilityErrorHandling:
-    """Test plugin compatibility error handling."""
+class TestToolCompatibilityErrorHandling:
+    """Test tool compatibility error handling."""
 
-    def test_check_compatibility_with_invalid_plugin(self):
-        """Test checking compatibility with invalid plugin."""
-        compatibility = PluginCompatibility()
+    def test_check_compatibility_with_invalid_tool(self):
+        """Test checking compatibility with invalid tool."""
+        compatibility = ToolCompatibility()
 
-        # Create an invalid plugin (not inheriting from Plugin)
-        class InvalidPlugin:
+        # Create an invalid tool (not inheriting from Tool)
+        class InvalidTool:
             def __init__(self):
-                self.name = "invalid_plugin"
+                self.name = "invalid_tool"
 
-        invalid_plugin = InvalidPlugin()
+        invalid_tool = InvalidTool()
 
         # Check compatibility
-        with pytest.raises(PluginCompatibilityError):
-            compatibility.check_compatibility(invalid_plugin)
+        with pytest.raises(ToolCompatibilityError):
+            compatibility.check_compatibility(invalid_tool)
 
-    def test_check_compatibility_with_none_plugin(self):
-        """Test checking compatibility with None plugin."""
-        compatibility = PluginCompatibility()
+    def test_check_compatibility_with_none_tool(self):
+        """Test checking compatibility with None tool."""
+        compatibility = ToolCompatibility()
 
         # Check compatibility with None
-        with pytest.raises(PluginCompatibilityError):
+        with pytest.raises(ToolCompatibilityError):
             compatibility.check_compatibility(None)
 
     def test_check_compatibility_with_missing_attributes(self):
-        """Test checking compatibility with plugin missing attributes."""
-        compatibility = PluginCompatibility()
+        """Test checking compatibility with tool missing attributes."""
+        compatibility = ToolCompatibility()
 
-        # Create a plugin missing required attributes
-        class IncompletePlugin(Plugin):
+        # Create a tool missing required attributes
+        class IncompleteTool(Tool):
             def __init__(self):
                 # Missing name, version, dependencies
                 self.initialized = False
@@ -591,27 +591,27 @@ class TestPluginCompatibilityErrorHandling:
             def get_capabilities(self):
                 return {"test": True}
 
-        incomplete_plugin = IncompletePlugin()
+        incomplete_tool = IncompleteTool()
 
         # Check compatibility
-        report = compatibility.check_compatibility(incomplete_plugin)
+        report = compatibility.check_compatibility(incomplete_tool)
         assert report is not None
         assert report["compatible"] is False
         assert len(report["issues"]) > 0
 
 
-class TestPluginCompatibilityAdvanced:
-    """Test advanced plugin compatibility functionality."""
+class TestToolCompatibilityAdvanced:
+    """Test advanced tool compatibility functionality."""
 
     def test_compatibility_with_complex_dependencies(self):
         """Test compatibility with complex dependencies."""
-        compatibility = PluginCompatibility()
+        compatibility = ToolCompatibility()
 
-        # Create a plugin with complex dependencies
-        class ComplexDepsPlugin(Plugin):
+        # Create a tool with complex dependencies
+        class ComplexDepsTool(Tool):
             @property
             def name(self) -> str:
-                return "complex_deps_plugin"
+                return "complex_deps_tool"
 
             @property
             def version(self) -> str:
@@ -638,10 +638,10 @@ class TestPluginCompatibilityAdvanced:
             def get_capabilities(self):
                 return {"test": True}
 
-        complex_deps_plugin = ComplexDepsPlugin()
+        complex_deps_tool = ComplexDepsTool()
 
         # Check compatibility
-        report = compatibility.check_compatibility(complex_deps_plugin)
+        report = compatibility.check_compatibility(complex_deps_tool)
         assert report is not None
         assert isinstance(report, dict)
 
@@ -650,13 +650,13 @@ class TestPluginCompatibilityAdvanced:
 
     def test_compatibility_with_version_constraints(self):
         """Test compatibility with version constraints."""
-        compatibility = PluginCompatibility()
+        compatibility = ToolCompatibility()
 
-        # Create a plugin with version constraints
-        class VersionConstrainedPlugin(Plugin):
+        # Create a tool with version constraints
+        class VersionConstrainedTool(Tool):
             @property
             def name(self) -> str:
-                return "version_constrained_plugin"
+                return "version_constrained_tool"
 
             @property
             def version(self) -> str:
@@ -681,25 +681,25 @@ class TestPluginCompatibilityAdvanced:
             def get_capabilities(self):
                 return {"test": True}
 
-        version_constrained_plugin = VersionConstrainedPlugin()
+        version_constrained_tool = VersionConstrainedTool()
 
         # Check compatibility
-        report = compatibility.check_compatibility(version_constrained_plugin)
+        report = compatibility.check_compatibility(version_constrained_tool)
         assert report is not None
         assert isinstance(report, dict)
 
     def test_compatibility_with_conditional_checking(self):
         """Test compatibility with conditional checking."""
-        compatibility = PluginCompatibility()
+        compatibility = ToolCompatibility()
 
-        # Create plugins with different compatibility profiles
-        plugins = []
+        # Create tools with different compatibility profiles
+        tools = []
 
-        # Compatible plugin
-        class CompatiblePlugin(Plugin):
+        # Compatible tool
+        class CompatibleTool(Tool):
             @property
             def name(self) -> str:
-                return "compatible_plugin"
+                return "compatible_tool"
 
             @property
             def version(self) -> str:
@@ -721,11 +721,11 @@ class TestPluginCompatibilityAdvanced:
             def get_capabilities(self):
                 return {"test": True}
 
-        # Incompatible plugin
-        class IncompatiblePlugin(Plugin):
+        # Incompatible tool
+        class IncompatibleTool(Tool):
             @property
             def name(self) -> str:
-                return "incompatible_plugin"
+                return "incompatible_tool"
 
             @property
             def version(self) -> str:
@@ -747,13 +747,13 @@ class TestPluginCompatibilityAdvanced:
             def get_capabilities(self):
                 return {"test": True}
 
-        plugins.append(CompatiblePlugin())
-        plugins.append(IncompatiblePlugin())
+        tools.append(CompatibleTool())
+        tools.append(IncompatibleTool())
 
-        # Check compatibility for all plugins
+        # Check compatibility for all tools
         results = []
-        for plugin in plugins:
-            report = compatibility.check_compatibility(plugin)
+        for tool in tools:
+            report = compatibility.check_compatibility(tool)
             results.append(report)
 
         # Verify different results
@@ -762,13 +762,13 @@ class TestPluginCompatibilityAdvanced:
 
     def test_compatibility_with_dynamic_dependency_management(self):
         """Test compatibility with dynamic dependency management."""
-        compatibility = PluginCompatibility()
+        compatibility = ToolCompatibility()
 
-        # Create a plugin with dynamic dependencies
-        class DynamicDepsPlugin(Plugin):
+        # Create a tool with dynamic dependencies
+        class DynamicDepsTool(Tool):
             @property
             def name(self) -> str:
-                return "dynamic_deps_plugin"
+                return "dynamic_deps_tool"
 
             @property
             def version(self) -> str:
@@ -793,17 +793,17 @@ class TestPluginCompatibilityAdvanced:
             def get_capabilities(self):
                 return {"test": True}
 
-        dynamic_deps_plugin = DynamicDepsPlugin()
+        dynamic_deps_tool = DynamicDepsTool()
 
         # Check compatibility before initialization
-        report1 = compatibility.check_compatibility(dynamic_deps_plugin)
+        report1 = compatibility.check_compatibility(dynamic_deps_tool)
         assert report1 is not None
 
-        # Initialize plugin
-        dynamic_deps_plugin.initialize(MagicMock())
+        # Initialize tool
+        dynamic_deps_tool.initialize(MagicMock())
 
         # Check compatibility after initialization
-        report2 = compatibility.check_compatibility(dynamic_deps_plugin)
+        report2 = compatibility.check_compatibility(dynamic_deps_tool)
         assert report2 is not None
 
         # Compare reports

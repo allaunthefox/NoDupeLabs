@@ -8,26 +8,26 @@ from typing import List
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-def test_plugin_compatibility_import():
-    """Test that PluginCompatibility can be imported and used."""
+def test_tool_compatibility_import():
+    """Test that ToolCompatibility can be imported and used."""
     try:
-        print("🧪 Testing PluginCompatibility import...")
+        print("🧪 Testing ToolCompatibility import...")
 
         # Test the import that was failing
-        from nodupe.core.plugin_system.compatibility import PluginCompatibility, PluginCompatibilityError
-        print("✅ PluginCompatibility import successful")
+        from nodupe.core.tool_system.compatibility import ToolCompatibility, ToolCompatibilityError
+        print("✅ ToolCompatibility import successful")
 
         # Test instantiation
-        compat = PluginCompatibility()
-        print(f"✅ PluginCompatibility instance created: {type(compat)}")
+        compat = ToolCompatibility()
+        print(f"✅ ToolCompatibility instance created: {type(compat)}")
 
         # Test basic functionality
-        from nodupe.core.plugin_system.base import Plugin
+        from nodupe.core.tool_system.base import Tool
 
-        class TestPlugin(Plugin):
+        class TestTool(Tool):
             @property
             def name(self) -> str:
-                return "test_plugin"
+                return "test_tool"
 
             @property
             def version(self) -> str:
@@ -49,14 +49,14 @@ def test_plugin_compatibility_import():
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
         # Test compatibility checking
-        report = compat.check_compatibility(test_plugin)
+        report = compat.check_compatibility(test_tool)
         print(f"✅ Compatibility check successful: {report}")
 
         # Test detailed report
-        detailed_report = compat.get_compatibility_report(test_plugin)
+        detailed_report = compat.get_compatibility_report(test_tool)
         print(f"✅ Detailed report successful: {detailed_report}")
 
         return True
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     print("🚀 Running verification tests for fixes...")
 
     results = []
-    results.append(test_plugin_compatibility_import())
+    results.append(test_tool_compatibility_import())
     results.append(test_performance_utils())
     results.append(test_test_utils())
 

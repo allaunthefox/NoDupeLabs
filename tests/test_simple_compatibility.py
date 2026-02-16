@@ -7,13 +7,13 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 def test_basic_import():
-    """Test basic import of PluginCompatibility."""
+    """Test basic import of ToolCompatibility."""
     try:
-        from nodupe.core.plugin_system.compatibility import PluginCompatibility, PluginCompatibilityError
+        from nodupe.core.tool_system.compatibility import ToolCompatibility, ToolCompatibilityError
         print("✅ Import successful in test context")
 
         # Test instantiation
-        compat = PluginCompatibility()
+        compat = ToolCompatibility()
         print(f"✅ Instance created: {type(compat)}")
 
         return True

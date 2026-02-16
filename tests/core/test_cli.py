@@ -7,7 +7,7 @@ This module tests the core CLI functionality including:
 - Argument parsing
 - Help system
 - Version command
-- Plugin command
+- Tool command
 - Error handling
 """
 
@@ -41,9 +41,9 @@ class TestCLIArgumentParsing:
             result = main()
             assert result == 0
 
-    def test_plugin_command_list(self):
-        """Test plugin command with list flag."""
-        with patch('sys.argv', ['nodupe', 'plugin', '--list']):
+    def test_tool_command_list(self):
+        """Test tool command with list flag."""
+        with patch('sys.argv', ['nodupe', 'tool', '--list']):
             result = main()
             assert result == 0
 
@@ -81,9 +81,9 @@ class TestCLIHelpSystem:
             with pytest.raises(SystemExit):
                 main()
 
-    def test_plugin_help(self):
-        """Test plugin command help."""
-        with patch('sys.argv', ['nodupe', 'plugin', '--help']):
+    def test_tool_help(self):
+        """Test tool command help."""
+        with patch('sys.argv', ['nodupe', 'tool', '--help']):
             with pytest.raises(SystemExit):
                 main()
 
@@ -116,34 +116,34 @@ class TestCLICommandRegistration:
     def test_builtin_commands_registered(self):
         """Test that built-in commands are registered."""
         mock_loader = MagicMock()
-        mock_loader.plugin_registry = MagicMock()
-        mock_loader.plugin_registry.get_plugins.return_value = []
+        mock_loader.tool_registry = MagicMock()
+        mock_loader.tool_registry.get_tools.return_value = []
 
         cli = CLIHandler(mock_loader)
 
-        # Check that version and plugin commands are available
+        # Check that version and tool commands are available
         with patch('sys.argv', ['nodupe', 'version']):
             result = cli.run()
             assert result == 0
 
-        with patch('sys.argv', ['nodupe', 'plugin']):
+        with patch('sys.argv', ['nodupe', 'tool']):
             result = cli.run()
             assert result == 0
 
-    def test_plugin_commands_registered(self):
-        """Test that plugin commands are registered."""
-        mock_plugin = MagicMock()
-        mock_plugin.name = "test_plugin"
-        mock_plugin.register_commands = MagicMock()
+    def test_tool_commands_registered(self):
+        """Test that tool commands are registered."""
+        mock_tool = MagicMock()
+        mock_tool.name = "test_tool"
+        mock_tool.register_commands = MagicMock()
 
         mock_loader = MagicMock()
-        mock_loader.plugin_registry = MagicMock()
-        mock_loader.plugin_registry.get_plugins.return_value = [mock_plugin]
+        mock_loader.tool_registry = MagicMock()
+        mock_loader.tool_registry.get_tools.return_value = [mock_tool]
 
         cli = CLIHandler(mock_loader)
 
-        # This should call the plugin's register_commands method
-        assert mock_plugin.register_commands.called
+        # This should call the tool's register_commands method
+        assert mock_tool.register_commands.called
 
     def test_command_dispatch(self):
         """Test command dispatch functionality."""
@@ -155,7 +155,7 @@ class TestCLICommandRegistration:
             result = cli.run()
             assert result == 0
 
-        with patch('sys.argv', ['nodupe', 'plugin', '--list']):
+        with patch('sys.argv', ['nodupe', 'tool', '--list']):
             result = cli.run()
             assert result == 0
 
@@ -206,12 +206,13 @@ class TestCLIDebugLogging:
 
     def test_debug_logging_enabled(self):
         """Test that debug logging is enabled with --debug flag."""
+        import logging
         with patch('sys.argv', ['nodupe', '--debug', 'version']):
             with patch('nodupe.core.main.logging.getLogger') as mock_logger:
                 result = main()
                 assert result == 0
                 # Check that debug logging was set up
-                mock_logger.return_value.setLevel.assert_called_with('DEBUG')
+                mock_logger.return_value.setLevel.assert_called_with(logging.DEBUG)
 
     def test_debug_logging_disabled(self):
         """Test that debug logging is not enabled without --debug flag."""

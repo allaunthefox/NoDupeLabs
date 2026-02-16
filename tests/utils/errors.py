@@ -346,45 +346,45 @@ def create_error_injection_test_scenarios() -> List[Dict[str, Any]]:
         }
     ]
 
-def simulate_plugin_errors(
+def simulate_tool_errors(
     error_type: str = "loading_failed"
 ) -> Callable:
     """
-    Create a context manager to simulate plugin errors.
+    Create a context manager to simulate tool errors.
 
     Args:
-        error_type: Type of plugin error to simulate
+        error_type: Type of tool error to simulate
 
     Returns:
-        Context manager for plugin error simulation
+        Context manager for tool error simulation
     """
     @contextlib.contextmanager
     def error_context():
         error_map = {
-            "loading_failed": ImportError("Cannot load plugin"),
-            "initialization_failed": RuntimeError("Plugin initialization failed"),
-            "execution_failed": ValueError("Plugin execution error"),
-            "compatibility_error": RuntimeError("Plugin compatibility issue"),
-            "security_violation": RuntimeError("Plugin security violation")
+            "loading_failed": ImportError("Cannot load tool"),
+            "initialization_failed": RuntimeError("Tool initialization failed"),
+            "execution_failed": ValueError("Tool execution error"),
+            "compatibility_error": RuntimeError("Tool compatibility issue"),
+            "security_violation": RuntimeError("Tool security violation")
         }
 
-        error = error_map.get(error_type, RuntimeError("Plugin error"))
+        error = error_map.get(error_type, RuntimeError("Tool error"))
 
         with patch('importlib.import_module') as mock_import:
             if error_type == "loading_failed":
                 mock_import.side_effect = error
             else:
-                mock_plugin = MagicMock()
+                mock_tool = MagicMock()
                 if error_type == "initialization_failed":
-                    mock_plugin.initialize.side_effect = error
+                    mock_tool.initialize.side_effect = error
                 elif error_type == "execution_failed":
-                    mock_plugin.execute.side_effect = error
+                    mock_tool.execute.side_effect = error
                 elif error_type == "compatibility_error":
-                    mock_plugin.metadata = {"version": "incompatible"}
+                    mock_tool.metadata = {"version": "incompatible"}
                 elif error_type == "security_violation":
-                    mock_plugin.execute.side_effect = error
+                    mock_tool.execute.side_effect = error
 
-                mock_import.return_value = mock_plugin
+                mock_import.return_value = mock_tool
 
             yield
 

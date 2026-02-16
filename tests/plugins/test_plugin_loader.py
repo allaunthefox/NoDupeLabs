@@ -1,51 +1,51 @@
-"""Test plugin loader functionality."""
+"""Test tool loader functionality."""
 
 import pytest
 from unittest.mock import MagicMock, patch
-from nodupe.core.plugin_system.loader import PluginLoader, PluginLoaderError
-from nodupe.core.plugin_system.registry import PluginRegistry
-from nodupe.core.plugin_system.base import Plugin
+from nodupe.core.tool_system.loader import ToolLoader, ToolLoaderError
+from nodupe.core.tool_system.registry import ToolRegistry
+from nodupe.core.tool_system.base import Tool
 
 
-class TestPluginLoader:
-    """Test plugin loader core functionality."""
+class TestToolLoader:
+    """Test tool loader core functionality."""
 
-    def test_plugin_loader_initialization(self):
-        """Test plugin loader initialization."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_tool_loader_initialization(self):
+        """Test tool loader initialization."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
         assert loader is not None
-        assert isinstance(loader, PluginLoader)
+        assert isinstance(loader, ToolLoader)
         assert loader.registry is registry
 
         # Test that it has expected attributes
-        assert hasattr(loader, 'load_plugin')
-        assert hasattr(loader, 'unload_plugin')
-        assert hasattr(loader, 'get_loaded_plugins')
-        assert hasattr(loader, 'get_loaded_plugin')
+        assert hasattr(loader, 'load_tool')
+        assert hasattr(loader, 'unload_tool')
+        assert hasattr(loader, 'get_loaded_tools')
+        assert hasattr(loader, 'get_loaded_tool')
         assert hasattr(loader, 'initialize')
         assert hasattr(loader, 'shutdown')
 
-    def test_plugin_loader_with_container(self):
-        """Test plugin loader with dependency container."""
+    def test_tool_loader_with_container(self):
+        """Test tool loader with dependency container."""
         from nodupe.core.container import ServiceContainer
 
-        registry = PluginRegistry()
+        registry = ToolRegistry()
         container = ServiceContainer()
-        loader = PluginLoader(registry)
+        loader = ToolLoader(registry)
 
         # Initialize loader with container
         loader.initialize(container)
         assert loader.container is container
 
-    def test_plugin_loader_lifecycle(self):
-        """Test plugin loader lifecycle operations."""
+    def test_tool_loader_lifecycle(self):
+        """Test tool loader lifecycle operations."""
         from nodupe.core.container import ServiceContainer
 
-        registry = PluginRegistry()
+        registry = ToolRegistry()
         container = ServiceContainer()
-        loader = PluginLoader(registry)
+        loader = ToolLoader(registry)
 
         # Test initialization
         loader.initialize(container)
@@ -60,18 +60,18 @@ class TestPluginLoader:
         assert loader.container is container
 
 
-class TestPluginLoading:
-    """Test plugin loading functionality."""
+class TestToolLoading:
+    """Test tool loading functionality."""
 
-    def test_load_plugin(self):
-        """Test loading a plugin."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_load_tool(self):
+        """Test loading a tool."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -86,26 +86,26 @@ class TestPluginLoading:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
         # Test loading
-        loaded_plugin = loader.load_plugin(test_plugin)
-        assert loaded_plugin is test_plugin
-        assert test_plugin.initialized is True
+        loaded_tool = loader.load_tool(test_tool)
+        assert loaded_tool is test_tool
+        assert test_tool.initialized is True
 
-    def test_load_plugin_with_container(self):
-        """Test loading a plugin with container."""
+    def test_load_tool_with_container(self):
+        """Test loading a tool with container."""
         from nodupe.core.container import ServiceContainer
 
-        registry = PluginRegistry()
+        registry = ToolRegistry()
         container = ServiceContainer()
-        loader = PluginLoader(registry)
+        loader = ToolLoader(registry)
         loader.initialize(container)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -121,23 +121,23 @@ class TestPluginLoading:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
         # Test loading with container
-        loaded_plugin = loader.load_plugin(test_plugin)
-        assert loaded_plugin is test_plugin
-        assert test_plugin.initialized is True
-        assert test_plugin.container is container
+        loaded_tool = loader.load_tool(test_tool)
+        assert loaded_tool is test_tool
+        assert test_tool.initialized is True
+        assert test_tool.container is container
 
-    def test_unload_plugin(self):
-        """Test unloading a plugin."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_unload_tool(self):
+        """Test unloading a tool."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -152,25 +152,25 @@ class TestPluginLoading:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
-        # Load plugin
-        loaded_plugin = loader.load_plugin(test_plugin)
-        assert test_plugin.initialized is True
+        # Load tool
+        loaded_tool = loader.load_tool(test_tool)
+        assert test_tool.initialized is True
 
-        # Unload plugin
-        loader.unload_plugin(test_plugin)
-        assert test_plugin.shutdown_called is True
+        # Unload tool
+        loader.unload_tool(test_tool)
+        assert test_tool.shutdown_called is True
 
-    def test_get_loaded_plugin(self):
-        """Test getting a loaded plugin."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_get_loaded_tool(self):
+        """Test getting a loaded tool."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -184,34 +184,34 @@ class TestPluginLoading:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
-        # Load plugin
-        loader.load_plugin(test_plugin)
+        # Load tool
+        loader.load_tool(test_tool)
 
-        # Get loaded plugin
-        retrieved = loader.get_loaded_plugin("test_plugin")
-        assert retrieved is test_plugin
+        # Get loaded tool
+        retrieved = loader.get_loaded_tool("test_tool")
+        assert retrieved is test_tool
 
-    def test_get_nonexistent_loaded_plugin(self):
-        """Test getting non-existent loaded plugin."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_get_nonexistent_loaded_tool(self):
+        """Test getting non-existent loaded tool."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        result = loader.get_loaded_plugin("nonexistent_plugin")
+        result = loader.get_loaded_tool("nonexistent_tool")
         assert result is None
 
-    def test_get_all_loaded_plugins(self):
-        """Test getting all loaded plugins."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_get_all_loaded_tools(self):
+        """Test getting all loaded tools."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create and load multiple plugins
-        plugins = []
+        # Create and load multiple tools
+        tools = []
         for i in range(5):
-            class TestPlugin(Plugin):
-                def __init__(self, plugin_id):
-                    self.name = f"test_plugin_{plugin_id}"
+            class TestTool(Tool):
+                def __init__(self, tool_id):
+                    self.name = f"test_tool_{tool_id}"
                     self.version = "1.0.0"
                     self.dependencies = []
                     self.initialized = False
@@ -225,28 +225,28 @@ class TestPluginLoading:
                 def get_capabilities(self):
                     return {"test": True}
 
-            test_plugin = TestPlugin(i)
-            plugins.append(test_plugin)
-            loader.load_plugin(test_plugin)
+            test_tool = TestTool(i)
+            tools.append(test_tool)
+            loader.load_tool(test_tool)
 
-        # Get all loaded plugins
-        all_plugins = loader.get_loaded_plugins()
-        assert len(all_plugins) == 5
+        # Get all loaded tools
+        all_tools = loader.get_loaded_tools()
+        assert len(all_tools) == 5
 
-        for plugin in plugins:
-            assert plugin in all_plugins.values()
+        for tool in tools:
+            assert tool in all_tools.values()
 
 
-class TestPluginLoadingEdgeCases:
-    """Test plugin loading edge cases."""
+class TestToolLoadingEdgeCases:
+    """Test tool loading edge cases."""
 
-    def test_load_plugin_without_name(self):
-        """Test loading a plugin without a name."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_load_tool_without_name(self):
+        """Test loading a tool without a name."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create a plugin without name
-        class TestPlugin(Plugin):
+        # Create a tool without name
+        class TestTool(Tool):
             def __init__(self):
                 self.name = None
                 self.version = "1.0.0"
@@ -262,19 +262,19 @@ class TestPluginLoadingEdgeCases:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
         # Should raise an error or handle gracefully
-        with pytest.raises((PluginLoaderError, AttributeError)):
-            loader.load_plugin(test_plugin)
+        with pytest.raises((ToolLoaderError, AttributeError)):
+            loader.load_tool(test_tool)
 
-    def test_load_plugin_with_invalid_name(self):
-        """Test loading a plugin with invalid name."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_load_tool_with_invalid_name(self):
+        """Test loading a tool with invalid name."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create a plugin with invalid name
-        class TestPlugin(Plugin):
+        # Create a tool with invalid name
+        class TestTool(Tool):
             def __init__(self):
                 self.name = ""  # Empty name
                 self.version = "1.0.0"
@@ -290,25 +290,25 @@ class TestPluginLoadingEdgeCases:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
         # Should handle gracefully
-        loaded_plugin = loader.load_plugin(test_plugin)
-        assert loaded_plugin is test_plugin
+        loaded_tool = loader.load_tool(test_tool)
+        assert loaded_tool is test_tool
 
-    def test_load_duplicate_plugin(self):
-        """Test loading duplicate plugins."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_load_duplicate_tool(self):
+        """Test loading duplicate tools."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create two plugins with same name
-        class TestPlugin(Plugin):
-            def __init__(self, plugin_id):
-                self.name = "duplicate_plugin"
+        # Create two tools with same name
+        class TestTool(Tool):
+            def __init__(self, tool_id):
+                self.name = "duplicate_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
-                self.plugin_id = plugin_id
+                self.tool_id = tool_id
 
             def initialize(self, container):
                 self.initialized = True
@@ -319,30 +319,30 @@ class TestPluginLoadingEdgeCases:
             def get_capabilities(self):
                 return {"test": True}
 
-        plugin1 = TestPlugin(1)
-        plugin2 = TestPlugin(2)
+        tool1 = TestTool(1)
+        tool2 = TestTool(2)
 
-        # Load first plugin
-        loaded1 = loader.load_plugin(plugin1)
-        assert loaded1 is plugin1
+        # Load first tool
+        loaded1 = loader.load_tool(tool1)
+        assert loaded1 is tool1
 
-        # Load second plugin with same name
-        loaded2 = loader.load_plugin(plugin2)
-        assert loaded2 is plugin2
+        # Load second tool with same name
+        loaded2 = loader.load_tool(tool2)
+        assert loaded2 is tool2
 
-        # Should return the second plugin
-        retrieved = loader.get_loaded_plugin("duplicate_plugin")
-        assert retrieved is plugin2
+        # Should return the second tool
+        retrieved = loader.get_loaded_tool("duplicate_tool")
+        assert retrieved is tool2
 
-    def test_unload_nonexistent_plugin(self):
-        """Test unloading non-existent plugin."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_unload_nonexistent_tool(self):
+        """Test unloading non-existent tool."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create a plugin
-        class TestPlugin(Plugin):
+        # Create a tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -356,27 +356,27 @@ class TestPluginLoadingEdgeCases:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
-        # Try to unload plugin that wasn't loaded
-        result = loader.unload_plugin(test_plugin)
+        # Try to unload tool that wasn't loaded
+        result = loader.unload_tool(test_tool)
         assert result is False
 
 
-class TestPluginLoadingPerformance:
-    """Test plugin loading performance."""
+class TestToolLoadingPerformance:
+    """Test tool loading performance."""
 
-    def test_mass_plugin_loading(self):
-        """Test mass plugin loading."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_mass_tool_loading(self):
+        """Test mass tool loading."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create and load many plugins
-        plugins = []
+        # Create and load many tools
+        tools = []
         for i in range(100):
-            class TestPlugin(Plugin):
-                def __init__(self, plugin_id):
-                    self.name = f"mass_plugin_{plugin_id}"
+            class TestTool(Tool):
+                def __init__(self, tool_id):
+                    self.name = f"mass_tool_{tool_id}"
                     self.version = "1.0.0"
                     self.dependencies = []
                     self.initialized = False
@@ -390,30 +390,30 @@ class TestPluginLoadingPerformance:
                 def get_capabilities(self):
                     return {"test": True}
 
-            test_plugin = TestPlugin(i)
-            plugins.append(test_plugin)
-            loader.load_plugin(test_plugin)
+            test_tool = TestTool(i)
+            tools.append(test_tool)
+            loader.load_tool(test_tool)
 
-        # Verify all plugins are loaded
-        all_plugins = loader.get_loaded_plugins()
-        assert len(all_plugins) == 100
+        # Verify all tools are loaded
+        all_tools = loader.get_loaded_tools()
+        assert len(all_tools) == 100
 
-        for plugin in plugins:
-            assert plugin in all_plugins.values()
+        for tool in tools:
+            assert tool in all_tools.values()
 
-    def test_plugin_loading_performance(self):
-        """Test plugin loading performance."""
+    def test_tool_loading_performance(self):
+        """Test tool loading performance."""
         import time
 
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
         # Test loading performance
         start_time = time.time()
         for i in range(1000):
-            class TestPlugin(Plugin):
-                def __init__(self, plugin_id):
-                    self.name = f"perf_plugin_{plugin_id}"
+            class TestTool(Tool):
+                def __init__(self, tool_id):
+                    self.name = f"perf_tool_{tool_id}"
                     self.version = "1.0.0"
                     self.dependencies = []
                     self.initialized = False
@@ -427,14 +427,14 @@ class TestPluginLoadingPerformance:
                 def get_capabilities(self):
                     return {"test": True}
 
-            test_plugin = TestPlugin(i)
-            loader.load_plugin(test_plugin)
+            test_tool = TestTool(i)
+            loader.load_tool(test_tool)
         loading_time = time.time() - start_time
 
         # Test unloading performance
         start_time = time.time()
         for i in range(1000):
-            loader.unload_plugin(loader.get_loaded_plugin(f"perf_plugin_{i}"))
+            loader.unload_tool(loader.get_loaded_tool(f"perf_tool_{i}"))
         unloading_time = time.time() - start_time
 
         # Should be fast operations
@@ -442,18 +442,18 @@ class TestPluginLoadingPerformance:
         assert unloading_time < 1.0
 
 
-class TestPluginLoaderIntegration:
-    """Test plugin loader integration scenarios."""
+class TestToolLoaderIntegration:
+    """Test tool loader integration scenarios."""
 
-    def test_plugin_loader_with_registry(self):
-        """Test plugin loader integration with registry."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_tool_loader_with_registry(self):
+        """Test tool loader integration with registry."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "integration_plugin"
+                self.name = "integration_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -467,27 +467,27 @@ class TestPluginLoaderIntegration:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
-        # Load plugin
-        loaded_plugin = loader.load_plugin(test_plugin)
+        # Load tool
+        loaded_tool = loader.load_tool(test_tool)
 
-        # Verify plugin is accessible through registry
-        retrieved = registry.get_plugin("integration_plugin")
-        assert retrieved is loaded_plugin
+        # Verify tool is accessible through registry
+        retrieved = registry.get_tool("integration_tool")
+        assert retrieved is loaded_tool
 
-    def test_plugin_loader_with_lifecycle_manager(self):
-        """Test plugin loader integration with lifecycle manager."""
-        from nodupe.core.plugin_system.lifecycle import PluginLifecycleManager
+    def test_tool_loader_with_lifecycle_manager(self):
+        """Test tool loader integration with lifecycle manager."""
+        from nodupe.core.tool_system.lifecycle import ToolLifecycleManager
 
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
-        lifecycle_manager = PluginLifecycleManager(registry)
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "lifecycle_plugin"
+                self.name = "lifecycle_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -502,67 +502,67 @@ class TestPluginLoaderIntegration:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
-        # Load plugin
-        loaded_plugin = loader.load_plugin(test_plugin)
+        # Load tool
+        loaded_tool = loader.load_tool(test_tool)
 
         # Initialize through lifecycle manager
-        lifecycle_manager.initialize_plugin("lifecycle_plugin")
-        assert test_plugin.initialized is True
+        lifecycle_manager.initialize_tool("lifecycle_tool")
+        assert test_tool.initialized is True
 
         # Shutdown through lifecycle manager
-        lifecycle_manager.shutdown_plugin("lifecycle_plugin")
-        assert test_plugin.shutdown_called is True
+        lifecycle_manager.shutdown_tool("lifecycle_tool")
+        assert test_tool.shutdown_called is True
 
 
-class TestPluginLoaderErrorHandling:
-    """Test plugin loader error handling."""
+class TestToolLoaderErrorHandling:
+    """Test tool loader error handling."""
 
-    def test_load_invalid_plugin(self):
-        """Test loading an invalid plugin."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_load_invalid_tool(self):
+        """Test loading an invalid tool."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create an invalid plugin (not inheriting from Plugin)
-        class InvalidPlugin:
+        # Create an invalid tool (not inheriting from Tool)
+        class InvalidTool:
             def __init__(self):
-                self.name = "invalid_plugin"
+                self.name = "invalid_tool"
 
-        invalid_plugin = InvalidPlugin()
+        invalid_tool = InvalidTool()
 
         # Should raise an error
-        with pytest.raises(PluginLoaderError):
-            loader.load_plugin(invalid_plugin)
+        with pytest.raises(ToolLoaderError):
+            loader.load_tool(invalid_tool)
 
-    def test_load_plugin_with_missing_methods(self):
-        """Test loading a plugin with missing required methods."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_load_tool_with_missing_methods(self):
+        """Test loading a tool with missing required methods."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create a plugin missing required methods
-        class IncompletePlugin(Plugin):
+        # Create a tool missing required methods
+        class IncompleteTool(Tool):
             def __init__(self):
-                self.name = "incomplete_plugin"
+                self.name = "incomplete_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 # Missing initialize and shutdown methods
 
-        incomplete_plugin = IncompletePlugin()
+        incomplete_tool = IncompleteTool()
 
         # Should raise an error
-        with pytest.raises(PluginLoaderError):
-            loader.load_plugin(incomplete_plugin)
+        with pytest.raises(ToolLoaderError):
+            loader.load_tool(incomplete_tool)
 
-    def test_load_plugin_with_exception_in_initialize(self):
-        """Test loading a plugin that throws exception in initialize."""
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+    def test_load_tool_with_exception_in_initialize(self):
+        """Test loading a tool that throws exception in initialize."""
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Create a plugin that throws exception in initialize
-        class FailingPlugin(Plugin):
+        # Create a tool that throws exception in initialize
+        class FailingTool(Tool):
             def __init__(self):
-                self.name = "failing_plugin"
+                self.name = "failing_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -576,8 +576,8 @@ class TestPluginLoaderErrorHandling:
             def get_capabilities(self):
                 return {"test": True}
 
-        failing_plugin = FailingPlugin()
+        failing_tool = FailingTool()
 
         # Should raise an error
         with pytest.raises(Exception):
-            loader.load_plugin(failing_plugin)
+            loader.load_tool(failing_tool)

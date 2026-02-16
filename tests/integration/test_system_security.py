@@ -4,7 +4,7 @@
 """System Security Tests - Security validation and penetration testing.
 
 This module tests authentication and authorization, data protection mechanisms,
-secure file handling, and plugin security boundaries.
+secure file handling, and tool security boundaries.
 """
 
 import pytest
@@ -14,9 +14,9 @@ import tempfile
 import json
 from unittest.mock import patch, MagicMock
 from nodupe.core.main import main
-from nodupe.plugins.commands.scan import ScanPlugin
-from nodupe.plugins.commands.apply import ApplyPlugin
-from nodupe.plugins.commands.similarity import SimilarityCommandPlugin as SimilarityPlugin
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
 
 class TestAuthenticationAuthorization:
     """Test authentication and authorization mechanisms."""
@@ -34,21 +34,21 @@ class TestAuthenticationAuthorization:
                 main()
             assert excinfo.value.code == 0
 
-    def test_plugin_authorization(self):
-        """Test plugin authorization mechanisms."""
-        # Test plugin list command
-        with patch('sys.argv', ['nodupe', 'plugin', '--list']):
+    def test_tool_authorization(self):
+        """Test tool authorization mechanisms."""
+        # Test tool list command
+        with patch('sys.argv', ['nodupe', 'tool', '--list']):
             result = main()
             assert result == 0
 
-        # Test that plugins can be loaded and executed
-        scan_plugin = ScanPlugin()
-        assert scan_plugin.name == "scan"
-        assert scan_plugin.version == "1.0.0"
+        # Test that tools can be loaded and executed
+        scan_tool = ScanTool()
+        assert scan_tool.name == "scan"
+        assert scan_tool.version == "1.0.0"
 
-        apply_plugin = ApplyPlugin()
-        assert apply_plugin.name == "apply"
-        assert apply_plugin.version == "1.0.0"
+        apply_tool = ApplyTool()
+        assert apply_tool.name == "apply"
+        assert apply_tool.version == "1.0.0"
 
 class TestDataProtection:
     """Test data protection mechanisms."""
@@ -73,7 +73,7 @@ class TestDataProtection:
             mock_db_connection = MagicMock()
             mock_container.get_service.return_value = mock_db_connection
 
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -83,7 +83,7 @@ class TestDataProtection:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0  # Should handle sensitive data properly
 
     def test_apply_data_protection(self):
@@ -106,7 +106,7 @@ class TestDataProtection:
             with open(sensitive_file, "w") as f:
                 json.dump(sensitive_data, f)
 
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = sensitive_file
@@ -114,7 +114,7 @@ class TestDataProtection:
             apply_args.dry_run = True
             apply_args.verbose = False
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0  # Should handle sensitive paths properly
 
 class TestSecureFileHandling:
@@ -146,7 +146,7 @@ class TestSecureFileHandling:
             mock_db_connection = MagicMock()
             mock_container.get_service.return_value = mock_db_connection
 
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -156,7 +156,7 @@ class TestSecureFileHandling:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0  # Should handle various file types securely
 
     def test_apply_secure_file_handling(self):
@@ -179,7 +179,7 @@ class TestSecureFileHandling:
             with open(secure_file, "w") as f:
                 json.dump(secure_data, f)
 
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = secure_file
@@ -187,44 +187,44 @@ class TestSecureFileHandling:
             apply_args.dry_run = True
             apply_args.verbose = False
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0  # Should handle secure file references properly
 
-class TestPluginSecurity:
-    """Test plugin security boundaries."""
+class TestToolSecurity:
+    """Test tool security boundaries."""
 
-    def test_plugin_security_boundaries(self):
-        """Test security boundaries between plugins."""
-        # Test that plugins operate within their security boundaries
-        scan_plugin = ScanPlugin()
-        apply_plugin = ApplyPlugin()
-        similarity_plugin = SimilarityPlugin()
+    def test_tool_security_boundaries(self):
+        """Test security boundaries between tools."""
+        # Test that tools operate within their security boundaries
+        scan_tool = ScanTool()
+        apply_tool = ApplyTool()
+        similarity_tool = SimilarityTool()
 
-        # Each plugin should have its own namespace
-        assert scan_plugin.name == "scan"
-        assert apply_plugin.name == "apply"
-        assert similarity_plugin.name == "similarity"
+        # Each tool should have its own namespace
+        assert scan_tool.name == "scan"
+        assert apply_tool.name == "apply"
+        assert similarity_tool.name == "similarity"
 
-        # Plugins should not interfere with each other
+        # Tools should not interfere with each other
         mock_subparsers = MagicMock()
-        scan_plugin.register_commands(mock_subparsers)
-        apply_plugin.register_commands(mock_subparsers)
-        similarity_plugin.register_commands(mock_subparsers)
+        scan_tool.register_commands(mock_subparsers)
+        apply_tool.register_commands(mock_subparsers)
+        similarity_tool.register_commands(mock_subparsers)
 
-        # Each plugin should register its own commands
+        # Each tool should register its own commands
         assert mock_subparsers.add_parser.call_count == 3
 
-    def test_plugin_isolation(self):
-        """Test plugin isolation and security."""
-        # Test that plugins maintain proper isolation
-        scan_plugin = ScanPlugin()
-        apply_plugin = ApplyPlugin()
+    def test_tool_isolation(self):
+        """Test tool isolation and security."""
+        # Test that tools maintain proper isolation
+        scan_tool = ScanTool()
+        apply_tool = ApplyTool()
 
-        # Create separate mock containers for each plugin
+        # Create separate mock containers for each tool
         scan_container = MagicMock()
         apply_container = MagicMock()
 
-        # Each plugin should work with its own container
+        # Each tool should work with its own container
         with tempfile.TemporaryDirectory() as temp_dir:
             # Test scan with its container
             test_file = os.path.join(temp_dir, "scan_test.txt")
@@ -240,7 +240,7 @@ class TestPluginSecurity:
             scan_args.verbose = False
             scan_args.container = scan_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0
 
             # Test apply with its container
@@ -267,7 +267,7 @@ class TestPluginSecurity:
             apply_args.verbose = False
             apply_args.container = apply_container
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0
 
 class TestSecurityValidation:
@@ -283,7 +283,7 @@ class TestSecurityValidation:
                     f.write(f"Security validation {i}")
 
             # Test with various security scenarios
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             security_scenarios = [
                 # Normal scenario
                 {
@@ -320,7 +320,7 @@ class TestSecurityValidation:
                 scan_args.verbose = False
                 scan_args.container = scenario["container"]
 
-                scan_result = scan_plugin.execute_scan(scan_args)
+                scan_result = scan_tool.execute_scan(scan_args)
 
                 if scenario["expected"] == 0:
                     assert scan_result == 0
@@ -348,7 +348,7 @@ class TestSecurityValidation:
                 json.dump(valid_data, f)
 
             # Test with various security scenarios
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             security_scenarios = [
                 # Normal scenario
                 {
@@ -378,7 +378,7 @@ class TestSecurityValidation:
                 apply_args.dry_run = True
                 apply_args.verbose = False
 
-                apply_result = apply_plugin.execute_apply(apply_args)
+                apply_result = apply_tool.execute_apply(apply_args)
 
                 if scenario["expected"] == 0:
                     assert apply_result == 0
@@ -398,7 +398,7 @@ class TestPenetrationTesting:
             ["/proc/self/mem"]
         ]
 
-        scan_plugin = ScanPlugin()
+        scan_tool = ScanTool()
 
         for paths in malicious_paths:
             scan_args = MagicMock()
@@ -410,7 +410,7 @@ class TestPenetrationTesting:
             scan_args.verbose = False
             scan_args.container = None
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             # Should handle potentially malicious paths securely
             assert isinstance(scan_result, int)
 
@@ -439,7 +439,7 @@ class TestPenetrationTesting:
                 }
             ]
 
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
 
             for scenario in malicious_scenarios:
                 malicious_file = os.path.join(temp_dir, "malicious.json")
@@ -462,7 +462,7 @@ class TestPenetrationTesting:
                 apply_args.dry_run = True
                 apply_args.verbose = False
 
-                apply_result = apply_plugin.execute_apply(apply_args)
+                apply_result = apply_tool.execute_apply(apply_args)
                 # Should handle potentially malicious input securely
                 assert isinstance(apply_result, int)
 
@@ -507,19 +507,19 @@ class TestSecurityAudit:
             mock_container.get_service.return_value = mock_db_connection
 
             # Perform comprehensive security audit
-            scan_plugin = ScanPlugin()
-            apply_plugin = ApplyPlugin()
-            similarity_plugin = SimilarityPlugin()
+            scan_tool = ScanTool()
+            apply_tool = ApplyTool()
+            similarity_tool = SimilarityTool()
 
             audit_operations = [
-                ("scan", scan_plugin, [temp_dir]),
-                ("apply", apply_plugin, audit_file),
-                ("similarity", similarity_plugin, query_file)
+                ("scan", scan_tool, [temp_dir]),
+                ("apply", apply_tool, audit_file),
+                ("similarity", similarity_tool, query_file)
             ]
 
             security_results = []
 
-            for op_name, plugin, data in audit_operations:
+            for op_name, tool, data in audit_operations:
                 if op_name == "scan":
                     scan_args = MagicMock()
                     scan_args.paths = data
@@ -530,7 +530,7 @@ class TestSecurityAudit:
                     scan_args.verbose = False
                     scan_args.container = mock_container
 
-                    result = plugin.execute_scan(scan_args)
+                    result = tool.execute_scan(scan_args)
 
                 elif op_name == "apply":
                     apply_args = MagicMock()
@@ -540,7 +540,7 @@ class TestSecurityAudit:
                     apply_args.dry_run = True
                     apply_args.verbose = False
 
-                    result = plugin.execute_apply(apply_args)
+                    result = tool.execute_apply(apply_args)
 
                 elif op_name == "similarity":
                     similarity_args = MagicMock()
@@ -552,7 +552,7 @@ class TestSecurityAudit:
                     similarity_args.output = "text"
                     similarity_args.verbose = False
 
-                    result = plugin.execute_similarity(similarity_args)
+                    result = tool.execute_similarity(similarity_args)
 
                 security_results.append(result)
 
@@ -567,7 +567,7 @@ class TestSecurityAudit:
             # CLI security
             ("version", ['nodupe', 'version']),
             ("help", ['nodupe', '--help']),
-            ("plugin_list", ['nodupe', 'plugin', '--list'])
+            ("tool_list", ['nodupe', 'tool', '--list'])
         ]
 
         for check_name, args in security_checks:

@@ -73,7 +73,7 @@ def test_thread_safety(data_fmt):
 # =============================================================================
 
 file_names = st.text(min_size=1, max_size=30).filter(
-    lambda x: x and "/" not in x and "\\" not in x and "\x00" not in x
+    lambda x: x and x not in ('.', '..') and "/" not in x and "\\" not in x and "\x00" not in x
 )
 
 

@@ -1,109 +1,109 @@
 """
-Tests for Plugin Loading Order System
+Tests for Tool Loading Order System
 
-These tests validate the explicit plugin loading order and dependency management
+These tests validate the explicit tool loading order and dependency management
 to prevent cascading failures and ensure proper initialization sequence.
 """
 
 import pytest
-from nodupe.core.plugin_system.loading_order import (
-    PluginLoadOrder,
-    PluginLoadInfo,
-    PluginLoadingOrder,
-    get_plugin_loading_order,
-    reset_plugin_loading_order
+from nodupe.core.tool_system.loading_order import (
+    ToolLoadOrder,
+    ToolLoadInfo,
+    ToolLoadingOrder,
+    get_tool_loading_order,
+    reset_tool_loading_order
 )
 
 
-class TestPluginLoadOrder:
-    """Test the plugin load order enum."""
+class TestToolLoadOrder:
+    """Test the tool load order enum."""
     
     def test_load_order_values(self):
         """Test that load order values are correct."""
-        assert PluginLoadOrder.CORE_INFRASTRUCTURE.value == 1
-        assert PluginLoadOrder.SYSTEM_UTILITIES.value == 2
-        assert PluginLoadOrder.STORAGE_SERVICES.value == 3
-        assert PluginLoadOrder.PROCESSING_SERVICES.value == 4
-        assert PluginLoadOrder.UI_COMMANDS.value == 5
-        assert PluginLoadOrder.SPECIALIZED_PLUGINS.value == 6
+        assert ToolLoadOrder.CORE_INFRASTRUCTURE.value == 1
+        assert ToolLoadOrder.SYSTEM_UTILITIES.value == 2
+        assert ToolLoadOrder.STORAGE_SERVICES.value == 3
+        assert ToolLoadOrder.PROCESSING_SERVICES.value == 4
+        assert ToolLoadOrder.UI_COMMANDS.value == 5
+        assert ToolLoadOrder.SPECIALIZED_TOOLS.value == 6
     
     def test_load_order_sequence(self):
         """Test that load order maintains proper sequence."""
-        order = list(PluginLoadOrder)
+        order = list(ToolLoadOrder)
         assert len(order) == 6
-        assert order[0] == PluginLoadOrder.CORE_INFRASTRUCTURE
-        assert order[-1] == PluginLoadOrder.SPECIALIZED_PLUGINS
+        assert order[0] == ToolLoadOrder.CORE_INFRASTRUCTURE
+        assert order[-1] == ToolLoadOrder.SPECIALIZED_TOOLS
 
 
-class TestPluginLoadInfo:
-    """Test the plugin load information dataclass."""
+class TestToolLoadInfo:
+    """Test the tool load information dataclass."""
     
-    def test_plugin_load_info_creation(self):
-        """Test creating plugin load info."""
-        info = PluginLoadInfo(
-            name="test_plugin",
-            load_order=PluginLoadOrder.SYSTEM_UTILITIES,
+    def test_tool_load_info_creation(self):
+        """Test creating tool load info."""
+        info = ToolLoadInfo(
+            name="test_tool",
+            load_order=ToolLoadOrder.SYSTEM_UTILITIES,
             required_dependencies=["core"],
             optional_dependencies=["cache"],
             critical=False,
-            description="Test plugin"
+            description="Test tool"
         )
         
-        assert info.name == "test_plugin"
-        assert info.load_order == PluginLoadOrder.SYSTEM_UTILITIES
+        assert info.name == "test_tool"
+        assert info.load_order == ToolLoadOrder.SYSTEM_UTILITIES
         assert info.required_dependencies == ["core"]
         assert info.optional_dependencies == ["cache"]
         assert info.critical is False
-        assert info.description == "Test plugin"
+        assert info.description == "Test tool"
 
 
-class TestPluginLoadingOrder:
-    """Test the plugin loading order manager."""
+class TestToolLoadingOrder:
+    """Test the tool loading order manager."""
     
     def setup_method(self):
         """Set up test fixtures."""
-        reset_plugin_loading_order()
-        self.loading_order = get_plugin_loading_order()
+        reset_tool_loading_order()
+        self.loading_order = get_tool_loading_order()
     
     def test_initialization(self):
-        """Test that loading order initializes with known plugins."""
-        # Check that core plugins are registered
-        core_plugins = self.loading_order.get_plugins_for_order(PluginLoadOrder.CORE_INFRASTRUCTURE)
-        assert "core" in core_plugins
-        assert "deps" in core_plugins
-        assert "container" in core_plugins
-        assert "registry" in core_plugins
-        assert "discovery" in core_plugins
-        assert "loader" in core_plugins
-        assert "security" in core_plugins
+        """Test that loading order initializes with known tools."""
+        # Check that core tools are registered
+        core_tools = self.loading_order.get_tools_for_order(ToolLoadOrder.CORE_INFRASTRUCTURE)
+        assert "core" in core_tools
+        assert "deps" in core_tools
+        assert "container" in core_tools
+        assert "registry" in core_tools
+        assert "discovery" in core_tools
+        assert "loader" in core_tools
+        assert "security" in core_tools
     
     def test_get_load_order(self):
         """Test getting the complete load order."""
         order = self.loading_order.get_load_order()
         assert len(order) == 6
-        assert order == list(PluginLoadOrder)
+        assert order == list(ToolLoadOrder)
     
-    def test_get_plugins_for_order(self):
-        """Test getting plugins for specific order levels."""
-        # Core infrastructure should have multiple plugins
-        core_plugins = self.loading_order.get_plugins_for_order(PluginLoadOrder.CORE_INFRASTRUCTURE)
-        assert len(core_plugins) > 0
-        assert "core" in core_plugins
-        assert "container" in core_plugins
+    def test_get_tools_for_order(self):
+        """Test getting tools for specific order levels."""
+        # Core infrastructure should have multiple tools
+        core_tools = self.loading_order.get_tools_for_order(ToolLoadOrder.CORE_INFRASTRUCTURE)
+        assert len(core_tools) > 0
+        assert "core" in core_tools
+        assert "container" in core_tools
         
-        # System utilities should have specific plugins
-        utility_plugins = self.loading_order.get_plugins_for_order(PluginLoadOrder.SYSTEM_UTILITIES)
-        assert "config" in utility_plugins
-        assert "logging" in utility_plugins
-        assert "limits" in utility_plugins
-        assert "parallel" in utility_plugins
-        assert "pools" in utility_plugins
-        assert "cache" in utility_plugins
-        assert "time_sync" in utility_plugins
-        assert "leap_year" in utility_plugins
+        # System utilities should have specific tools
+        utility_tools = self.loading_order.get_tools_for_order(ToolLoadOrder.SYSTEM_UTILITIES)
+        assert "config" in utility_tools
+        assert "logging" in utility_tools
+        assert "limits" in utility_tools
+        assert "parallel" in utility_tools
+        assert "pools" in utility_tools
+        assert "cache" in utility_tools
+        assert "time_sync" in utility_tools
+        assert "leap_year" in utility_tools
     
     def test_get_dependencies(self):
-        """Test getting plugin dependencies."""
+        """Test getting tool dependencies."""
         # Test required dependencies
         deps = self.loading_order.get_required_dependencies("container")
         assert "core" in deps
@@ -114,18 +114,18 @@ class TestPluginLoadingOrder:
         assert "security" in deps
     
     def test_is_critical(self):
-        """Test critical plugin detection."""
+        """Test critical tool detection."""
         assert self.loading_order.is_critical("core") is True
         assert self.loading_order.is_critical("container") is True
         assert self.loading_order.is_critical("config") is False
         assert self.loading_order.is_critical("time_sync") is False
     
-    def test_get_plugin_info(self):
-        """Test getting complete plugin information."""
-        info = self.loading_order.get_plugin_info("container")
+    def test_get_tool_info(self):
+        """Test getting complete tool information."""
+        info = self.loading_order.get_tool_info("container")
         assert info is not None
         assert info.name == "container"
-        assert info.load_order == PluginLoadOrder.CORE_INFRASTRUCTURE
+        assert info.load_order == ToolLoadOrder.CORE_INFRASTRUCTURE
         assert "core" in info.required_dependencies
         assert "deps" in info.required_dependencies
         assert info.critical is True
@@ -142,14 +142,14 @@ class TestPluginLoadingOrder:
         assert is_valid is True
         assert missing == []
         
-        # Test with unknown plugin
+        # Test with unknown tool
         is_valid, missing = self.loading_order.validate_dependencies("unknown", set())
         assert is_valid is True
         assert missing == []
     
     def test_get_load_sequence(self):
         """Test getting optimal load sequence."""
-        # Test loading a simple plugin
+        # Test loading a simple tool
         sequence = self.loading_order.get_load_sequence(["config"])
         assert "core" in sequence
         assert "container" in sequence
@@ -158,16 +158,16 @@ class TestPluginLoadingOrder:
         assert sequence.index("core") < sequence.index("container")
         assert sequence.index("container") < sequence.index("config")
         
-        # Test loading multiple plugins
+        # Test loading multiple tools
         sequence = self.loading_order.get_load_sequence(["config", "logging"])
         assert "core" in sequence
         assert "container" in sequence
         assert "config" in sequence
         assert "logging" in sequence
     
-    def test_get_critical_plugins(self):
-        """Test getting all critical plugins."""
-        critical = self.loading_order.get_critical_plugins()
+    def test_get_critical_tools(self):
+        """Test getting all critical tools."""
+        critical = self.loading_order.get_critical_tools()
         assert "core" in critical
         assert "deps" in critical
         assert "container" in critical
@@ -177,20 +177,20 @@ class TestPluginLoadingOrder:
         assert "security" in critical
         assert "database" in critical
         
-        # Non-critical plugins should not be included
+        # Non-critical tools should not be included
         assert "config" not in critical
         assert "time_sync" not in critical
     
-    def test_get_plugin_description(self):
-        """Test getting plugin descriptions."""
-        desc = self.loading_order.get_plugin_description("core")
+    def test_get_tool_description(self):
+        """Test getting tool descriptions."""
+        desc = self.loading_order.get_tool_description("core")
         assert "Core system infrastructure" in desc
         
-        desc = self.loading_order.get_plugin_description("time_sync")
+        desc = self.loading_order.get_tool_description("time_sync")
         assert "Time synchronization" in desc
         
-        desc = self.loading_order.get_plugin_description("unknown")
-        assert desc == "Unknown plugin"
+        desc = self.loading_order.get_tool_description("unknown")
+        assert desc == "Unknown tool"
     
     def test_get_dependency_chain(self):
         """Test getting full dependency chain."""
@@ -200,29 +200,29 @@ class TestPluginLoadingOrder:
         # Should not include config itself
         assert "config" not in chain
     
-    def test_register_plugin(self):
-        """Test registering a new plugin."""
-        info = PluginLoadInfo(
-            name="test_plugin",
-            load_order=PluginLoadOrder.SPECIALIZED_PLUGINS,
+    def test_register_tool(self):
+        """Test registering a new tool."""
+        info = ToolLoadInfo(
+            name="test_tool",
+            load_order=ToolLoadOrder.SPECIALIZED_TOOLS,
             required_dependencies=["core", "commands"],
             optional_dependencies=["database"],
             critical=False,
-            description="Test plugin"
+            description="Test tool"
         )
         
-        self.loading_order.register_plugin(info)
+        self.loading_order.register_tool(info)
         
-        # Check that plugin was registered
-        assert self.loading_order.get_plugin_info("test_plugin") is not None
-        assert "test_plugin" in self.loading_order.get_plugins_for_order(PluginLoadOrder.SPECIALIZED_PLUGINS)
+        # Check that tool was registered
+        assert self.loading_order.get_tool_info("test_tool") is not None
+        assert "test_tool" in self.loading_order.get_tools_for_order(ToolLoadOrder.SPECIALIZED_TOOLS)
         
         # Check dependencies
-        deps = self.loading_order.get_required_dependencies("test_plugin")
+        deps = self.loading_order.get_required_dependencies("test_tool")
         assert "core" in deps
         assert "commands" in deps
         
-        optional_deps = self.loading_order.get_optional_dependencies("test_plugin")
+        optional_deps = self.loading_order.get_optional_dependencies("test_tool")
         assert "database" in optional_deps
     
     def test_circular_dependency_detection(self):
@@ -233,53 +233,53 @@ class TestPluginLoadingOrder:
         assert len(sequence) > 0
         assert "config" in sequence
     
-    def test_empty_plugin_list(self):
-        """Test handling empty plugin list."""
+    def test_empty_tool_list(self):
+        """Test handling empty tool list."""
         sequence = self.loading_order.get_load_sequence([])
         assert sequence == []
     
-    def test_unknown_plugins(self):
-        """Test handling unknown plugins in load sequence."""
-        sequence = self.loading_order.get_load_sequence(["unknown_plugin"])
-        # Should not crash, may return empty or just the unknown plugin
+    def test_unknown_tools(self):
+        """Test handling unknown tools in load sequence."""
+        sequence = self.loading_order.get_load_sequence(["unknown_tool"])
+        # Should not crash, may return empty or just the unknown tool
         assert isinstance(sequence, list)
     
-    def test_plugin_order_consistency(self):
-        """Test that plugins are loaded in consistent order within levels."""
-        # Get plugins for a specific order level
-        utility_plugins = self.loading_order.get_plugins_for_order(PluginLoadOrder.SYSTEM_UTILITIES)
+    def test_tool_order_consistency(self):
+        """Test that tools are loaded in consistent order within levels."""
+        # Get tools for a specific order level
+        utility_tools = self.loading_order.get_tools_for_order(ToolLoadOrder.SYSTEM_UTILITIES)
         
-        # Should always return the same plugins in the same order
+        # Should always return the same tools in the same order
         for _ in range(5):
-            plugins = self.loading_order.get_plugins_for_order(PluginLoadOrder.SYSTEM_UTILITIES)
-            assert plugins == utility_plugins
+            tools = self.loading_order.get_tools_for_order(ToolLoadOrder.SYSTEM_UTILITIES)
+            assert tools == utility_tools
     
     def test_dependency_graph_consistency(self):
         """Test that dependency graph is built correctly."""
         # Check that reverse dependencies are set up
-        info = self.loading_order.get_plugin_info("container")
+        info = self.loading_order.get_tool_info("container")
         if info:
             # container depends on core and deps
             # So core and deps should have container as a reverse dependency
             pass  # This would require accessing internal structure
     
-    def test_plugin_registration_idempotent(self):
-        """Test that registering the same plugin multiple times is safe."""
-        info = PluginLoadInfo(
-            name="test_plugin",
-            load_order=PluginLoadOrder.SPECIALIZED_PLUGINS,
+    def test_tool_registration_idempotent(self):
+        """Test that registering the same tool multiple times is safe."""
+        info = ToolLoadInfo(
+            name="test_tool",
+            load_order=ToolLoadOrder.SPECIALIZED_TOOLS,
             required_dependencies=["core"],
             optional_dependencies=[],
             critical=False,
-            description="Test plugin"
+            description="Test tool"
         )
         
         # Register twice
-        self.loading_order.register_plugin(info)
-        self.loading_order.register_plugin(info)  # Should not crash
+        self.loading_order.register_tool(info)
+        self.loading_order.register_tool(info)  # Should not crash
         
         # Should still have only one instance
-        assert self.loading_order.get_plugin_info("test_plugin") is not None
+        assert self.loading_order.get_tool_info("test_tool") is not None
 
 
 class TestGlobalLoadingOrder:
@@ -287,39 +287,39 @@ class TestGlobalLoadingOrder:
     
     def setup_method(self):
         """Set up test fixtures."""
-        reset_plugin_loading_order()
+        reset_tool_loading_order()
     
     def test_get_global_instance(self):
         """Test getting global loading order instance."""
-        instance1 = get_plugin_loading_order()
-        instance2 = get_plugin_loading_order()
+        instance1 = get_tool_loading_order()
+        instance2 = get_tool_loading_order()
         
         # Should return the same instance
         assert instance1 is instance2
     
     def test_reset_global_instance(self):
         """Test resetting global loading order instance."""
-        instance1 = get_plugin_loading_order()
+        instance1 = get_tool_loading_order()
         
-        reset_plugin_loading_order()
+        reset_tool_loading_order()
         
-        instance2 = get_plugin_loading_order()
+        instance2 = get_tool_loading_order()
         
         # Should be a different instance
         assert instance1 is not instance2
 
 
 class TestIntegration:
-    """Integration tests for plugin loading order."""
+    """Integration tests for tool loading order."""
     
     def setup_method(self):
         """Set up test fixtures."""
-        reset_plugin_loading_order()
-        self.loading_order = get_plugin_loading_order()
+        reset_tool_loading_order()
+        self.loading_order = get_tool_loading_order()
     
     def test_complete_system_load_sequence(self):
         """Test loading sequence for a complete system."""
-        # Simulate loading core system plugins
+        # Simulate loading core system tools
         core_system = [
             "core", "deps", "container", "registry", "discovery", "loader", "security",
             "config", "logging", "limits", "parallel", "pools", "cache",
@@ -328,51 +328,51 @@ class TestIntegration:
         
         sequence = self.loading_order.get_load_sequence(core_system)
         
-        # Verify critical plugins are in sequence
-        for plugin in ["core", "deps", "container", "registry", "database"]:
-            assert plugin in sequence
+        # Verify critical tools are in sequence
+        for tool in ["core", "deps", "container", "registry", "database"]:
+            assert tool in sequence
         
         # Verify load order constraints
         # Core infrastructure should come first
-        core_plugins = self.loading_order.get_plugins_for_order(PluginLoadOrder.CORE_INFRASTRUCTURE)
-        for plugin in core_plugins:
-            if plugin in sequence:
-                # All core plugins should come before non-core plugins
-                for other_plugin in sequence:
-                    if other_plugin not in core_plugins and other_plugin in sequence:
-                        assert sequence.index(plugin) < sequence.index(other_plugin)
+        core_tools = self.loading_order.get_tools_for_order(ToolLoadOrder.CORE_INFRASTRUCTURE)
+        for tool in core_tools:
+            if tool in sequence:
+                # All core tools should come before non-core tools
+                for other_tool in sequence:
+                    if other_tool not in core_tools and other_tool in sequence:
+                        assert sequence.index(tool) < sequence.index(other_tool)
     
     def test_failure_isolation(self):
-        """Test that failure of non-critical plugin doesn't affect others."""
-        # This test simulates the scenario where a non-critical plugin fails
-        # but critical plugins continue to load
+        """Test that failure of non-critical tool doesn't affect others."""
+        # This test simulates the scenario where a non-critical tool fails
+        # but critical tools continue to load
         
-        # Get critical plugins
-        critical = self.loading_order.get_critical_plugins()
+        # Get critical tools
+        critical = self.loading_order.get_critical_tools()
         
-        # Get non-critical plugins
-        all_plugins = []
+        # Get non-critical tools
+        all_tools = []
         for order in self.loading_order.get_load_order():
-            all_plugins.extend(self.loading_order.get_plugins_for_order(order))
+            all_tools.extend(self.loading_order.get_tools_for_order(order))
         
-        non_critical = [p for p in all_plugins if p not in critical]
+        non_critical = [p for p in all_tools if p not in critical]
         
         # Verify we have both types
         assert len(critical) > 0
         assert len(non_critical) > 0
         
-        # Critical plugins should include core infrastructure
+        # Critical tools should include core infrastructure
         assert "core" in critical
         assert "container" in critical
         assert "database" in critical
         
-        # Non-critical should include utilities and specialized plugins
+        # Non-critical should include utilities and specialized tools
         assert "config" in non_critical
         assert "time_sync" in non_critical
     
     def test_dependency_validation_scenario(self):
         """Test dependency validation in realistic scenarios."""
-        # Test database plugin dependencies
+        # Test database tool dependencies
         is_valid, missing = self.loading_order.validate_dependencies(
             "database", 
             {"core", "config", "security", "limits", "cache", "time_sync"}
@@ -393,7 +393,7 @@ class TestIntegration:
         """Test load sequence validation for dependencies and conflicts."""
         # Test valid sequence
         is_valid, missing, circular = self.loading_order.validate_load_sequence(
-            ["core", "container", "config"]
+            ["core", "deps", "container", "config"]
         )
         assert is_valid is True
         assert missing == []
@@ -409,7 +409,7 @@ class TestIntegration:
     
     def test_get_safe_load_sequence(self):
         """Test getting a safe loading sequence."""
-        # Test with valid plugins
+        # Test with valid tools
         safe_seq, excluded = self.loading_order.get_safe_load_sequence(
             ["core", "container", "config", "logging"]
         )
@@ -425,7 +425,7 @@ class TestIntegration:
     
     def test_failure_impact_analysis(self):
         """Test failure impact analysis."""
-        # Simulate loading some plugins
+        # Simulate loading some tools
         loaded = ["core", "container", "config", "database"]
         
         # Analyze impact of core failure
@@ -437,19 +437,19 @@ class TestIntegration:
     
     def test_should_continue_loading(self):
         """Test decision logic for continuing after failures."""
-        # Non-critical plugin failure
+        # Non-critical tool failure
         should_continue, reason = self.loading_order.should_continue_loading(
             "config", ["core", "container", "config"]
         )
         assert should_continue is True
-        assert "Non-critical plugin" in reason
+        assert "Non-critical tool" in reason
         
-        # Critical plugin failure with impact
+        # Critical tool failure with impact
         should_continue, reason = self.loading_order.should_continue_loading(
             "core", ["core", "container", "config"]
         )
         assert should_continue is False
-        assert "Critical plugin" in reason
+        assert "Critical tool" in reason
     
     def test_get_load_priorities(self):
         """Test loading priority calculation."""
@@ -470,49 +470,49 @@ class TestIntegration:
         """Test load callback registration and notification."""
         callback_called = []
         
-        def test_callback(plugin_name):
-            callback_called.append(plugin_name)
+        def test_callback(tool_name):
+            callback_called.append(tool_name)
         
         # Register callback
-        self.loading_order.register_load_callback("test_plugin", test_callback)
+        self.loading_order.register_load_callback("test_tool", test_callback)
         
-        # Notify (should not crash even if plugin doesn't exist)
-        self.loading_order.notify_plugin_loaded("test_plugin")
+        # Notify (should not crash even if tool doesn't exist)
+        self.loading_order.notify_tool_loaded("test_tool")
         
         # Callback should have been called
         assert len(callback_called) == 1
-        assert callback_called[0] == "test_plugin"
+        assert callback_called[0] == "test_tool"
     
-    def test_get_plugin_statistics(self):
-        """Test plugin statistics gathering."""
-        stats = self.loading_order.get_plugin_statistics()
+    def test_get_tool_statistics(self):
+        """Test tool statistics gathering."""
+        stats = self.loading_order.get_tool_statistics()
         
-        assert "total_plugins" in stats
-        assert "plugins_by_order" in stats
-        assert "critical_plugins" in stats
+        assert "total_tools" in stats
+        assert "tools_by_order" in stats
+        assert "critical_tools" in stats
         assert "dependency_counts" in stats
-        assert "plugins_with_optional_deps" in stats
+        assert "tools_with_optional_deps" in stats
         
         # Should have statistics for each load order level
         for order in ["CORE_INFRASTRUCTURE", "SYSTEM_UTILITIES", "STORAGE_SERVICES",
-                      "PROCESSING_SERVICES", "UI_COMMANDS", "SPECIALIZED_PLUGINS"]:
-            assert order in stats["plugins_by_order"]
+                      "PROCESSING_SERVICES", "UI_COMMANDS", "SPECIALIZED_TOOLS"]:
+            assert order in stats["tools_by_order"]
     
     def test_cascading_failure_prevention(self):
         """Test that cascading failures are prevented."""
-        # Simulate a scenario where a critical plugin fails
-        loaded_plugins = ["core", "deps", "container", "registry"]
+        # Simulate a scenario where a critical tool fails
+        loaded_tools = ["core", "deps", "container", "registry"]
         
         # If container fails (critical), should stop loading
         should_continue, reason = self.loading_order.should_continue_loading(
-            "container", loaded_plugins
+            "container", loaded_tools
         )
         assert should_continue is False
-        assert "Critical plugin" in reason
+        assert "Critical tool" in reason
     
     def test_dependency_validation_with_optional_deps(self):
         """Test dependency validation with optional dependencies."""
-        # Test plugin with optional dependencies
+        # Test tool with optional dependencies
         is_valid, missing = self.loading_order.validate_dependencies(
             "config", {"core", "container"}  # Has required deps, missing optional security
         )
@@ -522,7 +522,7 @@ class TestIntegration:
     
     def test_fallback_load_sequence(self):
         """Test fallback sequence generation."""
-        # Test with unknown plugins (no dependency info)
+        # Test with unknown tools (no dependency info)
         sequence = self.loading_order._fallback_load_sequence(
             ["unknown1", "unknown2", "core"]
         )
@@ -531,78 +531,78 @@ class TestIntegration:
         assert len(sequence) == 3
         assert "core" in sequence
     
-    def test_plugin_registration_with_custom_info(self):
-        """Test registering plugins with custom load info."""
-        custom_info = PluginLoadInfo(
-            name="custom_plugin",
-            load_order=PluginLoadOrder.SPECIALIZED_PLUGINS,
+    def test_tool_registration_with_custom_info(self):
+        """Test registering tools with custom load info."""
+        custom_info = ToolLoadInfo(
+            name="custom_tool",
+            load_order=ToolLoadOrder.SPECIALIZED_TOOLS,
             required_dependencies=["core", "commands"],
             optional_dependencies=["database"],
             critical=False,
-            description="Custom plugin",
+            description="Custom tool",
             load_priority=10
         )
         
-        self.loading_order.register_plugin(custom_info)
+        self.loading_order.register_tool(custom_info)
         
         # Verify registration
-        assert self.loading_order.get_plugin_info("custom_plugin") is not None
-        assert self.loading_order.is_critical("custom_plugin") is False
+        assert self.loading_order.get_tool_info("custom_tool") is not None
+        assert self.loading_order.is_critical("custom_tool") is False
         
         # Test priority calculation
-        priorities = self.loading_order.get_load_priorities(["custom_plugin"])
+        priorities = self.loading_order.get_load_priorities(["custom_tool"])
         assert len(priorities) == 1
-        assert priorities[0][0] == "custom_plugin"
+        assert priorities[0][0] == "custom_tool"
 
 
-class TestPluginLoadingErrorHandling:
-    """Test error handling in plugin loading order."""
+class TestToolLoadingErrorHandling:
+    """Test error handling in tool loading order."""
     
     def setup_method(self):
         """Set up test fixtures."""
-        reset_plugin_loading_order()
-        self.loading_order = get_plugin_loading_order()
+        reset_tool_loading_order()
+        self.loading_order = get_tool_loading_order()
     
     def test_circular_dependency_detection(self):
         """Test that circular dependencies are properly detected."""
-        # Create plugins with circular dependency
-        plugin_a = PluginLoadInfo(
-            name="plugin_a",
-            load_order=PluginLoadOrder.SPECIALIZED_PLUGINS,
-            required_dependencies=["plugin_b"],
+        # Create tools with circular dependency
+        tool_a = ToolLoadInfo(
+            name="tool_a",
+            load_order=ToolLoadOrder.SPECIALIZED_TOOLS,
+            required_dependencies=["tool_b"],
             optional_dependencies=[],
             critical=False
         )
         
-        plugin_b = PluginLoadInfo(
-            name="plugin_b", 
-            load_order=PluginLoadOrder.SPECIALIZED_PLUGINS,
-            required_dependencies=["plugin_a"],
+        tool_b = ToolLoadInfo(
+            name="tool_b", 
+            load_order=ToolLoadOrder.SPECIALIZED_TOOLS,
+            required_dependencies=["tool_a"],
             optional_dependencies=[],
             critical=False
         )
         
-        self.loading_order.register_plugin(plugin_a)
-        self.loading_order.register_plugin(plugin_b)
+        self.loading_order.register_tool(tool_a)
+        self.loading_order.register_tool(tool_b)
         
         # Should detect circular dependency
         is_valid, missing, circular = self.loading_order.validate_load_sequence(
-            ["plugin_a", "plugin_b"]
+            ["tool_a", "tool_b"]
         )
         assert is_valid is False
         assert len(circular) > 0
     
     def test_missing_dependency_error_handling(self):
         """Test error handling for missing dependencies."""
-        # Try to load plugin with missing dependency
+        # Try to load tool with missing dependency
         is_valid, missing = self.loading_order.validate_dependencies(
-            "nonexistent_plugin", set()
+            "nonexistent_tool", set()
         )
-        assert is_valid is True  # Unknown plugin is considered valid
+        assert is_valid is True  # Unknown tool is considered valid
         assert missing == []
     
-    def test_empty_plugin_list_handling(self):
-        """Test handling of empty plugin lists."""
+    def test_empty_tool_list_handling(self):
+        """Test handling of empty tool lists."""
         # Empty sequence should be valid
         is_valid, missing, circular = self.loading_order.validate_load_sequence([])
         assert is_valid is True
@@ -614,29 +614,29 @@ class TestPluginLoadingErrorHandling:
         assert safe_seq == []
         assert excluded == []
     
-    def test_unknown_plugin_handling(self):
-        """Test handling of unknown plugins in various operations."""
-        # Unknown plugin should not crash operations
-        assert self.loading_order.get_plugin_info("unknown") is None
+    def test_unknown_tool_handling(self):
+        """Test handling of unknown tools in various operations."""
+        # Unknown tool should not crash operations
+        assert self.loading_order.get_tool_info("unknown") is None
         assert self.loading_order.get_required_dependencies("unknown") == []
         assert self.loading_order.get_optional_dependencies("unknown") == []
         assert self.loading_order.is_critical("unknown") is False
-        assert self.loading_order.get_plugin_description("unknown") == "Unknown plugin"
+        assert self.loading_order.get_tool_description("unknown") == "Unknown tool"
         assert self.loading_order.get_dependency_chain("unknown") == []
 
 
-class TestPluginLoadingIntegration:
-    """Integration tests for plugin loading order with real scenarios."""
+class TestToolLoadingIntegration:
+    """Integration tests for tool loading order with real scenarios."""
     
     def setup_method(self):
         """Set up test fixtures."""
-        reset_plugin_loading_order()
-        self.loading_order = get_plugin_loading_order()
+        reset_tool_loading_order()
+        self.loading_order = get_tool_loading_order()
     
     def test_complete_system_boot_sequence(self):
         """Test loading sequence for a complete system boot."""
         # Simulate loading the complete NoDupeLabs system
-        system_plugins = [
+        system_tools = [
             "core", "deps", "container", "registry", "discovery", "loader", "security",
             "config", "logging", "limits", "parallel", "pools", "cache", "time_sync", "leap_year",
             "database", "filesystem", "compression", "mime_detection",
@@ -646,9 +646,9 @@ class TestPluginLoadingIntegration:
         ]
         
         # Get safe loading sequence
-        safe_seq, excluded = self.loading_order.get_safe_load_sequence(system_plugins)
+        safe_seq, excluded = self.loading_order.get_safe_load_sequence(system_tools)
         
-        # Should load most plugins successfully
+        # Should load most tools successfully
         assert len(safe_seq) > 0
         assert "core" in safe_seq
         assert "database" in safe_seq
@@ -663,32 +663,32 @@ class TestPluginLoadingIntegration:
     
     def test_partial_system_loading(self):
         """Test loading only a subset of the system."""
-        # Load only core infrastructure and database
-        partial_plugins = ["core", "deps", "container", "registry", "database"]
+        # Load core infrastructure and database (including its requirements)
+        partial_tools = ["core", "deps", "container", "registry", "config", "security", "limits", "database"]
         
-        safe_seq, excluded = self.loading_order.get_safe_load_sequence(partial_plugins)
+        safe_seq, excluded = self.loading_order.get_safe_load_sequence(partial_tools)
         
-        assert len(safe_seq) == 5
-        assert set(safe_seq) == set(partial_plugins)
+        assert len(safe_seq) == 8
+        assert set(safe_seq) == set(partial_tools)
         
         # Verify dependencies are respected
         assert safe_seq.index("core") < safe_seq.index("container")
         assert safe_seq.index("container") < safe_seq.index("database")
     
     def test_failure_recovery_scenario(self):
-        """Test recovery from plugin loading failures."""
+        """Test recovery from tool loading failures."""
         # Simulate loading with some failures
-        loaded_plugins = ["core", "deps", "container", "registry"]
+        loaded_tools = ["core", "deps", "container", "registry"]
         
         # If registry fails (critical), should stop
         should_continue, reason = self.loading_order.should_continue_loading(
-            "registry", loaded_plugins
+            "registry", loaded_tools
         )
         assert should_continue is False
         
-        # If non-critical plugin fails, should continue
+        # If non-critical tool fails, should continue
         should_continue, reason = self.loading_order.should_continue_loading(
-            "time_sync", loaded_plugins
+            "time_sync", loaded_tools
         )
         assert should_continue is True
 

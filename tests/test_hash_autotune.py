@@ -164,7 +164,7 @@ def test_loader_integration():
             config_manager.config = {
                 'db_path': ':memory:',
                 'log_dir': 'logs',
-                'plugins': {
+                'tools': {
                     'directories': [],
                     'auto_load': False,
                     'hot_reload': False

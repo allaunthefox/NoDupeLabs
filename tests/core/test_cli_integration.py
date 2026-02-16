@@ -6,7 +6,7 @@
 This module tests CLI integration scenarios including:
 - End-to-end workflows
 - Command chaining
-- Plugin integration
+- Tool integration
 - System integration
 """
 
@@ -18,9 +18,9 @@ import json
 from unittest.mock import patch, MagicMock
 from nodupe.core.main import main, CLIHandler
 from nodupe.core.loader import bootstrap
-from nodupe.plugins.commands.scan import ScanPlugin
-from nodupe.plugins.commands.apply import ApplyPlugin
-from nodupe.plugins.commands.similarity import SimilarityCommandPlugin as SimilarityPlugin
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
 
 class TestCLIEndToEndWorkflows:
     """Test end-to-end CLI workflows."""
@@ -43,7 +43,7 @@ class TestCLIEndToEndWorkflows:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -53,7 +53,7 @@ class TestCLIEndToEndWorkflows:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0
 
             # Create a mock duplicates file for apply
@@ -69,7 +69,7 @@ class TestCLIEndToEndWorkflows:
                 json.dump(duplicates_data, f)
 
             # Test apply
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = duplicates_file
@@ -77,7 +77,7 @@ class TestCLIEndToEndWorkflows:
             apply_args.dry_run = True
             apply_args.verbose = False
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0
 
     def test_scan_similarity_workflow_integration(self):
@@ -101,7 +101,7 @@ class TestCLIEndToEndWorkflows:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -111,13 +111,14 @@ class TestCLIEndToEndWorkflows:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0
 
             # Test similarity
-            similarity_plugin = SimilarityPlugin()
+            similarity_tool = SimilarityTool()
             similarity_args = MagicMock()
             similarity_args.query_file = query_file
+            similarity_args.metric = "name"
             similarity_args.database = None
             similarity_args.k = 5
             similarity_args.threshold = 0.8
@@ -125,7 +126,7 @@ class TestCLIEndToEndWorkflows:
             similarity_args.output = "text"
             similarity_args.verbose = False
 
-            similarity_result = similarity_plugin.execute_similarity(similarity_args)
+            similarity_result = similarity_tool.execute_similarity(similarity_args)
             assert similarity_result == 0
 
 class TestCLICommandChaining:
@@ -152,7 +153,7 @@ class TestCLICommandChaining:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test multiple scans
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
 
             for scan_dir in [dir1, dir2]:
                 scan_args = MagicMock()
@@ -164,7 +165,7 @@ class TestCLICommandChaining:
                 scan_args.verbose = False
                 scan_args.container = mock_container
 
-                scan_result = scan_plugin.execute_scan(scan_args)
+                scan_result = scan_tool.execute_scan(scan_args)
                 assert scan_result == 0
 
     def test_scan_apply_chain(self):
@@ -185,7 +186,7 @@ class TestCLICommandChaining:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -195,7 +196,7 @@ class TestCLICommandChaining:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0
 
             # Create duplicates file
@@ -211,7 +212,7 @@ class TestCLICommandChaining:
                 json.dump(duplicates_data, f)
 
             # Test apply with different actions
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
 
             for action in ["list", "delete", "move"]:
                 apply_args = MagicMock()
@@ -221,73 +222,77 @@ class TestCLICommandChaining:
                 apply_args.dry_run = True
                 apply_args.verbose = False
 
-                apply_result = apply_plugin.execute_apply(apply_args)
+                apply_result = apply_tool.execute_apply(apply_args)
                 assert apply_result == 0
 
-class TestCLIPluginIntegration:
-    """Test CLI plugin integration."""
+class TestCLIToolIntegration:
+    """Test CLI tool integration."""
 
-    def test_plugin_command_registration(self):
-        """Test plugin command registration with CLI."""
-        # Create mock plugins
-        mock_plugin1 = MagicMock()
-        mock_plugin1.name = "test_plugin1"
-        mock_plugin1.register_commands = MagicMock()
+    def test_tool_command_registration(self):
+        """Test tool command registration with CLI."""
+        # Create mock tools
+        mock_tool1 = MagicMock()
+        mock_tool1.name = "test_tool1"
+        mock_tool1.register_commands = MagicMock()
 
-        mock_plugin2 = MagicMock()
-        mock_plugin2.name = "test_plugin2"
-        mock_plugin2.register_commands = MagicMock()
+        mock_tool2 = MagicMock()
+        mock_tool2.name = "test_tool2"
+        mock_tool2.register_commands = MagicMock()
 
-        # Create mock loader with plugins
+        # Create mock loader with tools
         mock_loader = MagicMock()
-        mock_plugin_registry = MagicMock()
-        mock_plugin_registry.get_plugins.return_value = [mock_plugin1, mock_plugin2]
-        mock_loader.plugin_registry = mock_plugin_registry
+        mock_tool_registry = MagicMock()
+        mock_tool_registry.get_tools.return_value = [mock_tool1, mock_tool2]
+        mock_loader.tool_registry = mock_tool_registry
 
         # Create CLI handler
         cli = CLIHandler(mock_loader)
 
-        # Verify plugins were asked to register commands
-        assert mock_plugin1.register_commands.called
-        assert mock_plugin2.register_commands.called
+        # Verify tools were asked to register commands
+        assert mock_tool1.register_commands.called
+        assert mock_tool2.register_commands.called
 
-    def test_plugin_command_execution(self):
-        """Test plugin command execution."""
-        # Create a real scan plugin
-        scan_plugin = ScanPlugin()
+    def test_tool_command_execution(self):
+        """Test tool command execution."""
+        # Create a real scan tool
+        scan_tool = ScanTool()
+        scan_tool.register_commands = MagicMock()
 
-        # Create mock loader with scan plugin
+        # Create mock loader with scan tool
         mock_loader = MagicMock()
-        mock_plugin_registry = MagicMock()
-        mock_plugin_registry.get_plugins.return_value = [scan_plugin]
-        mock_loader.plugin_registry = mock_plugin_registry
+        mock_tool_registry = MagicMock()
+        mock_tool_registry.get_tools.return_value = [scan_tool]
+        mock_loader.tool_registry = mock_tool_registry
 
         # Create CLI handler
         cli = CLIHandler(mock_loader)
 
-        # Verify the plugin registered commands
-        assert scan_plugin.register_commands.called
+        # Verify the tool registered commands
+        assert scan_tool.register_commands.called
 
-    def test_multiple_plugins_integration(self):
-        """Test integration with multiple plugins."""
-        # Create multiple real plugins
-        scan_plugin = ScanPlugin()
-        apply_plugin = ApplyPlugin()
-        similarity_plugin = SimilarityPlugin()
+    def test_multiple_tools_integration(self):
+        """Test integration with multiple tools."""
+        # Create multiple real tools
+        scan_tool = ScanTool()
+        scan_tool.register_commands = MagicMock()
+        apply_tool = ApplyTool()
+        apply_tool.register_commands = MagicMock()
+        similarity_tool = SimilarityTool()
+        similarity_tool.register_commands = MagicMock()
 
-        # Create mock loader with plugins
+        # Create mock loader with tools
         mock_loader = MagicMock()
-        mock_plugin_registry = MagicMock()
-        mock_plugin_registry.get_plugins.return_value = [scan_plugin, apply_plugin, similarity_plugin]
-        mock_loader.plugin_registry = mock_plugin_registry
+        mock_tool_registry = MagicMock()
+        mock_tool_registry.get_tools.return_value = [scan_tool, apply_tool, similarity_tool]
+        mock_loader.tool_registry = mock_tool_registry
 
         # Create CLI handler
         cli = CLIHandler(mock_loader)
 
-        # Verify all plugins registered commands
-        assert scan_plugin.register_commands.called
-        assert apply_plugin.register_commands.called
-        assert similarity_plugin.register_commands.called
+        # Verify all tools registered commands
+        assert scan_tool.register_commands.called
+        assert apply_tool.register_commands.called
+        assert similarity_tool.register_commands.called
 
 class TestCLISystemIntegration:
     """Test CLI system integration."""
@@ -299,8 +304,8 @@ class TestCLISystemIntegration:
             result = main()
             assert result == 0
 
-        # Test plugin command with real bootstrap
-        with patch('sys.argv', ['nodupe', 'plugin', '--list']):
+        # Test tool command with real bootstrap
+        with patch('sys.argv', ['nodupe', 'tool', '--list']):
             result = main()
             assert result == 0
 
@@ -332,8 +337,8 @@ class TestCLISystemIntegration:
                 main()
             assert excinfo.value.code == 0
 
-        # Test plugin help
-        with patch('sys.argv', ['nodupe', 'plugin', '--help']):
+        # Test tool help
+        with patch('sys.argv', ['nodupe', 'tool', '--help']):
             with pytest.raises(SystemExit) as excinfo:
                 main()
             assert excinfo.value.code == 0
@@ -365,8 +370,8 @@ class TestCLIPerformanceIntegration:
             result = main()
             assert result == 0
 
-        # Test debug with plugin command
-        with patch('sys.argv', ['nodupe', '--debug', 'plugin', '--list']):
+        # Test debug with tool command
+        with patch('sys.argv', ['nodupe', '--debug', 'tool', '--list']):
             result = main()
             assert result == 0
 
@@ -392,7 +397,7 @@ class TestCLIComplexScenarios:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -402,7 +407,7 @@ class TestCLIComplexScenarios:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0
 
     def test_complex_file_types(self):
@@ -428,7 +433,7 @@ class TestCLIComplexScenarios:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan with specific extensions
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -438,7 +443,7 @@ class TestCLIComplexScenarios:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0
 
     def test_complex_workflow(self):
@@ -456,7 +461,7 @@ class TestCLIComplexScenarios:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -466,7 +471,7 @@ class TestCLIComplexScenarios:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0
 
             # Create duplicates file
@@ -483,7 +488,7 @@ class TestCLIComplexScenarios:
                 json.dump(duplicates_data, f)
 
             # Test apply with different actions
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
 
             for action in ["list", "delete", "move"]:
                 apply_args = MagicMock()
@@ -493,7 +498,7 @@ class TestCLIComplexScenarios:
                 apply_args.dry_run = True
                 apply_args.verbose = False
 
-                apply_result = apply_plugin.execute_apply(apply_args)
+                apply_result = apply_tool.execute_apply(apply_args)
                 assert apply_result == 0
 
             # Test similarity
@@ -501,9 +506,10 @@ class TestCLIComplexScenarios:
             with open(query_file, "w") as f:
                 f.write("query content")
 
-            similarity_plugin = SimilarityPlugin()
+            similarity_tool = SimilarityTool()
             similarity_args = MagicMock()
             similarity_args.query_file = query_file
+            similarity_args.metric = "name"
             similarity_args.database = None
             similarity_args.k = 3
             similarity_args.threshold = 0.7
@@ -511,7 +517,7 @@ class TestCLIComplexScenarios:
             similarity_args.output = "text"
             similarity_args.verbose = False
 
-            similarity_result = similarity_plugin.execute_similarity(similarity_args)
+            similarity_result = similarity_tool.execute_similarity(similarity_args)
             assert similarity_result == 0
 
 if __name__ == "__main__":

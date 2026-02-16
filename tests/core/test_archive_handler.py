@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch, MagicMock
 import zipfile
 import tarfile
 
-from nodupe.core.archive_handler import ArchiveHandler
+from nodupe.tools.archive.archive_logic import ArchiveHandler, ArchiveHandlerError
 
 
 class TestArchiveHandler:
@@ -321,22 +321,63 @@ class TestArchiveHandler:
             assert extracted_file.read_text() == 'test content'
 
     def test_extract_archive_password_protected(self):
-        """Test extraction of password-protected archive."""
-        # Create a password-protected ZIP file
-        zip_path = Path(self.temp_dir) / "protected.zip"
+        """Test extraction of password-protected archive using mocking."""
+        zip_path = Path(self.temp_dir) / "mock_protected.zip"
+        zip_path.touch()
+        extract_path = Path(self.temp_dir) / "extracted_protected"
         password = b"testpassword"
-        
-        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
-            zf.writestr('test.txt', 'test content')
-        
-        # Add password protection (this is a simplified test)
-        # In real scenarios, you'd need to create the password-protected ZIP properly
-        extract_path = Path(self.temp_dir) / "extracted"
-        extract_path.mkdir()
-        
-        # This should fail without proper password handling
-        with pytest.raises((zipfile.BadZipFile, RuntimeError)):
-            self.archive_handler.extract_archive(str(zip_path), str(extract_path))
+
+        # Mock zipfile to simulate an encrypted ZIP
+        with patch("zipfile.ZipFile") as mock_zip_class:
+            mock_zf = MagicMock()
+            mock_zip_class.return_value.__enter__.return_value = mock_zf
+            mock_zf.namelist.return_value = ["secret.txt"]
+            
+            # Setup the mocked extracted file
+            secret_file = extract_path / "secret.txt"
+            
+            def side_effect_extractall(path, members=None, pwd=None):
+                extract_path.mkdir(parents=True, exist_ok=True)
+                secret_file.write_text("password protected content")
+
+            mock_zf.extractall.side_effect = side_effect_extractall
+
+            # Test successful extraction with password
+            extracted_files = self.archive_handler.extract_archive(
+                str(zip_path), 
+                str(extract_path),
+                password=password
+            )
+            
+            # Verify setpassword was called if logic uses it (or check password passed to extractall)
+            # Our current implementation in compression.py uses zf.setpassword(password)
+            mock_zf.setpassword.assert_called_with(password)
+            
+            assert "secret.txt" in extracted_files
+            assert Path(extracted_files["secret.txt"]).exists()
+            assert Path(extracted_files["secret.txt"]).read_text() == "password protected content"
+
+    def test_extract_archive_password_protected_wrong_password(self):
+        """Test extraction of password-protected archive with wrong password using mocking."""
+        zip_path = Path(self.temp_dir) / "mock_protected.zip"
+        zip_path.touch()
+        extract_path = Path(self.temp_dir) / "extracted_wrong"
+        password = b"wrongpassword"
+
+        with patch("zipfile.ZipFile") as mock_zip_class:
+            mock_zf = MagicMock()
+            mock_zip_class.return_value.__enter__.return_value = mock_zf
+            mock_zf.namelist.return_value = ["secret.txt"]
+            
+            # Simulate a runtime error or BadZipFile that occurs when password is wrong
+            mock_zf.extractall.side_effect = RuntimeError("Bad password")
+
+            with pytest.raises((ArchiveHandlerError, RuntimeError)):
+                self.archive_handler.extract_archive(
+                    str(zip_path), 
+                    str(extract_path),
+                    password=password
+                )
 
     def test_extract_archive_duplicate_files(self):
         """Test extraction behavior with duplicate filenames."""

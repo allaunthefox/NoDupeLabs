@@ -1,0 +1,217 @@
+{
+  "specification": "ISO/IEC 15408-2 & ISO 14721 Plain-Language Registry",
+  "version": "13.0.0",
+  "organization": "NoDupeLabs",
+  "codes": [
+    {
+      "code": 100000,
+      "mnemonic": "FAU_GEN_START",
+      "iso_class": "FAU",
+      "description": "System Event: The main software engine has started.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 100001,
+      "mnemonic": "FAU_GEN_STOP",
+      "iso_class": "FAU",
+      "description": "System Event: The main software engine has stopped.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 100003,
+      "mnemonic": "FAU_SAR_RES",
+      "iso_class": "FAU",
+      "description": "Communication: A response was successfully sent back.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 100002,
+      "mnemonic": "FAU_SAR_REQ",
+      "iso_class": "FAU",
+      "description": "Communication: A request for information was received.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 300001,
+      "mnemonic": "FIA_UAU_INIT",
+      "iso_class": "FIA",
+      "description": "System Initialization: A tool or service is being prepared for use.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 300002,
+      "mnemonic": "FIA_UAU_SHUTDOWN",
+      "iso_class": "FIA",
+      "description": "System Shutdown: A tool or session was successfully closed.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 500001,
+      "mnemonic": "FPT_STM_ERR",
+      "iso_class": "FPT",
+      "description": "Time Error: There was a problem synchronizing the system clock.",
+      "risk_level": "HIGH"
+    },
+    {
+      "code": 120000,
+      "mnemonic": "OAIS_SIP_INGEST",
+      "iso_class": "OAIS",
+      "description": "Archive Action: Receiving new data to be saved in the permanent collection.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 120001,
+      "mnemonic": "OAIS_AIP_STORE",
+      "iso_class": "OAIS",
+      "description": "Archive Action: Data has been safely locked in permanent storage.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 200002,
+      "mnemonic": "FDP_ETC_DB",
+      "iso_class": "FDP",
+      "description": "Data Storage: Information was written to or read from the database.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 300000,
+      "mnemonic": "FIA_UAU_LOAD",
+      "iso_class": "FIA",
+      "description": "System Action: A new tool or component was successfully loaded.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 200000,
+      "mnemonic": "FDP_DAU_HASH",
+      "iso_class": "FDP",
+      "description": "Integrity Check: Creating a unique digital fingerprint to prove a file is original.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 250002,
+      "mnemonic": "DEDUP_RECLAIM",
+      "iso_class": "DDP",
+      "description": "Cleaning Action: Removing unnecessary duplicate data to save space.",
+      "risk_level": "LOW"
+    },
+    {
+      "code": 400000,
+      "mnemonic": "FMT_MOF_RELOAD",
+      "iso_class": "FMT",
+      "description": "System Action: Updating a component while the software is still running.",
+      "risk_level": "MEDIUM"
+    },
+    {
+      "code": 500000,
+      "mnemonic": "FPT_FLS_FAIL",
+      "iso_class": "FPT",
+      "description": "Safety Event: A task failed, but the system remained in a secure state.",
+      "risk_level": "CRITICAL"
+    },
+    {
+      "code": 500002,
+      "mnemonic": "FPT_SEP_DENIED",
+      "iso_class": "FPT",
+      "description": "Security Event: Access to a protected area or sensitive task was blocked.",
+      "risk_level": "CRITICAL"
+    },
+    {
+      "code": 600000,
+      "mnemonic": "ACC_SCR_RD_INIT",
+      "iso_class": "ACC",
+      "description": "Accessibility: Screen reader initialization attempted.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 600001,
+      "mnemonic": "ACC_SCR_RD_AVAIL",
+      "iso_class": "ACC",
+      "description": "Accessibility: Screen reader availability confirmed.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 600002,
+      "mnemonic": "ACC_SCR_RD_UNAVAIL",
+      "iso_class": "ACC",
+      "description": "Accessibility: Screen reader unavailable, using fallback.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 600003,
+      "mnemonic": "ACC_BRL_INIT",
+      "iso_class": "ACC",
+      "description": "Accessibility: Braille display initialization attempted.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 600004,
+      "mnemonic": "ACC_BRL_AVAIL",
+      "iso_class": "ACC",
+      "description": "Accessibility: Braille display availability confirmed.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 600005,
+      "mnemonic": "ACC_BRL_UNAVAIL",
+      "iso_class": "ACC",
+      "description": "Accessibility: Braille display unavailable, using fallback.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 600006,
+      "mnemonic": "ACC_OUT_SENT",
+      "iso_class": "ACC",
+      "description": "Accessibility: Accessibility output successfully sent.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 600007,
+      "mnemonic": "ACC_OUT_FAIL",
+      "iso_class": "ACC",
+      "description": "Accessibility: Accessibility output failed.",
+      "risk_level": "MEDIUM"
+    },
+    {
+      "code": 600008,
+      "mnemonic": "ACC_FEAT_ENAB",
+      "iso_class": "ACC",
+      "description": "Accessibility: Accessibility feature enabled.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 600009,
+      "mnemonic": "ACC_FEAT_DISAB",
+      "iso_class": "ACC",
+      "description": "Accessibility: Accessibility feature disabled.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 600010,
+      "mnemonic": "ACC_LIB_LOAD_OK",
+      "iso_class": "ACC",
+      "description": "Accessibility: Accessibility library loaded successfully.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 600011,
+      "mnemonic": "ACC_LIB_LOAD_FAIL",
+      "iso_class": "ACC",
+      "description": "Accessibility: Accessibility library failed to load.",
+      "risk_level": "MEDIUM"
+    },
+    {
+      "code": 600012,
+      "mnemonic": "ACC_CONS_FALL",
+      "iso_class": "ACC",
+      "description": "Accessibility: Using console fallback for accessibility.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 600013,
+      "mnemonic": "ACC_ISO_CMP",
+      "iso_class": "ACC",
+      "description": "Accessibility: ISO accessibility compliance indicator.",
+      "risk_level": "INFO"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 """
-Tests for TimeSync Plugin
+Tests for TimeSync Tool
 
 Tests the NTP-based time synchronization and FastDate64 timestamp encoding functionality.
 These tests mock network operations to avoid real UDP calls and ensure reliable testing.
@@ -11,16 +11,16 @@ from unittest.mock import patch, MagicMock
 import pytest
 from datetime import datetime, timezone
 
-from nodupe.plugins.time_sync import TimeSyncPlugin
+from nodupe.tools.time_sync import TimeSyncTool
 
 
-class TestTimeSyncPlugin:
-    """Test suite for TimeSyncPlugin."""
+class TestTimeSyncTool:
+    """Test suite for TimeSyncTool."""
 
-    def test_plugin_metadata(self):
-        """Test that plugin metadata is correctly defined."""
-        plugin = TimeSyncPlugin()
-        metadata = plugin.metadata
+    def test_tool_metadata(self):
+        """Test that tool metadata is correctly defined."""
+        tool = TimeSyncTool()
+        metadata = tool.metadata
         
         assert metadata.name == "TimeSync"
         assert metadata.version == "1.0.0"
@@ -30,18 +30,18 @@ class TestTimeSyncPlugin:
         assert "ntp" in metadata.tags
 
     def test_initialization_defaults(self):
-        """Test plugin initialization with default values."""
-        plugin = TimeSyncPlugin()
+        """Test tool initialization with default values."""
+        tool = TimeSyncTool()
         
-        assert plugin.servers == ["time.google.com", "time.cloudflare.com", "pool.ntp.org"]
-        assert plugin.timeout == 3.0
-        assert plugin.attempts == 2
-        assert plugin.max_acceptable_delay == 0.5
-        assert plugin.alpha == 0.3
+        assert tool.servers == ["time.google.com", "time.cloudflare.com", "pool.ntp.org"]
+        assert tool.timeout == 3.0
+        assert tool.attempts == 2
+        assert tool.max_acceptable_delay == 0.5
+        assert tool.alpha == 0.3
 
     def test_initialization_custom_values(self):
-        """Test plugin initialization with custom values."""
-        plugin = TimeSyncPlugin(
+        """Test tool initialization with custom values."""
+        tool = TimeSyncTool(
             servers=["custom.ntp.com"],
             timeout=5.0,
             attempts=3,
@@ -49,56 +49,56 @@ class TestTimeSyncPlugin:
             smoothing_alpha=0.5
         )
         
-        assert plugin.servers == ["custom.ntp.com"]
-        assert plugin.timeout == 5.0
-        assert plugin.attempts == 3
-        assert plugin.max_acceptable_delay == 1.0
-        assert plugin.alpha == 0.5
+        assert tool.servers == ["custom.ntp.com"]
+        assert tool.timeout == 5.0
+        assert tool.attempts == 3
+        assert tool.max_acceptable_delay == 1.0
+        assert tool.alpha == 0.5
 
     def test_runtime_flags_initial_state(self):
         """Test initial state of runtime flags."""
-        plugin = TimeSyncPlugin()
+        tool = TimeSyncTool()
         
         # These depend on environment variables, so we just check they're booleans
-        assert isinstance(plugin.is_enabled(), bool)
-        assert isinstance(plugin.is_network_allowed(), bool)
-        assert isinstance(plugin.is_background_allowed(), bool)
+        assert isinstance(tool.is_enabled(), bool)
+        assert isinstance(tool.is_network_allowed(), bool)
+        assert isinstance(tool.is_background_allowed(), bool)
 
-    def test_enable_disable_plugin(self):
-        """Test enabling and disabling the plugin."""
-        plugin = TimeSyncPlugin(enabled=False)
+    def test_enable_disable_tool(self):
+        """Test enabling and disabling the tool."""
+        tool = TimeSyncTool(enabled=False)
         
-        assert not plugin.is_enabled()
+        assert not tool.is_enabled()
         
-        plugin.enable()
-        assert plugin.is_enabled()
+        tool.enable()
+        assert tool.is_enabled()
         
-        plugin.disable()
-        assert not plugin.is_enabled()
+        tool.disable()
+        assert not tool.is_enabled()
 
     def test_network_operations_control(self):
         """Test enabling and disabling network operations."""
-        plugin = TimeSyncPlugin(allow_network=False)
+        tool = TimeSyncTool(allow_network=False)
         
-        assert not plugin.is_network_allowed()
+        assert not tool.is_network_allowed()
         
-        plugin.enable_network()
-        assert plugin.is_network_allowed()
+        tool.enable_network()
+        assert tool.is_network_allowed()
         
-        plugin.disable_network()
-        assert not plugin.is_network_allowed()
+        tool.disable_network()
+        assert not tool.is_network_allowed()
 
     def test_background_sync_control(self):
         """Test enabling and disabling background synchronization."""
-        plugin = TimeSyncPlugin(allow_background=False)
+        tool = TimeSyncTool(allow_background=False)
         
-        assert not plugin.is_background_allowed()
+        assert not tool.is_background_allowed()
         
-        plugin.enable_background()
-        assert plugin.is_background_allowed()
+        tool.enable_background()
+        assert tool.is_background_allowed()
         
-        plugin.disable_background()
-        assert not plugin.is_background_allowed()
+        tool.disable_background()
+        assert not tool.is_background_allowed()
 
     def test_encode_decode_fastdate64_roundtrip(self):
         """Test FastDate64 encoding and decoding roundtrip."""
@@ -111,8 +111,8 @@ class TestTimeSyncPlugin:
         ]
         
         for ts in test_timestamps:
-            encoded = TimeSyncPlugin.encode_fastdate64(ts)
-            decoded = TimeSyncPlugin.decode_fastdate64(encoded)
+            encoded = TimeSyncTool.encode_fastdate64(ts)
+            decoded = TimeSyncTool.decode_fastdate64(encoded)
             
             # Allow small rounding error due to fractional truncation
             assert abs(decoded - ts) < 1e-6, f"Roundtrip failed for {ts}"
@@ -120,7 +120,7 @@ class TestTimeSyncPlugin:
     def test_encode_fastdate64_negative_timestamp(self):
         """Test that negative timestamps raise ValueError."""
         with pytest.raises(ValueError, match="Negative timestamps not supported"):
-            TimeSyncPlugin.encode_fastdate64(-1.0)
+            TimeSyncTool.encode_fastdate64(-1.0)
 
     def test_encode_fastdate64_overflow(self):
         """Test that timestamps too large for encoding raise OverflowError."""
@@ -128,13 +128,13 @@ class TestTimeSyncPlugin:
         large_ts = (1 << 34)  # Exceeds 34-bit seconds field
         
         with pytest.raises(OverflowError, match="too large for.*bit field"):
-            TimeSyncPlugin.encode_fastdate64(large_ts)
+            TimeSyncTool.encode_fastdate64(large_ts)
 
     def test_fastdate64_to_iso_conversion(self):
         """Test FastDate64 to ISO 8601 string conversion."""
         ts = 1672531200.123456  # 2023-01-01T00:00:00.123456Z
-        encoded = TimeSyncPlugin.encode_fastdate64(ts)
-        iso_string = TimeSyncPlugin.fastdate64_to_iso(encoded)
+        encoded = TimeSyncTool.encode_fastdate64(ts)
+        iso_string = TimeSyncTool.fastdate64_to_iso(encoded)
         
         # Parse the ISO string back to timestamp
         dt = datetime.fromisoformat(iso_string)
@@ -147,8 +147,8 @@ class TestTimeSyncPlugin:
     def test_iso_to_fastdate64_conversion(self):
         """Test ISO 8601 string to FastDate64 conversion."""
         iso_string = "2023-01-01T00:00:00.123456+00:00"
-        encoded = TimeSyncPlugin.iso_to_fastdate64(iso_string)
-        decoded = TimeSyncPlugin.decode_fastdate64(encoded)
+        encoded = TimeSyncTool.iso_to_fastdate64(iso_string)
+        decoded = TimeSyncTool.decode_fastdate64(encoded)
         
         # Parse the original ISO string to timestamp
         dt = datetime.fromisoformat(iso_string)
@@ -159,23 +159,23 @@ class TestTimeSyncPlugin:
         assert abs(decoded - original_ts) < 1e-6
 
     def test_disabled_behavior_fallback(self):
-        """Test that disabled plugin falls back to time.monotonic()."""
-        plugin = TimeSyncPlugin(enabled=False)
+        """Test that disabled tool falls back to time.monotonic()."""
+        tool = TimeSyncTool(enabled=False)
         
         # Should not raise and should return a float
-        result = plugin.get_corrected_time()
+        result = tool.get_corrected_time()
         assert isinstance(result, float)
         
         # Should return a valid FastDate64 encoded timestamp
-        fast64 = plugin.get_corrected_fast64()
+        fast64 = tool.get_corrected_fast64()
         assert isinstance(fast64, int)
         
         # Should raise when trying to sync
-        with pytest.raises(TimeSyncPlugin._get_exception_class()):
-            plugin.force_sync()
+        with pytest.raises(TimeSyncTool._get_exception_class()):
+            tool.force_sync()
 
-    @patch('nodupe.plugins.time_sync.socket.getaddrinfo')
-    @patch('nodupe.plugins.time_sync.TimeSyncPlugin._query_address')
+    @patch('nodupe.tools.time_sync.socket.getaddrinfo')
+    @patch('nodupe.tools.time_sync.TimeSyncTool._query_address')
     def test_force_sync_success(self, mock_query_address, mock_getaddrinfo):
         """Test successful NTP synchronization."""
         # Mock DNS resolution
@@ -189,9 +189,9 @@ class TestTimeSyncPlugin:
         delay = 0.01
         mock_query_address.return_value = (server_time, offset, delay)
         
-        plugin = TimeSyncPlugin(servers=["test.ntp.com"], enabled=True, allow_network=True)
+        tool = TimeSyncTool(servers=["test.ntp.com"], enabled=True, allow_network=True)
         
-        result = plugin.force_sync()
+        result = tool.force_sync()
         
         assert result[0] == "test.ntp.com"
         assert result[1] == server_time
@@ -199,27 +199,27 @@ class TestTimeSyncPlugin:
         assert result[3] == delay
         
         # Verify that internal state was updated
-        assert plugin.get_offset_estimate() is not None
-        assert plugin.get_last_delay() == delay
+        assert tool.get_offset_estimate() is not None
+        assert tool.get_last_delay() == delay
 
-    @patch('nodupe.plugins.time_sync.socket.getaddrinfo')
+    @patch('nodupe.tools.time_sync.socket.getaddrinfo')
     def test_force_sync_disabled_network(self, mock_getaddrinfo):
         """Test that force_sync raises when network is disabled."""
-        plugin = TimeSyncPlugin(allow_network=False)
+        tool = TimeSyncTool(allow_network=False)
         
-        with pytest.raises(TimeSyncPlugin._get_exception_class(), match="Network operations are disabled"):
-            plugin.force_sync()
+        with pytest.raises(TimeSyncTool._get_exception_class(), match="Network operations are disabled"):
+            tool.force_sync()
 
-    @patch('nodupe.plugins.time_sync.socket.getaddrinfo')
-    def test_force_sync_disabled_plugin(self, mock_getaddrinfo):
-        """Test that force_sync raises when plugin is disabled."""
-        plugin = TimeSyncPlugin(enabled=False)
+    @patch('nodupe.tools.time_sync.socket.getaddrinfo')
+    def test_force_sync_disabled_tool(self, mock_getaddrinfo):
+        """Test that force_sync raises when tool is disabled."""
+        tool = TimeSyncTool(enabled=False)
         
-        with pytest.raises(TimeSyncPlugin._get_exception_class(), match="TimeSync instance is disabled"):
-            plugin.force_sync()
+        with pytest.raises(TimeSyncTool._get_exception_class(), match="TimeSync instance is disabled"):
+            tool.force_sync()
 
-    @patch('nodupe.plugins.time_sync.socket.getaddrinfo')
-    @patch('nodupe.plugins.time_sync.TimeSyncPlugin._query_address')
+    @patch('nodupe.tools.time_sync.socket.getaddrinfo')
+    @patch('nodupe.tools.time_sync.TimeSyncTool._query_address')
     def test_force_sync_high_delay(self, mock_query_address, mock_getaddrinfo):
         """Test that force_sync raises when delay exceeds threshold."""
         # Mock DNS resolution
@@ -233,13 +233,13 @@ class TestTimeSyncPlugin:
         delay = 1.0  # Exceeds max_acceptable_delay of 0.5
         mock_query_address.return_value = (server_time, offset, delay)
         
-        plugin = TimeSyncPlugin(servers=["test.ntp.com"], enabled=True, allow_network=True)
+        tool = TimeSyncTool(servers=["test.ntp.com"], enabled=True, allow_network=True)
         
         with pytest.raises(RuntimeError, match="too noisy"):
-            plugin.force_sync()
+            tool.force_sync()
 
-    @patch('nodupe.plugins.time_sync.socket.getaddrinfo')
-    @patch('nodupe.plugins.time_sync.TimeSyncPlugin._query_address')
+    @patch('nodupe.tools.time_sync.socket.getaddrinfo')
+    @patch('nodupe.tools.time_sync.TimeSyncTool._query_address')
     def test_maybe_sync_success(self, mock_query_address, mock_getaddrinfo):
         """Test successful maybe_sync operation."""
         # Mock DNS resolution
@@ -253,34 +253,34 @@ class TestTimeSyncPlugin:
         delay = 0.01
         mock_query_address.return_value = (server_time, offset, delay)
         
-        plugin = TimeSyncPlugin(servers=["test.ntp.com"], enabled=True, allow_network=True)
+        tool = TimeSyncTool(servers=["test.ntp.com"], enabled=True, allow_network=True)
         
-        result = plugin.maybe_sync()
+        result = tool.maybe_sync()
         
         assert result is not None
         assert result[1] == server_time
 
     def test_maybe_sync_disabled(self):
         """Test maybe_sync returns None when disabled."""
-        plugin = TimeSyncPlugin(enabled=False)
+        tool = TimeSyncTool(enabled=False)
         
-        result = plugin.maybe_sync()
+        result = tool.maybe_sync()
         assert result is None
 
-    @patch('nodupe.plugins.time_sync.socket.getaddrinfo')
-    @patch('nodupe.plugins.time_sync.TimeSyncPlugin._query_address')
+    @patch('nodupe.tools.time_sync.socket.getaddrinfo')
+    @patch('nodupe.tools.time_sync.TimeSyncTool._query_address')
     def test_maybe_sync_failure(self, mock_query_address, mock_getaddrinfo):
         """Test maybe_sync returns None on failure."""
         # Mock DNS resolution failure
         mock_getaddrinfo.return_value = []
         
-        plugin = TimeSyncPlugin(servers=["test.ntp.com"], enabled=True, allow_network=True)
+        tool = TimeSyncTool(servers=["test.ntp.com"], enabled=True, allow_network=True)
         
-        result = plugin.maybe_sync()
+        result = tool.maybe_sync()
         assert result is None
 
-    @patch('nodupe.plugins.time_sync.socket.getaddrinfo')
-    @patch('nodupe.plugins.time_sync.TimeSyncPlugin._query_address')
+    @patch('nodupe.tools.time_sync.socket.getaddrinfo')
+    @patch('nodupe.tools.time_sync.TimeSyncTool._query_address')
     def test_background_sync_start_stop(self, mock_query_address, mock_getaddrinfo):
         """Test starting and stopping background synchronization."""
         # Mock DNS resolution and NTP response
@@ -289,7 +289,7 @@ class TestTimeSyncPlugin:
         ]
         mock_query_address.return_value = (1600000000.5, 0.25, 0.01)
         
-        plugin = TimeSyncPlugin(
+        tool = TimeSyncTool(
             servers=["test.ntp.com"], 
             enabled=True, 
             allow_network=True,
@@ -297,43 +297,43 @@ class TestTimeSyncPlugin:
         )
         
         # Start background sync
-        plugin.start_background(interval=1.0, initial_sync=False)
+        tool.start_background(interval=1.0, initial_sync=False)
         
         # Give thread time to start
         time.sleep(0.1)
         
-        assert plugin._bg_thread is not None
-        assert plugin._bg_thread.is_alive()
+        assert tool._bg_thread is not None
+        assert tool._bg_thread.is_alive()
         
         # Stop background sync
-        plugin.stop_background(wait=True)
+        tool.stop_background(wait=True)
         
-        assert plugin._bg_thread is None
+        assert tool._bg_thread is None
 
     def test_background_sync_disabled_network(self):
         """Test that background sync cannot start when network is disabled."""
-        plugin = TimeSyncPlugin(allow_network=False, allow_background=True)
+        tool = TimeSyncTool(allow_network=False, allow_background=True)
         
-        with pytest.raises(TimeSyncPlugin._get_exception_class(), match="Cannot start background sync"):
-            plugin.start_background()
+        with pytest.raises(TimeSyncTool._get_exception_class(), match="Cannot start background sync"):
+            tool.start_background()
 
     def test_background_sync_disabled_background(self):
         """Test that background sync cannot start when background is disabled."""
-        plugin = TimeSyncPlugin(allow_network=True, allow_background=False)
+        tool = TimeSyncTool(allow_network=True, allow_background=False)
         
-        with pytest.raises(TimeSyncPlugin._get_exception_class(), match="Background syncing is disabled"):
-            plugin.start_background()
+        with pytest.raises(TimeSyncTool._get_exception_class(), match="Background syncing is disabled"):
+            tool.start_background()
 
     def test_get_corrected_time_no_sync(self):
         """Test get_corrected_time returns fallback when not synced."""
-        plugin = TimeSyncPlugin(enabled=True)
+        tool = TimeSyncTool(enabled=True)
         
         # Should return time.monotonic() when not synced
-        result = plugin.get_corrected_time()
+        result = tool.get_corrected_time()
         assert isinstance(result, float)
 
-    @patch('nodupe.plugins.time_sync.socket.getaddrinfo')
-    @patch('nodupe.plugins.time_sync.TimeSyncPlugin._query_address')
+    @patch('nodupe.tools.time_sync.socket.getaddrinfo')
+    @patch('nodupe.tools.time_sync.TimeSyncTool._query_address')
     def test_get_corrected_time_after_sync(self, mock_query_address, mock_getaddrinfo):
         """Test get_corrected_time returns corrected time after sync."""
         # Mock DNS resolution
@@ -347,11 +347,11 @@ class TestTimeSyncPlugin:
         delay = 0.01
         mock_query_address.return_value = (server_time, offset, delay)
         
-        plugin = TimeSyncPlugin(servers=["test.ntp.com"], enabled=True, allow_network=True)
-        plugin.force_sync()
+        tool = TimeSyncTool(servers=["test.ntp.com"], enabled=True, allow_network=True)
+        tool.force_sync()
         
         # Get corrected time
-        corrected_time = plugin.get_corrected_time()
+        corrected_time = tool.get_corrected_time()
         
         # Should be close to server time plus elapsed monotonic time
         assert isinstance(corrected_time, float)
@@ -359,7 +359,7 @@ class TestTimeSyncPlugin:
 
     def test_get_status(self):
         """Test get_status returns comprehensive status information."""
-        plugin = TimeSyncPlugin(
+        tool = TimeSyncTool(
             servers=["test.ntp.com"],
             timeout=5.0,
             attempts=3,
@@ -370,7 +370,7 @@ class TestTimeSyncPlugin:
             allow_background=True
         )
         
-        status = plugin.get_status()
+        status = tool.get_status()
         
         expected_keys = [
             "enabled", "network_allowed", "background_allowed", "background_running",
@@ -389,22 +389,22 @@ class TestTimeSyncPlugin:
 
     def test_convenience_methods(self):
         """Test convenience methods work correctly."""
-        plugin = TimeSyncPlugin(enabled=False)
+        tool = TimeSyncTool(enabled=False)
         
         # These should work without raising
-        timestamp = plugin.get_timestamp()
-        fast64 = plugin.get_timestamp_fast64()
+        timestamp = tool.get_timestamp()
+        fast64 = tool.get_timestamp_fast64()
         
         assert isinstance(timestamp, float)
         assert isinstance(fast64, int)
 
     def test_smoothing_alpha_applied(self):
         """Test that smoothing alpha is applied to offset calculations."""
-        plugin = TimeSyncPlugin(smoothing_alpha=0.1, enabled=True, allow_network=True)
+        tool = TimeSyncTool(smoothing_alpha=0.1, enabled=True, allow_network=True)
         
         # Mock multiple syncs with different offsets
-        with patch('nodupe.plugins.time_sync.socket.getaddrinfo') as mock_getaddrinfo, \
-             patch('nodupe.plugins.time_sync.TimeSyncPlugin._query_address') as mock_query_address:
+        with patch('nodupe.tools.time_sync.socket.getaddrinfo') as mock_getaddrinfo, \
+             patch('nodupe.tools.time_sync.TimeSyncTool._query_address') as mock_query_address:
             
             mock_getaddrinfo.return_value = [
                 (socket.AF_INET, socket.SOCK_DGRAM, 17, '', ('1.1.1.1', 123))
@@ -412,44 +412,44 @@ class TestTimeSyncPlugin:
             
             # First sync with offset 1.0
             mock_query_address.return_value = (1600000000.0, 1.0, 0.01)
-            plugin.force_sync()
-            first_offset = plugin.get_offset_estimate()
+            tool.force_sync()
+            first_offset = tool.get_offset_estimate()
             
             # Second sync with offset 2.0
             mock_query_address.return_value = (1600000000.0, 2.0, 0.01)
-            plugin.force_sync()
-            second_offset = plugin.get_offset_estimate()
+            tool.force_sync()
+            second_offset = tool.get_offset_estimate()
             
             # Should be smoothed: 0.1 * 2.0 + 0.9 * 1.0 = 1.1
             expected = 0.1 * 2.0 + 0.9 * 1.0
             assert abs(second_offset - expected) < 1e-6
 
-    def test_plugin_lifecycle(self):
-        """Test plugin initialization and shutdown lifecycle."""
-        plugin = TimeSyncPlugin(enabled=True)
+    def test_tool_lifecycle(self):
+        """Test tool initialization and shutdown lifecycle."""
+        tool = TimeSyncTool(enabled=True)
         
         # Mock successful sync during initialization
-        with patch.object(plugin, 'force_sync') as mock_sync:
-            plugin.initialize()
+        with patch.object(tool, 'force_sync') as mock_sync:
+            tool.initialize()
             mock_sync.assert_called_once()
         
         # Shutdown should stop background thread
-        with patch.object(plugin, 'stop_background') as mock_stop:
-            plugin.shutdown()
+        with patch.object(tool, 'stop_background') as mock_stop:
+            tool.shutdown()
             mock_stop.assert_called_once_with(wait=False)
 
     def test_get_authenticated_time_iso8601_format(self):
         """Test get_authenticated_time with ISO-8601 format."""
-        plugin = TimeSyncPlugin(enabled=True)
+        tool = TimeSyncTool(enabled=True)
         
         # Mock sync_with_fallback to return a known time
-        with patch.object(plugin, 'sync_with_fallback') as mock_sync, \
-             patch.object(plugin, 'get_corrected_time') as mock_get_time:
+        with patch.object(tool, 'sync_with_fallback') as mock_sync, \
+             patch.object(tool, 'get_corrected_time') as mock_get_time:
             
             mock_sync.return_value = ("ntp", 1600000000.0, 0.0, 0.01)
             mock_get_time.return_value = 1600000000.123456
             
-            result = plugin.get_authenticated_time()
+            result = tool.get_authenticated_time()
             
             # Should return ISO-8601 format
             assert result == "2020-09-13T12:26:40.123456Z"
@@ -457,16 +457,16 @@ class TestTimeSyncPlugin:
 
     def test_get_authenticated_time_unix_format(self):
         """Test get_authenticated_time with Unix timestamp format."""
-        plugin = TimeSyncPlugin(enabled=True)
+        tool = TimeSyncTool(enabled=True)
         
         # Mock sync_with_fallback to return a known time
-        with patch.object(plugin, 'sync_with_fallback') as mock_sync, \
-             patch.object(plugin, 'get_corrected_time') as mock_get_time:
+        with patch.object(tool, 'sync_with_fallback') as mock_sync, \
+             patch.object(tool, 'get_corrected_time') as mock_get_time:
             
             mock_sync.return_value = ("ntp", 1600000000.0, 0.0, 0.01)
             mock_get_time.return_value = 1600000000.123456
             
-            result = plugin.get_authenticated_time(format="unix")
+            result = tool.get_authenticated_time(format="unix")
             
             # Should return Unix timestamp as string
             assert result == "1600000000.123456"
@@ -474,63 +474,63 @@ class TestTimeSyncPlugin:
 
     def test_get_authenticated_time_rfc3339_format(self):
         """Test get_authenticated_time with RFC-3339 format."""
-        plugin = TimeSyncPlugin(enabled=True)
+        tool = TimeSyncTool(enabled=True)
         
         # Mock sync_with_fallback to return a known time
-        with patch.object(plugin, 'sync_with_fallback') as mock_sync, \
-             patch.object(plugin, 'get_corrected_time') as mock_get_time:
+        with patch.object(tool, 'sync_with_fallback') as mock_sync, \
+             patch.object(tool, 'get_corrected_time') as mock_get_time:
             
             mock_sync.return_value = ("ntp", 1600000000.0, 0.0, 0.01)
             mock_get_time.return_value = 1600000000.123456
             
-            result = plugin.get_authenticated_time(format="rfc3339")
+            result = tool.get_authenticated_time(format="rfc3339")
             
             # Should return RFC-3339 format (same as ISO-8601)
             assert result == "2020-09-13T12:26:40.123456Z"
 
     def test_get_authenticated_time_human_format(self):
         """Test get_authenticated_time with human-readable format."""
-        plugin = TimeSyncPlugin(enabled=True)
+        tool = TimeSyncTool(enabled=True)
         
         # Mock sync_with_fallback to return a known time
-        with patch.object(plugin, 'sync_with_fallback') as mock_sync, \
-             patch.object(plugin, 'get_corrected_time') as mock_get_time:
+        with patch.object(tool, 'sync_with_fallback') as mock_sync, \
+             patch.object(tool, 'get_corrected_time') as mock_get_time:
             
             mock_sync.return_value = ("ntp", 1600000000.0, 0.0, 0.01)
             mock_get_time.return_value = 1600000000.123456
             
-            result = plugin.get_authenticated_time(format="human")
+            result = tool.get_authenticated_time(format="human")
             
             # Should return human-readable format
             assert result == "2020-09-13 12:26:40.123456 UTC"
 
-    def test_get_authenticated_time_disabled_plugin(self):
-        """Test get_authenticated_time raises error when plugin is disabled."""
-        plugin = TimeSyncPlugin(enabled=False)
+    def test_get_authenticated_time_disabled_tool(self):
+        """Test get_authenticated_time raises error when tool is disabled."""
+        tool = TimeSyncTool(enabled=False)
         
-        with pytest.raises(TimeSyncPlugin._get_exception_class(), match="TimeSync instance is disabled"):
-            plugin.get_authenticated_time()
+        with pytest.raises(TimeSyncTool._get_exception_class(), match="TimeSync instance is disabled"):
+            tool.get_authenticated_time()
 
     def test_get_authenticated_time_unsupported_format(self):
         """Test get_authenticated_time raises error for unsupported formats."""
-        plugin = TimeSyncPlugin(enabled=True)
+        tool = TimeSyncTool(enabled=True)
         
         with pytest.raises(ValueError, match="Unsupported format"):
-            plugin.get_authenticated_time(format="invalid")
+            tool.get_authenticated_time(format="invalid")
 
     def test_get_authenticated_time_fallback_warning(self):
         """Test that fallback to RTC triggers appropriate warning."""
-        plugin = TimeSyncPlugin(enabled=True, allow_network=False)
+        tool = TimeSyncTool(enabled=True, allow_network=False)
         
         # Mock sync_with_fallback to return RTC fallback
-        with patch.object(plugin, 'sync_with_fallback') as mock_sync, \
-             patch.object(plugin, 'get_corrected_time') as mock_get_time, \
-             patch('nodupe.plugins.time_sync.logger') as mock_logger:
+        with patch.object(tool, 'sync_with_fallback') as mock_sync, \
+             patch.object(tool, 'get_corrected_time') as mock_get_time, \
+             patch('nodupe.tools.time_sync.logger') as mock_logger:
             
             mock_sync.return_value = ("rtc", 1600000000.0, 0.0, 0.0)
             mock_get_time.return_value = 1600000000.123456
             
-            result = plugin.get_authenticated_time()
+            result = tool.get_authenticated_time()
             
             # Should return the time
             assert result == "2020-09-13T12:26:40.123456Z"
@@ -542,17 +542,17 @@ class TestTimeSyncPlugin:
 
     def test_get_authenticated_time_monotonic_fallback(self):
         """Test get_authenticated_time with monotonic fallback."""
-        plugin = TimeSyncPlugin(enabled=True, allow_network=False)
+        tool = TimeSyncTool(enabled=True, allow_network=False)
         
         # Mock sync_with_fallback to return monotonic fallback
-        with patch.object(plugin, 'sync_with_fallback') as mock_sync, \
-             patch.object(plugin, 'get_corrected_time') as mock_get_time, \
-             patch('nodupe.plugins.time_sync.logger') as mock_logger:
+        with patch.object(tool, 'sync_with_fallback') as mock_sync, \
+             patch.object(tool, 'get_corrected_time') as mock_get_time, \
+             patch('nodupe.tools.time_sync.logger') as mock_logger:
             
             mock_sync.return_value = ("monotonic", 1600000000.0, 0.0, 0.0)
             mock_get_time.return_value = 1600000000.123456
             
-            result = plugin.get_authenticated_time()
+            result = tool.get_authenticated_time()
             
             # Should return the time
             assert result == "2020-09-13T12:26:40.123456Z"
@@ -564,7 +564,7 @@ class TestTimeSyncPlugin:
 
     def test_get_authenticated_time_precision(self):
         """Test that get_authenticated_time maintains microsecond precision."""
-        plugin = TimeSyncPlugin(enabled=True)
+        tool = TimeSyncTool(enabled=True)
         
         # Test with various microsecond values
         test_times = [
@@ -575,13 +575,13 @@ class TestTimeSyncPlugin:
         ]
         
         for test_time in test_times:
-            with patch.object(plugin, 'sync_with_fallback') as mock_sync, \
-                 patch.object(plugin, 'get_corrected_time') as mock_get_time:
+            with patch.object(tool, 'sync_with_fallback') as mock_sync, \
+                 patch.object(tool, 'get_corrected_time') as mock_get_time:
                 
                 mock_sync.return_value = ("ntp", test_time, 0.0, 0.01)
                 mock_get_time.return_value = test_time
                 
-                result = plugin.get_authenticated_time()
+                result = tool.get_authenticated_time()
                 
                 # Parse the ISO string back to timestamp
                 dt = datetime.fromisoformat(result.replace("Z", "+00:00"))
@@ -592,16 +592,16 @@ class TestTimeSyncPlugin:
 
     def test_get_authenticated_time_utc_timezone(self):
         """Test that get_authenticated_time always returns UTC time."""
-        plugin = TimeSyncPlugin(enabled=True)
+        tool = TimeSyncTool(enabled=True)
         
         # Mock sync_with_fallback to return a known time
-        with patch.object(plugin, 'sync_with_fallback') as mock_sync, \
-             patch.object(plugin, 'get_corrected_time') as mock_get_time:
+        with patch.object(tool, 'sync_with_fallback') as mock_sync, \
+             patch.object(tool, 'get_corrected_time') as mock_get_time:
             
             mock_sync.return_value = ("ntp", 1600000000.0, 0.0, 0.01)
             mock_get_time.return_value = 1600000000.123456
             
-            result = plugin.get_authenticated_time()
+            result = tool.get_authenticated_time()
             
             # Should end with Z (UTC indicator)
             assert result.endswith("Z")
@@ -613,18 +613,18 @@ class TestTimeSyncPlugin:
 
     def test_get_authenticated_time_network_failure_fallback(self):
         """Test get_authenticated_time handles network failures gracefully."""
-        plugin = TimeSyncPlugin(enabled=True, allow_network=True)
+        tool = TimeSyncTool(enabled=True, allow_network=True)
         
         # Mock sync_with_fallback to simulate network failure and RTC fallback
-        with patch.object(plugin, 'sync_with_fallback') as mock_sync, \
-             patch.object(plugin, 'get_corrected_time') as mock_get_time, \
-             patch('nodupe.plugins.time_sync.logger') as mock_logger:
+        with patch.object(tool, 'sync_with_fallback') as mock_sync, \
+             patch.object(tool, 'get_corrected_time') as mock_get_time, \
+             patch('nodupe.tools.time_sync.logger') as mock_logger:
             
             # Simulate network failure, fallback to RTC
             mock_sync.return_value = ("rtc", 1600000000.0, 0.0, 0.0)
             mock_get_time.return_value = 1600000000.123456
             
-            result = plugin.get_authenticated_time()
+            result = tool.get_authenticated_time()
             
             # Should still return a valid time
             assert result == "2020-09-13T12:26:40.123456Z"
@@ -634,11 +634,11 @@ class TestTimeSyncPlugin:
 
     def test_get_authenticated_time_case_insensitive_formats(self):
         """Test that get_authenticated_time handles case-insensitive format strings."""
-        plugin = TimeSyncPlugin(enabled=True)
+        tool = TimeSyncTool(enabled=True)
         
         # Mock sync_with_fallback to return a known time
-        with patch.object(plugin, 'sync_with_fallback') as mock_sync, \
-             patch.object(plugin, 'get_corrected_time') as mock_get_time:
+        with patch.object(tool, 'sync_with_fallback') as mock_sync, \
+             patch.object(tool, 'get_corrected_time') as mock_get_time:
             
             mock_sync.return_value = ("ntp", 1600000000.0, 0.0, 0.01)
             mock_get_time.return_value = 1600000000.123456
@@ -647,7 +647,7 @@ class TestTimeSyncPlugin:
             test_formats = ["ISO8601", "Iso8601", "ISO", "iso", "RFC3339", "Rfc3339", "rfc", "UNIX", "Unix", "unix", "HUMAN", "Human", "human"]
             
             for fmt in test_formats:
-                result = plugin.get_authenticated_time(format=fmt)
+                result = tool.get_authenticated_time(format=fmt)
                 
                 if fmt.lower() in ["iso8601", "iso", "rfc3339", "rfc"]:
                     assert result == "2020-09-13T12:26:40.123456Z"
@@ -660,4 +660,4 @@ class TestTimeSyncPlugin:
 # Helper function to get the actual exception class
 def _get_exception_class():
     """Helper to get the actual TimeSyncDisabledError class."""
-    return TimeSyncPlugin._get_exception_class()
+    return TimeSyncTool._get_exception_class()
