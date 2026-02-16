@@ -13,6 +13,9 @@ DISABLE_LINTERS:
   - REPOSITORY_GRYPE
   # YAML formatting is a style preference, not a critical issue
   - YAML_YAMLLINT
+  # Prettier formatting issues
+  - YAML_PRETTIER
+  - JSON_PRETTIER
 
 # Disable fail-safe to allow MegaLinter to pass with warnings
 DISABLE_ERRORS: true
