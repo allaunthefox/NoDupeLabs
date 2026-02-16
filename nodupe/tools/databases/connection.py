@@ -21,7 +21,8 @@ Dependencies:
 import sqlite3
 import threading
 from pathlib import Path
-from typing import Optional, Any, Dict, List, Tuple, Union, TypeVar
+from typing import Any, Optional, TypeVar, Union
+
 
 T = TypeVar('T')
 
@@ -36,7 +37,7 @@ class DatabaseConnection:
     - Manage connection lifecycle
     """
 
-    _instances: Dict[str, 'DatabaseConnection'] = {}
+    _instances: dict[str, 'DatabaseConnection'] = {}
     _lock = threading.Lock()
 
     def __init__(self, db_path: str = "output/index.db"):
@@ -102,7 +103,7 @@ class DatabaseConnection:
     def execute(
         self,
         query: str,
-        params: Optional[Union[Tuple[Any, ...], Dict[str, Any]]] = None
+        params: Optional[Union[tuple[Any, ...], dict[str, Any]]] = None
     ) -> sqlite3.Cursor:
         """Execute SQL query with parameters.
 
@@ -126,7 +127,7 @@ class DatabaseConnection:
     def executemany(
         self,
         query: str,
-        params_list: List[Union[Tuple[Any, ...], Dict[str, Any]]]
+        params_list: list[Union[tuple[Any, ...], dict[str, Any]]]
     ) -> sqlite3.Cursor:
         """Execute SQL query with multiple parameter sets.
 

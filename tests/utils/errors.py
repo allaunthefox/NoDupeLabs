@@ -2,12 +2,13 @@
 # Helper functions for error condition simulation and testing
 
 import contextlib
-from typing import Dict, Any, List, Optional, Union, Callable, Type
-from unittest.mock import MagicMock, patch
-import random
 import os
+import random
 import tempfile
 from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Type, Union
+from unittest.mock import MagicMock, patch
+
 
 def simulate_file_system_errors(
     error_type: str = "permission",
@@ -29,11 +30,11 @@ def simulate_file_system_errors(
             "permission": PermissionError("Operation not permitted"),
             "not_found": FileNotFoundError("File not found"),
             "disk_full": OSError("No space left on device"),
-            "io_error": IOError("Input/output error"),
+            "io_error": OSError("Input/output error"),
             "access_denied": PermissionError("Access denied")
         }
 
-        error = error_map.get(error_type, IOError("File system error"))
+        error = error_map.get(error_type, OSError("File system error"))
 
         original_open = open
         original_path = Path
@@ -79,7 +80,7 @@ def simulate_file_system_errors(
 
     return error_context
 
-def create_error_test_scenarios() -> List[Dict[str, Any]]:
+def create_error_test_scenarios() -> list[dict[str, Any]]:
     """
     Create error test scenarios.
 
@@ -163,7 +164,7 @@ def simulate_network_errors(
 
     return error_context
 
-def create_exception_test_cases() -> List[Dict[str, Any]]:
+def create_exception_test_cases() -> list[dict[str, Any]]:
     """
     Create exception test cases.
 
@@ -199,7 +200,7 @@ def create_exception_test_cases() -> List[Dict[str, Any]]:
             "name": "attribute_error",
             "exception": AttributeError,
             "message": "Attribute not found",
-            "test_function": lambda: "string".nonexistent_method()
+            "test_function": "string".nonexistent_method
         }
     ]
 
@@ -237,7 +238,7 @@ def simulate_memory_errors(
 
     return error_context
 
-def create_error_recovery_test_scenarios() -> List[Dict[str, Any]]:
+def create_error_recovery_test_scenarios() -> list[dict[str, Any]]:
     """
     Create error recovery test scenarios.
 
@@ -305,9 +306,7 @@ def simulate_database_errors(
                 mock_connect.side_effect = error
             else:
                 mock_conn.cursor.return_value = mock_cursor
-                if error_type == "query_failed":
-                    mock_cursor.execute.side_effect = error
-                elif error_type == "constraint_violation":
+                if error_type in {"query_failed", "constraint_violation"}:
                     mock_cursor.execute.side_effect = error
                 elif error_type == "timeout":
                     mock_conn.commit.side_effect = error
@@ -320,7 +319,7 @@ def simulate_database_errors(
 
     return error_context
 
-def create_error_injection_test_scenarios() -> List[Dict[str, Any]]:
+def create_error_injection_test_scenarios() -> list[dict[str, Any]]:
     """
     Create error injection test scenarios.
 
@@ -390,7 +389,7 @@ def simulate_tool_errors(
 
     return error_context
 
-def create_error_handling_test_scenarios() -> List[Dict[str, Any]]:
+def create_error_handling_test_scenarios() -> list[dict[str, Any]]:
     """
     Create error handling test scenarios.
 
@@ -449,7 +448,6 @@ def simulate_concurrency_errors(
 
         error = error_map.get(error_type, RuntimeError("Concurrency error"))
 
-        original_thread = threading.Thread
 
         class MockThread(threading.Thread):
             def __init__(self, *args, **kwargs):
@@ -466,7 +464,7 @@ def simulate_concurrency_errors(
 
     return error_context
 
-def create_error_validation_test_scenarios() -> List[Dict[str, Any]]:
+def create_error_validation_test_scenarios() -> list[dict[str, Any]]:
     """
     Create error validation test scenarios.
 
@@ -554,7 +552,7 @@ def simulate_resource_exhaustion_errors(
 
     return error_context
 
-def create_error_monitoring_test_scenarios() -> List[Dict[str, Any]]:
+def create_error_monitoring_test_scenarios() -> list[dict[str, Any]]:
     """
     Create error monitoring test scenarios.
 
@@ -634,7 +632,7 @@ def simulate_timeout_errors(
 
     return error_context
 
-def create_error_recovery_validation_scenarios() -> List[Dict[str, Any]]:
+def create_error_recovery_validation_scenarios() -> list[dict[str, Any]]:
     """
     Create error recovery validation scenarios.
 

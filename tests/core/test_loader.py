@@ -1,13 +1,15 @@
 """Test loader module functionality."""
 
-import pytest
-import tempfile
 import shutil
-from unittest.mock import patch, MagicMock, Mock
+import tempfile
 from pathlib import Path
-from nodupe.core.loader import CoreLoader, bootstrap
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
+
 from nodupe.core.container import ServiceContainer
 from nodupe.core.errors import NoDupeError
+from nodupe.core.loader import CoreLoader, bootstrap
 
 
 class TestCoreLoaderInitialization:
@@ -137,7 +139,7 @@ class TestCoreLoaderConfiguration:
             # Original values should be preserved
             assert mock_config.config['tools']['directories'] == [
                 'custom_tools']
-            assert mock_config.config['tools']['auto_load'] == False
+            assert not mock_config.config['tools']['auto_load']
 
 
 class TestCoreLoaderToolSystem:
@@ -229,12 +231,12 @@ class TestCoreLoaderToolSystem:
 
         with patch('nodupe.core.loader.load_config') as mock_load_config, \
                 patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.ToolRegistry') as mock_registry, \
-                patch('nodupe.core.loader.create_tool_loader') as mock_loader, \
+                patch('nodupe.core.loader.ToolRegistry'), \
+                patch('nodupe.core.loader.create_tool_loader'), \
                 patch('nodupe.core.loader.create_tool_discovery') as mock_discovery, \
-                patch('nodupe.core.loader.create_lifecycle_manager') as mock_lifecycle, \
-                patch('nodupe.core.loader.ToolHotReload') as mock_hot_reload, \
-                patch('nodupe.core.loader.get_connection') as mock_db, \
+                patch('nodupe.core.loader.create_lifecycle_manager'), \
+                patch('nodupe.core.loader.ToolHotReload'), \
+                patch('nodupe.core.loader.get_connection'), \
                 patch('nodupe.core.loader.logging') as mock_logging:
 
             # Mock config with auto_load disabled
@@ -265,11 +267,11 @@ class TestCoreLoaderDatabase:
 
         with patch('nodupe.core.loader.load_config') as mock_load_config, \
                 patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.ToolRegistry') as mock_registry, \
-                patch('nodupe.core.loader.create_tool_loader') as mock_loader, \
-                patch('nodupe.core.loader.create_tool_discovery') as mock_discovery, \
-                patch('nodupe.core.loader.create_lifecycle_manager') as mock_lifecycle, \
-                patch('nodupe.core.loader.ToolHotReload') as mock_hot_reload, \
+                patch('nodupe.core.loader.ToolRegistry'), \
+                patch('nodupe.core.loader.create_tool_loader'), \
+                patch('nodupe.core.loader.create_tool_discovery'), \
+                patch('nodupe.core.loader.create_lifecycle_manager'), \
+                patch('nodupe.core.loader.ToolHotReload'), \
                 patch('nodupe.core.loader.get_connection') as mock_db, \
                 patch('nodupe.core.loader.logging') as mock_logging:
 
@@ -302,12 +304,12 @@ class TestCoreLoaderHashAutotuning:
 
         with patch('nodupe.core.loader.load_config') as mock_load_config, \
                 patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.ToolRegistry') as mock_registry, \
-                patch('nodupe.core.loader.create_tool_loader') as mock_loader, \
-                patch('nodupe.core.loader.create_tool_discovery') as mock_discovery, \
-                patch('nodupe.core.loader.create_lifecycle_manager') as mock_lifecycle, \
-                patch('nodupe.core.loader.ToolHotReload') as mock_hot_reload, \
-                patch('nodupe.core.loader.get_connection') as mock_db, \
+                patch('nodupe.core.loader.ToolRegistry'), \
+                patch('nodupe.core.loader.create_tool_loader'), \
+                patch('nodupe.core.loader.create_tool_discovery'), \
+                patch('nodupe.core.loader.create_lifecycle_manager'), \
+                patch('nodupe.core.loader.ToolHotReload'), \
+                patch('nodupe.core.loader.get_connection'), \
                 patch('nodupe.core.loader.autotune_hash_algorithm') as mock_autotune, \
                 patch('nodupe.core.loader.create_autotuned_hasher') as mock_hasher, \
                 patch('nodupe.core.loader.logging') as mock_logging:
@@ -351,12 +353,12 @@ class TestCoreLoaderHashAutotuning:
 
         with patch('nodupe.core.loader.load_config') as mock_load_config, \
                 patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.ToolRegistry') as mock_registry, \
-                patch('nodupe.core.loader.create_tool_loader') as mock_loader, \
-                patch('nodupe.core.loader.create_tool_discovery') as mock_discovery, \
-                patch('nodupe.core.loader.create_lifecycle_manager') as mock_lifecycle, \
-                patch('nodupe.core.loader.ToolHotReload') as mock_hot_reload, \
-                patch('nodupe.core.loader.get_connection') as mock_db, \
+                patch('nodupe.core.loader.ToolRegistry'), \
+                patch('nodupe.core.loader.create_tool_loader'), \
+                patch('nodupe.core.loader.create_tool_discovery'), \
+                patch('nodupe.core.loader.create_lifecycle_manager'), \
+                patch('nodupe.core.loader.ToolHotReload'), \
+                patch('nodupe.core.loader.get_connection'), \
                 patch('nodupe.core.loader.autotune_hash_algorithm') as mock_autotune, \
                 patch('nodupe.core.loader.logging') as mock_logging:
 
@@ -390,12 +392,12 @@ class TestCoreLoaderShutdown:
 
         with patch('nodupe.core.loader.load_config') as mock_load_config, \
                 patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.ToolRegistry') as mock_registry, \
-                patch('nodupe.core.loader.create_tool_loader') as mock_loader, \
-                patch('nodupe.core.loader.create_tool_discovery') as mock_discovery, \
-                patch('nodupe.core.loader.create_lifecycle_manager') as mock_lifecycle, \
-                patch('nodupe.core.loader.ToolHotReload') as mock_hot_reload, \
-                patch('nodupe.core.loader.get_connection') as mock_db, \
+                patch('nodupe.core.loader.ToolRegistry'), \
+                patch('nodupe.core.loader.create_tool_loader'), \
+                patch('nodupe.core.loader.create_tool_discovery'), \
+                patch('nodupe.core.loader.create_lifecycle_manager'), \
+                patch('nodupe.core.loader.ToolHotReload'), \
+                patch('nodupe.core.loader.get_connection'), \
                 patch('nodupe.core.loader.logging') as mock_logging:
 
             # Mock config
@@ -483,7 +485,7 @@ class TestCoreLoaderSystemDetection:
         loader = CoreLoader()
 
         with patch('nodupe.core.loader.os') as mock_os, \
-                patch('nodupe.core.loader.logging') as mock_logging:
+                patch('nodupe.core.loader.logging'):
 
             # Test Kubernetes detection
             mock_os.environ = {'KUBERNETES_SERVICE_HOST': 'localhost'}

@@ -7,9 +7,12 @@ Provides high-performance parallel execution capabilities as a standalone tool.
 Compliant with IEEE Std 1003.1 (POSIX) threading models.
 """
 
-from typing import List, Dict, Any, Optional, Callable
+from typing import Any, Callable
+
 from nodupe.core.tool_system.base import Tool, ToolMetadata
+
 from .parallel_logic import Parallel
+
 
 class ParallelTool(Tool):
     """Parallel processing tool (POSIX & ISO 25010 compliant)."""
@@ -23,7 +26,7 @@ class ParallelTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         return []
 
     @property
@@ -41,7 +44,7 @@ class ParallelTool(Tool):
         )
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
             'map': Parallel.map_parallel,
             'smart_map': Parallel.smart_map,
@@ -54,11 +57,11 @@ class ParallelTool(Tool):
 
     def shutdown(self) -> None:
         """Gracefully cleanup any pending pools."""
-        # Parallel logic handles pools via context managers usually, 
+        # Parallel logic handles pools via context managers usually,
         # but we ensure global cleanup here if needed.
         pass
 
-    def run_standalone(self, args: List[str]) -> int:
+    def run_standalone(self, args: list[str]) -> int:
         """Execute demonstration in stand-alone mode."""
         print("Parallel Tool: Self-test mode.")
         print("Demonstrating 4-way parallel mapping of math functions...")
@@ -74,7 +77,7 @@ class ParallelTool(Tool):
             "'brain' in your computer so the work finishes much faster."
         )
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         return {
             'cpu_count': Parallel.get_cpu_count(),
             'supports_interpreters': Parallel.supports_interpreter_pool(),

@@ -2,6 +2,8 @@
 
 Transaction management for database operations using standard library only.
 
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
+
 Key Features:
     - ACID transaction support
     - Context manager for automatic rollback
@@ -16,9 +18,9 @@ Dependencies:
 """
 
 import sqlite3
-from typing import Any, Callable
 from contextlib import contextmanager
 from enum import Enum
+from typing import Any, Callable
 
 
 class TransactionError(Exception):

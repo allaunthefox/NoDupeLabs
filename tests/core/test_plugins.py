@@ -1,12 +1,11 @@
 """Test tools module functionality."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from nodupe.core.tools import (
-    ToolManager,
-    tool_manager
-)
+
 from nodupe.core.tool_system.registry import ToolRegistry
+from nodupe.core.tools import ToolManager, tool_manager
 
 
 class TestToolsModule:
@@ -290,11 +289,11 @@ class TestToolManagerIntegrationWithCore:
             # Mock initialization
             with patch('nodupe.core.loader.load_config') as mock_config, \
                     patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                    patch('nodupe.core.loader.create_tool_loader') as mock_loader, \
-                    patch('nodupe.core.loader.create_tool_discovery') as mock_discovery, \
-                    patch('nodupe.core.loader.create_lifecycle_manager') as mock_lifecycle, \
-                    patch('nodupe.core.loader.ToolHotReload') as mock_hot_reload, \
-                    patch('nodupe.core.loader.get_connection') as mock_db, \
+                    patch('nodupe.core.loader.create_tool_loader'), \
+                    patch('nodupe.core.loader.create_tool_discovery'), \
+                    patch('nodupe.core.loader.create_lifecycle_manager'), \
+                    patch('nodupe.core.loader.ToolHotReload'), \
+                    patch('nodupe.core.loader.get_connection'), \
                     patch('nodupe.core.loader.logging') as mock_logging:
 
                 mock_config.return_value = MagicMock(config={})
@@ -417,23 +416,23 @@ class TestToolLoader:
 
     def test_tool_loader_with_container(self):
         """Test tool loader with dependency container."""
-        from nodupe.core.tool_system.loader import ToolLoader
         from nodupe.core.container import ServiceContainer
+        from nodupe.core.tool_system.loader import ToolLoader
 
-        container = ServiceContainer()
+        ServiceContainer()
         loader = ToolLoader(tool_manager)
 
         # Initialize loader with container
-        # Note: ToolLoader doesn't have initialize method in this version, 
+        # Note: ToolLoader doesn't have initialize method in this version,
         # but let's check if it should have it or if we should just test it exists
-        # loader.initialize(container) 
+        # loader.initialize(container)
         # assert loader.container is container
         assert loader is not None
 
     def test_tool_loader_load_unload(self):
         """Test tool loading and unloading."""
-        from nodupe.core.tool_system.loader import ToolLoader
         from nodupe.core.tool_system.base import Tool
+        from nodupe.core.tool_system.loader import ToolLoader
 
         # Create a mock tool class
         class TestTool(Tool):
@@ -486,8 +485,8 @@ class TestToolDiscovery:
 
     def test_tool_discovery_with_container(self):
         """Test tool discovery with dependency container."""
-        from nodupe.core.tool_system.discovery import ToolDiscovery
         from nodupe.core.container import ServiceContainer
+        from nodupe.core.tool_system.discovery import ToolDiscovery
 
         container = ServiceContainer()
         discovery = ToolDiscovery()
@@ -514,8 +513,8 @@ class TestToolLifecycle:
 
     def test_tool_lifecycle_with_container(self):
         """Test tool lifecycle with dependency container."""
-        from nodupe.core.tool_system.lifecycle import ToolLifecycleManager
         from nodupe.core.container import ServiceContainer
+        from nodupe.core.tool_system.lifecycle import ToolLifecycleManager
 
         container = ServiceContainer()
         lifecycle = ToolLifecycleManager()
@@ -542,8 +541,8 @@ class TestToolHotReload:
 
     def test_tool_hot_reload_with_container(self):
         """Test tool hot reload with dependency container."""
-        from nodupe.core.tool_system.hot_reload import ToolHotReload
         from nodupe.core.container import ServiceContainer
+        from nodupe.core.tool_system.hot_reload import ToolHotReload
 
         container = ServiceContainer()
         hot_reload = ToolHotReload()
@@ -569,8 +568,8 @@ class TestToolCompatibility:
 
     def test_tool_compatibility_checking(self):
         """Test tool compatibility checking."""
-        from nodupe.core.tool_system.compatibility import ToolCompatibility
         from nodupe.core.tool_system.base import Tool
+        from nodupe.core.tool_system.compatibility import ToolCompatibility
 
         class TestTool(Tool):
             @property
@@ -614,8 +613,8 @@ class TestToolDependencies:
 
     def test_tool_dependency_resolution(self):
         """Test tool dependency resolution."""
-        from nodupe.core.tool_system.dependencies import ToolDependencyManager
         from nodupe.core.tool_system.base import Tool
+        from nodupe.core.tool_system.dependencies import ToolDependencyManager
 
         class ToolA(Tool):
             @property
@@ -678,8 +677,8 @@ class TestToolSecurity:
 
     def test_tool_security_validation(self):
         """Test tool security validation."""
-        from nodupe.core.tool_system.security import ToolSecurity
         from nodupe.core.tool_system.base import Tool
+        from nodupe.core.tool_system.security import ToolSecurity
 
         class TestTool(Tool):
             @property
@@ -716,12 +715,12 @@ class TestToolIntegration:
 
     def test_complete_tool_system_workflow(self):
         """Test complete tool system workflow."""
-        from nodupe.core.tool_system.loader import ToolLoader
+        from nodupe.core.container import ServiceContainer
+        from nodupe.core.tool_system.base import Tool
         from nodupe.core.tool_system.discovery import ToolDiscovery
         from nodupe.core.tool_system.lifecycle import ToolLifecycleManager
+        from nodupe.core.tool_system.loader import ToolLoader
         from nodupe.core.tool_system.registry import ToolRegistry
-        from nodupe.core.tool_system.base import Tool
-        from nodupe.core.container import ServiceContainer
 
         # Create a test tool
         class TestTool(Tool):
@@ -788,9 +787,10 @@ class TestToolIntegration:
     def test_tool_system_performance(self):
         """Test tool system performance."""
         import time
+
+        from nodupe.core.tool_system.base import Tool
         from nodupe.core.tool_system.loader import ToolLoader
         from nodupe.core.tool_system.registry import ToolRegistry
-        from nodupe.core.tool_system.base import Tool
 
         # Create a simple test tool class
         class SimpleTool(Tool):

@@ -9,6 +9,7 @@ It serves as a compatibility layer and re-exports the tool system components.
 
 from .tool_system.registry import PluginRegistry
 
+
 # Create tool manager instance
 tool_manager = PluginRegistry()
 PluginManager = PluginRegistry

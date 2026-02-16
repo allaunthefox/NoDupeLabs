@@ -2,6 +2,8 @@
 
 Tool compatibility checking using standard library only.
 
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
+
 Key Features:
     - Python version compatibility checking
     - Dependency version validation
@@ -15,9 +17,10 @@ Dependencies:
     - packaging (if available, otherwise manual version parsing)
 """
 
-import sys
-from typing import Dict, List, Optional, Tuple, Any, cast
 import re
+import sys
+from typing import Any, Optional
+
 from nodupe.core.tool_system.base import Tool
 
 
@@ -36,15 +39,15 @@ class CompatibilityChecker:
         """Initialize compatibility checker."""
         self._python_version = sys.version_info
         self._supported_versions = [(3, 9), (3, 10), (3, 11), (3, 12), (3, 13), (3, 14)]
-        self._api_versions: Dict[str, str] = {}
-        self._dependency_constraints: Dict[str, str] = {}
+        self._api_versions: dict[str, str] = {}
+        self._dependency_constraints: dict[str, str] = {}
 
     def check_python_compatibility(
         self,
-        required_version: Optional[Tuple[int, ...]] = None,
-        min_version: Optional[Tuple[int, ...]] = None,
-        max_version: Optional[Tuple[int, ...]] = None
-    ) -> Tuple[bool, str]:
+        required_version: Optional[tuple[int, ...]] = None,
+        min_version: Optional[tuple[int, ...]] = None,
+        max_version: Optional[tuple[int, ...]] = None
+    ) -> tuple[bool, str]:
         """Check Python version compatibility.
 
         Args:
@@ -58,28 +61,25 @@ class CompatibilityChecker:
         current = self._python_version
 
         # Check exact version requirement
-        if required_version:
-            if (current.major, current.minor) != required_version:
-                return False, (
-                    f"Requires Python {required_version[0]}.{required_version[1]}, "
-                    f"running {current.major}.{current.minor}"
-                )
+        if required_version and (current.major, current.minor) != required_version:
+            return False, (
+                f"Requires Python {required_version[0]}.{required_version[1]}, "
+                f"running {current.major}.{current.minor}"
+            )
 
         # Check minimum version
-        if min_version:
-            if (current.major, current.minor) < min_version:
-                return False, (
-                    f"Requires Python {min_version[0]}.{min_version[1]}+, "
-                    f"running {current.major}.{current.minor}"
-                )
+        if min_version and (current.major, current.minor) < min_version:
+            return False, (
+                f"Requires Python {min_version[0]}.{min_version[1]}+, "
+                f"running {current.major}.{current.minor}"
+            )
 
         # Check maximum version
-        if max_version:
-            if (current.major, current.minor) > max_version:
-                return False, (
-                    f"Maximum Python {max_version[0]}.{max_version[1]} supported, "
-                    f"running {current.major}.{current.minor}"
-                )
+        if max_version and (current.major, current.minor) > max_version:
+            return False, (
+                f"Maximum Python {max_version[0]}.{max_version[1]} supported, "
+                f"running {current.major}.{current.minor}"
+            )
 
         return True, f"Compatible with Python {current.major}.{current.minor}"
 
@@ -89,7 +89,7 @@ class CompatibilityChecker:
         required_version: Optional[str] = None,
         min_version: Optional[str] = None,
         max_version: Optional[str] = None
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Check dependency version compatibility.
 
         Args:
@@ -136,7 +136,7 @@ class CompatibilityChecker:
         tool_name: str,
         required_api_version: str,
         current_api_version: str
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Check API compatibility between tool and host.
 
         Args:
@@ -157,8 +157,8 @@ class CompatibilityChecker:
 
     def check_tool_compatibility(
         self,
-        tool_info: Dict[str, Any]
-    ) -> Tuple[bool, List[str]]:
+        tool_info: dict[str, Any]
+    ) -> tuple[bool, list[str]]:
         """Check overall tool compatibility.
 
         Args:
@@ -168,7 +168,7 @@ class CompatibilityChecker:
         Returns:
             Tuple of (is_compatible, list_of_issues)
         """
-        issues: List[str] = []
+        issues: list[str] = []
 
         # Check Python version compatibility
         if 'python_version' in tool_info:
@@ -194,7 +194,7 @@ class CompatibilityChecker:
             if isinstance(deps, dict):
                 # Cast to proper dict type for type checking
                 typed_deps = deps
-                deps_dict: Dict[str, str] = {}
+                deps_dict: dict[str, str] = {}
                 for item_key, item_value in typed_deps.items():
                     try:
                         key_str: str = str(item_key) if item_key is not None else ""
@@ -264,7 +264,7 @@ class CompatibilityChecker:
         """
         self._dependency_constraints[dependency_name] = constraint
 
-    def get_supported_python_versions(self) -> List[Tuple[int, int]]:
+    def get_supported_python_versions(self) -> list[tuple[int, int]]:
         """Get list of supported Python versions.
 
         Returns:
@@ -385,7 +385,7 @@ class CompatibilityChecker:
         # Same major version is typically required for API compatibility
         return req_parts[0] == cur_parts[0] if req_parts and cur_parts else False
 
-    def _parse_version(self, version_str: str) -> List[int]:
+    def _parse_version(self, version_str: str) -> list[int]:
         """Parse version string into integer parts.
 
         Args:
@@ -397,7 +397,7 @@ class CompatibilityChecker:
         # Remove any pre-release or build metadata
         clean_version = re.split(r'[-+]', version_str)[0]
         # Split on dots and convert to integers
-        parts: List[int] = []
+        parts: list[int] = []
         for part in clean_version.split('.'):
             try:
                 parts.append(int(part))

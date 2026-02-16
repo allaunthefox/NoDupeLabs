@@ -1,9 +1,11 @@
 """Tests for memory-mapped file handler module."""
 
-import pytest
 import mmap
 from pathlib import Path
-from nodupe.core.mmap_handler import MMAPHandler
+
+import pytest
+
+from nodupe.tools.os_filesystem.mmap_handler import MMAPHandler
 
 
 class TestMMAPHandler:

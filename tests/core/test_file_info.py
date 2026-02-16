@@ -1,9 +1,12 @@
 """Tests for FileInfo module."""
 
-import pytest
 import tempfile
 from pathlib import Path
+
+import pytest
+
 from nodupe.tools.scanner_engine.file_info import FileInfo
+
 
 class TestFileInfo:
     """Test FileInfo class."""
@@ -294,7 +297,7 @@ class TestFileInfo:
             # Time multiple calls
             start_time = time.time()
             for _ in range(100):
-                info = file_info.get_info()
+                file_info.get_info()
             end_time = time.time()
 
             # Should be fast (less than 1 second for 100 calls)

@@ -1,17 +1,17 @@
 # Test Utility Functions
 # Comprehensive tests for all utility functions
 
-import pytest
+import json
+import sqlite3
 import tempfile
 from pathlib import Path
-import sqlite3
-import json
 from unittest.mock import MagicMock
 
+import pytest
+
 # Import all utility modules
-from tests.utils import (
-    filesystem, database, tools, performance, errors, validation
-)
+from tests.utils import database, errors, filesystem, performance, tools, validation
+
 
 def test_filesystem_utilities():
     """Test filesystem utility functions"""

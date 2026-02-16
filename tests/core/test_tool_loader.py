@@ -1,10 +1,12 @@
 """Test tool loader functionality."""
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock, call
 from pathlib import Path
-from nodupe.core.tool_system.loader import ToolLoader, ToolLoaderError
+from unittest.mock import MagicMock, Mock, call, patch
+
+import pytest
+
 from nodupe.core.tool_system.base import Tool
+from nodupe.core.tool_system.loader import ToolLoader, ToolLoaderError
 
 
 class TestToolLoaderInitialization:
@@ -28,7 +30,7 @@ class TestToolLoaderInitialization:
         """Test ToolLoader initialization with container."""
         loader = ToolLoader()
         container = Mock()
-        
+
         loader.initialize(container)
         assert loader.container is container
 
@@ -40,21 +42,21 @@ class TestToolLoadingFromFile:
         """Test loading tool from nonexistent file."""
         loader = ToolLoader()
         nonexistent_path = Path("/nonexistent/file.py")
-        
+
         with pytest.raises(ToolLoaderError) as exc_info:
             loader.load_tool_from_file(nonexistent_path)
-        
+
         assert "does not exist" in str(exc_info.value)
 
     def test_load_tool_from_invalid_extension(self):
         """Test loading tool from file with invalid extension."""
         loader = ToolLoader()
         invalid_path = Path("/some/file.txt")
-        
+
         with patch.object(invalid_path, 'exists', return_value=True):
             with pytest.raises(ToolLoaderError) as exc_info:
                 loader.load_tool_from_file(invalid_path)
-            
+
             assert "must be Python" in str(exc_info.value)
 
     def test_load_tool_from_file_success(self):
@@ -101,33 +103,33 @@ class TestToolLoadingFromFile:
         # Mock the file loading process
         loader = ToolLoader()
         mock_path = Path("/fake/tool.py")
-        
+
         with patch.object(mock_path, 'exists', return_value=True), \
              patch.object(mock_path, 'suffix', '.py'), \
              patch('importlib.util.spec_from_file_location') as mock_spec_from_file, \
              patch('importlib.util.module_from_spec') as mock_module_from_spec:
-            
+
             # Create a mock module with our test tool
             mock_module = Mock()
             mock_module.TestTool = TestTool
             mock_module.SomeOtherClass = str  # Not a Tool subclass
-            
+
             # Mock the spec and module creation
             mock_spec = Mock()
             mock_spec_from_file.return_value = mock_spec
             mock_module_from_spec.return_value = mock_module
-            
+
             # Mock exec_module to set up the module
             def exec_module_func(module):
                 # Add our test tool to the module
                 module.TestTool = TestTool
                 module.SomeOtherClass = str
-            
+
             mock_spec.loader.exec_module.side_effect = exec_module_func
-            
+
             # Try to load the tool
             result = loader.load_tool_from_file(mock_path)
-            
+
             # Should return our TestTool class
             assert result is TestTool
 
@@ -135,33 +137,33 @@ class TestToolLoadingFromFile:
         """Test loading tool from file with no Tool subclass."""
         loader = ToolLoader()
         mock_path = Path("/fake/tool.py")
-        
+
         with patch.object(mock_path, 'exists', return_value=True), \
              patch.object(mock_path, 'suffix', '.py'), \
              patch('importlib.util.spec_from_file_location') as mock_spec_from_file, \
              patch('importlib.util.module_from_spec') as mock_module_from_spec:
-            
+
             # Create a mock module with no Tool subclasses
             mock_module = Mock()
             mock_module.SomeClass = str  # Not a Tool subclass
             mock_module.SomeOtherClass = int  # Not a Tool subclass
-            
+
             # Mock the spec and module creation
             mock_spec = Mock()
             mock_spec_from_file.return_value = mock_spec
             mock_module_from_spec.return_value = mock_module
-            
+
             # Mock exec_module
             def exec_module_func(module):
                 module.SomeClass = str
                 module.SomeOtherClass = int
-            
+
             mock_spec.loader.exec_module.side_effect = exec_module_func
-            
+
             # Try to load the tool - should raise error
             with pytest.raises(ToolLoaderError) as exc_info:
                 loader.load_tool_from_file(mock_path)
-            
+
             assert "No Tool subclass found" in str(exc_info.value)
 
     def test_load_tool_from_file_validation_error(self):
@@ -172,31 +174,31 @@ class TestToolLoadingFromFile:
 
         loader = ToolLoader()
         mock_path = Path("/fake/tool.py")
-        
+
         with patch.object(mock_path, 'exists', return_value=True), \
              patch.object(mock_path, 'suffix', '.py'), \
              patch('importlib.util.spec_from_file_location') as mock_spec_from_file, \
              patch('importlib.util.module_from_spec') as mock_module_from_spec:
-            
+
             # Create a mock module with invalid tool
             mock_module = Mock()
             mock_module.InvalidTool = InvalidTool
-            
+
             # Mock the spec and module creation
             mock_spec = Mock()
             mock_spec_from_file.return_value = mock_spec
             mock_module_from_spec.return_value = mock_module
-            
+
             # Mock exec_module
             def exec_module_func(module):
                 module.InvalidTool = InvalidTool
-            
+
             mock_spec.loader.exec_module.side_effect = exec_module_func
-            
+
             # Try to load the tool - should raise validation error
             with pytest.raises(ToolLoaderError) as exc_info:
                 loader.load_tool_from_file(mock_path)
-            
+
             assert "Invalid tool class" in str(exc_info.value)
 
 
@@ -207,34 +209,34 @@ class TestToolLoadingFromDirectory:
         """Test loading tools from nonexistent directory."""
         loader = ToolLoader()
         nonexistent_dir = Path("/nonexistent/dir")
-        
+
         with pytest.raises(ToolLoaderError) as exc_info:
             loader.load_tool_from_directory(nonexistent_dir)
-        
+
         assert "does not exist" in str(exc_info.value)
 
     def test_load_tool_from_directory_not_dir(self):
         """Test loading tools from path that is not a directory."""
         loader = ToolLoader()
         file_path = Path("/some/file.py")
-        
+
         with patch.object(file_path, 'exists', return_value=True), \
              patch.object(file_path, 'is_dir', return_value=False):
-            
+
             with pytest.raises(ToolLoaderError) as exc_info:
                 loader.load_tool_from_directory(file_path)
-            
+
             assert "not a directory" in str(exc_info.value)
 
     def test_load_tool_from_directory_empty(self):
         """Test loading tools from empty directory."""
         loader = ToolLoader()
         mock_dir = Path("/empty/dir")
-        
+
         with patch.object(mock_dir, 'exists', return_value=True), \
              patch.object(mock_dir, 'is_dir', return_value=True), \
              patch.object(mock_dir, 'glob', return_value=[]):
-            
+
             result = loader.load_tool_from_directory(mock_dir)
             assert result == []
 
@@ -283,12 +285,12 @@ class TestToolInstantiation:
                 return "Test tool usage"
 
         loader = ToolLoader()
-        
+
         # Test instantiation with no args
         instance = loader.instantiate_tool(TestTool)
         assert isinstance(instance, TestTool)
         assert instance.param == "default"
-        
+
         # Test instantiation with args
         instance = loader.instantiate_tool(TestTool, "custom_param")
         assert isinstance(instance, TestTool)
@@ -299,7 +301,7 @@ class TestToolInstantiation:
         class FailingTool(Tool):
             def __init__(self):
                 raise Exception("Instantiation failed")
-            
+
             @property
             def name(self):
                 return "FailingTool"
@@ -332,10 +334,10 @@ class TestToolInstantiation:
                 return "Failing tool usage"
 
         loader = ToolLoader()
-        
+
         with pytest.raises(ToolLoaderError) as exc_info:
             loader.instantiate_tool(FailingTool)
-        
+
         assert "Failed to instantiate tool" in str(exc_info.value)
 
 
@@ -347,13 +349,13 @@ class TestToolRegistration:
         loader = ToolLoader()
         mock_registry = Mock()
         loader.registry = mock_registry
-        
+
         mock_tool = Mock()
         mock_tool.name = "TestTool"
-        
+
         # Register the tool
         loader.register_loaded_tool(mock_tool)
-        
+
         # Verify registry was called
         mock_registry.register.assert_called_once_with(mock_tool)
 
@@ -362,16 +364,16 @@ class TestToolRegistration:
         loader = ToolLoader()
         mock_registry = Mock()
         loader.registry = mock_registry
-        
+
         # Make registry raise an exception
         mock_registry.register.side_effect = Exception("Registration failed")
-        
+
         mock_tool = Mock()
         mock_tool.name = "TestTool"
-        
+
         with pytest.raises(ToolLoaderError) as exc_info:
             loader.register_loaded_tool(mock_tool)
-        
+
         assert "Failed to register tool" in str(exc_info.value)
 
 
@@ -381,19 +383,19 @@ class TestToolManagement:
     def test_unload_tool(self):
         """Test unloading a tool."""
         loader = ToolLoader()
-        
+
         # Add a tool to the loaded tools
         mock_tool = Mock()
         mock_tool.name = "TestTool"
         mock_tool.shutdown = Mock()
         loader._loaded_tools["TestTool"] = mock_tool
-        
+
         # Mock registry
         loader.registry = Mock()
-        
+
         # Unload the tool
         result = loader.unload_tool("TestTool")
-        
+
         assert result is True
         mock_tool.shutdown.assert_called_once()
         assert "TestTool" not in loader._loaded_tools
@@ -402,40 +404,40 @@ class TestToolManagement:
     def test_unload_nonexistent_tool(self):
         """Test unloading a nonexistent tool."""
         loader = ToolLoader()
-        
+
         result = loader.unload_tool("NonExistentTool")
         assert result is False
 
     def test_get_loaded_tool(self):
         """Test getting a loaded tool."""
         loader = ToolLoader()
-        
+
         mock_tool = Mock()
         loader._loaded_tools["TestTool"] = mock_tool
-        
+
         result = loader.get_loaded_tool("TestTool")
         assert result is mock_tool
 
     def test_get_nonexistent_loaded_tool(self):
         """Test getting a nonexistent loaded tool."""
         loader = ToolLoader()
-        
+
         result = loader.get_loaded_tool("NonExistentTool")
         assert result is None
 
     def test_get_all_loaded_tools(self):
         """Test getting all loaded tools."""
         loader = ToolLoader()
-        
+
         mock_tool1 = Mock()
         mock_tool1.name = "Tool1"
         mock_tool2 = Mock()
         mock_tool2.name = "Tool2"
-        
+
         loader._loaded_tools = {"Tool1": mock_tool1, "Tool2": mock_tool2}
-        
+
         result = loader.get_all_loaded_tools()
         assert result == {"Tool1": mock_tool1, "Tool2": mock_tool2}
-        
+
         # Verify it returns a copy, not the original dict
         assert result is not loader._loaded_tools

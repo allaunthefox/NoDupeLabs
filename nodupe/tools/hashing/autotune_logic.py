@@ -1,11 +1,14 @@
 """
 Hash Algorithm Autotune Module
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 Automatically selects the optimal hash algorithm based on system characteristics and performance benchmarks.
 """
 
-import time
 import hashlib
-from typing import Dict, Tuple, Callable, Any
+import time
+from typing import Any, Callable
+
 
 # Check for optional dependencies
 
@@ -57,9 +60,9 @@ class HashAutotuner:
         self.sample_size = sample_size
         self.available_algorithms = self._get_available_algorithms()
 
-    def _get_available_algorithms(self) -> Dict[str, Any]:
+    def _get_available_algorithms(self) -> dict[str, Any]:
         """Get all available hash algorithms including optional ones."""
-        algorithms: Dict[str, Any] = {}
+        algorithms: dict[str, Any] = {}
 
         # Standard library algorithms
         for algo in hashlib.algorithms_available:
@@ -161,7 +164,7 @@ class HashAutotuner:
 
         return avg_time
 
-    def benchmark_all_algorithms(self, iterations: int = 10) -> Dict[str, float]:
+    def benchmark_all_algorithms(self, iterations: int = 10) -> dict[str, float]:
         """Benchmark all available algorithms.
 
         Args:
@@ -171,7 +174,7 @@ class HashAutotuner:
             Dictionary mapping algorithm names to average execution times
         """
         test_data = self._generate_test_data()
-        results: Dict[str, float] = {}
+        results: dict[str, float] = {}
 
         for algorithm_name in self.available_algorithms:
             try:
@@ -184,7 +187,7 @@ class HashAutotuner:
         return results
 
     def select_optimal_algorithm(self, iterations: int = 10,
-                                 memory_constrained: bool = False) -> Tuple[str, Dict[str, float]]:
+                                 memory_constrained: bool = False) -> tuple[str, dict[str, float]]:
         """Select the optimal hash algorithm based on benchmark results.
 
         Args:
@@ -217,7 +220,7 @@ class HashAutotuner:
 
         return optimal_algorithm, benchmark_results
 
-    def get_algorithm_recommendation(self, file_size_threshold: int = 10 * 1024 * 1024) -> Dict[str, str]:
+    def get_algorithm_recommendation(self, file_size_threshold: int = 10 * 1024 * 1024) -> dict[str, str]:
         """Get algorithm recommendations based on file size characteristics.
 
         Args:
@@ -226,7 +229,7 @@ class HashAutotuner:
         Returns:
             Dictionary with recommendations for different scenarios
         """
-        recommendations: Dict[str, str] = {}
+        recommendations: dict[str, str] = {}
 
         # For small files, speed is most important
         small_files_algo, _ = self.select_optimal_algorithm(iterations=5)
@@ -249,7 +252,7 @@ class HashAutotuner:
 
 def autotune_hash_algorithm(sample_size: int = 1024 * 1024,
                             file_size_threshold: int = 10 * 1024 * 1024,
-                            iterations: int = 10) -> Dict[str, Any]:
+                            iterations: int = 10) -> dict[str, Any]:
     """Convenience function to autotune hash algorithm.
 
     Args:
@@ -275,7 +278,7 @@ def autotune_hash_algorithm(sample_size: int = 1024 * 1024,
     }
 
 
-def create_autotuned_hasher(**kwargs: Any) -> Tuple[Any, Dict[str, Any]]:
+def create_autotuned_hasher(**kwargs: Any) -> tuple[Any, dict[str, Any]]:
     """Create a FileHasher with autotuned algorithm and return tuning results.
 
     Args:
@@ -285,6 +288,7 @@ def create_autotuned_hasher(**kwargs: Any) -> Tuple[Any, Dict[str, Any]]:
         Tuple of (FileHasher instance, autotune results)
     """
     import hashlib
+
     from .hasher_logic import FileHasher  # Import at function level to avoid circular import
 
     autotune_results = autotune_hash_algorithm(**kwargs)

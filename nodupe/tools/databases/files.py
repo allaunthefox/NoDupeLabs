@@ -18,8 +18,9 @@ Dependencies:
     - typing (standard library only)
 """
 
-from typing import Optional, List, Dict, Any
 import time
+from typing import Any, Optional
+
 from .connection import DatabaseConnection
 
 
@@ -69,7 +70,7 @@ class FileRepository:
             print(f"[ERROR] Failed to add file: {e}")
             raise
 
-    def get_file(self, file_id: int) -> Optional[Dict[str, Any]]:
+    def get_file(self, file_id: int) -> Optional[dict[str, Any]]:
         """Get file by ID.
 
         Args:
@@ -99,7 +100,7 @@ class FileRepository:
             print(f"[ERROR] Failed to get file: {e}")
             raise
 
-    def get_file_by_path(self, file_path: str) -> Optional[Dict[str, Any]]:
+    def get_file_by_path(self, file_path: str) -> Optional[dict[str, Any]]:
         """Get file by path.
 
         Args:
@@ -149,7 +150,7 @@ class FileRepository:
             return False
 
         try:
-            set_clause = ', '.join([f"{field} = ?" for field in update_fields.keys()])
+            set_clause = ', '.join([f"{field} = ?" for field in update_fields])
             values = list(update_fields.values())
             values.append(file_id)
 
@@ -181,7 +182,7 @@ class FileRepository:
             print(f"[ERROR] Failed to mark file as duplicate: {e}")
             raise
 
-    def find_duplicates_by_hash(self, hash_value: str) -> List[Dict[str, Any]]:
+    def find_duplicates_by_hash(self, hash_value: str) -> list[dict[str, Any]]:
         """Find files with same hash.
 
         Args:
@@ -211,7 +212,7 @@ class FileRepository:
             print(f"[ERROR] Failed to find duplicates by hash: {e}")
             raise
 
-    def find_duplicates_by_size(self, size: int) -> List[Dict[str, Any]]:
+    def find_duplicates_by_size(self, size: int) -> list[dict[str, Any]]:
         """Find files with same size.
 
         Args:
@@ -241,7 +242,7 @@ class FileRepository:
             print(f"[ERROR] Failed to find duplicates by size: {e}")
             raise
 
-    def get_all_files(self) -> List[Dict[str, Any]]:
+    def get_all_files(self) -> list[dict[str, Any]]:
         """Get all files from database.
 
         Returns:
@@ -284,7 +285,7 @@ class FileRepository:
             print(f"[ERROR] Failed to delete file: {e}")
             raise
 
-    def get_duplicate_files(self) -> List[Dict[str, Any]]:
+    def get_duplicate_files(self) -> list[dict[str, Any]]:
         """Get all duplicate files.
 
         Returns:
@@ -310,7 +311,7 @@ class FileRepository:
             print(f"[ERROR] Failed to get duplicate files: {e}")
             raise
 
-    def get_original_files(self) -> List[Dict[str, Any]]:
+    def get_original_files(self) -> list[dict[str, Any]]:
         """Get all original files (not duplicates).
 
         Returns:
@@ -362,7 +363,7 @@ class FileRepository:
             print(f"[ERROR] Failed to count duplicates: {e}")
             raise
 
-    def batch_add_files(self, files: List[Dict[str, Any]]) -> int:
+    def batch_add_files(self, files: list[dict[str, Any]]) -> int:
         """Add multiple files in batch.
 
         Args:

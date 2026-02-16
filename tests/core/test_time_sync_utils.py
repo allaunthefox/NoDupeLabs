@@ -1,18 +1,21 @@
 """Tests for time_sync_utils module."""
 
-import pytest
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 import socket
 import time
-from nodupe.core.time_sync_utils import (
+
+import pytest
+
+from nodupe.tools.time_sync.sync_utils import (
     DNSCache,
-    MonotonicTimeCalculator,
-    TargetedFileScanner,
-    ParallelNTPClient,
     FastDate64Encoder,
+    MonotonicTimeCalculator,
+    ParallelNTPClient,
     PerformanceMetrics,
+    TargetedFileScanner,
+    clear_global_caches,
     get_global_dns_cache,
     get_global_metrics,
-    clear_global_caches,
 )
 
 
@@ -60,14 +63,14 @@ class TestDNSCache:
         import time
         cache = DNSCache(ttl=0.01, max_size=10)
         cache.set("test.example.com", 123, [(2, 2, 17, '', ('127.0.0.1', 123))])
-        
+
         # Should exist immediately
         result = cache.get("test.example.com", 123)
         assert result is not None
-        
+
         # Wait for TTL to expire
         time.sleep(0.02)
-        
+
         # Should be expired now
         result = cache.get("test.example.com", 123)
         assert result is None
@@ -78,11 +81,11 @@ class TestDNSCache:
         cache.set("host1.com", 123, [(1,)])
         cache.set("host2.com", 123, [(2,)])
         cache.set("host3.com", 123, [(3,)])
-        
+
         # First entry should be evicted
         result = cache.get("host1.com", 123)
         assert result is None
-        
+
         # Others should still exist
         assert cache.get("host2.com", 123) is not None
         assert cache.get("host3.com", 123) is not None
@@ -161,7 +164,7 @@ class TestTargetedFileScanner:
         # Create a test file with recent timestamp
         test_file = temp_dir / "recent.txt"
         test_file.write_text("test")
-        
+
         scanner = TargetedFileScanner(max_files=10, max_depth=2)
         ts = scanner.get_recent_file_time(additional_paths=[str(temp_dir)])
         # Should find the file we just created
@@ -171,7 +174,7 @@ class TestTargetedFileScanner:
         """Test scanning a single file."""
         test_file = temp_dir / "test.txt"
         test_file.write_text("content")
-        
+
         scanner = TargetedFileScanner()
         result = scanner._scan_path(str(test_file), 0)
         # Should return mtime > 0
@@ -188,7 +191,7 @@ class TestTargetedFileScanner:
         # Create a file in directory
         test_file = temp_dir / "test.txt"
         test_file.write_text("content")
-        
+
         scanner = TargetedFileScanner(max_files=5, max_depth=1)
         result = scanner._scan_path(str(temp_dir), 0)
         assert result >= 0
@@ -363,7 +366,7 @@ class TestParallelNTPClient:
     def test_resolve_host_addresses(self):
         """Test host address resolution."""
         client = ParallelNTPClient()
-        addresses = client._resolve_host_addresses("localhost")
+        client._resolve_host_addresses("localhost")
         # May be empty in some test environments
 
     def test_resolve_host_addresses_cached(self):
@@ -386,7 +389,7 @@ class TestParallelNTPClient:
         try:
             # This will likely fail due to invalid address
             addr_info = (socket.AF_INET, socket.SOCK_DGRAM, 0, '', ('127.0.0.1', 123))
-            response = client._query_single_address(0, "localhost", addr_info, 0)
+            client._query_single_address(0, "localhost", addr_info, 0)
         except Exception:
             pass  # Expected - may fail in test env
 

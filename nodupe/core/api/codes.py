@@ -8,58 +8,43 @@ Aligned with ISO/IEC 27040:2024 and ISO 14721 (OAIS).
 import json
 from enum import IntEnum
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
-def _load_lut() -> Dict[str, Any]:
+
+def _load_lut() -> dict[str, Any]:
     """Load the ISO standard compliant LUT from disk."""
     lut_path = Path(__file__).parent / "lut.json"
     if not lut_path.exists():
         return {"codes": []}
-    with open(lut_path, "r", encoding="utf-8") as f:
+    with open(lut_path, encoding="utf-8") as f:
         return json.load(f)
 
 _LUT_DATA = _load_lut()
 
 # Dynamically create the IntEnum based on JSON data
 _enum_members = {
-    item['mnemonic']: item['code'] 
+    item['mnemonic']: item['code']
     for item in _LUT_DATA.get('codes', [])
 }
 
 # Refocused aliases for Archival and Backup mission
+# Note: Aliases that map to codes that now exist in lut.json are handled differently
+# to avoid overwriting the unique codes with duplicate values
 _aliases = {
     "IPC_START": "FAU_GEN_START",
     "IPC_REQ_RECEIVED": "FAU_SAR_REQ",
     "ARCHIVE_SIP": "OAIS_SIP_INGEST",
     "ARCHIVE_AIP": "OAIS_AIP_STORE",
-    "DEDUP_FP": "DEDUP_FP_GEN",
-    "DEDUP_REF": "DEDUP_REF_ADD",
     "DEDUP_GC": "DEDUP_RECLAIM",
-    "BKP_VERIFY": "BKP_VERIFY_OK",
-    "BKP_RESTORE": "BKP_RESTORE_FAIL",
-    "BKP_FAULT": "BKP_MEDIA_FAULT",
-    "PRESERV_CHECK": "PRESERV_FIXITY",
-    "ERR_EXEC_FAILED": "FPT_FLS_FAIL",
     "HASHING_OP": "FDP_DAU_HASH",
     "TOOL_INIT": "FIA_UAU_INIT",
     "TOOL_LOAD": "FIA_UAU_LOAD",
     "TOOL_SHUTDOWN": "FIA_UAU_SHUTDOWN",
-    "ERR_INTERNAL": "FPT_STM_ERR",
     "DB_OP": "FDP_ETC_DB",
-    "ARCHIVE_OP": "FDP_DAU_ARCH",
-    "ERR_TOOL_NOT_FOUND": "FPT_FLS_FAIL",
-    "ERR_METHOD_NOT_FOUND": "FPT_FLS_FAIL",
-    "ERR_INVALID_REQUEST": "FPT_FLS_FAIL",
-    "ERR_INVALID_JSON": "FPT_FLS_FAIL",
-    "RATE_LIMIT_HIT": "FPT_FLS_FAIL",
-    "SECURITY_RISK_FLAGGED": "FPT_FLS_FAIL",
     "HOT_RELOAD_START": "FMT_MOF_RELOAD",
     "HOT_RELOAD_STOP": "FMT_MOF_RELOAD",
     "HOT_RELOAD_DETECT": "FMT_MOF_RELOAD",
     "HOT_RELOAD_SUCCESS": "FMT_MOF_RELOAD",
-    "ML_LOAD": "ML_MOD_LOAD",
-    "ML_INF": "ML_INF_START",
-    "GPU_OP": "FRU_RSA_GPU",
     # Accessibility-specific codes for ISO compliance
     "ACC_SCREEN_READER_INIT": "ACC_SCR_RD_INIT",
     "ACC_SCREEN_READER_AVAIL": "ACC_SCR_RD_AVAIL",
@@ -72,18 +57,18 @@ _aliases = {
     "ACC_FEATURE_ENABLED": "ACC_FEAT_ENAB",
     "ACC_FEATURE_DISABLED": "ACC_FEAT_DISAB",
     "ACC_LIB_LOAD_SUCCESS": "ACC_LIB_LOAD_OK",
-    "ACC_LIB_LOAD_FAIL": "ACC_LIB_LOAD_FAIL",
     "ACC_CONSOLE_FALLBACK": "ACC_CONS_FALL",
     "ACC_ISO_COMPLIANT": "ACC_ISO_CMP"
 }
 
+# Only add aliases if they don't already exist as unique codes
 for alias, target in _aliases.items():
-    if target in _enum_members:
+    if target in _enum_members and alias not in _enum_members:
         _enum_members[alias] = _enum_members[target]
 
 ActionCode = IntEnum('ActionCode', _enum_members)
 
-def _get_lut(cls) -> Dict[str, Any]:
+def _get_lut(cls) -> dict[str, Any]:
     return _LUT_DATA
 
 def _get_description(cls, code: int) -> str:

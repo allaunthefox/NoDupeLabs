@@ -33,4 +33,5 @@ Example usage:
 
 from .time_sync import TimeSyncTool
 
+
 __all__ = ["TimeSyncTool"]

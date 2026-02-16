@@ -6,9 +6,12 @@
 Provides MIME type detection capabilities as a tool.
 """
 
-from typing import List, Dict, Any, Optional
+from typing import Any
+
 from nodupe.core.tool_system.base import Tool
+
 from .mime_logic import MIMEDetection
+
 
 class StandardMIMETool(Tool):
     """Standard MIME detection tool using mimetypes."""
@@ -22,11 +25,11 @@ class StandardMIMETool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         return []
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
             'detect_mime_type': self.detector.detect_mime_type,
             'is_text': self.detector.is_text,
@@ -45,7 +48,7 @@ class StandardMIMETool(Tool):
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
             'features': ['magic_number_detection', 'extension_mapping', 'rfc6838_compliance']

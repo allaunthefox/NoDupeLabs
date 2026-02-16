@@ -1,16 +1,13 @@
 """Test logging module functionality."""
 
-import pytest
-import tempfile
 import logging
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-from nodupe.core.logging_system import (
-    Logging,
-    LoggingError,
-    get_logger,
-    setup_logging
-)
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from nodupe.core.logging_system import Logging, LoggingError, get_logger, setup_logging
 
 
 class TestLoggingError:
@@ -140,7 +137,7 @@ class TestLoggingMethods:
         Logging.setup_logging()
 
         logger = Logging.get_logger("test")
-        test_exception = ValueError("Test exception")
+        raise ValueError("Test exception")
 
         # This should not raise
         Logging.log_exception(logger, "Test error", exc_info=True)
@@ -339,7 +336,7 @@ class TestLoggingIntegration:
 
             # Verify file was created and has content
             assert log_file.exists()
-            with open(log_file, 'r') as f:
+            with open(log_file) as f:
                 content = f.read()
                 assert "Debug message" in content
                 assert "Info message" in content

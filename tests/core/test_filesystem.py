@@ -1,8 +1,10 @@
 """Tests for filesystem module."""
 
-import pytest
 from pathlib import Path
-from nodupe.core.filesystem import Filesystem, FilesystemError
+
+import pytest
+
+from nodupe.tools.os_filesystem.filesystem import Filesystem, FilesystemError
 
 
 class TestFilesystem:

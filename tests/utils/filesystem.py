@@ -1,21 +1,22 @@
 # File System Test Utilities
 # Helper functions for file system operations testing
 
-import os
-import stat
 import hashlib
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Union
-import tempfile
+import os
 import shutil
+import stat
+import tempfile
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 from unittest.mock import MagicMock
+
 
 def create_test_file_structure(
     base_path: Path,
-    structure: Dict[str, Union[Dict, str, bytes]],
+    structure: dict[str, Union[dict, str, bytes]],
     file_permissions: int = 0o644,
     dir_permissions: int = 0o755
-) -> Dict[str, Path]:
+) -> dict[str, Path]:
     """
     Create a complex file structure for testing.
 
@@ -57,7 +58,7 @@ def create_duplicate_files(
     original_content: str,
     num_duplicates: int = 3,
     file_size: int = 1024
-) -> List[Path]:
+) -> list[Path]:
     """
     Create multiple duplicate files for testing.
 
@@ -97,9 +98,9 @@ def create_duplicate_files(
 
 def create_files_with_varying_sizes(
     base_path: Path,
-    sizes: List[int],
+    sizes: list[int],
     content_pattern: str = "Test content "
-) -> List[Path]:
+) -> list[Path]:
     """
     Create files with varying sizes for testing.
 
@@ -130,7 +131,7 @@ def create_files_with_varying_sizes(
 def create_symlinks_and_hardlinks(
     base_path: Path,
     target_file: Path
-) -> Dict[str, List[Path]]:
+) -> dict[str, list[Path]]:
     """
     Create symlinks and hardlinks for testing.
 
@@ -220,8 +221,8 @@ def compare_files(file1: Path, file2: Path) -> bool:
 
 def create_files_with_different_permissions(
     base_path: Path,
-    permissions: List[int]
-) -> List[Path]:
+    permissions: list[int]
+) -> list[Path]:
     """
     Create files with different permissions for testing.
 
@@ -249,7 +250,7 @@ def create_nested_directory_structure(
     base_path: Path,
     depth: int = 3,
     files_per_dir: int = 2
-) -> Dict[str, List[Path]]:
+) -> dict[str, list[Path]]:
     """
     Create a nested directory structure for testing.
 
@@ -286,8 +287,8 @@ def create_nested_directory_structure(
 
 def create_files_with_timestamps(
     base_path: Path,
-    timestamps: List[float]
-) -> List[Path]:
+    timestamps: list[float]
+) -> list[Path]:
     """
     Create files with specific timestamps for testing.
 
@@ -316,7 +317,7 @@ def create_files_with_timestamps(
 
 def verify_file_structure(
     base_path: Path,
-    expected_structure: Dict[str, Union[Dict, str]]
+    expected_structure: dict[str, Union[dict, str]]
 ) -> bool:
     """
     Verify that a file structure matches expected structure.
@@ -347,10 +348,9 @@ def verify_file_structure(
                 # Check text content
                 if full_path.read_text() != expected:
                     return False
-            else:
-                # Check binary content
-                if full_path.read_bytes() != expected:
-                    return False
+            # Check binary content
+            elif full_path.read_bytes() != expected:
+                return False
 
     return True
 

@@ -1,6 +1,8 @@
 import gzip
 import zipfile
+
 import pytest
+
 from nodupe.tools.compression_standard.engine_logic import Compression, CompressionError
 
 

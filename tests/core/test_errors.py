@@ -1,13 +1,8 @@
 """Test errors module functionality."""
 
 import pytest
-from nodupe.core.errors import (
-    NoDupeError,
-    SecurityError,
-    ValidationError,
-    ToolError,
-    DatabaseError
-)
+
+from nodupe.core.errors import DatabaseError, NoDupeError, SecurityError, ToolError, ValidationError
 
 
 class TestErrorHierarchy:

@@ -1,8 +1,71 @@
 {
   "specification": "ISO/IEC 15408-2 & ISO 14721 Plain-Language Registry",
-  "version": "13.0.0",
+  "version": "13.1.0",
   "organization": "NoDupeLabs",
   "codes": [
+    {
+      "code": 400001,
+      "mnemonic": "WATCH_ERROR",
+      "iso_class": "FMT",
+      "description": "System Action: File watching or monitoring encountered an error.",
+      "risk_level": "MEDIUM"
+    },
+    {
+      "code": 400002,
+      "mnemonic": "HOT_RELOAD_START",
+      "iso_class": "FMT",
+      "description": "System Action: Hot reload has been started.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 400003,
+      "mnemonic": "HOT_RELOAD_STOP",
+      "iso_class": "FMT",
+      "description": "System Action: Hot reload has been stopped.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 400004,
+      "mnemonic": "HOT_RELOAD_DETECT",
+      "iso_class": "FMT",
+      "description": "System Action: A change was detected requiring hot reload.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 400005,
+      "mnemonic": "HOT_RELOAD_SUCCESS",
+      "iso_class": "FMT",
+      "description": "System Action: Hot reload completed successfully.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 400006,
+      "mnemonic": "HOT_RELOAD_FAIL",
+      "iso_class": "FMT",
+      "description": "System Action: Hot reload failed.",
+      "risk_level": "HIGH"
+    },
+    {
+      "code": 300010,
+      "mnemonic": "TOOL_INIT",
+      "iso_class": "FIA",
+      "description": "System Initialization: A tool is being initialized.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 300011,
+      "mnemonic": "TOOL_LOAD",
+      "iso_class": "FIA",
+      "description": "System Action: A tool is being loaded.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 300012,
+      "mnemonic": "TOOL_SHUTDOWN",
+      "iso_class": "FIA",
+      "description": "System Action: A tool is being shut down.",
+      "risk_level": "INFO"
+    },
     {
       "code": 100000,
       "mnemonic": "FAU_GEN_START",
@@ -18,6 +81,13 @@
       "risk_level": "INFO"
     },
     {
+      "code": 100002,
+      "mnemonic": "FAU_SAR_REQ",
+      "iso_class": "FAU",
+      "description": "Communication: A request for information was received.",
+      "risk_level": "INFO"
+    },
+    {
       "code": 100003,
       "mnemonic": "FAU_SAR_RES",
       "iso_class": "FAU",
@@ -25,10 +95,31 @@
       "risk_level": "INFO"
     },
     {
-      "code": 100002,
-      "mnemonic": "FAU_SAR_REQ",
-      "iso_class": "FAU",
-      "description": "Communication: A request for information was received.",
+      "code": 200000,
+      "mnemonic": "FDP_DAU_HASH",
+      "iso_class": "FDP",
+      "description": "Integrity Check: Creating a unique digital fingerprint to prove a file is original.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 200002,
+      "mnemonic": "FDP_ETC_DB",
+      "iso_class": "FDP",
+      "description": "Data Storage: Information was written to or read from the database.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 250002,
+      "mnemonic": "DEDUP_RECLAIM",
+      "iso_class": "DDP",
+      "description": "Cleaning Action: Removing unnecessary duplicate data to save space.",
+      "risk_level": "LOW"
+    },
+    {
+      "code": 300000,
+      "mnemonic": "FIA_UAU_LOAD",
+      "iso_class": "FIA",
+      "description": "System Action: A new tool or component was successfully loaded.",
       "risk_level": "INFO"
     },
     {
@@ -46,55 +137,6 @@
       "risk_level": "INFO"
     },
     {
-      "code": 500001,
-      "mnemonic": "FPT_STM_ERR",
-      "iso_class": "FPT",
-      "description": "Time Error: There was a problem synchronizing the system clock.",
-      "risk_level": "HIGH"
-    },
-    {
-      "code": 120000,
-      "mnemonic": "OAIS_SIP_INGEST",
-      "iso_class": "OAIS",
-      "description": "Archive Action: Receiving new data to be saved in the permanent collection.",
-      "risk_level": "INFO"
-    },
-    {
-      "code": 120001,
-      "mnemonic": "OAIS_AIP_STORE",
-      "iso_class": "OAIS",
-      "description": "Archive Action: Data has been safely locked in permanent storage.",
-      "risk_level": "INFO"
-    },
-    {
-      "code": 200002,
-      "mnemonic": "FDP_ETC_DB",
-      "iso_class": "FDP",
-      "description": "Data Storage: Information was written to or read from the database.",
-      "risk_level": "INFO"
-    },
-    {
-      "code": 300000,
-      "mnemonic": "FIA_UAU_LOAD",
-      "iso_class": "FIA",
-      "description": "System Action: A new tool or component was successfully loaded.",
-      "risk_level": "INFO"
-    },
-    {
-      "code": 200000,
-      "mnemonic": "FDP_DAU_HASH",
-      "iso_class": "FDP",
-      "description": "Integrity Check: Creating a unique digital fingerprint to prove a file is original.",
-      "risk_level": "INFO"
-    },
-    {
-      "code": 250002,
-      "mnemonic": "DEDUP_RECLAIM",
-      "iso_class": "DDP",
-      "description": "Cleaning Action: Removing unnecessary duplicate data to save space.",
-      "risk_level": "LOW"
-    },
-    {
       "code": 400000,
       "mnemonic": "FMT_MOF_RELOAD",
       "iso_class": "FMT",
@@ -109,11 +151,88 @@
       "risk_level": "CRITICAL"
     },
     {
+      "code": 500001,
+      "mnemonic": "FPT_STM_ERR",
+      "iso_class": "FPT",
+      "description": "Time Error: There was a problem synchronizing the system clock.",
+      "risk_level": "HIGH"
+    },
+    {
       "code": 500002,
       "mnemonic": "FPT_SEP_DENIED",
       "iso_class": "FPT",
       "description": "Security Event: Access to a protected area or sensitive task was blocked.",
       "risk_level": "CRITICAL"
+    },
+    {
+      "code": 500010,
+      "mnemonic": "ERR_INTERNAL",
+      "iso_class": "FPT",
+      "description": "Internal Error: An unexpected internal error occurred.",
+      "risk_level": "HIGH"
+    },
+    {
+      "code": 500011,
+      "mnemonic": "RATE_LIMIT_HIT",
+      "iso_class": "FPT",
+      "description": "Rate Limit: Client exceeded the allowed request rate.",
+      "risk_level": "MEDIUM"
+    },
+    {
+      "code": 500012,
+      "mnemonic": "ERR_INVALID_JSON",
+      "iso_class": "FPT",
+      "description": "Parse Error: Invalid JSON received in request.",
+      "risk_level": "MEDIUM"
+    },
+    {
+      "code": 500013,
+      "mnemonic": "ERR_INVALID_REQUEST",
+      "iso_class": "FPT",
+      "description": "Invalid Request: The request format or parameters are invalid.",
+      "risk_level": "MEDIUM"
+    },
+    {
+      "code": 500014,
+      "mnemonic": "ERR_TOOL_NOT_FOUND",
+      "iso_class": "FPT",
+      "description": "Tool Not Found: The requested tool does not exist.",
+      "risk_level": "MEDIUM"
+    },
+    {
+      "code": 500015,
+      "mnemonic": "ERR_METHOD_NOT_FOUND",
+      "iso_class": "FPT",
+      "description": "Method Not Found: The requested method is not exposed by the tool.",
+      "risk_level": "MEDIUM"
+    },
+    {
+      "code": 500016,
+      "mnemonic": "ERR_EXEC_FAILED",
+      "iso_class": "FPT",
+      "description": "Execution Failed: Method execution failed with an error.",
+      "risk_level": "HIGH"
+    },
+    {
+      "code": 500017,
+      "mnemonic": "SECURITY_RISK_FLAGGED",
+      "iso_class": "FPT",
+      "description": "Security Risk: A sensitive or potentially dangerous operation was requested.",
+      "risk_level": "CRITICAL"
+    },
+    {
+      "code": 120000,
+      "mnemonic": "OAIS_SIP_INGEST",
+      "iso_class": "OAIS",
+      "description": "Archive Action: Receiving new data to be saved in the permanent collection.",
+      "risk_level": "INFO"
+    },
+    {
+      "code": 120001,
+      "mnemonic": "OAIS_AIP_STORE",
+      "iso_class": "OAIS",
+      "description": "Archive Action: Data has been safely locked in permanent storage.",
+      "risk_level": "INFO"
     },
     {
       "code": 600000,

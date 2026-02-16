@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
@@ -38,18 +39,20 @@ Example:
 
 from __future__ import annotations
 
+import logging
 import os
 import socket
 import struct
-import time
 import threading
-import logging
-from typing import Iterable, Optional, Tuple, List, Dict, Any
-from dataclasses import dataclass
-from collections import OrderedDict
-from concurrent.futures import ThreadPoolExecutor, as_completed, Future
-from contextlib import contextmanager
+import time
 import weakref
+from collections import OrderedDict
+from collections.abc import Iterable
+from concurrent.futures import Future, ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
+from dataclasses import dataclass
+from typing import Any, Optional
+
 
 logger = logging.getLogger(__name__)
 
@@ -73,9 +76,9 @@ FASTDATE_SECONDS_MAX = (1 << FASTDATE_SECONDS_BITS) - 1
 
 
 # Type aliases
-AddressTuple = Tuple[int, int, int, int, Tuple[str, int]]
-NTPQueryResult = Tuple[str, Exception]
-MetricsDict = Dict[str, Any]
+AddressTuple = tuple[int, int, int, int, tuple[str, int]]
+NTPQueryResult = tuple[str, Exception]
+MetricsDict = dict[str, Any]
 
 
 @dataclass
@@ -95,7 +98,7 @@ class NTPResponse:
     offset: float
     delay: float
     host: str
-    address: Tuple[str, int]
+    address: tuple[str, int]
     attempt: int
     timestamp: float
 
@@ -112,8 +115,8 @@ class ParallelQueryResult:
     """
     success: bool
     best_response: Optional[NTPResponse]
-    all_responses: List[NTPResponse]
-    errors: List[NTPQueryResult]
+    all_responses: list[NTPResponse]
+    errors: list[NTPQueryResult]
 
 
 class DNSCache:
@@ -142,10 +145,10 @@ class DNSCache:
         """
         self._ttl = ttl
         self._max_size = max_size
-        self._cache: OrderedDict[str, Tuple[List[AddressTuple], float]] = OrderedDict()
+        self._cache: OrderedDict[str, tuple[list[AddressTuple], float]] = OrderedDict()
         self._lock = threading.RLock()
 
-    def get(self, host: str, port: int = 123) -> Optional[List[AddressTuple]]:
+    def get(self, host: str, port: int = 123) -> Optional[list[AddressTuple]]:
         """Get cached DNS resolution.
 
         Args:
@@ -172,7 +175,7 @@ class DNSCache:
             self._cache.move_to_end(key)
             return addresses.copy()
 
-    def set(self, host: str, port: int, addresses: List[AddressTuple]) -> None:
+    def set(self, host: str, port: int, addresses: list[AddressTuple]) -> None:
         """Cache DNS resolution.
 
         Args:
@@ -229,7 +232,7 @@ class MonotonicTimeCalculator:
         self._wall_start: Optional[float] = None
         self._mono_start: Optional[float] = None
 
-    def start_timing(self) -> Tuple[float, float]:
+    def start_timing(self) -> tuple[float, float]:
         """Start timing and return both wall and monotonic timestamps.
 
         Returns:
@@ -273,7 +276,7 @@ class MonotonicTimeCalculator:
     @staticmethod
     def calculate_ntp_rtt(t1_wall: float, t2_wall: float,
                          t3_wall: float, t4_mono: float,
-                         mono_start: float) -> Tuple[float, float]:
+                         mono_start: float) -> tuple[float, float]:
         """Calculate NTP round-trip delay and offset using monotonic timing.
 
         Args:
@@ -328,7 +331,7 @@ class TargetedFileScanner:
             "/tmp",
         ]
 
-    def get_recent_file_time(self, additional_paths: Optional[List[str]] = None) -> Optional[float]:
+    def get_recent_file_time(self, additional_paths: Optional[list[str]] = None) -> Optional[float]:
         """Get timestamp from most recently modified file.
 
         Args:
@@ -350,10 +353,9 @@ class TargetedFileScanner:
 
             try:
                 path_time = self._scan_path(path, file_count)
-                if path_time > latest_time:
-                    latest_time = path_time
+                latest_time = max(latest_time, path_time)
                 file_count = min(file_count + 100, self._max_files)  # Estimate files per path
-            except (OSError, IOError):
+            except OSError:
                 continue
 
         return latest_time if latest_time > 0 else None
@@ -378,7 +380,7 @@ class TargetedFileScanner:
                 mtime = os.path.getmtime(path)
                 if mtime > latest_time and mtime > 1000000000:  # After year 2002
                     latest_time = mtime
-            except (OSError, IOError):
+            except OSError:
                 pass
             return latest_time
 
@@ -402,7 +404,7 @@ class TargetedFileScanner:
                     if mtime > latest_time and mtime > 1000000000:  # After year 2002
                         latest_time = mtime
                     file_count += 1
-                except (OSError, IOError):
+                except OSError:
                     continue
 
         return latest_time
@@ -474,7 +476,7 @@ class ParallelNTPClient:
             ParallelQueryResult with best response and statistics.
         """
         # Resolve all addresses first
-        host_addresses: Dict[str, List[AddressTuple]] = {}
+        host_addresses: dict[str, list[AddressTuple]] = {}
         for host in hosts:
             addresses = self._resolve_host_addresses(host)
             if addresses:
@@ -484,7 +486,7 @@ class ParallelNTPClient:
             return ParallelQueryResult(False, None, [], [("No hosts resolved", Exception("DNS resolution failed"))])
 
         # Submit all queries
-        futures_to_query: Dict[Future, Tuple[str, AddressTuple, int]] = {}
+        futures_to_query: dict[Future, tuple[str, AddressTuple, int]] = {}
         query_id = 0
 
         for host, addresses in host_addresses.items():
@@ -501,8 +503,8 @@ class ParallelNTPClient:
                     query_id += 1
 
         # Collect results
-        responses: List[NTPResponse] = []
-        errors: List[NTPQueryResult] = []
+        responses: list[NTPResponse] = []
+        errors: list[NTPQueryResult] = []
         best_response: Optional[NTPResponse] = None
         good_result_found = False
 
@@ -540,7 +542,7 @@ class ParallelNTPClient:
 
         return ParallelQueryResult(success, best_response, responses, errors)
 
-    def _resolve_host_addresses(self, host: str) -> List[AddressTuple]:
+    def _resolve_host_addresses(self, host: str) -> list[AddressTuple]:
         """Resolve host to address list using cache.
 
         Args:
@@ -623,7 +625,7 @@ class ParallelNTPClient:
             timestamp=time.time()
         )
 
-    def _to_ntp(self, ts: float) -> Tuple[int, int]:
+    def _to_ntp(self, ts: float) -> tuple[int, int]:
         """Convert POSIX timestamp to NTP format.
 
         Args:
@@ -760,7 +762,7 @@ class PerformanceMetrics:
 
     def __init__(self) -> None:
         """Initialize performance metrics collector."""
-        self._metrics: Dict[str, Any] = {
+        self._metrics: dict[str, Any] = {
             'ntp_queries': [],
             'dns_cache_hits': 0,
             'dns_cache_misses': 0,
@@ -847,7 +849,7 @@ class PerformanceMetrics:
                 'timestamp': time.time()
             })
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """Get performance metrics summary.
 
         Returns:
@@ -857,7 +859,7 @@ class PerformanceMetrics:
             metrics = self._metrics.copy()
 
         # Calculate summary statistics
-        summary: Dict[str, Any] = {
+        summary: dict[str, Any] = {
             'total_queries': len(metrics['ntp_queries']),
             'success_rate': 0.0,
             'avg_delay': 0.0,

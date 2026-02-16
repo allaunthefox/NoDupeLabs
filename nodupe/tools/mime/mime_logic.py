@@ -16,7 +16,8 @@ Dependencies:
 
 import mimetypes
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Optional
+
 from nodupe.core.mime_interface import MIMEDetectionInterface
 
 
@@ -74,7 +75,7 @@ class MIMEDetection(MIMEDetectionInterface):
     ]
 
     # Extension to MIME type mapping (fallback)
-    EXTENSION_MAP: Dict[str, str] = {
+    EXTENSION_MAP: dict[str, str] = {
         # Images
         '.jpg': 'image/jpeg',
         '.jpeg': 'image/jpeg',
@@ -142,12 +143,11 @@ class MIMEDetection(MIMEDetectionInterface):
     }
 
     @staticmethod
-    def detect_mime_type(file_path: str, use_magic: bool = True) -> str:
+    def detect_mime_type(file_path: str) -> str:
         """Detect MIME type.
 
         Args:
             file_path: Path to file
-            use_magic: Use magic number detection (slower but more accurate)
 
         Returns:
             MIME type string
@@ -157,13 +157,10 @@ class MIMEDetection(MIMEDetectionInterface):
         """
         try:
             # Convert to Path
-            if isinstance(file_path, str):
-                path = Path(file_path)
-            else:
-                path = file_path
+            path = Path(file_path) if isinstance(file_path, str) else file_path
 
-            # Try magic number detection first (if enabled and file exists)
-            if use_magic and path.exists() and path.is_file():
+            # Try magic number detection first (if file exists)
+            if path.exists() and path.is_file():
                 magic_mime = MIMEDetection._detect_by_magic(path)
                 if magic_mime:
                     return magic_mime
@@ -223,7 +220,7 @@ class MIMEDetection(MIMEDetectionInterface):
 
             return None
 
-        except (OSError, IOError):
+        except OSError:
             return None
 
     @staticmethod

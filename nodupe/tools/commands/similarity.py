@@ -17,9 +17,11 @@ Dependencies:
     - Core modules
 """
 
-from nodupe.core.tool_system.base import Tool
 import argparse
-from typing import Any, Dict
+from typing import Any
+
+from nodupe.core.tool_system.base import Tool
+
 
 # Tool manager is injected by the core system
 PM: Any = None
@@ -44,7 +46,7 @@ class SimilarityCommandTool(Tool):
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {'commands': ['similarity']}
 
@@ -107,10 +109,9 @@ class SimilarityCommandTool(Tool):
                 if args.k <= 0:
                     print(f"[ERROR] k must be a positive integer, got {args.k}")
                     return 1
-            elif hasattr(args, 'limit'):
-                if args.limit <= 0:
-                    print(f"[ERROR] limit must be a positive integer, got {args.limit}")
-                    return 1
+            elif hasattr(args, 'limit') and args.limit <= 0:
+                print(f"[ERROR] limit must be a positive integer, got {args.limit}")
+                return 1
 
             # Validate metric is one of the allowed choices
             valid_metrics = ['name', 'size', 'hash', 'content', 'vector']
@@ -187,7 +188,7 @@ class SimilarityCommandTool(Tool):
                 print("[TOOL] Vector similarity search not yet implemented (requires embedding generation)")
                 # Future: Use SimilarityManager here
 
-            print(f"[TOOL] Analysis complete.")
+            print("[TOOL] Analysis complete.")
             print(f"[TOOL] Marked {pairs_found} files as duplicates.")
 
             self._on_similarity_complete(pairs_found=pairs_found)
@@ -211,4 +212,4 @@ def register_tool():
 
 
 # Export tool interface
-__all__ = ['similarity_tool', 'register_tool']
+__all__ = ['register_tool', 'similarity_tool']

@@ -2,6 +2,8 @@
 
 Resource pooling utilities using standard library only.
 
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
+
 Key Features:
     - Thread pool for concurrent tasks
     - Connection pool for database connections
@@ -18,12 +20,12 @@ Dependencies:
     - sys (for GIL detection)
 """
 
-import threading
 import queue
-from typing import Any, Callable, Optional, Generic, TypeVar, List
-from contextlib import contextmanager
-import time
 import sys
+import threading
+import time
+from contextlib import contextmanager, suppress
+from typing import Any, Callable, Generic, Optional, TypeVar
 
 
 class PoolError(Exception):
@@ -160,10 +162,8 @@ class ObjectPool(Generic[T]):
         if self._closed:
             # Destroy object if pool is closed
             if self.destroy_func:
-                try:
+                with suppress(Exception):
                     self.destroy_func(obj)
-                except Exception:
-                    pass
             return
 
         try:
@@ -179,10 +179,8 @@ class ObjectPool(Generic[T]):
             with self._lock:
                 self._active_count -= 1
             if self.destroy_func:
-                try:
+                with suppress(Exception):
                     self.destroy_func(obj)
-                except Exception:
-                    pass
 
     @contextmanager
     def get_object(self, timeout: Optional[float] = None):
@@ -340,11 +338,10 @@ class ConnectionPool:
         conn = self._pool.acquire(timeout)
 
         # Test connection if required
-        if self.test_on_borrow:
-            if not self._test_connection(conn):
-                # Connection is bad, destroy it and try again
-                self._close_connection(conn)
-                return self.acquire(timeout)
+        if self.test_on_borrow and not self._test_connection(conn):
+            # Connection is bad, destroy it and try again
+            self._close_connection(conn)
+            return self.acquire(timeout)
 
         return conn
 
@@ -412,7 +409,7 @@ class WorkerPool:
         else:
             self._queue = queue.Queue()
 
-        self._threads: List[threading.Thread] = []
+        self._threads: list[threading.Thread] = []
         self._running = False
         self._lock = threading.RLock() if self._is_free_threaded else threading.Lock()
 

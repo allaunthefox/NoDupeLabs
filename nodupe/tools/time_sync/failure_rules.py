@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 """
 TimeSync Failure Handling Rules
 
@@ -7,13 +8,14 @@ including NTP server connection rules, fallback hierarchies, and graceful degrad
 
 from __future__ import annotations
 
-import time
 import logging
-from enum import Enum
-from dataclasses import dataclass
-from typing import List, Dict, Optional, Tuple, Any
+import time
 from collections import defaultdict, deque
+from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
+from typing import Any, Optional
+
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +48,7 @@ class ServerStats:
     total_attempts: int = 0
     last_success: Optional[float] = None
     last_failure: Optional[float] = None
-    failure_reasons: Dict[FailureReason, int] = None
+    failure_reasons: dict[FailureReason, int] = None
     recent_delays: deque = None  # Rolling window of recent delays
 
     def __post_init__(self):
@@ -135,8 +137,8 @@ class FailureRuleEngine:
         self.health_check_interval = health_check_interval
         self.failure_decay_hours = failure_decay_hours
 
-        self.server_stats: Dict[str, ServerStats] = {}
-        self.connection_history: List[ConnectionAttempt] = []
+        self.server_stats: dict[str, ServerStats] = {}
+        self.connection_history: list[ConnectionAttempt] = []
         self._last_health_check = time.time()
 
     def get_server_priority(self, host: str) -> ServerPriority:
@@ -153,7 +155,7 @@ class FailureRuleEngine:
             return ServerPriority.FALLBACK
 
     def should_retry_server(self, host: str, attempt_count: int,
-                          last_failure_reason: Optional[FailureReason] = None) -> Tuple[bool, float]:
+                          last_failure_reason: Optional[FailureReason] = None) -> tuple[bool, float]:
         """
         Determine if a server should be retried and when.
 
@@ -189,8 +191,8 @@ class FailureRuleEngine:
 
         return True, delay
 
-    def select_best_servers(self, available_hosts: List[str],
-                          max_selections: int = 4) -> List[str]:
+    def select_best_servers(self, available_hosts: list[str],
+                          max_selections: int = 4) -> list[str]:
         """
         Select the best servers based on health and priority.
 
@@ -305,7 +307,7 @@ class FailureRuleEngine:
 
         return False
 
-    def get_connection_strategy(self, available_hosts: List[str]) -> ConnectionStrategy:
+    def get_connection_strategy(self, available_hosts: list[str]) -> ConnectionStrategy:
         """
         Determine the optimal connection strategy based on current conditions.
 
@@ -373,7 +375,7 @@ class FailureRuleEngine:
         else:
             stats.record_failure(attempt.failure_reason or FailureReason.NETWORK_ERROR)
 
-    def get_server_health_report(self) -> Dict[str, Dict]:
+    def get_server_health_report(self) -> dict[str, dict]:
         """Get health report for all servers."""
         self._decay_old_failures()
 
@@ -424,7 +426,7 @@ class FailureRuleEngine:
 
         return (total_success / total_attempts) * 100
 
-    def _get_adaptive_retries(self, strategy: 'RetryStrategy') -> int:
+    def _get_adaptive_retries(self, strategy: RetryStrategy) -> int:
         """Get adaptive retry count based on strategy."""
         base_retries = self.max_retries
 
@@ -435,7 +437,7 @@ class FailureRuleEngine:
         else:
             return base_retries
 
-    def _get_adaptive_timeout(self, strategy: 'RetryStrategy') -> float:
+    def _get_adaptive_timeout(self, strategy: RetryStrategy) -> float:
         """Get adaptive timeout based on strategy."""
         if strategy == RetryStrategy.CONSERVATIVE:
             return 5.0
@@ -444,7 +446,7 @@ class FailureRuleEngine:
         else:
             return 3.0
 
-    def _get_adaptive_parallelism(self, strategy: 'RetryStrategy') -> bool:
+    def _get_adaptive_parallelism(self, strategy: RetryStrategy) -> bool:
         """Get adaptive parallelism setting based on strategy."""
         if strategy == RetryStrategy.CONSERVATIVE:
             return False  # Sequential for conservative
@@ -470,7 +472,7 @@ class RetryStrategy(Enum):
 @dataclass
 class ConnectionStrategy:
     """Optimal connection strategy for current conditions."""
-    servers: List[str]
+    servers: list[str]
     max_retries: int
     timeout: float
     parallel_queries: bool
@@ -490,7 +492,7 @@ class AdaptiveFailureHandler:
         self._network_patterns = defaultdict(list)
         self._last_pattern_update = time.time()
 
-    def analyze_network_pattern(self) -> Dict[str, Any]:
+    def analyze_network_pattern(self) -> dict[str, Any]:
         """Analyze current network patterns and return recommendations."""
         if time.time() - self._last_pattern_update < 60:  # Update every minute
             return self._get_cached_pattern()
@@ -534,7 +536,7 @@ class AdaptiveFailureHandler:
 
         return result
 
-    def _calculate_hourly_failures(self, attempts: List[ConnectionAttempt]) -> Dict[int, int]:
+    def _calculate_hourly_failures(self, attempts: list[ConnectionAttempt]) -> dict[int, int]:
         """Calculate failures per hour."""
         hourly_failures = defaultdict(int)
         for attempt in attempts:
@@ -543,7 +545,7 @@ class AdaptiveFailureHandler:
                 hourly_failures[hour] += 1
         return hourly_failures
 
-    def _calculate_failure_reasons(self, attempts: List[ConnectionAttempt]) -> Dict[str, int]:
+    def _calculate_failure_reasons(self, attempts: list[ConnectionAttempt]) -> dict[str, int]:
         """Calculate failure reasons distribution."""
         reasons = defaultdict(int)
         for attempt in attempts:
@@ -551,7 +553,7 @@ class AdaptiveFailureHandler:
                 reasons[attempt.failure_reason.value] += 1
         return reasons
 
-    def _calculate_success_by_server(self, attempts: List[ConnectionAttempt]) -> Dict[str, float]:
+    def _calculate_success_by_server(self, attempts: list[ConnectionAttempt]) -> dict[str, float]:
         """Calculate success rate by server."""
         server_stats = defaultdict(lambda: {'success': 0, 'total': 0})
 
@@ -567,7 +569,7 @@ class AdaptiveFailureHandler:
 
         return success_rates
 
-    def _generate_recommendations(self, pattern: str, failure_reasons: Dict, success_rates: Dict) -> List[str]:
+    def _generate_recommendations(self, pattern: str, failure_reasons: dict, success_rates: dict) -> list[str]:
         """Generate recommendations based on pattern analysis."""
         recommendations = []
 
@@ -596,7 +598,7 @@ class AdaptiveFailureHandler:
 
         return recommendations
 
-    def _get_cached_pattern(self) -> Dict[str, Any]:
+    def _get_cached_pattern(self) -> dict[str, Any]:
         """Get the most recent cached pattern analysis."""
         if not self._network_patterns:
             return {'pattern': 'unknown', 'recommendation': 'insufficient_data'}

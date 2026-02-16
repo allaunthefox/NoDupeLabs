@@ -1,8 +1,9 @@
 """
 Basic tests for NoDupeLabs functionality.
 """
-import pytest
 from pathlib import Path
+
+import pytest
 
 
 def test_temp_dir_fixture(temp_dir):

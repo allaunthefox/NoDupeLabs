@@ -1,10 +1,13 @@
 """Tests for FileHasher module."""
 
-import pytest
-import tempfile
 import hashlib
+import tempfile
 from pathlib import Path
+
+import pytest
+
 from nodupe.tools.hashing.hasher_logic import FileHasher, create_file_hasher
+
 
 class TestFileHasher:
     """Test FileHasher class."""

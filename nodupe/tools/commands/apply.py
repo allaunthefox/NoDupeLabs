@@ -17,13 +17,14 @@ Dependencies:
     - Core modules
 """
 
-from typing import Any, Dict
 import argparse
 from pathlib import Path
-from nodupe.core.tool_system.base import Tool
-from nodupe.core.filesystem import Filesystem
-from nodupe.core.database.files import FileRepository
+from typing import Any
+
 from nodupe.core.database.connection import DatabaseConnection
+from nodupe.core.database.files import FileRepository
+from nodupe.core.filesystem import Filesystem
+from nodupe.core.tool_system.base import Tool
 
 
 class ApplyTool(Tool):
@@ -43,7 +44,7 @@ class ApplyTool(Tool):
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {'commands': ['apply']}
 

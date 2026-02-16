@@ -17,8 +17,8 @@ Example:
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
 import time
+from typing import Any, Optional
 
 
 class DatabaseCache:
@@ -45,7 +45,7 @@ class DatabaseCache:
             ttl: Time-to-live in seconds.
         """
         self.connection = connection
-        self._cache: Dict[str, tuple[Any, float]] = {}
+        self._cache: dict[str, tuple[Any, float]] = {}
         self.max_size = max_size
         self.ttl = ttl
 

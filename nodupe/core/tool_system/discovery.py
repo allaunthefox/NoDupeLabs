@@ -1,6 +1,9 @@
+# pylint: disable=logging-fstring-interpolation
 """Tool Discovery Module.
 
 Tool discovery and scanning using standard library only.
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 
 Key Features:
     - Tool file discovery in directories
@@ -15,9 +18,9 @@ Dependencies:
     - ast (standard library)
 """
 
-from pathlib import Path
-from typing import List, Dict, Optional, Any
 import ast
+from pathlib import Path
+from typing import Any, Optional
 
 
 class ToolDiscoveryError(Exception):
@@ -32,8 +35,8 @@ class ToolInfo:
         name: str,
         file_path: Path,
         version: str = "1.0.0",
-        dependencies: Optional[List[str]] = None,
-        capabilities: Optional[Dict[str, Any]] = None
+        dependencies: Optional[list[str]] = None,
+        capabilities: Optional[dict[str, Any]] = None
     ):
         """Initialize tool metadata."""
         self.name = name
@@ -60,7 +63,7 @@ class ToolDiscovery:
 
     def __init__(self):
         """Initialize tool discovery."""
-        self._discovered_tools: List[ToolInfo] = []
+        self._discovered_tools: list[ToolInfo] = []
         self.container = None
 
     def initialize(self, container):
@@ -77,10 +80,10 @@ class ToolDiscovery:
 
     def discover_tools(
         self,
-        directories: Optional[List[Path]] = None,
+        directories: Optional[list[Path]] = None,
         recursive: bool = True,
         file_pattern: str = "*.py"
-    ) -> List[ToolInfo]:
+    ) -> list[ToolInfo]:
         """Discover tools in one or more directories.
 
         Args:
@@ -101,7 +104,7 @@ class ToolDiscovery:
         directory: Path,
         recursive: bool = True,
         file_pattern: str = "*.py"
-    ) -> List[ToolInfo]:
+    ) -> list[ToolInfo]:
         """Discover tools in a directory.
 
         Args:
@@ -168,10 +171,10 @@ class ToolDiscovery:
 
     def discover_tools_in_directories(
         self,
-        directories: List[Path],
+        directories: list[Path],
         recursive: bool = True,
         file_pattern: str = "*.py"
-    ) -> List[ToolInfo]:
+    ) -> list[ToolInfo]:
         """Discover tools in multiple directories.
 
         Args:
@@ -202,7 +205,7 @@ class ToolDiscovery:
     def find_tool_by_name(
         self,
         tool_name: str,
-        search_directories: Optional[List[Path]] = None,
+        search_directories: Optional[list[Path]] = None,
         recursive: bool = True
     ) -> Optional[ToolInfo]:
         """Find a specific tool by name.
@@ -252,7 +255,7 @@ class ToolDiscovery:
         """Clear cached discoveries and rediscover tools."""
         self._discovered_tools.clear()
 
-    def get_discovered_tools(self) -> List[ToolInfo]:
+    def get_discovered_tools(self) -> list[ToolInfo]:
         """Get all currently discovered tools.
 
         Returns:
@@ -283,10 +286,7 @@ class ToolDiscovery:
         Returns:
             True if tool is discovered
         """
-        for tool in self._discovered_tools:
-            if tool.name == tool_name:
-                return True
-        return False
+        return any(tool.name == tool_name for tool in self._discovered_tools)
 
     def _extract_tool_info(self, file_path: Path) -> Optional[ToolInfo]:
         """Extract tool information from a Python file.
@@ -299,7 +299,7 @@ class ToolDiscovery:
         """
         try:
             # Read file and look for tool metadata
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 content = f.read()
 
             # Look for common tool metadata patterns
@@ -313,19 +313,20 @@ class ToolDiscovery:
                 return None
 
             # Check for accessibility compliance in the file content
-            from .api.codes import ActionCode
             import logging
+
+            from .api.codes import ActionCode
             logger = logging.getLogger(__name__)
-            
+
             # Check if the file contains accessibility-related imports or classes
             has_accessibility_features = (
-                'AccessibleTool' in content or 
-                'accessible' in content.lower() or 
+                'AccessibleTool' in content or
+                'accessible' in content.lower() or
                 'accessibility' in content.lower() or
                 'screen_reader' in content or
                 'braille' in content.lower()
             )
-            
+
             if has_accessibility_features:
                 logger.info(f"[{ActionCode.ACC_ISO_CMP}] Discovered tool with accessibility features: {name}")
             else:
@@ -343,7 +344,7 @@ class ToolDiscovery:
             # If parsing fails, return None (not a valid tool)
             return None
 
-    def _parse_metadata(self, content: str) -> Dict[str, Any]:
+    def _parse_metadata(self, content: str) -> dict[str, Any]:
         """Parse metadata from Python file content.
 
         Args:
@@ -374,9 +375,7 @@ class ToolDiscovery:
                             metadata['version'] = ast.literal_eval(value)
                         except (ValueError, SyntaxError):
                             # Fall back to string stripping
-                            if value.startswith('"') and value.endswith('"'):
-                                metadata['version'] = value[1:-1]
-                            elif value.startswith("'") and value.endswith("'"):
+                            if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
                                 metadata['version'] = value[1:-1]
                             else:
                                 metadata['version'] = value
@@ -421,7 +420,7 @@ class ToolDiscovery:
             True if content appears to be a tool
         """
         # Look for tool-related keywords
-        content_lower = content.lower()
+        content.lower()
 
         # Simple keyword checks - be more lenient for testing
         has_imports = 'import' in content
@@ -460,7 +459,7 @@ class ToolDiscovery:
                 return False
 
             # Try to parse the file syntactically
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 file_content = f.read()
 
             # Attempt to compile to check syntax

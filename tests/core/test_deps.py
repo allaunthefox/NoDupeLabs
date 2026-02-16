@@ -1,7 +1,9 @@
 """Test deps module functionality."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
+
 from nodupe.core.deps import DependencyManager, dep_manager
 
 

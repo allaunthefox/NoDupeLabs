@@ -18,14 +18,15 @@ Dependencies:
     - Core modules
 """
 
-from typing import Any, Dict
 import argparse
 import time
-from nodupe.core.tool_system.base import Tool
+from typing import Any
+
+from nodupe.core.database.connection import DatabaseConnection
+from nodupe.core.database.files import FileRepository
 from nodupe.core.scan.processor import FileProcessor
 from nodupe.core.scan.walker import FileWalker
-from nodupe.core.database.files import FileRepository
-from nodupe.core.database.connection import DatabaseConnection
+from nodupe.core.tool_system.base import Tool
 
 
 class ScanTool(Tool):
@@ -45,7 +46,7 @@ class ScanTool(Tool):
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {'commands': ['scan']}
 
@@ -110,7 +111,7 @@ class ScanTool(Tool):
             file_repo = FileRepository(db_connection)
 
             # Setup filter
-            def file_filter(info: Dict[str, Any]) -> bool:
+            def file_filter(info: dict[str, Any]) -> bool:
                 """TODO: Document file_filter."""
                 if args.min_size and info['size'] < args.min_size:
                     return False
@@ -124,7 +125,7 @@ class ScanTool(Tool):
                 return True
 
             # Setup progress callback
-            def progress_callback(p: Dict[str, Any]) -> None:
+            def progress_callback(p: dict[str, Any]) -> None:
                 """TODO: Document progress_callback."""
                 if args.verbose:
                     print(
@@ -199,4 +200,4 @@ def register_tool():
 
 
 # Export tool interface
-__all__ = ['scan_tool', 'register_tool']
+__all__ = ['register_tool', 'scan_tool']

@@ -1,7 +1,9 @@
 """Tests for MIME detection module."""
 
-import pytest
 from pathlib import Path
+
+import pytest
+
 from nodupe.tools.mime.mime_logic import MIMEDetection, MIMEDetectionError
 
 

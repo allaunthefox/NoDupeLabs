@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
@@ -6,7 +7,8 @@
 Singleton registry for managing system tools (formerly tools).
 """
 
-from typing import List, Optional, Any
+from typing import Any, Optional
+
 from .base import Tool
 
 
@@ -31,10 +33,11 @@ class ToolRegistry:
             raise ValueError(f"Tool {tool.name} already registered")
 
         # Check for accessibility compliance before registering
-        from .api.codes import ActionCode
         import logging
+
+        from .api.codes import ActionCode
         logger = logging.getLogger(__name__)
-        
+
         # Check if the tool implements accessibility features
         from .base import AccessibleTool
         if isinstance(tool, AccessibleTool):
@@ -59,7 +62,7 @@ class ToolRegistry:
         """Get a tool by name."""
         return self._tools.get(name)
 
-    def get_tools(self) -> List[Tool]:
+    def get_tools(self) -> list[Tool]:
         """Get all registered tools."""
         return list(self._tools.values())
 

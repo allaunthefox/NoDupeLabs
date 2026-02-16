@@ -1,10 +1,13 @@
 """Tests for FileProcessor module."""
 
-import pytest
 import tempfile
 from pathlib import Path
+
+import pytest
+
 from nodupe.tools.scanner_engine.processor import FileProcessor, create_file_processor
 from nodupe.tools.scanner_engine.walker import FileWalker
+
 
 class TestFileProcessor:
     """Test FileProcessor class."""
@@ -293,7 +296,7 @@ class TestFileProcessor:
         """Test processing files in nested directory structure."""
         # Create nested directory structure
         for i in range(3):
-            dir_path = tmp_path / f"level1" / f"level2_{i}"
+            dir_path = tmp_path / "level1" / f"level2_{i}"
             dir_path.mkdir(parents=True)
 
             for j in range(2):

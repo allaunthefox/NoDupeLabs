@@ -1,10 +1,12 @@
 """Test tool lifecycle functionality."""
 
-import pytest
 from unittest.mock import MagicMock
-from nodupe.core.tool_system.lifecycle import ToolLifecycleManager, ToolLifecycleError, ToolState
-from nodupe.core.tool_system.registry import ToolRegistry
+
+import pytest
+
 from nodupe.core.tool_system.base import Tool
+from nodupe.core.tool_system.lifecycle import ToolLifecycleError, ToolLifecycleManager, ToolState
+from nodupe.core.tool_system.registry import ToolRegistry
 
 
 class TestToolLifecycleManager:
@@ -765,7 +767,7 @@ class TestToolLifecycleIntegration:
         test_tool = TestTool()
 
         # Load tool
-        loaded_tool = loader.load_tool(test_tool)
+        loader.load_tool(test_tool)
 
         # Initialize through lifecycle manager
         lifecycle_manager.initialize_tool("test_tool")

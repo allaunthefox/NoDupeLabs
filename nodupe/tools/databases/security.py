@@ -10,9 +10,10 @@ This module provides essential security features for the local SQLite database:
 - Secure error handling
 """
 
-import re
 import os
+import re
 from typing import Any, Optional
+
 
 class SecurityError(Exception):
     """Base security exception"""
@@ -60,9 +61,8 @@ class DatabaseSecurity:
                 raise InputValidationError(f"Expected {data_type}, got {type(data)}")
 
         # String validation
-        if isinstance(data, str):
-            if not self._is_safe_string(data):
-                raise InputValidationError("String contains potentially dangerous content")
+        if isinstance(data, str) and not self._is_safe_string(data):
+            raise InputValidationError("String contains potentially dangerous content")
 
         return True
 
@@ -85,11 +85,7 @@ class DatabaseSecurity:
             r'select\s+.*from', r'or\s+1=1'
         ]
 
-        for pattern in dangerous_patterns:
-            if re.search(pattern, value, re.IGNORECASE):
-                return False
-
-        return True
+        return all(not re.search(pattern, value, re.IGNORECASE) for pattern in dangerous_patterns)
 
     def validate_path(self, path: str, base_dir: Optional[str] = None) -> bool:
         """Validate file path to prevent directory traversal attacks.
@@ -112,7 +108,7 @@ class DatabaseSecurity:
             abs_path = os.path.abspath(path)
 
             # Check for directory traversal attempts
-            if '..' in path or path.startswith('/') and not path.startswith(base_dir or ''):
+            if '..' in path or (path.startswith('/') and not path.startswith(base_dir or '')):
                 raise InputValidationError("Path contains directory traversal")
 
             # If base_dir is specified, ensure path is within it

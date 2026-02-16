@@ -1,5 +1,8 @@
+# pylint: disable=logging-fstring-interpolation
 """
 time_synchronization Tool Implementation
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 
 Provides NTP-based time synchronization and FastDate64 timestamp encoding.
 This tool ensures accurate, monotonic timekeeping for the NoDupeLabs system.
@@ -23,26 +26,27 @@ Environment variables:
 
 from __future__ import annotations
 
+import logging
 import os
 import socket
 import struct
-import time
 import threading
+import time
+from collections.abc import Iterable
 from datetime import datetime, timezone
-from typing import Iterable, Optional, Tuple, List
-import logging
+from typing import Optional
 
 from nodupe.core.tool_system import Tool
+
 from .sync_utils import (
-    ParallelNTPClient,
-
-
-    TargetedFileScanner,
     FastDate64Encoder,
+    ParallelNTPClient,
+    TargetedFileScanner,
     get_global_dns_cache,
     get_global_metrics,
-    performance_timer
+    performance_timer,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -256,7 +260,7 @@ class time_synchronizationTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         """List of tool dependencies."""
         return []
 
@@ -274,13 +278,13 @@ class time_synchronizationTool(Tool):
             tags=["time", "ntp", "synchronization", "timestamps"]
         )
 
-    def run_standalone(self, args: List[str]) -> int:
+    def run_standalone(self, args: list[str]) -> int:
         """Execute time synchronization in stand-alone mode."""
         import argparse
         parser = argparse.ArgumentParser(description="NoDupeLabs Stand-Alone time_synchronization Utility")
         parser.add_argument("--sync", action="store_true", help="Perform NTP synchronization")
         parser.add_argument("--format", default="rfc3339", help="Output format (rfc3339, unix)")
-        
+
         parsed = parser.parse_args(args)
         try:
             if parsed.sync:
@@ -371,7 +375,7 @@ class time_synchronizationTool(Tool):
         logger.info("time_synchronization background synchronization disabled")
 
     # ---- internal helpers ----
-    def _to_ntp(self, ts: float) -> Tuple[int, int]:
+    def _to_ntp(self, ts: float) -> tuple[int, int]:
         """Convert POSIX timestamp to NTP format."""
         ntp = ts + NTP_TO_UNIX
         sec = int(ntp)
@@ -382,14 +386,14 @@ class time_synchronizationTool(Tool):
         """Convert NTP timestamp to POSIX format."""
         return (sec + float(frac) / (1 << 32)) - NTP_TO_UNIX
 
-    def _resolve_addresses(self, host: str, port: int = 123) -> List[Tuple]:
+    def _resolve_addresses(self, host: str, port: int = 123) -> list[tuple]:
         """Resolve a host to socket address tuples using getaddrinfo."""
         try:
             return socket.getaddrinfo(host, port, 0, socket.SOCK_DGRAM)
         except socket.gaierror:
             return []
 
-    def _query_address(self, addr_info: Tuple, timeout: float) -> Tuple[float, float, float]:
+    def _query_address(self, addr_info: tuple, timeout: float) -> tuple[float, float, float]:
         """
         Query a single getaddrinfo entry. Returns (server_time, offset, delay).
         Raises socket.timeout / OSError / ValueError on error.
@@ -422,7 +426,7 @@ class time_synchronizationTool(Tool):
         server_time = t3
         return server_time, offset, delay
 
-    def _query_ntp_once(self, host: str, timeout: float) -> Tuple[float, float, float]:
+    def _query_ntp_once(self, host: str, timeout: float) -> tuple[float, float, float]:
         """
         Query a host and return best reply (lowest delay) across resolved addresses.
         Returns (server_time, offset, delay).
@@ -449,7 +453,7 @@ class time_synchronizationTool(Tool):
         delay, server_time, offset = best
         return server_time, offset, delay
 
-    def _query_servers_best(self, hosts: Iterable[str]) -> Tuple[str, float, float, float]:
+    def _query_servers_best(self, hosts: Iterable[str]) -> tuple[str, float, float, float]:
         """
         Query multiple servers and return the best reply overall (host, server_time, offset, delay).
         """
@@ -483,7 +487,7 @@ class time_synchronizationTool(Tool):
                 self._smoothed_offset = (self.alpha * offset) + ((1.0 - self.alpha) * self._smoothed_offset)
 
     # ---- public API that involves network ----
-    def force_sync(self) -> Tuple[str, float, float, float]:
+    def force_sync(self) -> tuple[str, float, float, float]:
         """
         Synchronously query NTP servers and update local reference.
         Returns (host, server_time, offset, delay).
@@ -540,7 +544,7 @@ class time_synchronizationTool(Tool):
 
         return host, server_time, offset, delay
 
-    def maybe_sync(self) -> Optional[Tuple[str, float, float, float]]:
+    def maybe_sync(self) -> Optional[tuple[str, float, float, float]]:
         """
         Try to sync; return None on disabled/no-response instead of raising.
         """
@@ -552,7 +556,7 @@ class time_synchronizationTool(Tool):
             logger.warning(f"Time synchronization failed: {e}")
             return None
 
-    def sync_with_fallback(self) -> Tuple[str, float, float, float]:
+    def sync_with_fallback(self) -> tuple[str, float, float, float]:
         """
         Attempt NTP synchronization with fallback to local time resources.
 
@@ -677,7 +681,7 @@ class time_synchronizationTool(Tool):
             logger.info(f"Using monotonic time with file-based date estimation from {file_time}")
             return ("monotonic_estimated", estimated_time, offset, delay)
 
-        except Exception as e:
+        except Exception:
             # Final fallback: pure monotonic time (no date concept)
             monotonic_time = time.monotonic()
             offset = 0.0
@@ -783,7 +787,7 @@ class time_synchronizationTool(Tool):
 
         except Exception as e:
             # All fallback methods failed
-            logger.error(f"All time synchronization methods failed: {e}")
+            logger.exception(f"All time synchronization methods failed: {e}")
 
             # Check if failure format is requested
             if format.lower() == "failure":
@@ -840,8 +844,8 @@ class time_synchronizationTool(Tool):
 
         This is used if the optimized scanner fails.
         """
-        import os
         import glob
+        import os
 
         # Common locations to search for recently modified files
         search_paths = [
@@ -883,7 +887,7 @@ class time_synchronizationTool(Tool):
                                 if mtime > latest_time:
                                     latest_time = mtime
                                     latest_file = file_path
-                        except (OSError, IOError):
+                        except OSError:
                             # Skip files we can't access
                             continue
 
