@@ -15,16 +15,16 @@ import json
 import time
 from unittest.mock import patch, MagicMock
 from nodupe.core.main import main
-from nodupe.plugins.commands.scan import ScanPlugin
-from nodupe.plugins.commands.apply import ApplyPlugin
-from nodupe.plugins.commands.similarity import SimilarityCommandPlugin as SimilarityPlugin
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
 
 class TestCriticalFailureSimulations:
     """Test system response to critical failure scenarios."""
 
     def test_scan_failure_with_invalid_paths(self):
         """Test scan failure handling with invalid paths."""
-        scan_plugin = ScanPlugin()
+        scan_tool = ScanTool()
         scan_args = MagicMock()
         scan_args.paths = ["/nonexistent/path", "/invalid/directory"]
         scan_args.min_size = 0
@@ -34,12 +34,12 @@ class TestCriticalFailureSimulations:
         scan_args.verbose = False
         scan_args.container = None
 
-        scan_result = scan_plugin.execute_scan(scan_args)
+        scan_result = scan_tool.execute_scan(scan_args)
         assert scan_result != 0  # Should fail gracefully
 
     def test_apply_failure_with_invalid_input(self):
         """Test apply failure handling with invalid input."""
-        apply_plugin = ApplyPlugin()
+        apply_tool = ApplyTool()
         apply_args = MagicMock()
         apply_args.action = "list"
         apply_args.input = "/nonexistent/file.json"
@@ -47,12 +47,12 @@ class TestCriticalFailureSimulations:
         apply_args.dry_run = True
         apply_args.verbose = False
 
-        apply_result = apply_plugin.execute_apply(apply_args)
+        apply_result = apply_tool.execute_apply(apply_args)
         assert apply_result != 0  # Should fail gracefully
 
     def test_similarity_failure_with_invalid_query(self):
         """Test similarity failure handling with invalid query."""
-        similarity_plugin = SimilarityPlugin()
+        similarity_tool = SimilarityTool()
         similarity_args = MagicMock()
         similarity_args.query_file = "/nonexistent/query.txt"
         similarity_args.database = None
@@ -62,12 +62,12 @@ class TestCriticalFailureSimulations:
         similarity_args.output = "text"
         similarity_args.verbose = False
 
-        similarity_result = similarity_plugin.execute_similarity(similarity_args)
+        similarity_result = similarity_tool.execute_similarity(similarity_args)
         assert similarity_result != 0  # Should fail gracefully
 
     def test_scan_failure_with_permission_denied(self):
         """Test scan failure handling with permission denied."""
-        scan_plugin = ScanPlugin()
+        scan_tool = ScanTool()
         scan_args = MagicMock()
         scan_args.paths = ["/root", "/etc"]  # Protected directories
         scan_args.min_size = 0
@@ -77,7 +77,7 @@ class TestCriticalFailureSimulations:
         scan_args.verbose = False
         scan_args.container = None
 
-        scan_result = scan_plugin.execute_scan(scan_args)
+        scan_result = scan_tool.execute_scan(scan_args)
         # Should handle permission errors gracefully
         assert isinstance(scan_result, int)
 
@@ -92,7 +92,7 @@ class TestDataCorruptionRecovery:
             with open(corrupted_file, "w") as f:
                 f.write("{ invalid json content }")  # Corrupted JSON
 
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = corrupted_file
@@ -100,7 +100,7 @@ class TestDataCorruptionRecovery:
             apply_args.dry_run = True
             apply_args.verbose = False
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             # Should handle corrupted file gracefully
             assert isinstance(apply_result, int)
 
@@ -123,7 +123,7 @@ class TestDataCorruptionRecovery:
             mock_db_connection = MagicMock()
             mock_container.get_service.return_value = mock_db_connection
 
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -133,7 +133,7 @@ class TestDataCorruptionRecovery:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             # Should handle mixed file content gracefully
             assert isinstance(scan_result, int)
 
@@ -160,7 +160,7 @@ class TestBackupRecoveryProcedures:
             mock_db_connection = MagicMock()
             mock_container.get_service.return_value = mock_db_connection
 
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [valid_dir, invalid_dir]  # Mix of valid and invalid
             scan_args.min_size = 0
@@ -170,7 +170,7 @@ class TestBackupRecoveryProcedures:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             # Should handle partial success gracefully
             assert isinstance(scan_result, int)
 
@@ -198,7 +198,7 @@ class TestBackupRecoveryProcedures:
             with open(partial_file, "w") as f:
                 json.dump(partial_data, f)
 
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = partial_file
@@ -206,7 +206,7 @@ class TestBackupRecoveryProcedures:
             apply_args.dry_run = True
             apply_args.verbose = False
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             # Should handle partial data gracefully
             assert isinstance(apply_result, int)
 
@@ -227,7 +227,7 @@ class TestSystemLogging:
             mock_db_connection = MagicMock()
             mock_container.get_service.return_value = mock_db_connection
 
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -237,7 +237,7 @@ class TestSystemLogging:
             scan_args.verbose = True  # Enable verbose logging
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0  # Should complete with verbose logging
 
     def test_apply_logging_with_verbose_output(self):
@@ -260,7 +260,7 @@ class TestSystemLogging:
             with open(duplicates_file, "w") as f:
                 json.dump(logging_data, f)
 
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = duplicates_file
@@ -268,7 +268,7 @@ class TestSystemLogging:
             apply_args.dry_run = True
             apply_args.verbose = True  # Enable verbose logging
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0  # Should complete with verbose logging
 
 class TestErrorInjection:
@@ -284,7 +284,7 @@ class TestErrorInjection:
                     f.write(f"Error injection test {i}")
 
             # Test with invalid container
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -294,7 +294,7 @@ class TestErrorInjection:
             scan_args.verbose = False
             scan_args.container = "invalid_container"  # Invalid container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             # Should handle invalid container gracefully
             assert isinstance(scan_result, int)
 
@@ -317,7 +317,7 @@ class TestErrorInjection:
             with open(duplicates_file, "w") as f:
                 json.dump(error_data, f)
 
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "invalid_action"  # Invalid action
             apply_args.input = duplicates_file
@@ -325,7 +325,7 @@ class TestErrorInjection:
             apply_args.dry_run = True
             apply_args.verbose = False
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             # Should handle invalid action gracefully
             assert isinstance(apply_result, int)
 
@@ -335,7 +335,7 @@ class TestCriticalFailureRecovery:
     def test_scan_recovery_from_critical_failure(self):
         """Test scan recovery from critical failure scenarios."""
         # Test with completely invalid configuration
-        scan_plugin = ScanPlugin()
+        scan_tool = ScanTool()
         scan_args = MagicMock()
         scan_args.paths = None  # No paths provided
         scan_args.min_size = -1  # Invalid size
@@ -345,14 +345,14 @@ class TestCriticalFailureRecovery:
         scan_args.verbose = False
         scan_args.container = None
 
-        scan_result = scan_plugin.execute_scan(scan_args)
+        scan_result = scan_tool.execute_scan(scan_args)
         # Should handle critical failure gracefully
         assert isinstance(scan_result, int)
 
     def test_apply_recovery_from_critical_failure(self):
         """Test apply recovery from critical failure scenarios."""
         # Test with completely invalid configuration
-        apply_plugin = ApplyPlugin()
+        apply_tool = ApplyTool()
         apply_args = MagicMock()
         apply_args.action = None  # No action provided
         apply_args.input = None  # No input provided
@@ -360,7 +360,7 @@ class TestCriticalFailureRecovery:
         apply_args.dry_run = True
         apply_args.verbose = False
 
-        apply_result = apply_plugin.execute_apply(apply_args)
+        apply_result = apply_tool.execute_apply(apply_args)
         # Should handle critical failure gracefully
         assert isinstance(apply_result, int)
 
@@ -389,7 +389,7 @@ class TestDataIntegrity:
             mock_db_connection = MagicMock()
             mock_container.get_service.return_value = mock_db_connection
 
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -399,7 +399,7 @@ class TestDataIntegrity:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             # Should maintain data integrity
             assert isinstance(scan_result, int)
 
@@ -435,7 +435,7 @@ class TestDataIntegrity:
             with open(mixed_file, "w", encoding='utf-8') as f:
                 json.dump(mixed_data, f)
 
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = mixed_file
@@ -443,7 +443,7 @@ class TestDataIntegrity:
             apply_args.dry_run = True
             apply_args.verbose = False
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             # Should maintain data integrity
             assert isinstance(apply_result, int)
 
@@ -464,7 +464,7 @@ class TestSystemMonitoring:
             mock_db_connection = MagicMock()
             mock_container.get_service.return_value = mock_db_connection
 
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -474,7 +474,7 @@ class TestSystemMonitoring:
             scan_args.verbose = True  # Enable monitoring
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0  # Should complete with monitoring
 
     def test_apply_monitoring_with_error_reporting(self):
@@ -497,7 +497,7 @@ class TestSystemMonitoring:
             with open(duplicates_file, "w") as f:
                 json.dump(monitoring_data, f)
 
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = duplicates_file
@@ -505,7 +505,7 @@ class TestSystemMonitoring:
             apply_args.dry_run = True
             apply_args.verbose = True  # Enable monitoring
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0  # Should complete with monitoring
 
 class TestRecoveryValidation:
@@ -521,7 +521,7 @@ class TestRecoveryValidation:
                     f.write(f"Recovery validation {i}")
 
             # Test multiple recovery scenarios
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             test_scenarios = [
                 # Normal scenario
                 {
@@ -558,7 +558,7 @@ class TestRecoveryValidation:
                 scan_args.verbose = False
                 scan_args.container = scenario["container"]
 
-                scan_result = scan_plugin.execute_scan(scan_args)
+                scan_result = scan_tool.execute_scan(scan_args)
 
                 if scenario["expected"] == 0:
                     assert scan_result == 0
@@ -586,7 +586,7 @@ class TestRecoveryValidation:
                 json.dump(valid_data, f)
 
             # Test multiple recovery scenarios
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             test_scenarios = [
                 # Normal scenario
                 {
@@ -616,7 +616,7 @@ class TestRecoveryValidation:
                 apply_args.dry_run = True
                 apply_args.verbose = False
 
-                apply_result = apply_plugin.execute_apply(apply_args)
+                apply_result = apply_tool.execute_apply(apply_args)
 
                 if scenario["expected"] == 0:
                     assert apply_result == 0

@@ -1,5 +1,5 @@
 """
-Tests for LeapYear Plugin
+Tests for LeapYear Tool
 
 Tests the fast leap year calculations using Ben Joffe's algorithm.
 These tests verify the correctness of leap year detection for both
@@ -11,16 +11,16 @@ import threading
 from unittest.mock import patch
 import time
 
-from nodupe.plugins.leap_year import LeapYearPlugin
+from nodupe.tools.leap_year import LeapYearTool
 
 
-class TestLeapYearPlugin:
-    """Test suite for LeapYearPlugin."""
+class TestLeapYearTool:
+    """Test suite for LeapYearTool."""
 
-    def test_plugin_metadata(self):
-        """Test that plugin metadata is correctly defined."""
-        plugin = LeapYearPlugin()
-        metadata = plugin.metadata
+    def test_tool_metadata(self):
+        """Test that tool metadata is correctly defined."""
+        tool = LeapYearTool()
+        metadata = tool.metadata
         
         assert metadata.name == "LeapYear"
         assert metadata.version == "1.0.0"
@@ -30,18 +30,18 @@ class TestLeapYearPlugin:
         assert "leap-year" in metadata.tags
 
     def test_initialization_defaults(self):
-        """Test plugin initialization with default values."""
-        plugin = LeapYearPlugin()
+        """Test tool initialization with default values."""
+        tool = LeapYearTool()
         
-        assert plugin.calendar == "gregorian"
-        assert plugin.enable_cache is True
-        assert plugin.cache_size == 10000
-        assert plugin.min_year == 1
-        assert plugin.max_year == 9999
+        assert tool.calendar == "gregorian"
+        assert tool.enable_cache is True
+        assert tool.cache_size == 10000
+        assert tool.min_year == 1
+        assert tool.max_year == 9999
 
     def test_initialization_custom_values(self):
-        """Test plugin initialization with custom values."""
-        plugin = LeapYearPlugin(
+        """Test tool initialization with custom values."""
+        tool = LeapYearTool(
             calendar="julian",
             enable_cache=False,
             cache_size=5000,
@@ -49,85 +49,85 @@ class TestLeapYearPlugin:
             max_year=3000
         )
         
-        assert plugin.calendar == "julian"
-        assert plugin.enable_cache is False
-        assert plugin.cache_size == 5000
-        assert plugin.min_year == 1000
-        assert plugin.max_year == 3000
+        assert tool.calendar == "julian"
+        assert tool.enable_cache is False
+        assert tool.cache_size == 5000
+        assert tool.min_year == 1000
+        assert tool.max_year == 3000
 
     def test_invalid_calendar(self):
         """Test that invalid calendar raises ValueError."""
         with pytest.raises(ValueError, match="Unsupported calendar"):
-            LeapYearPlugin(calendar="invalid")
+            LeapYearTool(calendar="invalid")
 
     def test_year_validation(self):
         """Test year validation."""
-        plugin = LeapYearPlugin(min_year=1900, max_year=2100)
+        tool = LeapYearTool(min_year=1900, max_year=2100)
         
         # Valid years
-        plugin._validate_year(1900)
-        plugin._validate_year(2000)
-        plugin._validate_year(2100)
+        tool._validate_year(1900)
+        tool._validate_year(2000)
+        tool._validate_year(2100)
         
         # Invalid years
         with pytest.raises(ValueError, match="out of range"):
-            plugin._validate_year(1899)
+            tool._validate_year(1899)
         
         with pytest.raises(ValueError, match="out of range"):
-            plugin._validate_year(2101)
+            tool._validate_year(2101)
         
         with pytest.raises(TypeError, match="must be an integer"):
-            plugin._validate_year("2000")
+            tool._validate_year("2000")
 
     # ---- Gregorian leap year tests ----
     def test_gregorian_leap_years(self):
         """Test known Gregorian leap years."""
-        plugin = LeapYearPlugin(calendar="gregorian")
+        tool = LeapYearTool(calendar="gregorian")
         
         # Known leap years
         leap_years = [2000, 2004, 2008, 2012, 2016, 2020, 2024, 2028, 2032]
         for year in leap_years:
-            assert plugin.is_leap_year(year), f"{year} should be a leap year"
+            assert tool.is_leap_year(year), f"{year} should be a leap year"
         
         # Known non-leap years
         non_leap_years = [1900, 2100, 2200, 2300, 2001, 2002, 2003, 2005]
         for year in non_leap_years:
-            assert not plugin.is_leap_year(year), f"{year} should not be a leap year"
+            assert not tool.is_leap_year(year), f"{year} should not be a leap year"
 
     def test_gregorian_century_years(self):
         """Test Gregorian century year rules."""
-        plugin = LeapYearPlugin(calendar="gregorian")
+        tool = LeapYearTool(calendar="gregorian")
         
         # Divisible by 400 (leap years)
-        assert plugin.is_leap_year(1600)
-        assert plugin.is_leap_year(2000)
-        assert plugin.is_leap_year(2400)
+        assert tool.is_leap_year(1600)
+        assert tool.is_leap_year(2000)
+        assert tool.is_leap_year(2400)
         
         # Divisible by 100 but not 400 (not leap years)
-        assert not plugin.is_leap_year(1700)
-        assert not plugin.is_leap_year(1800)
-        assert not plugin.is_leap_year(1900)
-        assert not plugin.is_leap_year(2100)
+        assert not tool.is_leap_year(1700)
+        assert not tool.is_leap_year(1800)
+        assert not tool.is_leap_year(1900)
+        assert not tool.is_leap_year(2100)
 
     # ---- Julian leap year tests ----
     def test_julian_leap_years(self):
         """Test Julian calendar leap years."""
-        plugin = LeapYearPlugin(calendar="julian")
+        tool = LeapYearTool(calendar="julian")
         
         # Every 4th year is a leap year in Julian calendar
         leap_years = [1896, 1900, 1904, 1908, 2000, 2004, 2008]
         for year in leap_years:
-            assert plugin.is_leap_year(year), f"{year} should be a leap year in Julian calendar"
+            assert tool.is_leap_year(year), f"{year} should be a leap year in Julian calendar"
         
         # Non-leap years
         non_leap_years = [1897, 1898, 1899, 1901, 1902, 1903, 2001, 2002, 2003]
         for year in non_leap_years:
-            assert not plugin.is_leap_year(year), f"{year} should not be a leap year in Julian calendar"
+            assert not tool.is_leap_year(year), f"{year} should not be a leap year in Julian calendar"
 
     # ---- Algorithm correctness tests ----
     def test_ben_joffe_algorithm_gregorian(self):
         """Test Ben Joffe's algorithm for Gregorian calendar."""
-        plugin = LeapYearPlugin(calendar="gregorian")
+        tool = LeapYearTool(calendar="gregorian")
         
         # Test the algorithm directly
         test_years = [1900, 2000, 2024, 2100, 2023, 2025]
@@ -135,100 +135,100 @@ class TestLeapYearPlugin:
         for year in test_years:
             # Ben Joffe's algorithm: (year & 3) == 0 and ((year % 25) != 0 or (year & 15) == 0)
             expected = (year & 3) == 0 and ((year % 25) != 0 or (year & 15) == 0)
-            actual = plugin.is_leap_year(year)
+            actual = tool.is_leap_year(year)
             assert actual == expected, f"Algorithm mismatch for {year}"
 
     def test_ben_joffe_algorithm_julian(self):
         """Test Ben Joffe's algorithm for Julian calendar."""
-        plugin = LeapYearPlugin(calendar="julian")
+        tool = LeapYearTool(calendar="julian")
         
         # Test the algorithm directly: (year & 3) == 0
         test_years = [1896, 1897, 1898, 1899, 1900, 1904, 2000, 2001]
         
         for year in test_years:
             expected = (year & 3) == 0
-            actual = plugin.is_leap_year(year)
+            actual = tool.is_leap_year(year)
             assert actual == expected, f"Algorithm mismatch for {year} in Julian calendar"
 
     # ---- Batch operations tests ----
     def test_find_leap_years(self):
         """Test finding leap years in a range."""
-        plugin = LeapYearPlugin(calendar="gregorian")
+        tool = LeapYearTool(calendar="gregorian")
         
-        leap_years = plugin.find_leap_years(2000, 2020)
+        leap_years = tool.find_leap_years(2000, 2020)
         expected = [2000, 2004, 2008, 2012, 2016, 2020]
         assert leap_years == expected
 
     def test_count_leap_years(self):
         """Test counting leap years in a range."""
-        plugin = LeapYearPlugin(calendar="gregorian")
+        tool = LeapYearTool(calendar="gregorian")
         
-        count = plugin.count_leap_years(2000, 2020)
+        count = tool.count_leap_years(2000, 2020)
         assert count == 6  # 2000, 2004, 2008, 2012, 2016, 2020
 
     def test_is_leap_year_batch(self):
         """Test batch leap year checking."""
-        plugin = LeapYearPlugin(calendar="gregorian")
+        tool = LeapYearTool(calendar="gregorian")
         
         years = [2000, 2001, 2004, 2005, 2100, 2104]
-        results = plugin.is_leap_year_batch(years)
+        results = tool.is_leap_year_batch(years)
         expected = [True, False, True, False, False, True]
         assert results == expected
 
     def test_leap_year_range_iterator(self):
         """Test leap year range iterator."""
-        plugin = LeapYearPlugin(calendar="gregorian")
+        tool = LeapYearTool(calendar="gregorian")
         
-        leap_years = list(plugin.leap_year_range(2000, 2020))
+        leap_years = list(tool.leap_year_range(2000, 2020))
         expected = [2000, 2004, 2008, 2012, 2016, 2020]
         assert leap_years == expected
 
     # ---- Date validation tests ----
     def test_is_valid_date(self):
         """Test date validation."""
-        plugin = LeapYearPlugin()
+        tool = LeapYearTool()
         
         # Valid dates
-        assert plugin.is_valid_date(2024, 1, 31)  # January
-        assert plugin.is_valid_date(2024, 2, 29)  # Leap year February
-        assert plugin.is_valid_date(2023, 2, 28)  # Non-leap year February
-        assert plugin.is_valid_date(2024, 12, 31)  # December
+        assert tool.is_valid_date(2024, 1, 31)  # January
+        assert tool.is_valid_date(2024, 2, 29)  # Leap year February
+        assert tool.is_valid_date(2023, 2, 28)  # Non-leap year February
+        assert tool.is_valid_date(2024, 12, 31)  # December
         
         # Invalid dates
-        assert not plugin.is_valid_date(2023, 2, 29)  # Non-leap year February 29
-        assert not plugin.is_valid_date(2024, 2, 30)  # Invalid February day
-        assert not plugin.is_valid_date(2024, 4, 31)  # April has 30 days
-        assert not plugin.is_valid_date(2024, 13, 1)  # Invalid month
-        assert not plugin.is_valid_date(2024, 1, 0)   # Invalid day
+        assert not tool.is_valid_date(2023, 2, 29)  # Non-leap year February 29
+        assert not tool.is_valid_date(2024, 2, 30)  # Invalid February day
+        assert not tool.is_valid_date(2024, 4, 31)  # April has 30 days
+        assert not tool.is_valid_date(2024, 13, 1)  # Invalid month
+        assert not tool.is_valid_date(2024, 1, 0)   # Invalid day
 
     def test_get_days_in_month(self):
         """Test days in month calculation."""
-        plugin = LeapYearPlugin()
+        tool = LeapYearTool()
         
         # Regular months
-        assert plugin.get_days_in_month(2024, 1) == 31
-        assert plugin.get_days_in_month(2024, 4) == 30
-        assert plugin.get_days_in_month(2024, 6) == 30
+        assert tool.get_days_in_month(2024, 1) == 31
+        assert tool.get_days_in_month(2024, 4) == 30
+        assert tool.get_days_in_month(2024, 6) == 30
         
         # February in leap year
-        assert plugin.get_days_in_month(2024, 2) == 29
+        assert tool.get_days_in_month(2024, 2) == 29
         
         # February in non-leap year
-        assert plugin.get_days_in_month(2023, 2) == 28
+        assert tool.get_days_in_month(2023, 2) == 28
 
     def test_get_days_in_year(self):
         """Test days in year calculation."""
-        plugin = LeapYearPlugin()
+        tool = LeapYearTool()
         
-        assert plugin.get_days_in_year(2024) == 366  # Leap year
-        assert plugin.get_days_in_year(2023) == 365  # Non-leap year
+        assert tool.get_days_in_year(2024) == 366  # Leap year
+        assert tool.get_days_in_year(2023) == 365  # Non-leap year
 
     # ---- Calendar utilities tests ----
     def test_get_calendar_info(self):
         """Test calendar information retrieval."""
-        plugin = LeapYearPlugin()
+        tool = LeapYearTool()
         
-        info = plugin.get_calendar_info(2024)
+        info = tool.get_calendar_info(2024)
         
         assert info["year"] == 2024
         assert info["calendar"] == "gregorian"
@@ -240,58 +240,58 @@ class TestLeapYearPlugin:
 
     def test_get_easter_date(self):
         """Test Easter date calculation."""
-        plugin = LeapYearPlugin(calendar="gregorian")
+        tool = LeapYearTool(calendar="gregorian")
         
         # Known Easter dates
-        easter_2024 = plugin.get_easter_date(2024)
+        easter_2024 = tool.get_easter_date(2024)
         assert easter_2024 == (3, 31)  # March 31, 2024
         
-        easter_2025 = plugin.get_easter_date(2025)
+        easter_2025 = tool.get_easter_date(2025)
         assert easter_2025 == (4, 20)  # April 20, 2025
 
     # ---- Performance and caching tests ----
     def test_caching_enabled(self):
         """Test that caching works correctly."""
-        plugin = LeapYearPlugin(enable_cache=True, cache_size=100)
+        tool = LeapYearTool(enable_cache=True, cache_size=100)
         
         # First call (cache miss)
-        result1 = plugin.is_leap_year(2024)
-        stats = plugin.get_cache_stats()
+        result1 = tool.is_leap_year(2024)
+        stats = tool.get_cache_stats()
         assert stats["hits"] == 0
         assert stats["misses"] == 1
         
         # Second call (cache hit)
-        result2 = plugin.is_leap_year(2024)
-        stats = plugin.get_cache_stats()
+        result2 = tool.is_leap_year(2024)
+        stats = tool.get_cache_stats()
         assert stats["hits"] == 1
         assert stats["misses"] == 1
         assert result1 == result2
 
     def test_caching_disabled(self):
         """Test that caching can be disabled."""
-        plugin = LeapYearPlugin(enable_cache=False)
+        tool = LeapYearTool(enable_cache=False)
         
-        plugin.is_leap_year(2024)
-        stats = plugin.get_cache_stats()
+        tool.is_leap_year(2024)
+        stats = tool.get_cache_stats()
         assert stats["enabled"] is False
 
     def test_reset_cache_stats(self):
         """Test cache statistics reset."""
-        plugin = LeapYearPlugin()
+        tool = LeapYearTool()
         
-        plugin.is_leap_year(2024)
-        plugin.reset_cache_stats()
+        tool.is_leap_year(2024)
+        tool.reset_cache_stats()
         
-        stats = plugin.get_cache_stats()
+        stats = tool.get_cache_stats()
         assert stats["hits"] == 0
         assert stats["misses"] == 0
 
     def test_benchmark_algorithm(self):
         """Test algorithm benchmarking."""
-        plugin = LeapYearPlugin()
+        tool = LeapYearTool()
         
         years = list(range(1900, 2100))
-        stats = plugin.benchmark_algorithm(years, iterations=10)
+        stats = tool.benchmark_algorithm(years, iterations=10)
         
         assert "total_time" in stats
         assert "iterations" in stats
@@ -307,83 +307,83 @@ class TestLeapYearPlugin:
     # ---- Configuration tests ----
     def test_set_calendar(self):
         """Test calendar system switching."""
-        plugin = LeapYearPlugin()
+        tool = LeapYearTool()
         
         # Switch to Julian
-        plugin.set_calendar("julian")
-        assert plugin.calendar == "julian"
+        tool.set_calendar("julian")
+        assert tool.calendar == "julian"
         
         # Switch back to Gregorian
-        plugin.set_calendar("gregorian")
-        assert plugin.calendar == "gregorian"
+        tool.set_calendar("gregorian")
+        assert tool.calendar == "gregorian"
         
         # Invalid calendar
         with pytest.raises(ValueError):
-            plugin.set_calendar("invalid")
+            tool.set_calendar("invalid")
 
     def test_enable_disable_caching(self):
         """Test caching enable/disable."""
-        plugin = LeapYearPlugin(enable_cache=False)
+        tool = LeapYearTool(enable_cache=False)
         
         # Enable caching
-        plugin.enable_caching(cache_size=5000)
-        assert plugin.enable_cache is True
-        assert plugin.cache_size == 5000
+        tool.enable_caching(cache_size=5000)
+        assert tool.enable_cache is True
+        assert tool.cache_size == 5000
         
         # Disable caching
-        plugin.disable_caching()
-        assert plugin.enable_cache is False
+        tool.disable_caching()
+        assert tool.enable_cache is False
 
     # ---- Convenience methods tests ----
     def test_next_leap_year(self):
         """Test finding next leap year."""
-        plugin = LeapYearPlugin()
+        tool = LeapYearTool()
         
-        assert plugin.next_leap_year(2023) == 2024
-        assert plugin.next_leap_year(2024) == 2028
-        assert plugin.next_leap_year(2099) == 2104
+        assert tool.next_leap_year(2023) == 2024
+        assert tool.next_leap_year(2024) == 2028
+        assert tool.next_leap_year(2099) == 2104
 
     def test_previous_leap_year(self):
         """Test finding previous leap year."""
-        plugin = LeapYearPlugin()
+        tool = LeapYearTool()
         
-        assert plugin.previous_leap_year(2025) == 2024
-        assert plugin.previous_leap_year(2024) == 2020
-        assert plugin.previous_leap_year(1901) == 1896
+        assert tool.previous_leap_year(2025) == 2024
+        assert tool.previous_leap_year(2024) == 2020
+        assert tool.previous_leap_year(1901) == 1896
 
     def test_previous_leap_year_error(self):
         """Test error when no previous leap year exists."""
-        plugin = LeapYearPlugin(min_year=2000)
+        tool = LeapYearTool(min_year=2000)
         
         with pytest.raises(ValueError, match="No previous leap year"):
-            plugin.previous_leap_year(2000)
+            tool.previous_leap_year(2000)
 
     def test_get_leap_year_cycle(self):
         """Test leap year cycle calculation."""
-        plugin = LeapYearPlugin()
+        tool = LeapYearTool()
         
         # Year in leap year position
-        cycle = plugin.get_leap_year_cycle(2024)
+        cycle = tool.get_leap_year_cycle(2024)
         assert cycle == (2021, 2022, 2023, 2024)
         
         # Year in non-leap position
-        cycle = plugin.get_leap_year_cycle(2025)
+        cycle = tool.get_leap_year_cycle(2025)
         assert cycle == (2021, 2022, 2023, 2024)
 
     def test_direct_calendar_methods(self):
         """Test direct calendar method calls."""
         # Gregorian
-        assert LeapYearPlugin().is_gregorian_leap_year(2000) is True
-        assert LeapYearPlugin().is_gregorian_leap_year(1900) is False
+        assert LeapYearTool().is_gregorian_leap_year(2000) is True
+        assert LeapYearTool().is_gregorian_leap_year(1900) is False
         
         # Julian
-        assert LeapYearPlugin().is_julian_leap_year(1900) is True
-        assert LeapYearPlugin().is_julian_leap_year(1899) is False
+        assert LeapYearTool().is_julian_leap_year(1900) is True
+        assert LeapYearTool().is_julian_leap_year(1899) is False
 
     # ---- Thread safety tests ----
     def test_thread_safety(self):
-        """Test that the plugin is thread-safe."""
-        plugin = LeapYearPlugin()
+        """Test that the tool is thread-safe."""
+        tool = LeapYearTool()
         
         results = []
         errors = []
@@ -391,7 +391,7 @@ class TestLeapYearPlugin:
         def worker():
             try:
                 for _ in range(100):
-                    result = plugin.is_leap_year(2024)
+                    result = tool.is_leap_year(2024)
                     results.append(result)
             except Exception as e:
                 errors.append(e)
@@ -412,54 +412,54 @@ class TestLeapYearPlugin:
     # ---- Edge cases tests ----
     def test_boundary_years(self):
         """Test boundary year values."""
-        plugin = LeapYearPlugin(min_year=1, max_year=9999)
+        tool = LeapYearTool(min_year=1, max_year=9999)
         
         # Test minimum year
-        assert plugin.is_leap_year(1) is False  # Not divisible by 4
+        assert tool.is_leap_year(1) is False  # Not divisible by 4
         
         # Test maximum year
-        assert plugin.is_leap_year(9999) is False  # Not divisible by 4
+        assert tool.is_leap_year(9999) is False  # Not divisible by 4
         
         # Test year 4 (first leap year)
-        assert plugin.is_leap_year(4) is True
+        assert tool.is_leap_year(4) is True
 
     def test_large_year_ranges(self):
         """Test with large year ranges."""
-        plugin = LeapYearPlugin()
+        tool = LeapYearTool()
         
         # Test a large range
         start, end = 1000, 3000
-        count = plugin.count_leap_years(start, end)
+        count = tool.count_leap_years(start, end)
         
         # Should be approximately 1/4 of the years, minus century exceptions
         expected_approx = (end - start + 1) // 4
         assert abs(count - expected_approx) < 10  # Allow some variation
 
-    def test_plugin_lifecycle(self):
-        """Test plugin initialization and shutdown."""
-        plugin = LeapYearPlugin()
+    def test_tool_lifecycle(self):
+        """Test tool initialization and shutdown."""
+        tool = LeapYearTool()
         
         # Test initialization
-        plugin.initialize()
+        tool.initialize()
         
         # Test shutdown
-        plugin.shutdown()
+        tool.shutdown()
 
     def test_invalid_date_components(self):
         """Test invalid date component validation."""
-        plugin = LeapYearPlugin()
+        tool = LeapYearTool()
         
         # Test invalid month
         with pytest.raises(ValueError, match="Month.*out of range"):
-            plugin._validate_date_components(2024, 13, 1)
+            tool._validate_date_components(2024, 13, 1)
         
         # Test invalid day
         with pytest.raises(ValueError, match="Day.*out of range"):
-            plugin._validate_date_components(2024, 2, 30)
+            tool._validate_date_components(2024, 2, 30)
         
         # Test invalid types
         with pytest.raises(TypeError, match="Month must be an integer"):
-            plugin._validate_date_components(2024, "2", 1)
+            tool._validate_date_components(2024, "2", 1)
         
         with pytest.raises(TypeError, match="Day must be an integer"):
-            plugin._validate_date_components(2024, 2, "1")
+            tool._validate_date_components(2024, 2, "1")

@@ -1,7 +1,7 @@
 import gzip
 import zipfile
 import pytest
-from nodupe.core.compression import Compression, CompressionError
+from nodupe.tools.compression_standard.engine_logic import Compression, CompressionError
 
 
 def test_compress_decompress_data_all_formats():

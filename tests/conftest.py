@@ -1,27 +1,40 @@
 # NoDupeLabs Test Fixtures and Configuration
-# Comprehensive test fixtures for database operations, file system operations, plugin system mocking, etc.
+# Comprehensive test fixtures for database operations, file system operations, tool system mocking, etc.
 
 import os
 import tempfile
 import shutil
 from pathlib import Path
 from typing import Generator, Dict, Any, Optional, Callable
-import sqlite3
 import pytest  # type: ignore
 from unittest.mock import MagicMock, patch
 import nodupe.core.container as container_module
 from nodupe.core.container import ServiceContainer
 import nodupe.core.config as config
-from nodupe.core.database.connection import DatabaseConnection
-from nodupe.core.plugin_system.registry import PluginRegistry
-from nodupe.core.plugin_system.loader import PluginLoader
+from nodupe.core.tool_system.registry import ToolRegistry
+from nodupe.core.tool_system.loader import ToolLoader
 
-## Database Fixtures
+## Mock Database Connection for Testing
+
+class MockDatabaseConnection:
+    """Mock database connection for testing purposes."""
+    def __init__(self, db_path: str = ":memory:"):
+        self.db_path = db_path
+        self.closed = False
+
+    def get_connection(self):
+        """Return a mock connection."""
+        import sqlite3
+        return sqlite3.connect(self.db_path)
+
+    def close(self):
+        """Close the connection."""
+        self.closed = True
 
 @pytest.fixture(scope="function")
-def temp_db_connection() -> Generator[DatabaseConnection, None, None]:
+def temp_db_connection() -> Generator[MockDatabaseConnection, None, None]:
     """Create a temporary in-memory SQLite database connection for testing."""
-    conn = DatabaseConnection(":memory:")
+    conn = MockDatabaseConnection(":memory:")
     try:
         yield conn
     finally:
@@ -38,56 +51,6 @@ def temp_db_file() -> Generator[str, None, None]:
     finally:
         if os.path.exists(temp_file.name):
             os.unlink(temp_file.name)
-
-@pytest.fixture(scope="function")
-def db_cursor(temp_db_connection: DatabaseConnection) -> Generator[sqlite3.Cursor, None, None]:
-    """Provide a database cursor for direct SQL testing."""
-    cursor = temp_db_connection.get_connection().cursor()
-    try:
-        yield cursor
-    finally:
-        cursor.close()
-
-@pytest.fixture(scope="function")
-def db_with_schema(temp_db_connection: DatabaseConnection) -> Generator[DatabaseConnection, None, None]:
-    """Create a database with basic schema for testing."""
-    cursor = temp_db_connection.get_connection().cursor()
-
-    # Create basic tables
-    cursor.execute("""
-        CREATE TABLE files (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            path TEXT NOT NULL,
-            size INTEGER NOT NULL,
-            hash TEXT,
-            modified_time INTEGER,
-            is_duplicate BOOLEAN DEFAULT FALSE
-        )
-    """)
-
-    cursor.execute("""
-        CREATE TABLE file_embeddings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            file_id INTEGER NOT NULL,
-            embedding BLOB NOT NULL,
-            algorithm TEXT NOT NULL,
-            FOREIGN KEY (file_id) REFERENCES files(id)
-        )
-    """)
-
-    cursor.execute("""
-        CREATE TABLE duplicates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            file_id INTEGER NOT NULL,
-            duplicate_file_id INTEGER NOT NULL,
-            similarity_score REAL NOT NULL,
-            FOREIGN KEY (file_id) REFERENCES files(id),
-            FOREIGN KEY (duplicate_file_id) REFERENCES files(id)
-        )
-    """)
-
-    temp_db_connection.get_connection().commit()
-    yield temp_db_connection
 
 ## File System Fixtures
 
@@ -208,38 +171,38 @@ def loaded_config(temp_config_file: Path) -> Generator[config.ConfigManager, Non
     cfg = config.ConfigManager(str(temp_config_file))
     yield cfg
 
-## Plugin System Fixtures
+## Tool System Fixtures
 
 @pytest.fixture(scope="function")
-def mock_plugin_registry() -> Generator[PluginRegistry, None, None]:
-    """Create a mock plugin registry for testing."""
-    registry = PluginRegistry()
+def mock_tool_registry() -> Generator[ToolRegistry, None, None]:
+    """Create a mock tool registry for testing."""
+    registry = ToolRegistry()
     yield registry
 
 @pytest.fixture(scope="function")
-def mock_plugin_loader(mock_plugin_registry: PluginRegistry) -> Generator[PluginLoader, None, None]:
-    """Create a mock plugin loader for testing."""
-    loader = PluginLoader(mock_plugin_registry)
+def mock_tool_loader(mock_tool_registry: ToolRegistry) -> Generator[ToolLoader, None, None]:
+    """Create a mock tool loader for testing."""
+    loader = ToolLoader(mock_tool_registry)
     yield loader
 
 @pytest.fixture(scope="function")
-def mock_plugin() -> Generator[MagicMock, None, None]:
-    """Create a mock plugin object for testing."""
+def mock_tool() -> Generator[MagicMock, None, None]:
+    """Create a mock tool object for testing."""
     mock = MagicMock()
-    mock.name = "test_plugin"
+    mock.name = "test_tool"
     mock.version = "1.0.0"
     mock.author = "Test Author"
-    mock.description = "A test plugin for NoDupeLabs"
+    mock.description = "A test tool for NoDupeLabs"
     mock.initialize = MagicMock()
     mock.execute = MagicMock()
     mock.cleanup = MagicMock()
     yield mock
 
 @pytest.fixture(scope="function")
-def registered_mock_plugin(mock_plugin_registry: PluginRegistry, mock_plugin: MagicMock) -> Generator[MagicMock, None, None]:
-    """Register a mock plugin and yield it."""
-    mock_plugin_registry.register_plugin(mock_plugin)
-    yield mock_plugin
+def registered_mock_tool(mock_tool_registry: ToolRegistry, mock_tool: MagicMock) -> Generator[MagicMock, None, None]:
+    """Register a mock tool and yield it."""
+    mock_tool_registry.register_tool(mock_tool)
+    yield mock_tool
 
 ## Resource Management Fixtures
 
@@ -281,7 +244,7 @@ def test_container() -> Generator[ServiceContainer, None, None]:
     # Register basic services
     cont.register_service("config", mock_config())
     cont.register_service("db_connection", DatabaseConnection(":memory:"))
-    cont.register_service("plugin_registry", PluginRegistry())
+    cont.register_service("tool_registry", ToolRegistry())
 
     yield cont
 

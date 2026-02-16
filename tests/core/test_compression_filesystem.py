@@ -202,8 +202,7 @@ class TestCompressionFilesystemBased:
         data_size = 1000
         
         # Test all valid format/data_type combinations
-        # Note: tar.* formats fall back to default ratio since format.replace('tar.', '') gives 'gz'
-        # which is not in COMPRESSION_RATIOS
+        # Note: tar.* formats use the base format ratios (gz, bz2, xz)
         test_cases = [
             ('gzip', 'text', 300),
             ('gzip', 'binary', 600),
@@ -217,9 +216,9 @@ class TestCompressionFilesystemBased:
             ('lzma', 'binary', 500),
             ('lzma', 'image', 900),
             ('lzma', 'video', 950),
-            ('tar.gz', 'text', 500),  # Falls back to default (gz not in ratios)
+            ('tar.gz', 'text', 300),  # gz is in ratios -> 0.3 * 1000
             ('tar.bz2', 'binary', 550),  # bz2 is in ratios -> 0.55 * 1000
-            ('tar.xz', 'text', 500),  # Falls back to default (xz not in ratios)
+            ('tar.xz', 'text', 200),  # xz is in ratios -> 0.2 * 1000
             ('unknown_format', 'text', 500),  # Default ratio
             ('gzip', 'unknown_type', 500),     # Default ratio
             ('unknown', 'unknown', 500),        # Default ratio

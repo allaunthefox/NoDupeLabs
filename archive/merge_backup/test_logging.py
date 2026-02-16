@@ -5,7 +5,7 @@ import tempfile
 import logging
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-from nodupe.core.logging import (
+from nodupe.core.logging_system import (
     Logging,
     LoggingError,
     get_logger,

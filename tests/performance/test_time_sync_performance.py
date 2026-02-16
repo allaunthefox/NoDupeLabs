@@ -1,7 +1,7 @@
 """
-Performance Tests for TimeSync Plugin
+Performance Tests for TimeSync Tool
 
-These tests validate the performance improvements implemented in the TimeSync plugin,
+These tests validate the performance improvements implemented in the TimeSync tool,
 including parallel NTP queries, optimized file scanning, and FastDate64 encoding.
 """
 
@@ -11,7 +11,7 @@ import pytest
 from unittest.mock import patch, MagicMock, Mock
 from concurrent.futures import ThreadPoolExecutor
 
-from nodupe.plugins.time_sync import TimeSyncPlugin
+from nodupe.tools.time_sync import TimeSyncTool
 from nodupe.core.time_sync_utils import (
     ParallelNTPClient,
     MonotonicTimeCalculator,
@@ -351,12 +351,12 @@ class TestMonotonicTimeCalculator:
         assert delay >= 0
 
 
-class TestTimeSyncPluginPerformance:
-    """Test overall TimeSync plugin performance improvements."""
+class TestTimeSyncToolPerformance:
+    """Test overall TimeSync tool performance improvements."""
     
     def test_parallel_sync_performance(self):
         """Test that parallel synchronization is faster than sequential."""
-        plugin = TimeSyncPlugin(
+        tool = TimeSyncTool(
             servers=['test1.com', 'test2.com', 'test3.com'],
             timeout=1.0,
             attempts=1
@@ -380,7 +380,7 @@ class TestTimeSyncPluginPerformance:
             
             # Test sync performance
             start_time = time.perf_counter()
-            result = plugin.force_sync()
+            result = tool.force_sync()
             elapsed_time = time.perf_counter() - start_time
             
             # Should complete quickly with parallel execution
@@ -388,8 +388,8 @@ class TestTimeSyncPluginPerformance:
             assert result[0] == "test1.com"  # Got response from best host
     
     def test_dns_cache_integration(self):
-        """Test that DNS cache is used by the plugin."""
-        plugin = TimeSyncPlugin(servers=['test.com'])
+        """Test that DNS cache is used by the tool."""
+        tool = TimeSyncTool(servers=['test.com'])
         
         # Verify global DNS cache is being used
         cache = get_global_dns_cache()
@@ -425,7 +425,7 @@ class TestTimeSyncPluginPerformance:
         import tempfile
         import os
         
-        plugin = TimeSyncPlugin()
+        tool = TimeSyncTool()
         
         # Create a test file
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
@@ -443,20 +443,20 @@ class TestTimeSyncPluginPerformance:
     
     def test_fastdate64_integration(self):
         """Test that optimized FastDate64 encoder is used."""
-        plugin = TimeSyncPlugin()
+        tool = TimeSyncTool()
         
         # Test encoding/decoding
         current_time = time.time()
-        encoded = plugin.encode_fastdate64(current_time)
-        decoded = plugin.decode_fastdate64(encoded)
+        encoded = tool.encode_fastdate64(current_time)
+        decoded = tool.decode_fastdate64(encoded)
         
         # Verify round-trip accuracy
         assert abs(decoded - current_time) < 1e-6
         
         # Test with corrected time
-        corrected_time = plugin.get_corrected_time()
-        encoded_corrected = plugin.get_corrected_fast64()
-        decoded_corrected = plugin.decode_fastdate64(encoded_corrected)
+        corrected_time = tool.get_corrected_time()
+        encoded_corrected = tool.get_corrected_fast64()
+        decoded_corrected = tool.decode_fastdate64(encoded_corrected)
         
         assert abs(decoded_corrected - corrected_time) < 1e-6
 
@@ -470,26 +470,26 @@ class TestPerformanceRegression:
         # The actual verification would require profiling or code inspection
         # For now, we test that the optimized methods work correctly
         
-        plugin = TimeSyncPlugin()
+        tool = TimeSyncTool()
         
         # Multiple encoding operations should use precompiled formats
         for _ in range(100):
             ts = time.time()
-            encoded = plugin.encode_fastdate64(ts)
-            decoded = plugin.decode_fastdate64(encoded)
+            encoded = tool.encode_fastdate64(ts)
+            decoded = tool.decode_fastdate64(encoded)
             assert abs(decoded - ts) < 1e-6
     
     def test_memory_usage_stability(self):
         """Test that memory usage doesn't grow unbounded."""
         import gc
         
-        plugin = TimeSyncPlugin()
+        tool = TimeSyncTool()
         
         # Perform many operations
         for i in range(1000):
             try:
-                plugin.get_corrected_time()
-                plugin.get_corrected_fast64()
+                tool.get_corrected_time()
+                tool.get_corrected_fast64()
             except:
                 pass  # Expected to fail without network
             
@@ -501,8 +501,8 @@ class TestPerformanceRegression:
         assert True
     
     def test_concurrent_access_safety(self):
-        """Test that the plugin handles concurrent access safely."""
-        plugin = TimeSyncPlugin()
+        """Test that the tool handles concurrent access safely."""
+        tool = TimeSyncTool()
         
         results = []
         errors = []
@@ -510,8 +510,8 @@ class TestPerformanceRegression:
         def worker():
             try:
                 # These operations should be thread-safe
-                time_val = plugin.get_corrected_time()
-                fast64_val = plugin.get_corrected_fast64()
+                time_val = tool.get_corrected_time()
+                fast64_val = tool.get_corrected_fast64()
                 results.append((time_val, fast64_val))
             except Exception as e:
                 errors.append(e)

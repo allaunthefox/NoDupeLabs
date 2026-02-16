@@ -15,9 +15,10 @@ A plugin-based deduplication system for finding and managing duplicate files.
 
 ## Features
 
-- **Plugin System**: Extendable architecture with multiple plugin types
-- **Database**: SQLite-based file tracking
-- **CLI**: Full command-line interface
+- **Minimal-Core Architecture**: Aspect-oriented design with swappable plugin aspects
+- **Plugin IPC Socket**: Programmatic access to all plugin features via JSON-RPC
+- **ISO Standard Registry**: ISO-8000 compliant action codes for all system events
+- **Automated Maintenance**: Built-in ZIP compression for historical log files
 - **Similarity Detection**: Content-based duplicate finding
 
 ## Getting Started
@@ -34,12 +35,16 @@ A plugin-based deduplication system for finding and managing duplicate files.
 ## Reference
 
 - [Architecture](Architecture/Overview.md)
-- [CLI Reference](API/CLI.md)
+  - [Aspect-Oriented Design](Architecture/Aspect-Oriented-Design.md)
+- [API Reference](API/CLI.md)
+  - [Socket IPC Interface](API/Socket-IPC.md)
 - [Testing Guide](Testing/Guide.md)
 
 ## Operations
 
 - [Security](Operations/Security.md)
+- [Action Codes (ISO-8000)](Operations/Action-Codes.md)
+- [Logging Policy & Maintenance](Operations/Logging-Policy.md)
 - [Configuration](Operations/Configuration.md)
 
 ## Project

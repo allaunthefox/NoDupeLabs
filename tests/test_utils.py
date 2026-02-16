@@ -10,7 +10,7 @@ from unittest.mock import MagicMock
 
 # Import all utility modules
 from tests.utils import (
-    filesystem, database, plugins, performance, errors, validation
+    filesystem, database, tools, performance, errors, validation
 )
 
 def test_filesystem_utilities():
@@ -107,49 +107,49 @@ def test_database_utilities():
 
     conn.close()
 
-def test_plugin_utilities():
-    """Test plugin utility functions"""
-    # Test create_mock_plugin
-    mock_plugin = plugins.create_mock_plugin("test_plugin")
-    assert mock_plugin.name == "test_plugin"
-    assert mock_plugin.metadata["version"] == "1.0.0"
+def test_tool_utilities():
+    """Test tool utility functions"""
+    # Test create_mock_tool
+    mock_tool = tools.create_mock_tool("test_tool")
+    assert mock_tool.name == "test_tool"
+    assert mock_tool.metadata["version"] == "1.0.0"
 
-    # Test create_plugin_directory_structure
+    # Test create_tool_directory_structure
     with tempfile.TemporaryDirectory() as temp_dir:
         base_path = Path(temp_dir)
 
-        plugin_defs = [
-            {"name": "plugin1", "version": "1.0.0"},
-            {"name": "plugin2", "version": "2.0.0"}
+        tool_defs = [
+            {"name": "tool1", "version": "1.0.0"},
+            {"name": "tool2", "version": "2.0.0"}
         ]
 
-        plugin_paths = plugins.create_plugin_directory_structure(base_path, plugin_defs)
-        assert len(plugin_paths) == 2
-        assert (base_path / "plugin1" / "plugin1.py").exists()
-        assert (base_path / "plugin2" / "plugin2.py").exists()
+        tool_paths = tools.create_tool_directory_structure(base_path, tool_defs)
+        assert len(tool_paths) == 2
+        assert (base_path / "tool1" / "tool1.py").exists()
+        assert (base_path / "tool2" / "tool2.py").exists()
 
-    # Test mock_plugin_loader
-    mock_loader = plugins.mock_plugin_loader()
+    # Test mock_tool_loader
+    mock_loader = tools.mock_tool_loader()
     assert isinstance(mock_loader, MagicMock)
 
-    # Test create_plugin_test_scenarios
-    scenarios = plugins.create_plugin_test_scenarios()
+    # Test create_tool_test_scenarios
+    scenarios = tools.create_tool_test_scenarios()
     assert len(scenarios) == 3
 
-    # Test create_plugin_dependency_graph
-    plugin_defs_with_deps = [
-        {"name": "plugin_a", "dependencies": ["plugin_b"]},
-        {"name": "plugin_b", "dependencies": []},
-        {"name": "plugin_c", "dependencies": ["plugin_a", "plugin_b"]}
+    # Test create_tool_dependency_graph
+    tool_defs_with_deps = [
+        {"name": "tool_a", "dependencies": ["tool_b"]},
+        {"name": "tool_b", "dependencies": []},
+        {"name": "tool_c", "dependencies": ["tool_a", "tool_b"]}
     ]
 
-    graph = plugins.create_plugin_dependency_graph(plugin_defs_with_deps)
-    assert graph["plugin_a"] == ["plugin_b"]
-    assert graph["plugin_c"] == ["plugin_a", "plugin_b"]
+    graph = tools.create_tool_dependency_graph(tool_defs_with_deps)
+    assert graph["tool_a"] == ["tool_b"]
+    assert graph["tool_c"] == ["tool_a", "tool_b"]
 
-    # Test test_plugin_dependency_resolution
-    resolution_order = ["plugin_b", "plugin_a", "plugin_c"]
-    assert plugins.test_plugin_dependency_resolution(graph, resolution_order)
+    # Test test_tool_dependency_resolution
+    resolution_order = ["tool_b", "tool_a", "tool_c"]
+    assert tools.test_tool_dependency_resolution(graph, resolution_order)
 
 def test_performance_utilities():
     """Test performance utility functions"""
@@ -302,12 +302,12 @@ def test_validation_utilities():
     db_test_scenarios = validation.create_database_validation_test_scenarios()
     assert len(db_test_scenarios) == 2
 
-    # Test validate_plugin_structure
-    plugin_def = {
-        "name": "test_plugin",
+    # Test validate_tool_structure
+    tool_def = {
+        "name": "test_tool",
         "version": "1.0.0",
         "author": "Test Author",
-        "description": "Test plugin",
+        "description": "Test tool",
         "metadata": {
             "category": "utility",
             "compatibility": ["1.0", "2.0"]
@@ -336,11 +336,11 @@ def test_validation_utilities():
         }
     }
 
-    assert validation.validate_plugin_structure(plugin_def, expected_structure)
+    assert validation.validate_tool_structure(tool_def, expected_structure)
 
-    # Test create_plugin_validation_test_cases
-    plugin_test_cases = validation.create_plugin_validation_test_cases()
-    assert len(plugin_test_cases) == 2
+    # Test create_tool_validation_test_cases
+    tool_test_cases = validation.create_tool_validation_test_cases()
+    assert len(tool_test_cases) == 2
 
     # Test validate_api_response
     api_response = {
@@ -431,7 +431,7 @@ if __name__ == "__main__":
     # Run all tests
     test_filesystem_utilities()
     test_database_utilities()
-    test_plugin_utilities()
+    test_tool_utilities()
     test_performance_utilities()
     test_error_utilities()
     test_validation_utilities()

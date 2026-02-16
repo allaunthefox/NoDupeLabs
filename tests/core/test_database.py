@@ -11,14 +11,14 @@ from typing import List, Dict, Any
 from unittest.mock import Mock
 import sqlite3
 
-from nodupe.core.database.connection import DatabaseConnection
-from nodupe.core.database.files import FileRepository, get_file_repository
-from nodupe.core.database.repository_interface import DatabaseRepository
-from nodupe.core.database.schema import DatabaseSchema
-from nodupe.core.database.query import (DatabaseQuery, DatabaseBatch, DatabasePerformance,
+from nodupe.tools.databases.connection import DatabaseConnection
+from nodupe.tools.databases.files import FileRepository, get_file_repository
+from nodupe.tools.databases.repository_interface import DatabaseRepository
+from nodupe.tools.databases.schema import DatabaseSchema
+from nodupe.tools.databases.query import (DatabaseQuery, DatabaseBatch, DatabasePerformance,
                                       DatabaseIntegrity, DatabaseBackup, DatabaseMigration,
                                       DatabaseRecovery, DatabaseOptimization)
-from nodupe.core.database.database import Database
+from nodupe.tools.databases.database import Database
 
 
 def _init_full_schema(db: DatabaseConnection) -> None:

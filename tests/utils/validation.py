@@ -426,39 +426,39 @@ def create_database_validation_test_scenarios() -> List[Dict[str, Any]]:
         }
     ]
 
-def validate_plugin_structure(
-    plugin_definition: Dict[str, Any],
+def validate_tool_structure(
+    tool_definition: Dict[str, Any],
     expected_structure: Dict[str, Any]
 ) -> bool:
     """
-    Validate plugin structure and metadata.
+    Validate tool structure and metadata.
 
     Args:
-        plugin_definition: Plugin definition to validate
-        expected_structure: Expected plugin structure
+        tool_definition: Tool definition to validate
+        expected_structure: Expected tool structure
 
     Returns:
-        True if plugin structure is valid, False otherwise
+        True if tool structure is valid, False otherwise
     """
     # Check required fields
     required_fields = expected_structure.get("required_fields", [])
-    if not all(field in plugin_definition for field in required_fields):
+    if not all(field in tool_definition for field in required_fields):
         return False
 
     # Check metadata structure
     if "metadata" in expected_structure:
         metadata_schema = expected_structure["metadata"]
-        if not validate_test_data_structure(plugin_definition.get("metadata", {}), metadata_schema):
+        if not validate_test_data_structure(tool_definition.get("metadata", {}), metadata_schema):
             return False
 
     # Check function signatures
     if "functions" in expected_structure:
         for func_name, func_schema in expected_structure["functions"].items():
-            if func_name not in plugin_definition.get("functions", {}):
+            if func_name not in tool_definition.get("functions", {}):
                 return False
 
             # Check function parameters
-            actual_func = plugin_definition["functions"][func_name]
+            actual_func = tool_definition["functions"][func_name]
             expected_params = func_schema.get("parameters", [])
 
             # Simple parameter count check
@@ -473,21 +473,21 @@ def validate_plugin_structure(
 
     return True
 
-def create_plugin_validation_test_cases() -> List[Dict[str, Any]]:
+def create_tool_validation_test_cases() -> List[Dict[str, Any]]:
     """
-    Create plugin validation test cases.
+    Create tool validation test cases.
 
     Returns:
-        List of plugin validation test cases
+        List of tool validation test cases
     """
     return [
         {
-            "name": "valid_plugin_structure",
-            "plugin_definition": {
-                "name": "test_plugin",
+            "name": "valid_tool_structure",
+            "tool_definition": {
+                "name": "test_tool",
                 "version": "1.0.0",
                 "author": "Test Author",
-                "description": "Test plugin",
+                "description": "Test tool",
                 "metadata": {
                     "category": "utility",
                     "compatibility": ["1.0", "2.0"]
@@ -517,9 +517,9 @@ def create_plugin_validation_test_cases() -> List[Dict[str, Any]]:
             "expected_result": True
         },
         {
-            "name": "invalid_plugin_structure",
-            "plugin_definition": {
-                "name": "test_plugin",
+            "name": "invalid_tool_structure",
+            "tool_definition": {
+                "name": "test_tool",
                 # Missing required fields
                 "functions": {
                     "initialize": lambda: True

@@ -1,57 +1,57 @@
-"""Test plugin lifecycle functionality."""
+"""Test tool lifecycle functionality."""
 
 import pytest
 from unittest.mock import MagicMock
-from nodupe.core.plugin_system.lifecycle import PluginLifecycleManager, PluginLifecycleError, PluginState
-from nodupe.core.plugin_system.registry import PluginRegistry
-from nodupe.core.plugin_system.base import Plugin
+from nodupe.core.tool_system.lifecycle import ToolLifecycleManager, ToolLifecycleError, ToolState
+from nodupe.core.tool_system.registry import ToolRegistry
+from nodupe.core.tool_system.base import Tool
 
 
-class TestPluginLifecycleManager:
-    """Test plugin lifecycle manager core functionality."""
+class TestToolLifecycleManager:
+    """Test tool lifecycle manager core functionality."""
 
-    def test_plugin_lifecycle_manager_initialization(self):
-        """Test plugin lifecycle manager initialization."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_tool_lifecycle_manager_initialization(self):
+        """Test tool lifecycle manager initialization."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
         assert lifecycle_manager is not None
-        assert isinstance(lifecycle_manager, PluginLifecycleManager)
+        assert isinstance(lifecycle_manager, ToolLifecycleManager)
         assert lifecycle_manager.registry is registry
 
         # Test that it has expected attributes
-        assert hasattr(lifecycle_manager, 'initialize_plugin')
-        assert hasattr(lifecycle_manager, 'shutdown_plugin')
-        assert hasattr(lifecycle_manager, 'initialize_all_plugins')
-        assert hasattr(lifecycle_manager, 'shutdown_all_plugins')
-        assert hasattr(lifecycle_manager, 'get_plugin_state')
-        assert hasattr(lifecycle_manager, 'is_plugin_initialized')
-        assert hasattr(lifecycle_manager, 'is_plugin_active')
-        assert hasattr(lifecycle_manager, 'get_active_plugins')
-        assert hasattr(lifecycle_manager, 'get_plugin_dependencies')
-        assert hasattr(lifecycle_manager, 'set_plugin_dependencies')
+        assert hasattr(lifecycle_manager, 'initialize_tool')
+        assert hasattr(lifecycle_manager, 'shutdown_tool')
+        assert hasattr(lifecycle_manager, 'initialize_all_tools')
+        assert hasattr(lifecycle_manager, 'shutdown_all_tools')
+        assert hasattr(lifecycle_manager, 'get_tool_state')
+        assert hasattr(lifecycle_manager, 'is_tool_initialized')
+        assert hasattr(lifecycle_manager, 'is_tool_active')
+        assert hasattr(lifecycle_manager, 'get_active_tools')
+        assert hasattr(lifecycle_manager, 'get_tool_dependencies')
+        assert hasattr(lifecycle_manager, 'set_tool_dependencies')
         assert hasattr(lifecycle_manager, 'initialize')
         assert hasattr(lifecycle_manager, 'shutdown')
 
-    def test_plugin_lifecycle_manager_with_container(self):
-        """Test plugin lifecycle manager with dependency container."""
+    def test_tool_lifecycle_manager_with_container(self):
+        """Test tool lifecycle manager with dependency container."""
         from nodupe.core.container import ServiceContainer
 
-        registry = PluginRegistry()
+        registry = ToolRegistry()
         container = ServiceContainer()
-        lifecycle_manager = PluginLifecycleManager(registry)
+        lifecycle_manager = ToolLifecycleManager(registry)
 
         # Initialize lifecycle manager with container
         lifecycle_manager.initialize(container)
         assert lifecycle_manager.container is container
 
-    def test_plugin_lifecycle_manager_lifecycle(self):
-        """Test plugin lifecycle manager lifecycle operations."""
+    def test_tool_lifecycle_manager_lifecycle(self):
+        """Test tool lifecycle manager lifecycle operations."""
         from nodupe.core.container import ServiceContainer
 
-        registry = PluginRegistry()
+        registry = ToolRegistry()
         container = ServiceContainer()
-        lifecycle_manager = PluginLifecycleManager(registry)
+        lifecycle_manager = ToolLifecycleManager(registry)
 
         # Test initialization
         lifecycle_manager.initialize(container)
@@ -66,36 +66,36 @@ class TestPluginLifecycleManager:
         assert lifecycle_manager.container is container
 
 
-class TestPluginState:
-    """Test plugin state functionality."""
+class TestToolState:
+    """Test tool state functionality."""
 
-    def test_plugin_state_enum(self):
-        """Test plugin state enum values."""
+    def test_tool_state_enum(self):
+        """Test tool state enum values."""
         # Test that all expected states are present
-        assert hasattr(PluginState, 'UNINITIALIZED')
-        assert hasattr(PluginState, 'INITIALIZED')
-        assert hasattr(PluginState, 'ACTIVE')
-        assert hasattr(PluginState, 'FAILED')
+        assert hasattr(ToolState, 'UNINITIALIZED')
+        assert hasattr(ToolState, 'INITIALIZED')
+        assert hasattr(ToolState, 'ACTIVE')
+        assert hasattr(ToolState, 'FAILED')
 
         # Test state values
-        assert PluginState.UNINITIALIZED.value == 0
-        assert PluginState.INITIALIZED.value == 1
-        assert PluginState.ACTIVE.value == 2
-        assert PluginState.FAILED.value == 3
+        assert ToolState.UNINITIALIZED.value == 0
+        assert ToolState.INITIALIZED.value == 1
+        assert ToolState.ACTIVE.value == 2
+        assert ToolState.FAILED.value == 3
 
 
-class TestPluginLifecycleOperations:
-    """Test plugin lifecycle operations."""
+class TestToolLifecycleOperations:
+    """Test tool lifecycle operations."""
 
-    def test_initialize_plugin(self):
-        """Test initializing a plugin."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_initialize_tool(self):
+        """Test initializing a tool."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -109,27 +109,27 @@ class TestPluginLifecycleOperations:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
-        # Initialize plugin
-        result = lifecycle_manager.initialize_plugin("test_plugin")
+        # Initialize tool
+        result = lifecycle_manager.initialize_tool("test_tool")
         assert result is True
-        assert test_plugin.initialized is True
+        assert test_tool.initialized is True
 
-        # Check plugin state
-        state = lifecycle_manager.get_plugin_state("test_plugin")
-        assert state == PluginState.INITIALIZED
+        # Check tool state
+        state = lifecycle_manager.get_tool_state("test_tool")
+        assert state == ToolState.INITIALIZED
 
-    def test_shutdown_plugin(self):
-        """Test shutting down a plugin."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_shutdown_tool(self):
+        """Test shutting down a tool."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -144,33 +144,33 @@ class TestPluginLifecycleOperations:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
-        # Initialize plugin
-        lifecycle_manager.initialize_plugin("test_plugin")
-        assert test_plugin.initialized is True
+        # Initialize tool
+        lifecycle_manager.initialize_tool("test_tool")
+        assert test_tool.initialized is True
 
-        # Shutdown plugin
-        result = lifecycle_manager.shutdown_plugin("test_plugin")
+        # Shutdown tool
+        result = lifecycle_manager.shutdown_tool("test_tool")
         assert result is True
-        assert test_plugin.shutdown_called is True
+        assert test_tool.shutdown_called is True
 
-        # Check plugin state
-        state = lifecycle_manager.get_plugin_state("test_plugin")
-        assert state == PluginState.UNINITIALIZED
+        # Check tool state
+        state = lifecycle_manager.get_tool_state("test_tool")
+        assert state == ToolState.UNINITIALIZED
 
-    def test_initialize_all_plugins(self):
-        """Test initializing all plugins."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_initialize_all_tools(self):
+        """Test initializing all tools."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create multiple test plugins
-        plugins = []
+        # Create multiple test tools
+        tools = []
         for i in range(5):
-            class TestPlugin(Plugin):
-                def __init__(self, plugin_id):
-                    self.name = f"test_plugin_{plugin_id}"
+            class TestTool(Tool):
+                def __init__(self, tool_id):
+                    self.name = f"test_tool_{tool_id}"
                     self.version = "1.0.0"
                     self.dependencies = []
                     self.initialized = False
@@ -184,31 +184,31 @@ class TestPluginLifecycleOperations:
                 def get_capabilities(self):
                     return {"test": True}
 
-            test_plugin = TestPlugin(i)
-            plugins.append(test_plugin)
-            registry.register(test_plugin)
+            test_tool = TestTool(i)
+            tools.append(test_tool)
+            registry.register(test_tool)
 
-        # Initialize all plugins
-        result = lifecycle_manager.initialize_all_plugins(MagicMock())
+        # Initialize all tools
+        result = lifecycle_manager.initialize_all_tools(MagicMock())
         assert result is True
 
-        # Verify all plugins are initialized
-        for plugin in plugins:
-            assert plugin.initialized is True
-            state = lifecycle_manager.get_plugin_state(plugin.name)
-            assert state == PluginState.INITIALIZED
+        # Verify all tools are initialized
+        for tool in tools:
+            assert tool.initialized is True
+            state = lifecycle_manager.get_tool_state(tool.name)
+            assert state == ToolState.INITIALIZED
 
-    def test_shutdown_all_plugins(self):
-        """Test shutting down all plugins."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_shutdown_all_tools(self):
+        """Test shutting down all tools."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create multiple test plugins
-        plugins = []
+        # Create multiple test tools
+        tools = []
         for i in range(5):
-            class TestPlugin(Plugin):
-                def __init__(self, plugin_id):
-                    self.name = f"test_plugin_{plugin_id}"
+            class TestTool(Tool):
+                def __init__(self, tool_id):
+                    self.name = f"test_tool_{tool_id}"
                     self.version = "1.0.0"
                     self.dependencies = []
                     self.initialized = False
@@ -223,32 +223,32 @@ class TestPluginLifecycleOperations:
                 def get_capabilities(self):
                     return {"test": True}
 
-            test_plugin = TestPlugin(i)
-            plugins.append(test_plugin)
-            registry.register(test_plugin)
+            test_tool = TestTool(i)
+            tools.append(test_tool)
+            registry.register(test_tool)
 
-        # Initialize all plugins
-        lifecycle_manager.initialize_all_plugins(MagicMock())
+        # Initialize all tools
+        lifecycle_manager.initialize_all_tools(MagicMock())
 
-        # Shutdown all plugins
-        result = lifecycle_manager.shutdown_all_plugins()
+        # Shutdown all tools
+        result = lifecycle_manager.shutdown_all_tools()
         assert result is True
 
-        # Verify all plugins are shutdown
-        for plugin in plugins:
-            assert plugin.shutdown_called is True
-            state = lifecycle_manager.get_plugin_state(plugin.name)
-            assert state == PluginState.UNINITIALIZED
+        # Verify all tools are shutdown
+        for tool in tools:
+            assert tool.shutdown_called is True
+            state = lifecycle_manager.get_tool_state(tool.name)
+            assert state == ToolState.UNINITIALIZED
 
-    def test_get_plugin_state(self):
-        """Test getting plugin state."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_get_tool_state(self):
+        """Test getting tool state."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -262,29 +262,29 @@ class TestPluginLifecycleOperations:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
         # Check initial state
-        state = lifecycle_manager.get_plugin_state("test_plugin")
-        assert state == PluginState.UNINITIALIZED
+        state = lifecycle_manager.get_tool_state("test_tool")
+        assert state == ToolState.UNINITIALIZED
 
-        # Initialize plugin
-        lifecycle_manager.initialize_plugin("test_plugin")
+        # Initialize tool
+        lifecycle_manager.initialize_tool("test_tool")
 
         # Check state after initialization
-        state = lifecycle_manager.get_plugin_state("test_plugin")
-        assert state == PluginState.INITIALIZED
+        state = lifecycle_manager.get_tool_state("test_tool")
+        assert state == ToolState.INITIALIZED
 
-    def test_is_plugin_initialized(self):
-        """Test checking if plugin is initialized."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_is_tool_initialized(self):
+        """Test checking if tool is initialized."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -298,29 +298,29 @@ class TestPluginLifecycleOperations:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
         # Check before initialization
-        result = lifecycle_manager.is_plugin_initialized("test_plugin")
+        result = lifecycle_manager.is_tool_initialized("test_tool")
         assert result is False
 
-        # Initialize plugin
-        lifecycle_manager.initialize_plugin("test_plugin")
+        # Initialize tool
+        lifecycle_manager.initialize_tool("test_tool")
 
         # Check after initialization
-        result = lifecycle_manager.is_plugin_initialized("test_plugin")
+        result = lifecycle_manager.is_tool_initialized("test_tool")
         assert result is True
 
-    def test_is_plugin_active(self):
-        """Test checking if plugin is active."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_is_tool_active(self):
+        """Test checking if tool is active."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -334,31 +334,31 @@ class TestPluginLifecycleOperations:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
         # Check before initialization
-        result = lifecycle_manager.is_plugin_active("test_plugin")
+        result = lifecycle_manager.is_tool_active("test_tool")
         assert result is False
 
-        # Initialize plugin
-        lifecycle_manager.initialize_plugin("test_plugin")
+        # Initialize tool
+        lifecycle_manager.initialize_tool("test_tool")
 
         # Check after initialization (should be active)
-        result = lifecycle_manager.is_plugin_active("test_plugin")
+        result = lifecycle_manager.is_tool_active("test_tool")
         assert result is True
 
-    def test_get_active_plugins(self):
-        """Test getting active plugins."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_get_active_tools(self):
+        """Test getting active tools."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create multiple test plugins
-        plugins = []
+        # Create multiple test tools
+        tools = []
         for i in range(5):
-            class TestPlugin(Plugin):
-                def __init__(self, plugin_id):
-                    self.name = f"test_plugin_{plugin_id}"
+            class TestTool(Tool):
+                def __init__(self, tool_id):
+                    self.name = f"test_tool_{tool_id}"
                     self.version = "1.0.0"
                     self.dependencies = []
                     self.initialized = False
@@ -372,31 +372,31 @@ class TestPluginLifecycleOperations:
                 def get_capabilities(self):
                     return {"test": True}
 
-            test_plugin = TestPlugin(i)
-            plugins.append(test_plugin)
-            registry.register(test_plugin)
+            test_tool = TestTool(i)
+            tools.append(test_tool)
+            registry.register(test_tool)
 
-        # Initialize some plugins
-        lifecycle_manager.initialize_plugin("test_plugin_0")
-        lifecycle_manager.initialize_plugin("test_plugin_2")
-        lifecycle_manager.initialize_plugin("test_plugin_4")
+        # Initialize some tools
+        lifecycle_manager.initialize_tool("test_tool_0")
+        lifecycle_manager.initialize_tool("test_tool_2")
+        lifecycle_manager.initialize_tool("test_tool_4")
 
-        # Get active plugins
-        active_plugins = lifecycle_manager.get_active_plugins()
-        assert len(active_plugins) == 3
-        assert "test_plugin_0" in active_plugins
-        assert "test_plugin_2" in active_plugins
-        assert "test_plugin_4" in active_plugins
+        # Get active tools
+        active_tools = lifecycle_manager.get_active_tools()
+        assert len(active_tools) == 3
+        assert "test_tool_0" in active_tools
+        assert "test_tool_2" in active_tools
+        assert "test_tool_4" in active_tools
 
-    def test_get_plugin_dependencies(self):
-        """Test getting plugin dependencies."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_get_tool_dependencies(self):
+        """Test getting tool dependencies."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = ["dep1", "dep2"]
                 self.initialized = False
@@ -410,22 +410,22 @@ class TestPluginLifecycleOperations:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
-        # Get plugin dependencies
-        dependencies = lifecycle_manager.get_plugin_dependencies("test_plugin")
+        # Get tool dependencies
+        dependencies = lifecycle_manager.get_tool_dependencies("test_tool")
         assert dependencies == ["dep1", "dep2"]
 
-    def test_set_plugin_dependencies(self):
-        """Test setting plugin dependencies."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_set_tool_dependencies(self):
+        """Test setting tool dependencies."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -439,48 +439,48 @@ class TestPluginLifecycleOperations:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
-        # Set plugin dependencies
-        lifecycle_manager.set_plugin_dependencies(
-            "test_plugin", ["new_dep1", "new_dep2"])
+        # Set tool dependencies
+        lifecycle_manager.set_tool_dependencies(
+            "test_tool", ["new_dep1", "new_dep2"])
 
-        # Get plugin dependencies
-        dependencies = lifecycle_manager.get_plugin_dependencies("test_plugin")
+        # Get tool dependencies
+        dependencies = lifecycle_manager.get_tool_dependencies("test_tool")
         assert dependencies == ["new_dep1", "new_dep2"]
 
 
-class TestPluginLifecycleEdgeCases:
-    """Test plugin lifecycle edge cases."""
+class TestToolLifecycleEdgeCases:
+    """Test tool lifecycle edge cases."""
 
-    def test_initialize_nonexistent_plugin(self):
-        """Test initializing non-existent plugin."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_initialize_nonexistent_tool(self):
+        """Test initializing non-existent tool."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Try to initialize non-existent plugin
-        result = lifecycle_manager.initialize_plugin("nonexistent_plugin")
+        # Try to initialize non-existent tool
+        result = lifecycle_manager.initialize_tool("nonexistent_tool")
         assert result is False
 
-    def test_shutdown_nonexistent_plugin(self):
-        """Test shutting down non-existent plugin."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_shutdown_nonexistent_tool(self):
+        """Test shutting down non-existent tool."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Try to shutdown non-existent plugin
-        result = lifecycle_manager.shutdown_plugin("nonexistent_plugin")
+        # Try to shutdown non-existent tool
+        result = lifecycle_manager.shutdown_tool("nonexistent_tool")
         assert result is False
 
-    def test_initialize_plugin_with_exception(self):
-        """Test initializing plugin that throws exception."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_initialize_tool_with_exception(self):
+        """Test initializing tool that throws exception."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin that throws exception
-        class FailingPlugin(Plugin):
+        # Create a test tool that throws exception
+        class FailingTool(Tool):
             def __init__(self):
-                self.name = "failing_plugin"
+                self.name = "failing_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -494,26 +494,26 @@ class TestPluginLifecycleEdgeCases:
             def get_capabilities(self):
                 return {"test": True}
 
-        failing_plugin = FailingPlugin()
-        registry.register(failing_plugin)
+        failing_tool = FailingTool()
+        registry.register(failing_tool)
 
-        # Try to initialize plugin
-        result = lifecycle_manager.initialize_plugin("failing_plugin")
+        # Try to initialize tool
+        result = lifecycle_manager.initialize_tool("failing_tool")
         assert result is False
 
-        # Check plugin state
-        state = lifecycle_manager.get_plugin_state("failing_plugin")
-        assert state == PluginState.FAILED
+        # Check tool state
+        state = lifecycle_manager.get_tool_state("failing_tool")
+        assert state == ToolState.FAILED
 
-    def test_shutdown_plugin_with_exception(self):
-        """Test shutting down plugin that throws exception."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_shutdown_tool_with_exception(self):
+        """Test shutting down tool that throws exception."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin that throws exception in shutdown
-        class FailingPlugin(Plugin):
+        # Create a test tool that throws exception in shutdown
+        class FailingTool(Tool):
             def __init__(self):
-                self.name = "failing_plugin"
+                self.name = "failing_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -527,29 +527,29 @@ class TestPluginLifecycleEdgeCases:
             def get_capabilities(self):
                 return {"test": True}
 
-        failing_plugin = FailingPlugin()
-        registry.register(failing_plugin)
+        failing_tool = FailingTool()
+        registry.register(failing_tool)
 
-        # Initialize plugin
-        lifecycle_manager.initialize_plugin("failing_plugin")
+        # Initialize tool
+        lifecycle_manager.initialize_tool("failing_tool")
 
-        # Try to shutdown plugin
-        result = lifecycle_manager.shutdown_plugin("failing_plugin")
+        # Try to shutdown tool
+        result = lifecycle_manager.shutdown_tool("failing_tool")
         assert result is False
 
-        # Check plugin state
-        state = lifecycle_manager.get_plugin_state("failing_plugin")
-        assert state == PluginState.FAILED
+        # Check tool state
+        state = lifecycle_manager.get_tool_state("failing_tool")
+        assert state == ToolState.FAILED
 
-    def test_initialize_already_initialized_plugin(self):
-        """Test initializing already initialized plugin."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_initialize_already_initialized_tool(self):
+        """Test initializing already initialized tool."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -563,26 +563,26 @@ class TestPluginLifecycleEdgeCases:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
-        # Initialize plugin
-        result1 = lifecycle_manager.initialize_plugin("test_plugin")
+        # Initialize tool
+        result1 = lifecycle_manager.initialize_tool("test_tool")
         assert result1 is True
 
         # Try to initialize again
-        result2 = lifecycle_manager.initialize_plugin("test_plugin")
+        result2 = lifecycle_manager.initialize_tool("test_tool")
         assert result2 is False  # Should fail or return False
 
-    def test_shutdown_already_shutdown_plugin(self):
-        """Test shutting down already shutdown plugin."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_shutdown_already_shutdown_tool(self):
+        """Test shutting down already shutdown tool."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -597,33 +597,33 @@ class TestPluginLifecycleEdgeCases:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
-        # Initialize and shutdown plugin
-        lifecycle_manager.initialize_plugin("test_plugin")
-        result1 = lifecycle_manager.shutdown_plugin("test_plugin")
+        # Initialize and shutdown tool
+        lifecycle_manager.initialize_tool("test_tool")
+        result1 = lifecycle_manager.shutdown_tool("test_tool")
         assert result1 is True
 
         # Try to shutdown again
-        result2 = lifecycle_manager.shutdown_plugin("test_plugin")
+        result2 = lifecycle_manager.shutdown_tool("test_tool")
         assert result2 is False  # Should fail or return False
 
 
-class TestPluginLifecyclePerformance:
-    """Test plugin lifecycle performance."""
+class TestToolLifecyclePerformance:
+    """Test tool lifecycle performance."""
 
-    def test_mass_plugin_initialization(self):
-        """Test mass plugin initialization."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_mass_tool_initialization(self):
+        """Test mass tool initialization."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create many test plugins
-        plugins = []
+        # Create many test tools
+        tools = []
         for i in range(100):
-            class TestPlugin(Plugin):
-                def __init__(self, plugin_id):
-                    self.name = f"test_plugin_{plugin_id}"
+            class TestTool(Tool):
+                def __init__(self, tool_id):
+                    self.name = f"test_tool_{tool_id}"
                     self.version = "1.0.0"
                     self.dependencies = []
                     self.initialized = False
@@ -637,31 +637,31 @@ class TestPluginLifecyclePerformance:
                 def get_capabilities(self):
                     return {"test": True}
 
-            test_plugin = TestPlugin(i)
-            plugins.append(test_plugin)
-            registry.register(test_plugin)
+            test_tool = TestTool(i)
+            tools.append(test_tool)
+            registry.register(test_tool)
 
-        # Initialize all plugins
-        result = lifecycle_manager.initialize_all_plugins(MagicMock())
+        # Initialize all tools
+        result = lifecycle_manager.initialize_all_tools(MagicMock())
         assert result is True
 
-        # Verify all plugins are initialized
-        for plugin in plugins:
-            assert plugin.initialized is True
+        # Verify all tools are initialized
+        for tool in tools:
+            assert tool.initialized is True
 
-    def test_plugin_lifecycle_performance(self):
-        """Test plugin lifecycle performance."""
+    def test_tool_lifecycle_performance(self):
+        """Test tool lifecycle performance."""
         import time
 
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create many test plugins
-        plugins = []
+        # Create many test tools
+        tools = []
         for i in range(1000):
-            class TestPlugin(Plugin):
-                def __init__(self, plugin_id):
-                    self.name = f"perf_plugin_{plugin_id}"
+            class TestTool(Tool):
+                def __init__(self, tool_id):
+                    self.name = f"perf_tool_{tool_id}"
                     self.version = "1.0.0"
                     self.dependencies = []
                     self.initialized = False
@@ -676,42 +676,42 @@ class TestPluginLifecyclePerformance:
                 def get_capabilities(self):
                     return {"test": True}
 
-            test_plugin = TestPlugin(i)
-            plugins.append(test_plugin)
-            registry.register(test_plugin)
+            test_tool = TestTool(i)
+            tools.append(test_tool)
+            registry.register(test_tool)
 
         # Test initialization performance
         start_time = time.time()
-        lifecycle_manager.initialize_all_plugins(MagicMock())
+        lifecycle_manager.initialize_all_tools(MagicMock())
         init_time = time.time() - start_time
 
         # Test shutdown performance
         start_time = time.time()
-        lifecycle_manager.shutdown_all_plugins()
+        lifecycle_manager.shutdown_all_tools()
         shutdown_time = time.time() - start_time
 
         # Should be fast operations
         assert init_time < 1.0
         assert shutdown_time < 0.5
 
-        # Verify all plugins are initialized and shutdown
-        for plugin in plugins:
-            assert plugin.initialized is True
-            assert plugin.shutdown_called is True
+        # Verify all tools are initialized and shutdown
+        for tool in tools:
+            assert tool.initialized is True
+            assert tool.shutdown_called is True
 
 
-class TestPluginLifecycleIntegration:
-    """Test plugin lifecycle integration scenarios."""
+class TestToolLifecycleIntegration:
+    """Test tool lifecycle integration scenarios."""
 
-    def test_plugin_lifecycle_with_registry(self):
-        """Test plugin lifecycle integration with registry."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_tool_lifecycle_with_registry(self):
+        """Test tool lifecycle integration with registry."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -725,29 +725,29 @@ class TestPluginLifecycleIntegration:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
-        # Initialize plugin through lifecycle manager
-        lifecycle_manager.initialize_plugin("test_plugin")
+        # Initialize tool through lifecycle manager
+        lifecycle_manager.initialize_tool("test_tool")
 
-        # Verify plugin is accessible through registry
-        retrieved = registry.get_plugin("test_plugin")
-        assert retrieved is test_plugin
+        # Verify tool is accessible through registry
+        retrieved = registry.get_tool("test_tool")
+        assert retrieved is test_tool
         assert retrieved.initialized is True
 
-    def test_plugin_lifecycle_with_loader(self):
-        """Test plugin lifecycle integration with loader."""
-        from nodupe.core.plugin_system.loader import PluginLoader
+    def test_tool_lifecycle_with_loader(self):
+        """Test tool lifecycle integration with loader."""
+        from nodupe.core.tool_system.loader import ToolLoader
 
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
-        loader = PluginLoader(registry)
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
+        loader = ToolLoader(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -762,52 +762,52 @@ class TestPluginLifecycleIntegration:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
+        test_tool = TestTool()
 
-        # Load plugin
-        loaded_plugin = loader.load_plugin(test_plugin)
+        # Load tool
+        loaded_tool = loader.load_tool(test_tool)
 
         # Initialize through lifecycle manager
-        lifecycle_manager.initialize_plugin("test_plugin")
-        assert test_plugin.initialized is True
+        lifecycle_manager.initialize_tool("test_tool")
+        assert test_tool.initialized is True
 
         # Shutdown through lifecycle manager
-        lifecycle_manager.shutdown_plugin("test_plugin")
-        assert test_plugin.shutdown_called is True
+        lifecycle_manager.shutdown_tool("test_tool")
+        assert test_tool.shutdown_called is True
 
 
-class TestPluginLifecycleErrorHandling:
-    """Test plugin lifecycle error handling."""
+class TestToolLifecycleErrorHandling:
+    """Test tool lifecycle error handling."""
 
-    def test_initialize_plugin_with_missing_methods(self):
-        """Test initializing plugin with missing required methods."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_initialize_tool_with_missing_methods(self):
+        """Test initializing tool with missing required methods."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a plugin missing required methods
-        class IncompletePlugin(Plugin):
+        # Create a tool missing required methods
+        class IncompleteTool(Tool):
             def __init__(self):
-                self.name = "incomplete_plugin"
+                self.name = "incomplete_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 # Missing initialize and shutdown methods
 
-        incomplete_plugin = IncompletePlugin()
-        registry.register(incomplete_plugin)
+        incomplete_tool = IncompleteTool()
+        registry.register(incomplete_tool)
 
-        # Try to initialize plugin
-        with pytest.raises(PluginLifecycleError):
-            lifecycle_manager.initialize_plugin("incomplete_plugin")
+        # Try to initialize tool
+        with pytest.raises(ToolLifecycleError):
+            lifecycle_manager.initialize_tool("incomplete_tool")
 
-    def test_initialize_plugin_with_invalid_state(self):
-        """Test initializing plugin in invalid state."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_initialize_tool_with_invalid_state(self):
+        """Test initializing tool in invalid state."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -821,28 +821,28 @@ class TestPluginLifecycleErrorHandling:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
-        # Initialize plugin
-        lifecycle_manager.initialize_plugin("test_plugin")
+        # Initialize tool
+        lifecycle_manager.initialize_tool("test_tool")
 
         # Manually set invalid state
-        lifecycle_manager._plugin_states["test_plugin"] = "invalid_state"
+        lifecycle_manager._tool_states["test_tool"] = "invalid_state"
 
         # Try to initialize again
-        with pytest.raises(PluginLifecycleError):
-            lifecycle_manager.initialize_plugin("test_plugin")
+        with pytest.raises(ToolLifecycleError):
+            lifecycle_manager.initialize_tool("test_tool")
 
-    def test_shutdown_plugin_with_invalid_state(self):
-        """Test shutting down plugin in invalid state."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_shutdown_tool_with_invalid_state(self):
+        """Test shutting down tool in invalid state."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create a test plugin
-        class TestPlugin(Plugin):
+        # Create a test tool
+        class TestTool(Tool):
             def __init__(self):
-                self.name = "test_plugin"
+                self.name = "test_tool"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -856,29 +856,29 @@ class TestPluginLifecycleErrorHandling:
             def get_capabilities(self):
                 return {"test": True}
 
-        test_plugin = TestPlugin()
-        registry.register(test_plugin)
+        test_tool = TestTool()
+        registry.register(test_tool)
 
         # Manually set invalid state
-        lifecycle_manager._plugin_states["test_plugin"] = "invalid_state"
+        lifecycle_manager._tool_states["test_tool"] = "invalid_state"
 
         # Try to shutdown
-        with pytest.raises(PluginLifecycleError):
-            lifecycle_manager.shutdown_plugin("test_plugin")
+        with pytest.raises(ToolLifecycleError):
+            lifecycle_manager.shutdown_tool("test_tool")
 
 
-class TestPluginLifecycleAdvanced:
-    """Test advanced plugin lifecycle functionality."""
+class TestToolLifecycleAdvanced:
+    """Test advanced tool lifecycle functionality."""
 
-    def test_plugin_lifecycle_with_dependencies(self):
-        """Test plugin lifecycle with dependencies."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_tool_lifecycle_with_dependencies(self):
+        """Test tool lifecycle with dependencies."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create test plugins with dependencies
-        class PluginA(Plugin):
+        # Create test tools with dependencies
+        class ToolA(Tool):
             def __init__(self):
-                self.name = "plugin_a"
+                self.name = "tool_a"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -892,11 +892,11 @@ class TestPluginLifecycleAdvanced:
             def get_capabilities(self):
                 return {"feature_a": True}
 
-        class PluginB(Plugin):
+        class ToolB(Tool):
             def __init__(self):
-                self.name = "plugin_b"
+                self.name = "tool_b"
                 self.version = "1.0.0"
-                self.dependencies = ["plugin_a"]
+                self.dependencies = ["tool_a"]
                 self.initialized = False
 
             def initialize(self, container):
@@ -908,33 +908,33 @@ class TestPluginLifecycleAdvanced:
             def get_capabilities(self):
                 return {"feature_b": True}
 
-        plugin_a = PluginA()
-        plugin_b = PluginB()
-        registry.register(plugin_a)
-        registry.register(plugin_b)
+        tool_a = ToolA()
+        tool_b = ToolB()
+        registry.register(tool_a)
+        registry.register(tool_b)
 
         # Set dependencies
-        lifecycle_manager.set_plugin_dependencies("plugin_b", ["plugin_a"])
+        lifecycle_manager.set_tool_dependencies("tool_b", ["tool_a"])
 
-        # Initialize plugins (should handle dependencies)
-        lifecycle_manager.initialize_plugin("plugin_a")
-        lifecycle_manager.initialize_plugin("plugin_b")
+        # Initialize tools (should handle dependencies)
+        lifecycle_manager.initialize_tool("tool_a")
+        lifecycle_manager.initialize_tool("tool_b")
 
-        # Verify both plugins are initialized
-        assert plugin_a.initialized is True
-        assert plugin_b.initialized is True
+        # Verify both tools are initialized
+        assert tool_a.initialized is True
+        assert tool_b.initialized is True
 
-    def test_plugin_lifecycle_with_circular_dependencies(self):
-        """Test plugin lifecycle with circular dependencies."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_tool_lifecycle_with_circular_dependencies(self):
+        """Test tool lifecycle with circular dependencies."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create test plugins with circular dependencies
-        class PluginA(Plugin):
+        # Create test tools with circular dependencies
+        class ToolA(Tool):
             def __init__(self):
-                self.name = "plugin_a"
+                self.name = "tool_a"
                 self.version = "1.0.0"
-                self.dependencies = ["plugin_b"]
+                self.dependencies = ["tool_b"]
                 self.initialized = False
 
             def initialize(self, container):
@@ -946,11 +946,11 @@ class TestPluginLifecycleAdvanced:
             def get_capabilities(self):
                 return {"feature_a": True}
 
-        class PluginB(Plugin):
+        class ToolB(Tool):
             def __init__(self):
-                self.name = "plugin_b"
+                self.name = "tool_b"
                 self.version = "1.0.0"
-                self.dependencies = ["plugin_a"]
+                self.dependencies = ["tool_a"]
                 self.initialized = False
 
             def initialize(self, container):
@@ -962,28 +962,28 @@ class TestPluginLifecycleAdvanced:
             def get_capabilities(self):
                 return {"feature_b": True}
 
-        plugin_a = PluginA()
-        plugin_b = PluginB()
-        registry.register(plugin_a)
-        registry.register(plugin_b)
+        tool_a = ToolA()
+        tool_b = ToolB()
+        registry.register(tool_a)
+        registry.register(tool_b)
 
         # Set circular dependencies
-        lifecycle_manager.set_plugin_dependencies("plugin_a", ["plugin_b"])
-        lifecycle_manager.set_plugin_dependencies("plugin_b", ["plugin_a"])
+        lifecycle_manager.set_tool_dependencies("tool_a", ["tool_b"])
+        lifecycle_manager.set_tool_dependencies("tool_b", ["tool_a"])
 
         # Try to initialize (should handle gracefully)
-        result = lifecycle_manager.initialize_plugin("plugin_a")
+        result = lifecycle_manager.initialize_tool("tool_a")
         assert result is False  # Should fail due to circular dependency
 
-    def test_plugin_lifecycle_with_conditional_initialization(self):
-        """Test plugin lifecycle with conditional initialization."""
-        registry = PluginRegistry()
-        lifecycle_manager = PluginLifecycleManager(registry)
+    def test_tool_lifecycle_with_conditional_initialization(self):
+        """Test tool lifecycle with conditional initialization."""
+        registry = ToolRegistry()
+        lifecycle_manager = ToolLifecycleManager(registry)
 
-        # Create test plugins with conditional initialization
-        class PluginA(Plugin):
+        # Create test tools with conditional initialization
+        class ToolA(Tool):
             def __init__(self):
-                self.name = "plugin_a"
+                self.name = "tool_a"
                 self.version = "1.0.0"
                 self.dependencies = []
                 self.initialized = False
@@ -1001,14 +1001,14 @@ class TestPluginLifecycleAdvanced:
             def get_capabilities(self):
                 return {"feature_a": True}
 
-        plugin_a = PluginA()
-        registry.register(plugin_a)
+        tool_a = ToolA()
+        registry.register(tool_a)
 
         # First initialization attempt should fail
-        result1 = lifecycle_manager.initialize_plugin("plugin_a")
+        result1 = lifecycle_manager.initialize_tool("tool_a")
         assert result1 is False
 
         # Second initialization attempt should succeed
-        result2 = lifecycle_manager.initialize_plugin("plugin_a")
+        result2 = lifecycle_manager.initialize_tool("tool_a")
         assert result2 is True
-        assert plugin_a.initialized is True
+        assert tool_a.initialized is True

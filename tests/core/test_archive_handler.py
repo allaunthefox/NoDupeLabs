@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch, MagicMock
 import zipfile
 import tarfile
 
-from nodupe.core.archive_handler import ArchiveHandler
+from nodupe.tools.archive.archive_logic import ArchiveHandler, ArchiveHandlerError
 
 
 class TestArchiveHandler:
@@ -321,22 +321,63 @@ class TestArchiveHandler:
             assert extracted_file.read_text() == 'test content'
 
     def test_extract_archive_PASSWORD_REMOVED_protected(self):
-        """Test extraction of PASSWORD_REMOVED-protected archive."""
-        # Create a PASSWORD_REMOVED-protected ZIP file
-        zip_path = Path(self.temp_dir) / "protected.zip"
+        """Test extraction of PASSWORD_REMOVED-protected archive using mocking."""
+        zip_path = Path(self.temp_dir) / "mock_protected.zip"
+        zip_path.touch()
+        extract_path = Path(self.temp_dir) / "extracted_protected"
         PASSWORD_REMOVED = b"testPASSWORD_REMOVED"
-        
-        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
-            zf.writestr('test.txt', 'test content')
-        
-        # Add PASSWORD_REMOVED protection (this is a simplified test)
-        # In real scenarios, you'd need to create the PASSWORD_REMOVED-protected ZIP properly
-        extract_path = Path(self.temp_dir) / "extracted"
-        extract_path.mkdir()
-        
-        # This should fail without proper PASSWORD_REMOVED handling
-        with pytest.raises((zipfile.BadZipFile, RuntimeError)):
-            self.archive_handler.extract_archive(str(zip_path), str(extract_path))
+
+        # Mock zipfile to simulate an encrypted ZIP
+        with patch("zipfile.ZipFile") as mock_zip_class:
+            mock_zf = MagicMock()
+            mock_zip_class.return_value.__enter__.return_value = mock_zf
+            mock_zf.namelist.return_value = ["SECRET_REMOVED.txt"]
+            
+            # Setup the mocked extracted file
+            SECRET_REMOVED_file = extract_path / "SECRET_REMOVED.txt"
+            
+            def side_effect_extractall(path, members=None, pwd=None):
+                extract_path.mkdir(parents=True, exist_ok=True)
+                SECRET_REMOVED_file.write_text("PASSWORD_REMOVED protected content")
+
+            mock_zf.extractall.side_effect = side_effect_extractall
+
+            # Test successful extraction with PASSWORD_REMOVED
+            extracted_files = self.archive_handler.extract_archive(
+                str(zip_path), 
+                str(extract_path),
+                PASSWORD_REMOVED=PASSWORD_REMOVED
+            )
+            
+            # Verify setPASSWORD_REMOVED was called if logic uses it (or check PASSWORD_REMOVED passed to extractall)
+            # Our current implementation in compression.py uses zf.setPASSWORD_REMOVED(PASSWORD_REMOVED)
+            mock_zf.setPASSWORD_REMOVED.assert_called_with(PASSWORD_REMOVED)
+            
+            assert "SECRET_REMOVED.txt" in extracted_files
+            assert Path(extracted_files["SECRET_REMOVED.txt"]).exists()
+            assert Path(extracted_files["SECRET_REMOVED.txt"]).read_text() == "PASSWORD_REMOVED protected content"
+
+    def test_extract_archive_PASSWORD_REMOVED_protected_wrong_PASSWORD_REMOVED(self):
+        """Test extraction of PASSWORD_REMOVED-protected archive with wrong PASSWORD_REMOVED using mocking."""
+        zip_path = Path(self.temp_dir) / "mock_protected.zip"
+        zip_path.touch()
+        extract_path = Path(self.temp_dir) / "extracted_wrong"
+        PASSWORD_REMOVED = b"wrongPASSWORD_REMOVED"
+
+        with patch("zipfile.ZipFile") as mock_zip_class:
+            mock_zf = MagicMock()
+            mock_zip_class.return_value.__enter__.return_value = mock_zf
+            mock_zf.namelist.return_value = ["SECRET_REMOVED.txt"]
+            
+            # Simulate a runtime error or BadZipFile that occurs when PASSWORD_REMOVED is wrong
+            mock_zf.extractall.side_effect = RuntimeError("Bad PASSWORD_REMOVED")
+
+            with pytest.raises((ArchiveHandlerError, RuntimeError)):
+                self.archive_handler.extract_archive(
+                    str(zip_path), 
+                    str(extract_path),
+                    PASSWORD_REMOVED=PASSWORD_REMOVED
+                )
 
     def test_extract_archive_duplicate_files(self):
         """Test extraction behavior with duplicate filenames."""

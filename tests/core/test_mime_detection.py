@@ -2,7 +2,7 @@
 
 import pytest
 from pathlib import Path
-from nodupe.core.mime_detection import MIMEDetection, MIMEDetectionError
+from nodupe.tools.mime.mime_logic import MIMEDetection, MIMEDetectionError
 
 
 class TestMIMEDetection:

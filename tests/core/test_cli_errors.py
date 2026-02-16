@@ -16,28 +16,28 @@ import sys
 import os
 from unittest.mock import patch, MagicMock
 from nodupe.core.main import CLIHandler
-from nodupe.plugins.commands.scan import ScanPlugin
-from nodupe.plugins.commands.apply import ApplyPlugin
-from nodupe.plugins.commands.similarity import SimilarityCommandPlugin as SimilarityPlugin
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
 
 class TestCLIArgumentValidation:
     """Test CLI argument validation errors."""
 
     def test_scan_missing_paths(self):
         """Test scan command with missing paths."""
-        scan_plugin = ScanPlugin()
+        scan_tool = ScanTool()
 
         # Mock args without paths
         args = MagicMock()
         args.paths = []  # Empty paths
 
         # This should fail validation
-        result = scan_plugin.execute_scan(args)
+        result = scan_tool.execute_scan(args)
         assert result != 0
 
     def test_apply_missing_input(self):
         """Test apply command with missing input file."""
-        apply_plugin = ApplyPlugin()
+        apply_tool = ApplyTool()
 
         # Mock args without input
         args = MagicMock()
@@ -45,24 +45,24 @@ class TestCLIArgumentValidation:
         args.input = None  # Missing input
 
         # This should fail validation
-        result = apply_plugin.execute_apply(args)
+        result = apply_tool.execute_apply(args)
         assert result != 0
 
     def test_similarity_missing_query_file(self):
         """Test similarity command with missing query file."""
-        similarity_plugin = SimilarityPlugin()
+        similarity_tool = SimilarityTool()
 
         # Mock args without query file
         args = MagicMock()
         args.query_file = None  # Missing query file
 
         # This should fail validation
-        result = similarity_plugin.execute_similarity(args)
+        result = similarity_tool.execute_similarity(args)
         assert result != 0
 
     def test_apply_invalid_action(self):
         """Test apply command with invalid action."""
-        apply_plugin = ApplyPlugin()
+        apply_tool = ApplyTool()
 
         # Mock args with invalid action
         args = MagicMock()
@@ -73,7 +73,7 @@ class TestCLIArgumentValidation:
         args.verbose = False
 
         # This should fail validation
-        result = apply_plugin.execute_apply(args)
+        result = apply_tool.execute_apply(args)
         assert result != 0
 
 class TestCLIFileSystemErrors:
@@ -81,7 +81,7 @@ class TestCLIFileSystemErrors:
 
     def test_scan_nonexistent_directory(self):
         """Test scan command with nonexistent directory."""
-        scan_plugin = ScanPlugin()
+        scan_tool = ScanTool()
 
         # Mock args with nonexistent path
         args = MagicMock()
@@ -94,12 +94,12 @@ class TestCLIFileSystemErrors:
         args.container = None
 
         # This should fail
-        result = scan_plugin.execute_scan(args)
+        result = scan_tool.execute_scan(args)
         assert result != 0
 
     def test_apply_nonexistent_input_file(self):
         """Test apply command with nonexistent input file."""
-        apply_plugin = ApplyPlugin()
+        apply_tool = ApplyTool()
 
         # Mock args with nonexistent input file
         args = MagicMock()
@@ -110,12 +110,12 @@ class TestCLIFileSystemErrors:
         args.verbose = False
 
         # This should fail
-        result = apply_plugin.execute_apply(args)
+        result = apply_tool.execute_apply(args)
         assert result != 0
 
     def test_similarity_nonexistent_query_file(self):
         """Test similarity command with nonexistent query file."""
-        similarity_plugin = SimilarityPlugin()
+        similarity_tool = SimilarityTool()
 
         # Mock args with nonexistent query file
         args = MagicMock()
@@ -128,12 +128,12 @@ class TestCLIFileSystemErrors:
         args.verbose = False
 
         # This should fail
-        result = similarity_plugin.execute_similarity(args)
+        result = similarity_tool.execute_similarity(args)
         assert result != 0
 
     def test_apply_nonexistent_target_directory(self):
         """Test apply command with nonexistent target directory."""
-        apply_plugin = ApplyPlugin()
+        apply_tool = ApplyTool()
 
         # Mock args with nonexistent target directory
         args = MagicMock()
@@ -144,7 +144,7 @@ class TestCLIFileSystemErrors:
         args.verbose = False
 
         # This should fail validation
-        result = apply_plugin.execute_apply(args)
+        result = apply_tool.execute_apply(args)
         assert result != 0
 
 class TestCLIPermissionErrors:
@@ -152,7 +152,7 @@ class TestCLIPermissionErrors:
 
     def test_scan_permission_denied(self):
         """Test scan command with permission denied."""
-        scan_plugin = ScanPlugin()
+        scan_tool = ScanTool()
 
         # Mock args with root directory (likely permission denied)
         args = MagicMock()
@@ -165,12 +165,12 @@ class TestCLIPermissionErrors:
         args.container = None
 
         # This might succeed on some systems, but shouldn't crash
-        result = scan_plugin.execute_scan(args)
+        result = scan_tool.execute_scan(args)
         assert isinstance(result, int)
 
     def test_apply_permission_denied(self):
         """Test apply command with permission denied."""
-        apply_plugin = ApplyPlugin()
+        apply_tool = ApplyTool()
 
         # Mock args with root target directory
         args = MagicMock()
@@ -181,7 +181,7 @@ class TestCLIPermissionErrors:
         args.verbose = False
 
         # This should handle permission issues gracefully
-        result = apply_plugin.execute_apply(args)
+        result = apply_tool.execute_apply(args)
         assert isinstance(result, int)
 
 class TestCLICommandValidation:
@@ -189,7 +189,7 @@ class TestCLICommandValidation:
 
     def test_scan_invalid_size_constraints(self):
         """Test scan command with invalid size constraints."""
-        scan_plugin = ScanPlugin()
+        scan_tool = ScanTool()
 
         # Mock args with invalid size constraints
         args = MagicMock()
@@ -202,12 +202,12 @@ class TestCLICommandValidation:
         args.container = None
 
         # This should fail validation
-        result = scan_plugin.execute_scan(args)
+        result = scan_tool.execute_scan(args)
         assert result != 0
 
     def test_similarity_invalid_threshold(self):
         """Test similarity command with invalid threshold."""
-        similarity_plugin = SimilarityPlugin()
+        similarity_tool = SimilarityTool()
 
         # Mock args with invalid threshold
         args = MagicMock()
@@ -220,12 +220,12 @@ class TestCLICommandValidation:
         args.verbose = False
 
         # This should fail validation
-        result = similarity_plugin.execute_similarity(args)
+        result = similarity_tool.execute_similarity(args)
         assert result != 0
 
     def test_similarity_invalid_k(self):
         """Test similarity command with invalid k value."""
-        similarity_plugin = SimilarityPlugin()
+        similarity_tool = SimilarityTool()
 
         # Mock args with invalid k
         args = MagicMock()
@@ -238,7 +238,7 @@ class TestCLICommandValidation:
         args.verbose = False
 
         # This should fail validation
-        result = similarity_plugin.execute_similarity(args)
+        result = similarity_tool.execute_similarity(args)
         assert result != 0
 
 class TestCLIEdgeCases:
@@ -253,7 +253,7 @@ class TestCLIEdgeCases:
             empty_dir = os.path.join(temp_dir, "empty")
             os.makedirs(empty_dir)
 
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
 
             # Mock args with empty directory
             args = MagicMock()
@@ -268,7 +268,7 @@ class TestCLIEdgeCases:
             args.container.get_service = MagicMock(return_value=MagicMock())
 
             # This should succeed but find no files
-            result = scan_plugin.execute_scan(args)
+            result = scan_tool.execute_scan(args)
             assert result == 0
 
     def test_apply_empty_input_file(self):
@@ -281,7 +281,7 @@ class TestCLIEdgeCases:
             with open(empty_file, "w") as f:
                 f.write("[]")  # Empty array
 
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
 
             # Mock args with empty input file
             args = MagicMock()
@@ -292,7 +292,7 @@ class TestCLIEdgeCases:
             args.verbose = False
 
             # This should handle empty input gracefully
-            result = apply_plugin.execute_apply(args)
+            result = apply_tool.execute_apply(args)
             assert result == 0
 
     def test_similarity_empty_database(self):
@@ -305,7 +305,7 @@ class TestCLIEdgeCases:
             with open(query_file, "w") as f:
                 f.write("query content")
 
-            similarity_plugin = SimilarityPlugin()
+            similarity_tool = SimilarityTool()
 
             # Mock args with empty database
             args = MagicMock()
@@ -322,7 +322,7 @@ class TestCLIEdgeCases:
             args.container.get_service = MagicMock(return_value=MagicMock())
 
             # This should handle empty database gracefully
-            result = similarity_plugin.execute_similarity(args)
+            result = similarity_tool.execute_similarity(args)
             assert result == 0
 
 class TestCLIErrorRecovery:
@@ -330,7 +330,7 @@ class TestCLIErrorRecovery:
 
     def test_scan_with_missing_container(self):
         """Test scan command with missing container."""
-        scan_plugin = ScanPlugin()
+        scan_tool = ScanTool()
 
         # Mock args without container
         args = MagicMock()
@@ -343,12 +343,12 @@ class TestCLIErrorRecovery:
         args.container = None  # Missing container
 
         # This should handle missing container gracefully
-        result = scan_plugin.execute_scan(args)
+        result = scan_tool.execute_scan(args)
         assert isinstance(result, int)
 
     def test_apply_with_missing_container(self):
         """Test apply command with missing container."""
-        apply_plugin = ApplyPlugin()
+        apply_tool = ApplyTool()
 
         # Mock args without container
         args = MagicMock()
@@ -360,12 +360,12 @@ class TestCLIErrorRecovery:
         # No container needed for apply
 
         # This should handle missing input file gracefully
-        result = apply_plugin.execute_apply(args)
+        result = apply_tool.execute_apply(args)
         assert isinstance(result, int)
 
     def test_similarity_with_missing_container(self):
         """Test similarity command with missing container."""
-        similarity_plugin = SimilarityPlugin()
+        similarity_tool = SimilarityTool()
 
         # Mock args without container
         args = MagicMock()
@@ -379,7 +379,7 @@ class TestCLIErrorRecovery:
         # No container needed for similarity
 
         # This should handle missing query file gracefully
-        result = similarity_plugin.execute_similarity(args)
+        result = similarity_tool.execute_similarity(args)
         assert isinstance(result, int)
 
 if __name__ == "__main__":

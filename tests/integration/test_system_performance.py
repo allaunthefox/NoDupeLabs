@@ -15,9 +15,9 @@ import time
 import json
 from unittest.mock import patch, MagicMock
 from nodupe.core.main import main
-from nodupe.plugins.commands.scan import ScanPlugin
-from nodupe.plugins.commands.apply import ApplyPlugin
-from nodupe.plugins.commands.similarity import SimilarityCommandPlugin as SimilarityPlugin
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
 
 class TestPerformanceBenchmarking:
     """Test performance benchmarking framework."""
@@ -37,7 +37,7 @@ class TestPerformanceBenchmarking:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan with timing
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -48,7 +48,7 @@ class TestPerformanceBenchmarking:
             scan_args.container = mock_container
 
             start_time = time.time()
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             end_time = time.time()
 
             assert scan_result == 0
@@ -79,7 +79,7 @@ class TestPerformanceBenchmarking:
                 json.dump(large_duplicates, f)
 
             # Test apply performance
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = duplicates_file
@@ -88,7 +88,7 @@ class TestPerformanceBenchmarking:
             apply_args.verbose = False
 
             start_time = time.time()
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             end_time = time.time()
 
             assert apply_result == 0
@@ -104,7 +104,7 @@ class TestPerformanceBenchmarking:
                 f.write("Test query content")
 
             # Test similarity performance
-            similarity_plugin = SimilarityPlugin()
+            similarity_tool = SimilarityTool()
             similarity_args = MagicMock()
             similarity_args.query_file = query_file
             similarity_args.database = None
@@ -115,7 +115,7 @@ class TestPerformanceBenchmarking:
             similarity_args.verbose = False
 
             start_time = time.time()
-            similarity_result = similarity_plugin.execute_similarity(similarity_args)
+            similarity_result = similarity_tool.execute_similarity(similarity_args)
             end_time = time.time()
 
             assert similarity_result == 0
@@ -143,7 +143,7 @@ class TestLargeDatasetPerformance:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan performance
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -154,7 +154,7 @@ class TestLargeDatasetPerformance:
             scan_args.container = mock_container
 
             start_time = time.time()
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             end_time = time.time()
 
             assert scan_result == 0
@@ -186,7 +186,7 @@ class TestLargeDatasetPerformance:
                 json.dump(large_dataset, f)
 
             # Test apply performance
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = duplicates_file
@@ -195,7 +195,7 @@ class TestLargeDatasetPerformance:
             apply_args.verbose = False
 
             start_time = time.time()
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             end_time = time.time()
 
             assert apply_result == 0
@@ -221,7 +221,7 @@ class TestMemoryUsage:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan memory usage
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -231,7 +231,7 @@ class TestMemoryUsage:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0
 
     def test_apply_memory_usage(self):
@@ -270,7 +270,7 @@ class TestMemoryUsage:
                 json.dump(memory_intensive_data, f)
 
             # Test apply memory usage
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = duplicates_file
@@ -278,7 +278,7 @@ class TestMemoryUsage:
             apply_args.dry_run = True
             apply_args.verbose = False
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0
 
 class TestPerformanceOptimization:
@@ -300,7 +300,7 @@ class TestPerformanceOptimization:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan with size filters (should be faster)
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 5000  # 5KB minimum
@@ -311,7 +311,7 @@ class TestPerformanceOptimization:
             scan_args.container = mock_container
 
             start_time = time.time()
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             end_time = time.time()
 
             assert scan_result == 0
@@ -335,7 +335,7 @@ class TestPerformanceOptimization:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan with extension filters (should be faster)
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -346,7 +346,7 @@ class TestPerformanceOptimization:
             scan_args.container = mock_container
 
             start_time = time.time()
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             end_time = time.time()
 
             assert scan_result == 0
@@ -375,7 +375,7 @@ class TestConcurrentOperationPerformance:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test multiple scan operations
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
 
             total_time = 0
             for dir_num in range(5):
@@ -391,7 +391,7 @@ class TestConcurrentOperationPerformance:
                 scan_args.container = mock_container
 
                 start_time = time.time()
-                scan_result = scan_plugin.execute_scan(scan_args)
+                scan_result = scan_tool.execute_scan(scan_args)
                 end_time = time.time()
 
                 assert scan_result == 0
@@ -416,9 +416,9 @@ class TestConcurrentOperationPerformance:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test sequential workflow: scan → apply → similarity
-            scan_plugin = ScanPlugin()
-            apply_plugin = ApplyPlugin()
-            similarity_plugin = SimilarityPlugin()
+            scan_tool = ScanTool()
+            apply_tool = ApplyTool()
+            similarity_tool = SimilarityTool()
 
             # Step 1: Scan
             scan_args = MagicMock()
@@ -431,7 +431,7 @@ class TestConcurrentOperationPerformance:
             scan_args.container = mock_container
 
             scan_start = time.time()
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             scan_end = time.time()
 
             # Step 2: Apply (list)
@@ -459,7 +459,7 @@ class TestConcurrentOperationPerformance:
             apply_args.verbose = False
 
             apply_start = time.time()
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             apply_end = time.time()
 
             # Step 3: Similarity
@@ -477,7 +477,7 @@ class TestConcurrentOperationPerformance:
             similarity_args.verbose = False
 
             similarity_start = time.time()
-            similarity_result = similarity_plugin.execute_similarity(similarity_args)
+            similarity_result = similarity_tool.execute_similarity(similarity_args)
             similarity_end = time.time()
 
             # Verify all steps completed successfully
@@ -514,7 +514,7 @@ class TestPerformanceRegression:
             mock_container.get_service.return_value = mock_db_connection
 
             # Establish baseline performance
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -528,7 +528,7 @@ class TestPerformanceRegression:
             baseline_times = []
             for _ in range(3):
                 start_time = time.time()
-                scan_result = scan_plugin.execute_scan(scan_args)
+                scan_result = scan_tool.execute_scan(scan_args)
                 end_time = time.time()
 
                 assert scan_result == 0
@@ -555,7 +555,7 @@ class TestPerformanceRegression:
             mock_container.get_service.return_value = mock_db_connection
 
             # Perform repeated operations to test for memory leaks
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -568,7 +568,7 @@ class TestPerformanceRegression:
             # Run 10 consecutive scans
             for iteration in range(10):
                 start_time = time.time()
-                scan_result = scan_plugin.execute_scan(scan_args)
+                scan_result = scan_tool.execute_scan(scan_args)
                 end_time = time.time()
 
                 assert scan_result == 0

@@ -3,7 +3,7 @@
 
 from .filesystem import *
 from .database import *
-from .plugins import *
+from .tools import *
 from .performance import *
 from .errors import *
 from .validation import *

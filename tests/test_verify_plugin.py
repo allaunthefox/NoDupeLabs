@@ -1,60 +1,60 @@
 #!/usr/bin/env python3
 
-"""Test script to debug the verify plugin loading issue."""
+"""Test script to debug the verify tool loading issue."""
 
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 
-from nodupe.plugins.commands.verify import VerifyPlugin
+from nodupe.tools.commands.verify import VerifyTool
 
-def test_plugin_creation():
-    """Test creating the verify plugin directly."""
-    print("Testing direct plugin creation...")
+def test_tool_creation():
+    """Test creating the verify tool directly."""
+    print("Testing direct tool creation...")
     
     try:
-        plugin = VerifyPlugin()
-        print("Plugin created successfully")
-        print(f"Name: {plugin.name}")
-        print(f"Version: {plugin.version}")
-        print(f"Dependencies: {plugin.dependencies}")
+        tool = VerifyTool()
+        print("Tool created successfully")
+        print(f"Name: {tool.name}")
+        print(f"Version: {tool.version}")
+        print(f"Dependencies: {tool.dependencies}")
         print("All attributes accessible!")
         return True
     except Exception as e:
-        print(f"Error creating plugin: {e}")
+        print(f"Error creating tool: {e}")
         import traceback
         traceback.print_exc()
         return False
 
 def test_subclass():
-    """Test if VerifyPlugin is a proper subclass of Plugin."""
+    """Test if VerifyTool is a proper subclass of Tool."""
     print("\nTesting subclass relationship...")
     
-    is_sub = True  # VerifyPlugin is defined as a subclass of Plugin
-    print("VerifyPlugin is subclass of Plugin:", is_sub)
+    is_sub = True  # VerifyTool is defined as a subclass of Tool
+    print("VerifyTool is subclass of Tool:", is_sub)
     
     # Check if it has the abstract methods implemented
     import inspect
-    plugin_methods = [name for name, _ in inspect.getmembers(VerifyPlugin, predicate=inspect.isfunction)]
-    plugin_properties = [name for name, _ in inspect.getmembers(VerifyPlugin, lambda x: isinstance(x, property))]
+    tool_methods = [name for name, _ in inspect.getmembers(VerifyTool, predicate=inspect.isfunction)]
+    tool_properties = [name for name, _ in inspect.getmembers(VerifyTool, lambda x: isinstance(x, property))]
     
-    print(f"Plugin methods: {plugin_methods}")
-    print(f"Plugin properties: {plugin_properties}")
+    print(f"Tool methods: {tool_methods}")
+    print(f"Tool properties: {tool_properties}")
     
     # Check if the required abstract properties exist
     required_attrs = ['name', 'version', 'dependencies']
     for attr in required_attrs:
-        has_attr = hasattr(VerifyPlugin, attr)
-        attr_value = getattr(VerifyPlugin, attr, None)
+        has_attr = hasattr(VerifyTool, attr)
+        attr_value = getattr(VerifyTool, attr, None)
         attr_type = type(attr_value).__name__  # Get the type name as string
         print(f"Has {attr}: {has_attr}, type: {attr_type}")
 
 if __name__ == "__main__":
-    print("Testing VerifyPlugin implementation...")
-    SUCCESS = test_plugin_creation()
+    print("Testing VerifyTool implementation...")
+    SUCCESS = test_tool_creation()
     test_subclass()
     
     if SUCCESS:
-        print("\n✅ Plugin implementation looks correct!")
+        print("\n✅ Tool implementation looks correct!")
     else:
-        print("\n❌ Plugin implementation has issues!")
+        print("\n❌ Tool implementation has issues!")

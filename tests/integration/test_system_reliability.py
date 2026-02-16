@@ -15,9 +15,9 @@ import time
 import json
 from unittest.mock import patch, MagicMock
 from nodupe.core.main import main
-from nodupe.plugins.commands.scan import ScanPlugin
-from nodupe.plugins.commands.apply import ApplyPlugin
-from nodupe.plugins.commands.similarity import SimilarityCommandPlugin as SimilarityPlugin
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
 
 class TestContinuousOperation:
     """Test system stability under continuous operation."""
@@ -37,7 +37,7 @@ class TestContinuousOperation:
             mock_container.get_service.return_value = mock_db_connection
 
             # Perform 20 consecutive scan operations
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -49,7 +49,7 @@ class TestContinuousOperation:
 
             success_count = 0
             for iteration in range(20):
-                scan_result = scan_plugin.execute_scan(scan_args)
+                scan_result = scan_tool.execute_scan(scan_args)
                 if scan_result == 0:
                     success_count += 1
 
@@ -80,7 +80,7 @@ class TestContinuousOperation:
                 json.dump(duplicates_data, f)
 
             # Perform 15 consecutive apply operations
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = duplicates_file
@@ -90,7 +90,7 @@ class TestContinuousOperation:
 
             success_count = 0
             for iteration in range(15):
-                apply_result = apply_plugin.execute_apply(apply_args)
+                apply_result = apply_tool.execute_apply(apply_args)
                 if apply_result == 0:
                     success_count += 1
 
@@ -108,7 +108,7 @@ class TestContinuousOperation:
                 f.write("Continuous similarity test query")
 
             # Perform 10 consecutive similarity operations
-            similarity_plugin = SimilarityPlugin()
+            similarity_tool = SimilarityTool()
             similarity_args = MagicMock()
             similarity_args.query_file = query_file
             similarity_args.database = None
@@ -120,7 +120,7 @@ class TestContinuousOperation:
 
             success_count = 0
             for iteration in range(10):
-                similarity_result = similarity_plugin.execute_similarity(similarity_args)
+                similarity_result = similarity_tool.execute_similarity(similarity_args)
                 if similarity_result == 0:
                     success_count += 1
 
@@ -150,7 +150,7 @@ class TestResourceStress:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan under stress
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -160,7 +160,7 @@ class TestResourceStress:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0  # Should handle stress gracefully
 
     def test_apply_with_large_duplicate_groups(self):
@@ -190,7 +190,7 @@ class TestResourceStress:
                 json.dump(large_data, f)
 
             # Test apply under stress
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = duplicates_file
@@ -198,7 +198,7 @@ class TestResourceStress:
             apply_args.dry_run = True
             apply_args.verbose = False
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0  # Should handle large dataset gracefully
 
 class TestErrorRecoveryMechanisms:
@@ -232,7 +232,7 @@ class TestErrorRecoveryMechanisms:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan with mixed file types
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -242,7 +242,7 @@ class TestErrorRecoveryMechanisms:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0  # Should handle file variations gracefully
 
     def test_apply_recovery_from_invalid_data(self):
@@ -276,7 +276,7 @@ class TestErrorRecoveryMechanisms:
                 json.dump(mixed_data, f)
 
             # Test apply with mixed valid/invalid data
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = duplicates_file
@@ -284,7 +284,7 @@ class TestErrorRecoveryMechanisms:
             apply_args.dry_run = True
             apply_args.verbose = False
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0  # Should handle invalid data gracefully
 
 class TestGracefulDegradation:
@@ -300,7 +300,7 @@ class TestGracefulDegradation:
                     f.write(f"Degradation test {i}")
 
             # Test scan without container (should degrade gracefully)
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -310,7 +310,7 @@ class TestGracefulDegradation:
             scan_args.verbose = False
             scan_args.container = None  # Missing container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             # Should handle missing container gracefully
             assert isinstance(scan_result, int)
 
@@ -335,7 +335,7 @@ class TestGracefulDegradation:
                 json.dump(missing_data, f)
 
             # Test apply with missing files
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = duplicates_file
@@ -343,7 +343,7 @@ class TestGracefulDegradation:
             apply_args.dry_run = True
             apply_args.verbose = False
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             # Should handle missing files gracefully
             assert isinstance(apply_result, int)
 
@@ -368,7 +368,7 @@ class TestLongRunningOperations:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test long-running scan
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -379,7 +379,7 @@ class TestLongRunningOperations:
             scan_args.container = mock_container
 
             start_time = time.time()
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             end_time = time.time()
 
             assert scan_result == 0
@@ -410,7 +410,7 @@ class TestLongRunningOperations:
                 json.dump(long_data, f)
 
             # Test long-running apply
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = duplicates_file
@@ -419,7 +419,7 @@ class TestLongRunningOperations:
             apply_args.verbose = False
 
             start_time = time.time()
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             end_time = time.time()
 
             assert apply_result == 0
@@ -444,7 +444,7 @@ class TestResourceManagement:
             mock_container.get_service.return_value = mock_db_connection
 
             # Perform multiple scan operations to test cleanup
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -455,14 +455,14 @@ class TestResourceManagement:
             scan_args.container = mock_container
 
             for iteration in range(5):
-                scan_result = scan_plugin.execute_scan(scan_args)
+                scan_result = scan_tool.execute_scan(scan_args)
                 assert scan_result == 0
 
                 # Small delay
                 # time.sleep(0.1)  # Removed for performance - use mock time in tests
 
             # System should still be responsive after multiple operations
-            final_scan_result = scan_plugin.execute_scan(scan_args)
+            final_scan_result = scan_tool.execute_scan(scan_args)
             assert final_scan_result == 0
 
     def test_resource_cleanup_after_apply(self):
@@ -487,7 +487,7 @@ class TestResourceManagement:
                 json.dump(cleanup_data, f)
 
             # Perform multiple apply operations to test cleanup
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
             apply_args.input = duplicates_file
@@ -496,13 +496,13 @@ class TestResourceManagement:
             apply_args.verbose = False
 
             for iteration in range(5):
-                apply_result = apply_plugin.execute_apply(apply_args)
+                apply_result = apply_tool.execute_apply(apply_args)
                 assert apply_result == 0
 
                 # time.sleep(0.1)  # Removed for performance - use mock time in tests
 
             # System should still be responsive
-            final_apply_result = apply_plugin.execute_apply(apply_args)
+            final_apply_result = apply_tool.execute_apply(apply_args)
             assert final_apply_result == 0
 
 class TestSystemStability:
@@ -546,20 +546,20 @@ class TestSystemStability:
             mock_container.get_service.return_value = mock_db_connection
 
             # Perform mixed operations
-            scan_plugin = ScanPlugin()
-            apply_plugin = ApplyPlugin()
-            similarity_plugin = SimilarityPlugin()
+            scan_tool = ScanTool()
+            apply_tool = ApplyTool()
+            similarity_tool = SimilarityTool()
 
             operations = [
-                ("scan", scan_plugin, None),
-                ("apply", apply_plugin, duplicates_file),
-                ("similarity", similarity_plugin, query_file),
-                ("scan", scan_plugin, None),
-                ("apply", apply_plugin, duplicates_file)
+                ("scan", scan_tool, None),
+                ("apply", apply_tool, duplicates_file),
+                ("similarity", similarity_tool, query_file),
+                ("scan", scan_tool, None),
+                ("apply", apply_tool, duplicates_file)
             ]
 
             success_count = 0
-            for op_name, plugin, extra_data in operations:
+            for op_name, tool, extra_data in operations:
                 if op_name == "scan":
                     scan_args = MagicMock()
                     scan_args.paths = [temp_dir]
@@ -570,7 +570,7 @@ class TestSystemStability:
                     scan_args.verbose = False
                     scan_args.container = mock_container
 
-                    result = plugin.execute_scan(scan_args)
+                    result = tool.execute_scan(scan_args)
 
                 elif op_name == "apply":
                     apply_args = MagicMock()
@@ -580,7 +580,7 @@ class TestSystemStability:
                     apply_args.dry_run = True
                     apply_args.verbose = False
 
-                    result = plugin.execute_apply(apply_args)
+                    result = tool.execute_apply(apply_args)
 
                 elif op_name == "similarity":
                     similarity_args = MagicMock()
@@ -592,7 +592,7 @@ class TestSystemStability:
                     similarity_args.output = "text"
                     similarity_args.verbose = False
 
-                    result = plugin.execute_similarity(similarity_args)
+                    result = tool.execute_similarity(similarity_args)
 
                 if result == 0:
                     success_count += 1
@@ -617,7 +617,7 @@ class TestSystemStability:
             mock_container.get_service.return_value = mock_db_connection
 
             # Perform sustained operations
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -630,7 +630,7 @@ class TestSystemStability:
             # 10 consecutive operations under load
             success_count = 0
             for iteration in range(10):
-                scan_result = scan_plugin.execute_scan(scan_args)
+                scan_result = scan_tool.execute_scan(scan_args)
                 if scan_result == 0:
                     success_count += 1
 

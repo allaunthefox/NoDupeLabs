@@ -7,7 +7,7 @@ This module tests the specific CLI commands including:
 - Scan command
 - Apply command
 - Similarity command
-- Plugin commands
+- Tool commands
 """
 
 import pytest
@@ -17,25 +17,25 @@ import tempfile
 import json
 from unittest.mock import patch, MagicMock
 from nodupe.core.main import CLIHandler
-from nodupe.plugins.commands.scan import ScanPlugin
-from nodupe.plugins.commands.apply import ApplyPlugin
-from nodupe.plugins.commands.similarity import SimilarityCommandPlugin as SimilarityPlugin
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
 
 class TestScanCommand:
     """Test scan command functionality."""
 
     def test_scan_command_initialization(self):
-        """Test scan plugin initialization."""
-        plugin = ScanPlugin()
-        assert plugin.name == "scan"
-        assert plugin.version == "1.0.0"
-        assert plugin.description == "Scan directories for duplicate files"
+        """Test scan tool initialization."""
+        tool = ScanTool()
+        assert tool.name == "scan"
+        assert tool.version == "1.0.0"
+        assert tool.description == "Scan directories for duplicate files"
 
     def test_scan_command_registration(self):
         """Test scan command registration."""
         mock_subparsers = MagicMock()
-        plugin = ScanPlugin()
-        plugin.register_commands(mock_subparsers)
+        tool = ScanTool()
+        tool.register_commands(mock_subparsers)
         assert mock_subparsers.add_parser.called
 
     def test_scan_command_execution(self):
@@ -67,8 +67,8 @@ class TestScanCommand:
             args.container = mock_container
 
             # Execute scan
-            plugin = ScanPlugin()
-            result = plugin.execute_scan(args)
+            tool = ScanTool()
+            result = tool.execute_scan(args)
 
             # Should return 0 for success
             assert result == 0
@@ -77,17 +77,17 @@ class TestApplyCommand:
     """Test apply command functionality."""
 
     def test_apply_command_initialization(self):
-        """Test apply plugin initialization."""
-        plugin = ApplyPlugin()
-        assert plugin.name == "apply"
-        assert plugin.version == "1.0.0"
-        assert plugin.description == "Apply actions to duplicate files"
+        """Test apply tool initialization."""
+        tool = ApplyTool()
+        assert tool.name == "apply"
+        assert tool.version == "1.0.0"
+        assert tool.description == "Apply actions to duplicate files"
 
     def test_apply_command_registration(self):
         """Test apply command registration."""
         mock_subparsers = MagicMock()
-        plugin = ApplyPlugin()
-        plugin.register_commands(mock_subparsers)
+        tool = ApplyTool()
+        tool.register_commands(mock_subparsers)
         assert mock_subparsers.add_parser.called
 
     def test_apply_command_execution(self):
@@ -124,8 +124,8 @@ class TestApplyCommand:
             args.verbose = False
 
             # Execute apply
-            plugin = ApplyPlugin()
-            result = plugin.execute_apply(args)
+            tool = ApplyTool()
+            result = tool.execute_apply(args)
 
             # Should return 0 for success
             assert result == 0
@@ -134,17 +134,17 @@ class TestSimilarityCommand:
     """Test similarity command functionality."""
 
     def test_similarity_command_initialization(self):
-        """Test similarity plugin initialization."""
-        plugin = SimilarityPlugin()
-        assert plugin.name == "similarity"
-        assert plugin.version == "1.0.0"
-        assert plugin.description == "Find similar files using vector similarity search"
+        """Test similarity tool initialization."""
+        tool = SimilarityTool()
+        assert tool.name == "similarity_command"
+        assert tool.version == "1.0.0"
+        assert tool.description == "Find similar files using various metrics"
 
     def test_similarity_command_registration(self):
         """Test similarity command registration."""
         mock_subparsers = MagicMock()
-        plugin = SimilarityPlugin()
-        plugin.register_commands(mock_subparsers)
+        tool = SimilarityTool()
+        tool.register_commands(mock_subparsers)
         assert mock_subparsers.add_parser.called
 
     def test_similarity_command_execution(self):
@@ -158,6 +158,7 @@ class TestSimilarityCommand:
             # Mock the args
             args = MagicMock()
             args.query_file = test_file
+            args.metric = "name"
             args.database = None
             args.k = 5
             args.threshold = 0.8
@@ -166,52 +167,52 @@ class TestSimilarityCommand:
             args.verbose = False
 
             # Execute similarity
-            plugin = SimilarityPlugin()
-            result = plugin.execute_similarity(args)
+            tool = SimilarityTool()
+            result = tool.execute_similarity(args)
 
             # Should return 0 for success
             assert result == 0
 
-class TestPluginCommands:
-    """Test plugin command functionality."""
+class TestToolCommands:
+    """Test tool command functionality."""
 
-    def test_plugin_command_list(self):
-        """Test plugin list command."""
+    def test_tool_command_list(self):
+        """Test tool list command."""
         mock_loader = MagicMock()
-        mock_plugin_registry = MagicMock()
-        mock_plugin = MagicMock()
-        mock_plugin.name = "test_plugin"
-        mock_plugin.version = "1.0.0"
-        mock_plugin_registry.get_plugins.return_value = [mock_plugin]
+        mock_tool_registry = MagicMock()
+        mock_tool = MagicMock()
+        mock_tool.name = "test_tool"
+        mock_tool.version = "1.0.0"
+        mock_tool_registry.get_tools.return_value = [mock_tool]
 
-        mock_loader.plugin_registry = mock_plugin_registry
+        mock_loader.tool_registry = mock_tool_registry
 
         cli = CLIHandler(mock_loader)
 
-        # Mock args for plugin list command
+        # Mock args for tool list command
         args = MagicMock()
         args.list = True
 
-        # Execute plugin command
-        result = cli._cmd_plugin(args)
+        # Execute tool command
+        result = cli._cmd_tool(args)
         assert result == 0
 
-    def test_plugin_command_no_list(self):
-        """Test plugin command without list flag."""
+    def test_tool_command_no_list(self):
+        """Test tool command without list flag."""
         mock_loader = MagicMock()
-        mock_plugin_registry = MagicMock()
-        mock_plugin_registry.get_plugins.return_value = []
+        mock_tool_registry = MagicMock()
+        mock_tool_registry.get_tools.return_value = []
 
-        mock_loader.plugin_registry = mock_plugin_registry
+        mock_loader.tool_registry = mock_tool_registry
 
         cli = CLIHandler(mock_loader)
 
-        # Mock args for plugin command without list
+        # Mock args for tool command without list
         args = MagicMock()
         args.list = False
 
-        # Execute plugin command
-        result = cli._cmd_plugin(args)
+        # Execute tool command
+        result = cli._cmd_tool(args)
         assert result == 0
 
 class TestCommandIntegration:
@@ -235,7 +236,7 @@ class TestCommandIntegration:
             mock_container.get_service.return_value = mock_db_connection
 
             # Test scan
-            scan_plugin = ScanPlugin()
+            scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
@@ -245,25 +246,29 @@ class TestCommandIntegration:
             scan_args.verbose = False
             scan_args.container = mock_container
 
-            scan_result = scan_plugin.execute_scan(scan_args)
+            scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0
 
             # Test apply (list action)
-            apply_plugin = ApplyPlugin()
+            apply_tool = ApplyTool()
             apply_args = MagicMock()
             apply_args.action = "list"
-            apply_args.input = os.path.join(temp_dir, "duplicates.json")
+            # Create a dummy file to satisfy the check
+            dummy_input = os.path.join(temp_dir, "dummy.json")
+            with open(dummy_input, "w") as f:
+                f.write("{}")
+            apply_args.input = dummy_input
             apply_args.target_dir = None
             apply_args.dry_run = True
             apply_args.verbose = False
 
-            apply_result = apply_plugin.execute_apply(apply_args)
+            apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0
 
     def test_command_error_handling(self):
         """Test command error handling."""
         # Test scan with invalid path
-        scan_plugin = ScanPlugin()
+        scan_tool = ScanTool()
         scan_args = MagicMock()
         scan_args.paths = ["/nonexistent/path"]
         scan_args.min_size = 0
@@ -273,11 +278,11 @@ class TestCommandIntegration:
         scan_args.verbose = False
         scan_args.container = None
 
-        scan_result = scan_plugin.execute_scan(scan_args)
+        scan_result = scan_tool.execute_scan(scan_args)
         assert scan_result != 0
 
         # Test apply with invalid input file
-        apply_plugin = ApplyPlugin()
+        apply_tool = ApplyTool()
         apply_args = MagicMock()
         apply_args.action = "list"
         apply_args.input = "/nonexistent/file.json"
@@ -285,7 +290,7 @@ class TestCommandIntegration:
         apply_args.dry_run = True
         apply_args.verbose = False
 
-        apply_result = apply_plugin.execute_apply(apply_args)
+        apply_result = apply_tool.execute_apply(apply_args)
         assert apply_result != 0
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@
 import pytest
 import time
 from pathlib import Path
+from unittest.mock import patch
 from nodupe.core.limits import (
     Limits,
     LimitsError,
@@ -47,15 +48,15 @@ class TestLimits:
     def test_time_limit(self):
         """Test time limit context manager."""
         # Should pass
-        with Limits.time_limit(1.0):
-            # time.sleep(0.1)  # Removed for performance - use mock time in tests
-            pass
+        with patch('time.monotonic', side_effect=[0, 0.5]):
+            with Limits.time_limit(1.0):
+                pass
 
         # Should fail
-        with pytest.raises(LimitsError):
-            with Limits.time_limit(0.1):
-                # time.sleep(0.5)  # Removed for performance - use mock time in tests
-                pass
+        with patch('time.monotonic', side_effect=[0, 0.5]):
+            with pytest.raises(LimitsError):
+                with Limits.time_limit(0.1):
+                    pass
 
 
 class TestRateLimiter:
@@ -87,16 +88,14 @@ class TestRateLimiter:
 
     def test_rate_limiter_refill(self):
         """Test that TOKEN_REMOVEDs refill over time."""
-        limiter = RateLimiter(rate=10, burst=2)
-        
-        # Consume all TOKEN_REMOVEDs
-        assert limiter.consume(2)
-        
-        # Wait for refill
-        # time.sleep(0.3)  # Removed for performance - use mock time in tests
-        
-        # Should have TOKEN_REMOVEDs again
-        assert limiter.consume(1)
+        with patch('time.monotonic', side_effect=[0, 0, 0.3]):
+            limiter = RateLimiter(rate=10, burst=2)
+            
+            # Consume all TOKEN_REMOVEDs
+            assert limiter.consume(2)
+            
+            # Should have TOKEN_REMOVEDs again after simulated time
+            assert limiter.consume(1)
 
     def test_rate_limiter_context(self):
         """Test rate limiter context manager."""

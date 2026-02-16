@@ -11,13 +11,14 @@
 This plan outlines the roadmap for NoDupeLabs with explicit phases, steps, sub-steps, and measurable completion metrics at every level.
 
 **Current State:**
-- ⚠️ Test Coverage: 56.48% (below 100% target)
+- ❌ Test Coverage: 10.18% (CRITICAL - down from previous 56.48% due to regressions or increased codebase size)
 - ✅ Docstring Coverage: 100% (COMPLETED)
 - ✅ CI/CD Pipeline: Functional (COMPLETED)
 - ✅ Wiki Documentation: 11 files (COMPLETED)
 - ✅ Security Scanning: Implemented (COMPLETED)
 - ✅ Rollback System: Implemented (COMPLETED)
-- ⚠️ Type Checking: Partially implemented
+- ⚠️ Type Checking: 180 errors remaining (26% fixed)
+- ❌ Unit Tests: 10 failures detected in core modules (Plugin System, Compression, Config)
 
 ---
 
@@ -122,9 +123,38 @@ This plan outlines the roadmap for NoDupeLabs with explicit phases, steps, sub-s
 
 `pytest tests/core/test_rollback.py -v` passes with 100% coverage (100% or nothing - if it fails in tests, it fails in production)
 
+## Phase 4: Critical Fixes & Coverage (URGENT)
+
+### Step 4.1: Plugin System Repair
+
+| Sub-Step | Action | Completion Metric |
+|----------|--------|-------------------|
+| 4.1.1 | Fix PluginLoader/Lifecycle/HotReload constructors | Tests no longer fail with TypeError (missing args) |
+| 4.1.2 | Implement `discover_plugins` in PluginDiscovery | `hasattr(discovery, 'discover_plugins')` is True |
+| 4.1.3 | Implement abstract methods in TestPlugin | `TestPlugin` can be instantiated in tests |
+
+### Step 4.2: Compression & Config Fixes
+
+| Sub-Step | Action | Completion Metric |
+|----------|--------|-------------------|
+| 4.2.1 | Fix `tar.gz` size estimation in `compression.py` | `test_estimate_compressed_size_comprehensive_branches` passes |
+| 4.2.2 | Fix `tar.gz` extraction logic | `test_tar_gz_valid_extraction` passes (len(extracted) == 1) |
+| 4.2.3 | Standardize ConfigManager error messages | `test_config_manager_missing_config_file` passes |
+
+### Step 4.3: Coverage Expansion
+
+| Sub-Step | Action | Completion Metric |
+|----------|--------|-------------------|
+| 4.3.1 | Identify untested modules | Coverage report generated per file |
+| 4.3.2 | Implement unit tests for core modules | Line coverage increases to >50% |
+| 4.3.3 | Implement unit tests for plugin/db modules | Line coverage increases to >80% |
+| 4.3.4 | Achieve "100% or nothing" coverage | Line coverage is 100% |
+
+**Phase 4 Completion Metric:** `pytest` passes with 0 failures and 100% coverage.
+
 ---
 
-## Phase 4: Type Safety
+## Phase 5: Type Safety
 
 ### Step 4.1: mypy Integration
 
@@ -158,9 +188,9 @@ This plan outlines the roadmap for NoDupeLabs with explicit phases, steps, sub-s
 
 ---
 
-## Phase 5: Performance & Optimization
+## Phase 6: Performance & Optimization
 
-### Step 5.1: Performance Benchmarks
+### Step 6.1: Performance Benchmarks
 
 | Sub-Step | Action | Completion Metric |
 |----------|--------|-------------------|
@@ -173,71 +203,71 @@ This plan outlines the roadmap for NoDupeLabs with explicit phases, steps, sub-s
 
 ---
 
-### Step 5.2: Memory Optimization
+### Step 6.2: Memory Optimization
 
 | Sub-Step | Action | Completion Metric |
 |----------|--------|-------------------|
-| 5.2.1 | Profile memory usage | Memory profile created |
-| 5.2.2 | Fix unbounded reads | All reads have size limits |
-| 5.2.3 | Optimize caching | Cache hit rate >80% |
-| 5.2.4 | Add memory limits | Limits enforced in config |
+| 6.2.1 | Profile memory usage | Memory profile created |
+| 6.2.2 | Fix unbounded reads | All reads have size limits |
+| 6.2.3 | Optimize caching | Cache hit rate >80% |
+| 6.2.4 | Add memory limits | Limits enforced in config |
 
-**Step 5.2 Completion Metric:** Memory usage <500MB for 100GB dataset
+**Step 6.2 Completion Metric:** Memory usage <500MB for 100GB dataset
 
 ---
 
-### Phase 5 Completion Metric
+### Phase 6 Completion Metric
 
 Benchmarks complete with <5% regression from baseline
 
 ---
 
-## Phase 6: Documentation & Release
+## Phase 7: Documentation & Release
 
-### Step 6.1: API Documentation
-
-| Sub-Step | Action | Completion Metric |
-|----------|--------|-------------------|
-| 6.1.1 | Document public API | All public functions documented | ✅ |
-| 6.1.2 | Add usage examples | Examples in wiki/API/ | ✅ |
-| 6.1.3 | Document configuration | Config options documented | ✅ |
-| 6.1.4 | Document plugins | Plugin development guide exists | ✅ |
-
-**Step 6.1 Completion Metric:** ✅ wiki/API/ has 5+ documented endpoints (CLI, Snapshot, Transaction, Configuration, + more)
-
----
-
-### Step 6.3: Marketplace Specification (NEW)
+### Step 7.1: API Documentation
 
 | Sub-Step | Action | Completion Metric |
 |----------|--------|-------------------|
-| 6.3.1 | Create OpenAPI spec | docs/openapi.yaml follows OAS 3.1.2 | ✅ |
-| 6.3.2 | Document compliance | docs/OPENAPI.md explains compliance | ✅ |
-| 6.3.3 | Validate spec | YAML passes enforce_yaml_spec.py | ✅ |
-| 6.3.4 | Add CI validation | OAS validation in lint job | ✅ |
+| 7.1.1 | Document public API | All public functions documented | ✅ |
+| 7.1.2 | Add usage examples | Examples in wiki/API/ | ✅ |
+| 7.1.3 | Document configuration | Config options documented | ✅ |
+| 7.1.4 | Document plugins | Plugin development guide exists | ✅ |
 
-**Step 6.3 Completion Metric:** ✅ docs/openapi.yaml is valid OAS 3.1.2, docs/OPENAPI.md exists, validation runs in CI
-
----
-
-**Phase 6 Additional Completion Metric:** OpenAPI 3.1.2 marketplace spec implemented in `docs/openapi.yaml` with full compliance documentation
+**Step 7.1 Completion Metric:** ✅ wiki/API/ has 5+ documented endpoints (CLI, Snapshot, Transaction, Configuration, + more)
 
 ---
 
-### Step 6.2: Release Preparation
+### Step 7.3: Marketplace Specification (NEW)
 
 | Sub-Step | Action | Completion Metric |
 |----------|--------|-------------------|
-| 6.2.1 | Version bump | pyproject.toml version updated |
-| 6.2.2 | Update changelog | Changelog has all changes |
-| 6.2.3 | Create release notes | Release notes created |
-| 6.2.4 | Publish to PyPI | Package published |
+| 7.3.1 | Create OpenAPI spec | docs/openapi.yaml follows OAS 3.1.2 | ✅ |
+| 7.3.2 | Document compliance | docs/OPENAPI.md explains compliance | ✅ |
+| 7.3.3 | Validate spec | YAML passes enforce_yaml_spec.py | ✅ |
+| 7.3.4 | Add CI validation | OAS validation in lint job | ✅ |
 
-**Step 6.2 Completion Metric:** `pip install nodupelabs` installs latest version
+**Step 7.3 Completion Metric:** ✅ docs/openapi.yaml is valid OAS 3.1.2, docs/OPENAPI.md exists, validation runs in CI
 
 ---
 
-### Phase 6 Completion Metric
+**Phase 7 Additional Completion Metric:** OpenAPI 3.1.2 marketplace spec implemented in `docs/openapi.yaml` with full compliance documentation
+
+---
+
+### Step 7.2: Release Preparation
+
+| Sub-Step | Action | Completion Metric |
+|----------|--------|-------------------|
+| 7.2.1 | Version bump | pyproject.toml version updated |
+| 7.2.2 | Update changelog | Changelog has all changes |
+| 7.2.3 | Create release notes | Release notes created |
+| 7.2.4 | Publish to PyPI | Package published |
+
+**Step 7.2 Completion Metric:** `pip install nodupelabs` installs latest version
+
+---
+
+### Phase 7 Completion Metric
 
 Release 1.0.0 published to PyPI
 
@@ -250,9 +280,10 @@ Release 1.0.0 published to PyPI
 | 1 | Core Infrastructure | 100% coverage (100% or nothing) | ✅ |
 | 2 | Security & Quality | 0 HIGH vulns (100% secure) | ✅ |
 | 3 | Safety Systems | Rollback implemented, 100% tests | ✅ |
-| 4 | Type Safety | mypy passes (0 errors) | ✅ |
-| 5 | Performance | Benchmarks pass | ✅ |
-| 6 | Release | v1.0.0 published | ✅ |
+| 4 | Critical Fixes & Coverage | 0 failures, 100% coverage | ❌ |
+| 5 | Type Safety | mypy passes (0 errors) | ⚠️ |
+| 6 | Performance | Benchmarks pass | ✅ |
+| 7 | Release | v1.0.0 published | ✅ |
 
 ---
 

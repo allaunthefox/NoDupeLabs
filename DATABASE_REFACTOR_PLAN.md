@@ -370,7 +370,7 @@ All new code MUST include:
 ### Step 6.7: Archive and Refactor logging.py
 - **Action:** Archive, recreate with docstrings
 - **Verification:** File archived, new file works
-- **Metric:** `mypy nodupe/core/logging.py --config-file mypy.ini` returns 0 errors
+- **Metric:** `mypy nodupe.core.logging_system.py --config-file mypy.ini` returns 0 errors
 
 ### Step 6.8: Archive and Refactor errors.py
 - **Action:** Archive, recreate with docstrings

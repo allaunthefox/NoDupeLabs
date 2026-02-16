@@ -4,13 +4,13 @@ import sys
 import traceback
 
 try:
-    print("Attempting to import PluginCompatibility...")
-    from nodupe.core.plugin_system.compatibility import PluginCompatibility, PluginCompatibilityError
+    print("Attempting to import ToolCompatibility...")
+    from nodupe.core.tool_system.compatibility import ToolCompatibility, ToolCompatibilityError
     print("✅ Import successful!")
 
     # Try to create an instance
-    print("Creating PluginCompatibility instance...")
-    compat = PluginCompatibility()
+    print("Creating ToolCompatibility instance...")
+    compat = ToolCompatibility()
     print(f"✅ Instance created: {type(compat)}")
 
     # Check if it has the expected methods

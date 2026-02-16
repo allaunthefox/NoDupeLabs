@@ -1,44 +1,44 @@
-"""Test plugin hot reload functionality."""
+"""Test tool hot reload functionality."""
 
 import pytest
 from unittest.mock import MagicMock, patch
 from pathlib import Path
-from nodupe.core.plugin_system.hot_reload import PluginHotReload
-from nodupe.core.plugin_system.registry import PluginRegistry
+from nodupe.core.tool_system.hot_reload import ToolHotReload
+from nodupe.core.tool_system.registry import ToolRegistry
 
 
-class TestPluginHotReload:
-    """Test plugin hot reload core functionality."""
+class TestToolHotReload:
+    """Test tool hot reload core functionality."""
 
-    def test_plugin_hot_reload_initialization(self):
-        """Test plugin hot reload initialization."""
-        hot_reload = PluginHotReload()
+    def test_tool_hot_reload_initialization(self):
+        """Test tool hot reload initialization."""
+        hot_reload = ToolHotReload()
         assert hot_reload is not None
-        assert isinstance(hot_reload, PluginHotReload)
+        assert isinstance(hot_reload, ToolHotReload)
 
         # Test that it has expected attributes
-        assert hasattr(hot_reload, 'watch_plugin')
+        assert hasattr(hot_reload, 'watch_tool')
         assert hasattr(hot_reload, 'start')
         assert hasattr(hot_reload, 'stop')
         assert hasattr(hot_reload, 'initialize')
         assert hasattr(hot_reload, 'shutdown')
 
-    def test_plugin_hot_reload_with_container(self):
-        """Test plugin hot reload with dependency container."""
+    def test_tool_hot_reload_with_container(self):
+        """Test tool hot reload with dependency container."""
         from nodupe.core.container import ServiceContainer
 
-        hot_reload = PluginHotReload()
+        hot_reload = ToolHotReload()
         container = ServiceContainer()
 
         # Initialize hot reload with container
         hot_reload.initialize(container)
         assert hot_reload.container is container
 
-    def test_plugin_hot_reload_lifecycle(self):
-        """Test plugin hot reload lifecycle operations."""
+    def test_tool_hot_reload_lifecycle(self):
+        """Test tool hot reload lifecycle operations."""
         from nodupe.core.container import ServiceContainer
 
-        hot_reload = PluginHotReload()
+        hot_reload = ToolHotReload()
         container = ServiceContainer()
 
         # Test initialization
@@ -54,43 +54,43 @@ class TestPluginHotReload:
         assert hot_reload.container is container
 
 
-class TestPluginHotReloadOperations:
-    """Test plugin hot reload operations."""
+class TestToolHotReloadOperations:
+    """Test tool hot reload operations."""
 
-    def test_watch_plugin(self):
-        """Test watching a plugin."""
-        hot_reload = PluginHotReload()
+    def test_watch_tool(self):
+        """Test watching a tool."""
+        hot_reload = ToolHotReload()
 
-        # Watch a plugin
-        hot_reload.watch_plugin("test_plugin", Path("/test/plugin.py"))
+        # Watch a tool
+        hot_reload.watch_tool("test_tool", Path("/test/tool.py"))
 
-        # Verify plugin is being watched
-        assert "test_plugin" in hot_reload._watched_plugins
-        assert hot_reload._watched_plugins["test_plugin"] == Path(
-            "/test/plugin.py")
+        # Verify tool is being watched
+        assert "test_tool" in hot_reload._watched_tools
+        assert hot_reload._watched_tools["test_tool"] == Path(
+            "/test/tool.py")
 
-    def test_watch_multiple_plugins(self):
-        """Test watching multiple plugins."""
-        hot_reload = PluginHotReload()
+    def test_watch_multiple_tools(self):
+        """Test watching multiple tools."""
+        hot_reload = ToolHotReload()
 
-        # Watch multiple plugins
-        plugins = [
-            ("plugin1", Path("/test/plugin1.py")),
-            ("plugin2", Path("/test/plugin2.py")),
-            ("plugin3", Path("/test/plugin3.py"))
+        # Watch multiple tools
+        tools = [
+            ("tool1", Path("/test/tool1.py")),
+            ("tool2", Path("/test/tool2.py")),
+            ("tool3", Path("/test/tool3.py"))
         ]
 
-        for name, path in plugins:
-            hot_reload.watch_plugin(name, path)
+        for name, path in tools:
+            hot_reload.watch_tool(name, path)
 
-        # Verify all plugins are being watched
-        for name, path in plugins:
-            assert name in hot_reload._watched_plugins
-            assert hot_reload._watched_plugins[name] == path
+        # Verify all tools are being watched
+        for name, path in tools:
+            assert name in hot_reload._watched_tools
+            assert hot_reload._watched_tools[name] == path
 
     def test_start_hot_reload(self):
         """Test starting hot reload."""
-        hot_reload = PluginHotReload()
+        hot_reload = ToolHotReload()
 
         # Mock the poll loop
         with patch.object(hot_reload, '_poll_loop') as mock_poll_loop:
@@ -101,7 +101,7 @@ class TestPluginHotReloadOperations:
 
     def test_stop_hot_reload(self):
         """Test stopping hot reload."""
-        hot_reload = PluginHotReload()
+        hot_reload = ToolHotReload()
 
         # Start hot reload
         with patch.object(hot_reload, '_poll_loop') as mock_poll_loop:
@@ -115,7 +115,7 @@ class TestPluginHotReloadOperations:
 
     def test_hot_reload_lifecycle(self):
         """Test hot reload lifecycle."""
-        hot_reload = PluginHotReload()
+        hot_reload = ToolHotReload()
 
         # Start hot reload
         with patch.object(hot_reload, '_poll_loop') as mock_poll_loop:
@@ -127,36 +127,36 @@ class TestPluginHotReloadOperations:
             assert hot_reload._running is False
 
 
-class TestPluginHotReloadEdgeCases:
-    """Test plugin hot reload edge cases."""
+class TestToolHotReloadEdgeCases:
+    """Test tool hot reload edge cases."""
 
-    def test_watch_duplicate_plugin(self):
-        """Test watching duplicate plugin."""
-        hot_reload = PluginHotReload()
+    def test_watch_duplicate_tool(self):
+        """Test watching duplicate tool."""
+        hot_reload = ToolHotReload()
 
-        # Watch a plugin
-        hot_reload.watch_plugin("test_plugin", Path("/test/plugin.py"))
+        # Watch a tool
+        hot_reload.watch_tool("test_tool", Path("/test/tool.py"))
 
-        # Watch the same plugin again (should overwrite)
-        hot_reload.watch_plugin("test_plugin", Path("/test/plugin_new.py"))
+        # Watch the same tool again (should overwrite)
+        hot_reload.watch_tool("test_tool", Path("/test/tool_new.py"))
 
-        # Verify plugin path was updated
-        assert hot_reload._watched_plugins["test_plugin"] == Path(
-            "/test/plugin_new.py")
+        # Verify tool path was updated
+        assert hot_reload._watched_tools["test_tool"] == Path(
+            "/test/tool_new.py")
 
-    def test_watch_plugin_with_nonexistent_path(self):
-        """Test watching plugin with non-existent path."""
-        hot_reload = PluginHotReload()
+    def test_watch_tool_with_nonexistent_path(self):
+        """Test watching tool with non-existent path."""
+        hot_reload = ToolHotReload()
 
-        # Watch a plugin with non-existent path
-        hot_reload.watch_plugin("test_plugin", Path("/nonexistent/plugin.py"))
+        # Watch a tool with non-existent path
+        hot_reload.watch_tool("test_tool", Path("/nonexistent/tool.py"))
 
         # Should still be watched (validation happens during reload)
-        assert "test_plugin" in hot_reload._watched_plugins
+        assert "test_tool" in hot_reload._watched_tools
 
     def test_start_hot_reload_already_running(self):
         """Test starting hot reload when already running."""
-        hot_reload = PluginHotReload()
+        hot_reload = ToolHotReload()
 
         # Start hot reload
         with patch.object(hot_reload, '_poll_loop') as mock_poll_loop:
@@ -171,7 +171,7 @@ class TestPluginHotReloadEdgeCases:
 
     def test_stop_hot_reload_not_running(self):
         """Test stopping hot reload when not running."""
-        hot_reload = PluginHotReload()
+        hot_reload = ToolHotReload()
 
         # Stop hot reload when not running
         hot_reload.stop()
@@ -180,102 +180,102 @@ class TestPluginHotReloadEdgeCases:
         assert hot_reload._running is False
 
 
-class TestPluginHotReloadPerformance:
-    """Test plugin hot reload performance."""
+class TestToolHotReloadPerformance:
+    """Test tool hot reload performance."""
 
-    def test_mass_plugin_watching(self):
-        """Test mass plugin watching."""
-        hot_reload = PluginHotReload()
+    def test_mass_tool_watching(self):
+        """Test mass tool watching."""
+        hot_reload = ToolHotReload()
 
-        # Watch many plugins
+        # Watch many tools
         for i in range(100):
-            hot_reload.watch_plugin(
-                f"plugin_{i}", Path(
-                    f"/test/plugin_{i}.py"))
+            hot_reload.watch_tool(
+                f"tool_{i}", Path(
+                    f"/test/tool_{i}.py"))
 
-        # Verify all plugins are being watched
-        assert len(hot_reload._watched_plugins) == 100
+        # Verify all tools are being watched
+        assert len(hot_reload._watched_tools) == 100
 
         for i in range(100):
-            assert f"plugin_{i}" in hot_reload._watched_plugins
+            assert f"tool_{i}" in hot_reload._watched_tools
 
     def test_hot_reload_performance(self):
         """Test hot reload performance."""
         import time
 
-        hot_reload = PluginHotReload()
+        hot_reload = ToolHotReload()
 
         # Test watching performance
         start_time = time.time()
         for i in range(1000):
-            hot_reload.watch_plugin(
-                f"perf_plugin_{i}", Path(
-                    f"/test/plugin_{i}.py"))
+            hot_reload.watch_tool(
+                f"perf_tool_{i}", Path(
+                    f"/test/tool_{i}.py"))
         watch_time = time.time() - start_time
 
         # Should be fast operation
         assert watch_time < 0.1
 
-        # Verify all plugins are being watched
-        assert len(hot_reload._watched_plugins) == 1000
+        # Verify all tools are being watched
+        assert len(hot_reload._watched_tools) == 1000
 
 
-class TestPluginHotReloadIntegration:
-    """Test plugin hot reload integration scenarios."""
+class TestToolHotReloadIntegration:
+    """Test tool hot reload integration scenarios."""
 
     def test_hot_reload_with_registry(self):
         """Test hot reload integration with registry."""
-        hot_reload = PluginHotReload()
-        registry = PluginRegistry()
+        hot_reload = ToolHotReload()
+        registry = ToolRegistry()
 
-        # Watch a plugin
-        hot_reload.watch_plugin("test_plugin", Path("/test/plugin.py"))
+        # Watch a tool
+        hot_reload.watch_tool("test_tool", Path("/test/tool.py"))
 
         # Verify integration
-        assert "test_plugin" in hot_reload._watched_plugins
+        assert "test_tool" in hot_reload._watched_tools
 
     def test_hot_reload_with_loader(self):
         """Test hot reload integration with loader."""
-        from nodupe.core.plugin_system.loader import PluginLoader
+        from nodupe.core.tool_system.loader import ToolLoader
 
-        hot_reload = PluginHotReload()
-        registry = PluginRegistry()
-        loader = PluginLoader(registry)
+        hot_reload = ToolHotReload()
+        registry = ToolRegistry()
+        loader = ToolLoader(registry)
 
-        # Watch a plugin
-        hot_reload.watch_plugin("test_plugin", Path("/test/plugin.py"))
+        # Watch a tool
+        hot_reload.watch_tool("test_tool", Path("/test/tool.py"))
 
         # Verify integration
-        assert "test_plugin" in hot_reload._watched_plugins
+        assert "test_tool" in hot_reload._watched_tools
 
 
-class TestPluginHotReloadErrorHandling:
-    """Test plugin hot reload error handling."""
+class TestToolHotReloadErrorHandling:
+    """Test tool hot reload error handling."""
 
-    def test_watch_plugin_with_invalid_name(self):
-        """Test watching plugin with invalid name."""
-        hot_reload = PluginHotReload()
+    def test_watch_tool_with_invalid_name(self):
+        """Test watching tool with invalid name."""
+        hot_reload = ToolHotReload()
 
-        # Watch a plugin with invalid name
-        hot_reload.watch_plugin("", Path("/test/plugin.py"))
-
-        # Should handle gracefully
-        assert "" in hot_reload._watched_plugins
-
-    def test_watch_plugin_with_invalid_path(self):
-        """Test watching plugin with invalid path."""
-        hot_reload = PluginHotReload()
-
-        # Watch a plugin with invalid path
-        hot_reload.watch_plugin("test_plugin", None)
+        # Watch a tool with invalid name
+        hot_reload.watch_tool("", Path("/test/tool.py"))
 
         # Should handle gracefully
-        assert "test_plugin" in hot_reload._watched_plugins
-        assert hot_reload._watched_plugins["test_plugin"] is None
+        assert "" in hot_reload._watched_tools
+
+    def test_watch_tool_with_invalid_path(self):
+        """Test watching tool with invalid path."""
+        hot_reload = ToolHotReload()
+
+        # Watch a tool with invalid path
+        hot_reload.watch_tool("test_tool", None)
+
+        # Should handle gracefully
+        assert "test_tool" in hot_reload._watched_tools
+        assert hot_reload._watched_tools["test_tool"] is None
 
     def test_start_hot_reload_with_exception(self):
         """Test starting hot reload when exception occurs."""
-        hot_reload = PluginHotReload()
+        hot_reload = ToolHotReload()
 
         # Mock poll loop to raise exception
         with patch.object(hot_reload, '_poll_loop', side_effect=Exception("Poll loop failed")):
@@ -286,75 +286,75 @@ class TestPluginHotReloadErrorHandling:
             assert hot_reload._running is True
 
 
-class TestPluginHotReloadAdvanced:
-    """Test advanced plugin hot reload functionality."""
+class TestToolHotReloadAdvanced:
+    """Test advanced tool hot reload functionality."""
 
-    def test_hot_reload_with_plugin_lifecycle(self):
-        """Test hot reload with plugin lifecycle."""
-        hot_reload = PluginHotReload()
+    def test_hot_reload_with_tool_lifecycle(self):
+        """Test hot reload with tool lifecycle."""
+        hot_reload = ToolHotReload()
 
-        # Watch multiple plugins
-        plugins = [
-            ("plugin1", Path("/test/plugin1.py")),
-            ("plugin2", Path("/test/plugin2.py")),
-            ("plugin3", Path("/test/plugin3.py"))
+        # Watch multiple tools
+        tools = [
+            ("tool1", Path("/test/tool1.py")),
+            ("tool2", Path("/test/tool2.py")),
+            ("tool3", Path("/test/tool3.py"))
         ]
 
-        for name, path in plugins:
-            hot_reload.watch_plugin(name, path)
+        for name, path in tools:
+            hot_reload.watch_tool(name, path)
 
-        # Verify all plugins are being watched
-        for name, path in plugins:
-            assert name in hot_reload._watched_plugins
-            assert hot_reload._watched_plugins[name] == path
+        # Verify all tools are being watched
+        for name, path in tools:
+            assert name in hot_reload._watched_tools
+            assert hot_reload._watched_tools[name] == path
 
     def test_hot_reload_with_conditional_watching(self):
         """Test hot reload with conditional watching."""
-        hot_reload = PluginHotReload()
+        hot_reload = ToolHotReload()
 
-        # Watch plugins conditionally
+        # Watch tools conditionally
         for i in range(10):
-            if i % 2 == 0:  # Only watch even-numbered plugins
-                hot_reload.watch_plugin(
-                    f"plugin_{i}", Path(
-                        f"/test/plugin_{i}.py"))
+            if i % 2 == 0:  # Only watch even-numbered tools
+                hot_reload.watch_tool(
+                    f"tool_{i}", Path(
+                        f"/test/tool_{i}.py"))
 
-        # Verify only even-numbered plugins are being watched
-        assert len(hot_reload._watched_plugins) == 5
+        # Verify only even-numbered tools are being watched
+        assert len(hot_reload._watched_tools) == 5
 
         for i in range(10):
             if i % 2 == 0:
-                assert f"plugin_{i}" in hot_reload._watched_plugins
+                assert f"tool_{i}" in hot_reload._watched_tools
             else:
-                assert f"plugin_{i}" not in hot_reload._watched_plugins
+                assert f"tool_{i}" not in hot_reload._watched_tools
 
-    def test_hot_reload_with_dynamic_plugin_management(self):
-        """Test hot reload with dynamic plugin management."""
-        hot_reload = PluginHotReload()
+    def test_hot_reload_with_dynamic_tool_management(self):
+        """Test hot reload with dynamic tool management."""
+        hot_reload = ToolHotReload()
 
-        # Watch initial set of plugins
-        initial_plugins = [("plugin1", Path("/test/plugin1.py")),
-                           ("plugin2", Path("/test/plugin2.py"))]
-        for name, path in initial_plugins:
-            hot_reload.watch_plugin(name, path)
+        # Watch initial set of tools
+        initial_tools = [("tool1", Path("/test/tool1.py")),
+                           ("tool2", Path("/test/tool2.py"))]
+        for name, path in initial_tools:
+            hot_reload.watch_tool(name, path)
 
-        # Verify initial plugins are being watched
-        assert len(hot_reload._watched_plugins) == 2
+        # Verify initial tools are being watched
+        assert len(hot_reload._watched_tools) == 2
 
-        # Add more plugins dynamically
-        new_plugins = [("plugin3", Path("/test/plugin3.py")),
-                       ("plugin4", Path("/test/plugin4.py"))]
-        for name, path in new_plugins:
-            hot_reload.watch_plugin(name, path)
+        # Add more tools dynamically
+        new_tools = [("tool3", Path("/test/tool3.py")),
+                       ("tool4", Path("/test/tool4.py"))]
+        for name, path in new_tools:
+            hot_reload.watch_tool(name, path)
 
-        # Verify all plugins are being watched
-        assert len(hot_reload._watched_plugins) == 4
+        # Verify all tools are being watched
+        assert len(hot_reload._watched_tools) == 4
 
-        # Remove some plugins
-        hot_reload._watched_plugins.pop("plugin1")
-        hot_reload._watched_plugins.pop("plugin2")
+        # Remove some tools
+        hot_reload._watched_tools.pop("tool1")
+        hot_reload._watched_tools.pop("tool2")
 
-        # Verify only new plugins remain
-        assert len(hot_reload._watched_plugins) == 2
-        assert "plugin3" in hot_reload._watched_plugins
-        assert "plugin4" in hot_reload._watched_plugins
+        # Verify only new tools remain
+        assert len(hot_reload._watched_tools) == 2
+        assert "tool3" in hot_reload._watched_tools
+        assert "tool4" in hot_reload._watched_tools

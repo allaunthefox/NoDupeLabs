@@ -5,7 +5,7 @@ from nodupe.core.errors import (
     NoDupeError,
     SecurityError,
     ValidationError,
-    PluginError,
+    ToolError,
     DatabaseError
 )
 
@@ -48,15 +48,15 @@ class TestErrorHierarchy:
         assert isinstance(error, NoDupeError)
         assert isinstance(error, Exception)
 
-    def test_plugin_error(self):
-        """Test PluginError class."""
-        assert issubclass(PluginError, NoDupeError)
-        assert issubclass(PluginError, Exception)
-        assert PluginError.__name__ == "PluginError"
+    def test_tool_error(self):
+        """Test ToolError class."""
+        assert issubclass(ToolError, NoDupeError)
+        assert issubclass(ToolError, Exception)
+        assert ToolError.__name__ == "ToolError"
 
         # Test instantiation
-        error = PluginError("Plugin failed")
-        assert str(error) == "Plugin failed"
+        error = ToolError("Tool failed")
+        assert str(error) == "Tool failed"
         assert isinstance(error, NoDupeError)
         assert isinstance(error, Exception)
 
@@ -152,33 +152,33 @@ class TestErrorIntegration:
         with pytest.raises(ValidationError):
             service.validate_user("ab")
 
-    def test_error_in_plugin_system(self):
-        """Test using errors in plugin system."""
-        class MockPlugin:
+    def test_error_in_tool_system(self):
+        """Test using errors in tool system."""
+        class MockTool:
             def __init__(self, name):
                 if not name:
-                    raise PluginError("Plugin name cannot be empty")
+                    raise ToolError("Tool name cannot be empty")
                 self.name = name
 
             def execute(self):
                 if not hasattr(self, 'initialized'):
-                    raise PluginError("Plugin not initialized")
-                return f"Plugin {self.name} executed"
+                    raise ToolError("Tool not initialized")
+                return f"Tool {self.name} executed"
 
-        # Test successful plugin
-        plugin = MockPlugin("test_plugin")
-        plugin.initialized = True
-        result = plugin.execute()
-        assert result == "Plugin test_plugin executed"
+        # Test successful tool
+        tool = MockTool("test_tool")
+        tool.initialized = True
+        result = tool.execute()
+        assert result == "Tool test_tool executed"
 
-        # Test plugin error
-        with pytest.raises(PluginError):
-            MockPlugin("")
+        # Test tool error
+        with pytest.raises(ToolError):
+            MockTool("")
 
-        # Test plugin execution error
-        plugin_no_init = MockPlugin("test_plugin")
-        with pytest.raises(PluginError):
-            plugin_no_init.execute()
+        # Test tool execution error
+        tool_no_init = MockTool("test_tool")
+        with pytest.raises(ToolError):
+            tool_no_init.execute()
 
 
 class TestErrorProperties:
@@ -216,7 +216,7 @@ class TestErrorHierarchyVerification:
         error_classes = [
             SecurityError,
             ValidationError,
-            PluginError,
+            ToolError,
             DatabaseError]
 
         for error_class in error_classes:
@@ -234,7 +234,7 @@ class TestErrorHierarchyVerification:
             NoDupeError("base"),
             SecurityError("security"),
             ValidationError("validation"),
-            PluginError("plugin"),
+            ToolError("tool"),
             DatabaseError("database")
         ]
 
@@ -245,5 +245,5 @@ class TestErrorHierarchyVerification:
         # Test specific isinstance checks
         assert isinstance(errors[1], SecurityError)
         assert isinstance(errors[2], ValidationError)
-        assert isinstance(errors[3], PluginError)
+        assert isinstance(errors[3], ToolError)
         assert isinstance(errors[4], DatabaseError)
