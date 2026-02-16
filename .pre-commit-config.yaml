@@ -29,17 +29,18 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
-      - id: yaml-lint
+      - id: check-yaml
 
   # ===== JSON LINTING =====
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
-      - id: json-lint
+      - id: check-json
 
   # ===== TRUFFLEHOG (matches CI: TruffleHog OSS) =====
+  # Pin to a specific version to avoid unexpected behavior changes
   - repo: https://github.com/trufflesecurity/trufflehog
-    rev: main
+    rev: v3.80.0
     hooks:
       - id: trufflehog
         args: [--only-verified]
