@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import hashlib
 from pathlib import Path
-from nodupe.core.scan.hasher import FileHasher, create_file_hasher
+from nodupe.tools.hashing.hasher_logic import FileHasher, create_file_hasher
 
 class TestFileHasher:
     """Test FileHasher class."""

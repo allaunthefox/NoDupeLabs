@@ -4,8 +4,8 @@ import pytest
 import tempfile
 import os
 from pathlib import Path
-from nodupe.core.scan.walker import FileWalker, create_file_walker
-from nodupe.core.scan.file_info import FileInfo
+from nodupe.tools.scanner_engine.walker import FileWalker, create_file_walker
+from nodupe.tools.scanner_engine.file_info import FileInfo
 
 class TestFileWalker:
     """Test FileWalker class."""

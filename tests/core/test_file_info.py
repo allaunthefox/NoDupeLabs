@@ -3,7 +3,7 @@
 import pytest
 import tempfile
 from pathlib import Path
-from nodupe.core.scan.file_info import FileInfo
+from nodupe.tools.scanner_engine.file_info import FileInfo
 
 class TestFileInfo:
     """Test FileInfo class."""
