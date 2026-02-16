@@ -1,38 +1,15 @@
+# Dependabot configuration for dependency updates
 version: 2
 updates:
+  # Enable version updates for npm
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    target-branch: "main"
-    labels:
-      - "dependencies"
-      - "automated"
-    commit-message:
-      prefix: "chore(deps)"
-      prefix-development: "chore(dev-deps)"
-
+    
+  # GitHub Actions updates
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
-    target-branch: "main"
-    labels:
-      - "github-actions"
-      - "automated"
-    commit-message:
-      prefix: "ci(actions)"
-
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    target-branch: "main"
-    labels:
-      - "npm"
-      - "automated"
-    commit-message:
-      prefix: "chore(npm)"
