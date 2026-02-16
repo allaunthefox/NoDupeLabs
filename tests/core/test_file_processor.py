@@ -3,8 +3,8 @@
 import pytest
 import tempfile
 from pathlib import Path
-from nodupe.core.scan.processor import FileProcessor, create_file_processor
-from nodupe.core.scan.walker import FileWalker
+from nodupe.tools.scanner_engine.processor import FileProcessor, create_file_processor
+from nodupe.tools.scanner_engine.walker import FileWalker
 
 class TestFileProcessor:
     """Test FileProcessor class."""

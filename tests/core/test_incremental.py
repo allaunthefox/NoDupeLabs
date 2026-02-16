@@ -6,7 +6,7 @@ import tempfile
 import shutil
 from pathlib import Path
 from datetime import datetime
-from nodupe.core.incremental import Incremental
+from nodupe.tools.scanner_engine.incremental import Incremental
 
 
 class TestIncremental:

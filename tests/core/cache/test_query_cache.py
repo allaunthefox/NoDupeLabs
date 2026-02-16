@@ -1,7 +1,7 @@
 """Tests for query cache module."""
 
 import time
-from nodupe.core.cache.query_cache import QueryCache, QueryCacheError
+from nodupe.tools.databases.query_cache import QueryCache, QueryCacheError
 
 
 class TestQueryCache:
