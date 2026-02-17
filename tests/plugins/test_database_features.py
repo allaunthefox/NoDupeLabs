@@ -204,27 +204,27 @@ class TestDatabaseFeatureIntegration:
             DatabaseShardingTool(),
             DatabaseReplicationTool(),
             DatabaseExportTool(),
-            DatabaseImportTool()
+            DatabaseImportTool(),
         ]
 
         for tool in tools:
             # Verify all required properties exist
-            assert hasattr(tool, 'name')
-            assert hasattr(tool, 'version')
-            assert hasattr(tool, 'dependencies')
-            assert hasattr(tool, 'get_capabilities')
-            assert hasattr(tool, 'metadata')
-            assert hasattr(tool, 'initialize')
-            assert hasattr(tool, 'shutdown')
+            assert hasattr(tool, "name")
+            assert hasattr(tool, "version")
+            assert hasattr(tool, "dependencies")
+            assert hasattr(tool, "get_capabilities")
+            assert hasattr(tool, "metadata")
+            assert hasattr(tool, "initialize")
+            assert hasattr(tool, "shutdown")
 
             # Verify metadata properties
             metadata = tool.metadata
-            assert hasattr(metadata, 'name')
-            assert hasattr(metadata, 'version')
-            assert hasattr(metadata, 'author')
-            assert hasattr(metadata, 'license')
-            assert hasattr(metadata, 'dependencies')
-            assert hasattr(metadata, 'tags')
+            assert hasattr(metadata, "name")
+            assert hasattr(metadata, "version")
+            assert hasattr(metadata, "author")
+            assert hasattr(metadata, "license")
+            assert hasattr(metadata, "dependencies")
+            assert hasattr(metadata, "tags")
 
 
 def test_metadata_immutability():

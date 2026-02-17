@@ -8,6 +8,16 @@ from nodupe.core.tool_system.base import Tool
 from nodupe.core.tool_system.registry import ToolRegistry
 
 
+@pytest.fixture(autouse=True)
+def _reset_registry_instance():
+    """Reset the ToolRegistry singleton before/after each test to avoid
+    cross-test pollution.
+    """
+    ToolRegistry._reset_instance()
+    yield
+    ToolRegistry._reset_instance()
+
+
 class TestToolRegistryInitialization:
     """Test ToolRegistry initialization functionality."""
 

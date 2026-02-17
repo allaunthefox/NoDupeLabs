@@ -26,6 +26,7 @@ class DependencyError(Exception):
 
 class ResolutionStatus(Enum):
     """Dependency resolution status."""
+
     RESOLVED = "resolved"
     UNRESOLVED = "unresolved"
     CIRCULAR = "circular"
@@ -90,13 +91,17 @@ class DependencyResolver:
         Returns:
             True if dependency was removed, False if not found
         """
-        if (tool_name in self._dependencies and
-                dependency_name in self._dependencies[tool_name]):
+        if (
+            tool_name in self._dependencies
+            and dependency_name in self._dependencies[tool_name]
+        ):
             self._dependencies[tool_name].remove(dependency_name)
 
             # Update reverse dependencies
-            if (dependency_name in self._dependents and
-                    tool_name in self._dependents[dependency_name]):
+            if (
+                dependency_name in self._dependents
+                and tool_name in self._dependents[dependency_name]
+            ):
                 self._dependents[dependency_name].remove(tool_name)
 
             # Reset resolution status
@@ -128,7 +133,9 @@ class DependencyResolver:
         """
         return self._dependents.get(tool_name, [])
 
-    def resolve_dependencies(self, tools: list[str]) -> tuple[ResolutionStatus, list[str]]:
+    def resolve_dependencies(
+        self, tools: list[str]
+    ) -> tuple[ResolutionStatus, list[str]]:
         """Resolve dependencies for a list of tools.
 
         Args:
@@ -177,7 +184,11 @@ class DependencyResolver:
         tool_set = set(tools)
 
         for tool in tools:
-            deps = [dep for dep in self._dependencies.get(tool, []) if dep in tool_set]
+            deps = [
+                dep
+                for dep in self._dependencies.get(tool, [])
+                if dep in tool_set
+            ]
             graph[tool] = deps
 
         # Use DFS to detect cycles
@@ -218,7 +229,11 @@ class DependencyResolver:
         tool_set = set(tools)
 
         for tool in tools:
-            deps = [dep for dep in self._dependencies.get(tool, []) if dep in tool_set]
+            deps = [
+                dep
+                for dep in self._dependencies.get(tool, [])
+                if dep in tool_set
+            ]
             graph[tool] = deps
 
         # Perform topological sort using DFS
@@ -275,9 +290,7 @@ class DependencyResolver:
         return list(reversed(init_order))
 
     def validate_tool_compatibility(
-        self,
-        tool: Tool,
-        available_tools: list[str]
+        self, tool: Tool, available_tools: list[str]
     ) -> tuple[bool, list[str]]:
         """Validate that a tool is compatible with available tools.
 
@@ -288,8 +301,10 @@ class DependencyResolver:
         Returns:
             Tuple of (is_compatible, list_of_missing_dependencies)
         """
-        required_deps = getattr(tool, 'dependencies', [])
-        missing_deps = [dep for dep in required_deps if dep not in available_tools]
+        required_deps = getattr(tool, "dependencies", [])
+        missing_deps = [
+            dep for dep in required_deps if dep not in available_tools
+        ]
 
         return len(missing_deps) == 0, missing_deps
 
@@ -302,7 +317,10 @@ class DependencyResolver:
         Returns:
             Dictionary representing dependency tree
         """
-        def build_tree(name: str, visited: Optional[set[str]] = None) -> dict[str, Any]:
+
+        def build_tree(
+            name: str, visited: Optional[set[str]] = None
+        ) -> dict[str, Any]:
             """TODO: Document build_tree."""
             if visited is None:
                 visited = set()
@@ -313,10 +331,7 @@ class DependencyResolver:
             visited.add(name)
 
             deps = self._dependencies.get(name, [])
-            tree = {
-                "name": name,
-                "dependencies": {}
-            }
+            tree = {"name": name, "dependencies": {}}
 
             for dep in deps:
                 tree["dependencies"][dep] = build_tree(dep, visited.copy())
@@ -368,6 +383,7 @@ def create_dependency_resolver() -> DependencyResolver:
         DependencyResolver instance
     """
     return DependencyResolver()
+
 
 # Alias for backward compatibility
 ToolDependencyManager = DependencyResolver

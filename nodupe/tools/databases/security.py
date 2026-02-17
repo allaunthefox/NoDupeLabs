@@ -17,11 +17,15 @@ from typing import Any, Optional
 
 class SecurityError(Exception):
     """Base security exception"""
+
     pass
+
 
 class InputValidationError(SecurityError):
     """Input validation failed"""
+
     pass
+
 
 class DatabaseSecurity:
     """Lightweight database security for local file management."""
@@ -30,7 +34,9 @@ class DatabaseSecurity:
         """TODO: Document __init__."""
         self.db = db
 
-    def validate_input(self, data: Any, data_type: Optional[str] = None) -> bool:
+    def validate_input(
+        self, data: Any, data_type: Optional[str] = None
+    ) -> bool:
         """Validate input data for database operations.
 
         Args:
@@ -50,19 +56,30 @@ class DatabaseSecurity:
         if data_type:
             # Safe type mapping - only allow known types
             safe_types = {
-                'str': str, 'int': int, 'float': float, 'bool': bool,
-                'list': list, 'dict': dict, 'tuple': tuple, 'set': set,
-                'bytes': bytes, 'bytearray': bytearray
+                "str": str,
+                "int": int,
+                "float": float,
+                "bool": bool,
+                "list": list,
+                "dict": dict,
+                "tuple": tuple,
+                "set": set,
+                "bytes": bytes,
+                "bytearray": bytearray,
             }
             expected_type = safe_types.get(data_type)
             if expected_type is None:
                 raise InputValidationError(f"Unknown type: {data_type}")
             if not isinstance(data, expected_type):
-                raise InputValidationError(f"Expected {data_type}, got {type(data)}")
+                raise InputValidationError(
+                    f"Expected {data_type}, got {type(data)}"
+                )
 
         # String validation
         if isinstance(data, str) and not self._is_safe_string(data):
-            raise InputValidationError("String contains potentially dangerous content")
+            raise InputValidationError(
+                "String contains potentially dangerous content"
+            )
 
         return True
 
@@ -80,12 +97,25 @@ class DatabaseSecurity:
 
         # Check for SQL injection patterns
         dangerous_patterns = [
-            r'--', r';', r'/\*', r'\*/', r'xp_', r'exec\(', r'union\s+select',
-            r'drop\s+table', r'insert\s+into', r'delete\s+from', r'update\s+.*set',
-            r'select\s+.*from', r'or\s+1=1'
+            r"--",
+            r";",
+            r"/\*",
+            r"\*/",
+            r"xp_",
+            r"exec\(",
+            r"union\s+select",
+            r"drop\s+table",
+            r"insert\s+into",
+            r"delete\s+from",
+            r"update\s+.*set",
+            r"select\s+.*from",
+            r"or\s+1=1",
         ]
 
-        return all(not re.search(pattern, value, re.IGNORECASE) for pattern in dangerous_patterns)
+        return all(
+            not re.search(pattern, value, re.IGNORECASE)
+            for pattern in dangerous_patterns
+        )
 
     def validate_path(self, path: str, base_dir: Optional[str] = None) -> bool:
         """Validate file path to prevent directory traversal attacks.
@@ -108,14 +138,18 @@ class DatabaseSecurity:
             abs_path = os.path.abspath(path)
 
             # Check for directory traversal attempts
-            if '..' in path or (path.startswith('/') and not path.startswith(base_dir or '')):
+            if ".." in path or (
+                path.startswith("/") and not path.startswith(base_dir or "")
+            ):
                 raise InputValidationError("Path contains directory traversal")
 
             # If base_dir is specified, ensure path is within it
             if base_dir:
                 base_abs = os.path.abspath(base_dir)
                 if not abs_path.startswith(base_abs):
-                    raise InputValidationError(f"Path must be within {base_dir}")
+                    raise InputValidationError(
+                        f"Path must be within {base_dir}"
+                    )
 
             return True
         except Exception as e:
@@ -135,16 +169,24 @@ class DatabaseSecurity:
 
         # Remove sensitive information
         sensitive_patterns = [
-            r'PASSWORD_REMOVED', r'SECRET_REMOVED', r'key', r'TOKEN_REMOVED', r'api[_-]?key',
-            r'connection[_-]?string', r'database[_-]?url', r'user[_-]?name'
+            r"PASSWORD_REMOVED",
+            r"SECRET_REMOVED",
+            r"key",
+            r"TOKEN_REMOVED",
+            r"api[_-]?key",
+            r"connection[_-]?string",
+            r"database[_-]?url",
+            r"user[_-]?name",
         ]
 
         for pattern in sensitive_patterns:
-            error_msg = re.sub(pattern, '[REDACTED]', error_msg, flags=re.IGNORECASE)
+            error_msg = re.sub(
+                pattern, "[REDACTED]", error_msg, flags=re.IGNORECASE
+            )
 
         # Remove stack traces and file paths
-        error_msg = re.sub(r'File ".*?", line \d+', '[REDACTED]', error_msg)
-        error_msg = re.sub(r'Traceback.*?\n', '', error_msg)
+        error_msg = re.sub(r'File ".*?", line \d+', "[REDACTED]", error_msg)
+        error_msg = re.sub(r"Traceback.*?\n", "", error_msg)
 
         return error_msg
 
@@ -164,7 +206,7 @@ class DatabaseSecurity:
             raise InputValidationError("Identifier cannot be empty")
 
         # Only allow alphanumeric and underscore, must start with letter
-        if not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', identifier):
+        if not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", identifier):
             raise InputValidationError(f"Invalid identifier: {identifier}")
 
         return True
@@ -185,7 +227,7 @@ class DatabaseSecurity:
             raise InputValidationError("Schema cannot be empty")
 
         # Basic validation - should contain valid column definitions
-        if not re.match(r'^[a-zA-Z0-9_,\s\(\)]+$', schema):
+        if not re.match(r"^[a-zA-Z0-9_,\s\(\)]+$", schema):
             raise InputValidationError(f"Invalid schema definition: {schema}")
 
         return True

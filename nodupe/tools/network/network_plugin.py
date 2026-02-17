@@ -31,10 +31,10 @@ class NetworkTool(Tool):
     @property
     def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
-            'upload_file': self.manager.upload_file,
-            'download_file': self.manager.download_file,
-            'list_files': self.manager.list_files,
-            'delete_file': self.manager.delete_file
+            "upload_file": self.manager.upload_file,
+            "download_file": self.manager.download_file,
+            "list_files": self.manager.list_files,
+            "delete_file": self.manager.delete_file,
         }
 
     def __init__(self):
@@ -43,7 +43,7 @@ class NetworkTool(Tool):
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool and register services."""
-        container.register_service('network_manager', self.manager)
+        container.register_service("network_manager", self.manager)
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
@@ -51,9 +51,10 @@ class NetworkTool(Tool):
     def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
-            'storage_backend': self.manager.storage_backend.__class__.__name__,
-            'available': True
+            "storage_backend": self.manager.storage_backend.__class__.__name__,
+            "available": True,
         }
+
 
 def register_tool():
     """Register the network tool."""

@@ -47,7 +47,7 @@ class TestLeapYearTool:
             enable_cache=False,
             cache_size=5000,
             min_year=1000,
-            max_year=3000
+            max_year=3000,
         )
 
         assert tool.calendar == "julian"
@@ -93,7 +93,9 @@ class TestLeapYearTool:
         # Known non-leap years
         non_leap_years = [1900, 2100, 2200, 2300, 2001, 2002, 2003, 2005]
         for year in non_leap_years:
-            assert not tool.is_leap_year(year), f"{year} should not be a leap year"
+            assert not tool.is_leap_year(
+                year
+            ), f"{year} should not be a leap year"
 
     def test_gregorian_century_years(self):
         """Test Gregorian century year rules."""
@@ -118,12 +120,16 @@ class TestLeapYearTool:
         # Every 4th year is a leap year in Julian calendar
         leap_years = [1896, 1900, 1904, 1908, 2000, 2004, 2008]
         for year in leap_years:
-            assert tool.is_leap_year(year), f"{year} should be a leap year in Julian calendar"
+            assert tool.is_leap_year(
+                year
+            ), f"{year} should be a leap year in Julian calendar"
 
         # Non-leap years
         non_leap_years = [1897, 1898, 1899, 1901, 1902, 1903, 2001, 2002, 2003]
         for year in non_leap_years:
-            assert not tool.is_leap_year(year), f"{year} should not be a leap year in Julian calendar"
+            assert not tool.is_leap_year(
+                year
+            ), f"{year} should not be a leap year in Julian calendar"
 
     # ---- Algorithm correctness tests ----
     def test_ben_joffe_algorithm_gregorian(self):
@@ -135,7 +141,9 @@ class TestLeapYearTool:
 
         for year in test_years:
             # Ben Joffe's algorithm: (year & 3) == 0 and ((year % 25) != 0 or (year & 15) == 0)
-            expected = (year & 3) == 0 and ((year % 25) != 0 or (year & 15) == 0)
+            expected = (year & 3) == 0 and (
+                (year % 25) != 0 or (year & 15) == 0
+            )
             actual = tool.is_leap_year(year)
             assert actual == expected, f"Algorithm mismatch for {year}"
 
@@ -149,7 +157,9 @@ class TestLeapYearTool:
         for year in test_years:
             expected = (year & 3) == 0
             actual = tool.is_leap_year(year)
-            assert actual == expected, f"Algorithm mismatch for {year} in Julian calendar"
+            assert (
+                actual == expected
+            ), f"Algorithm mismatch for {year} in Julian calendar"
 
     # ---- Batch operations tests ----
     def test_find_leap_years(self):
@@ -200,7 +210,7 @@ class TestLeapYearTool:
         assert not tool.is_valid_date(2024, 2, 30)  # Invalid February day
         assert not tool.is_valid_date(2024, 4, 31)  # April has 30 days
         assert not tool.is_valid_date(2024, 13, 1)  # Invalid month
-        assert not tool.is_valid_date(2024, 1, 0)   # Invalid day
+        assert not tool.is_valid_date(2024, 1, 0)  # Invalid day
 
     def test_get_days_in_month(self):
         """Test days in month calculation."""

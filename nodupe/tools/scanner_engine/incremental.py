@@ -18,7 +18,7 @@ class Incremental:
     def save_checkpoint(
         scan_path: str,
         processed_files: dict[str, Any],
-        metadata: Optional[dict[str, Any]] = None
+        metadata: Optional[dict[str, Any]] = None,
     ) -> None:
         """Save incremental scanning checkpoint
 
@@ -31,16 +31,12 @@ class Incremental:
             "scan_path": scan_path,
             "processed_files": processed_files,
             "timestamp": datetime.now().isoformat(),
-            "metadata": metadata or {}
+            "metadata": metadata or {},
         }
 
         checkpoint_file = Path(scan_path) / Incremental.CHECKPOINT_FILE
-        with open(checkpoint_file, 'w') as f:
-            json.dump(
-                checkpoint_data,
-                f,
-                indent=2
-            )
+        with open(checkpoint_file, "w") as f:
+            json.dump(checkpoint_data, f, indent=2)
 
     @staticmethod
     def load_checkpoint(scan_path: str) -> Optional[dict[str, Any]]:
@@ -87,14 +83,18 @@ class Incremental:
         return remaining_files
 
     @staticmethod
-    def update_checkpoint(scan_path: str, new_processed_files: dict[str, Any]) -> None:
+    def update_checkpoint(
+        scan_path: str, new_processed_files: dict[str, Any]
+    ) -> None:
         """Update existing checkpoint with new processed files
 
         Args:
             scan_path: Path of the scan
             new_processed_files: New files to add to checkpoint
         """
-        existing_checkpoint: Optional[dict[str, Any]] = Incremental.load_checkpoint(scan_path)
+        existing_checkpoint: Optional[dict[str, Any]] = (
+            Incremental.load_checkpoint(scan_path)
+        )
 
         if existing_checkpoint:
             existing_checkpoint["processed_files"].update(new_processed_files)
@@ -104,11 +104,11 @@ class Incremental:
                 "scan_path": scan_path,
                 "processed_files": new_processed_files,
                 "timestamp": datetime.now().isoformat(),
-                "metadata": {}
+                "metadata": {},
             }
 
         checkpoint_file = Path(scan_path) / Incremental.CHECKPOINT_FILE
-        with open(checkpoint_file, 'w') as f:
+        with open(checkpoint_file, "w") as f:
             json.dump(existing_checkpoint, f, indent=2)
 
     @staticmethod

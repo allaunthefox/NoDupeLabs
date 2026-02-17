@@ -78,15 +78,17 @@ class ServiceContainer:
             "services": {},
             "metrics": {
                 "total_services": len(self.services) + len(self.factories),
-                "active_services": len(self.services)
-            }
+                "active_services": len(self.services),
+            },
         }
 
         for name in list(self.services.keys()) + list(self.factories.keys()):
             report["services"][name] = {
                 "is_active": name in self.services,
                 "is_lazy": name in self.factories,
-                "reliability": "VERIFIED" if name in self.services else "PENDING"
+                "reliability": (
+                    "VERIFIED" if name in self.services else "PENDING"
+                ),
             }
 
         return report

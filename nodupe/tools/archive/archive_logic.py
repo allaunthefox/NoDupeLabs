@@ -38,6 +38,7 @@ from nodupe.tools.mime.mime_logic import MIMEDetection
 class ArchiveHandlerError(Exception):  # pylint: disable=redefined-outer-name
     """Archive handling error"""
 
+
 class ArchiveHandler(ArchiveHandlerInterface):
     """Handle archive file detection and extraction.
 
@@ -52,7 +53,7 @@ class ArchiveHandler(ArchiveHandlerInterface):
         """Initialize archive handler."""
         self._temp_dirs: list[str] = []
         # Prefer tool-provided detector
-        mime_tool = global_container.get_service('mime_tool')
+        mime_tool = global_container.get_service("mime_tool")
         # Use type: ignore to suppress Pylance warnings since we check for None
         self._mime_detector = mime_tool if mime_tool is not None else MIMEDetection()  # type: ignore[assignment]
 
@@ -92,30 +93,32 @@ class ArchiveHandler(ArchiveHandlerInterface):
             mime_type = MIMEDetection.detect_mime_type(file_path)
 
         format_map = {
-            'application/zip': 'zip',
-            'application/x-tar': 'tar',
-            'application/gzip': 'tar.gz',
-            'application/x-bzip2': 'tar.bz2',
-            'application/x-xz': 'tar.xz',
-            'application/x-lzma': 'tar.lzma',
+            "application/zip": "zip",
+            "application/x-tar": "tar",
+            "application/gzip": "tar.gz",
+            "application/x-bzip2": "tar.bz2",
+            "application/x-xz": "tar.xz",
+            "application/x-lzma": "tar.lzma",
         }
 
         archive_format = format_map.get(mime_type)
         if not archive_format:
             # Try to detect from extension
             path_lower = file_path.lower()
-            if path_lower.endswith('.zip'):
-                archive_format = 'zip'
-            elif path_lower.endswith('.tar'):
-                archive_format = 'tar'
-            elif path_lower.endswith('.tar.gz') or path_lower.endswith('.tgz'):
-                archive_format = 'tar.gz'
-            elif path_lower.endswith('.tar.bz2') or path_lower.endswith('.tbz2'):
-                archive_format = 'tar.bz2'
-            elif path_lower.endswith('.tar.xz') or path_lower.endswith('.txz'):
-                archive_format = 'tar.xz'
-            elif path_lower.endswith('.tar.lzma'):
-                archive_format = 'tar.lzma'
+            if path_lower.endswith(".zip"):
+                archive_format = "zip"
+            elif path_lower.endswith(".tar"):
+                archive_format = "tar"
+            elif path_lower.endswith(".tar.gz") or path_lower.endswith(".tgz"):
+                archive_format = "tar.gz"
+            elif path_lower.endswith(".tar.bz2") or path_lower.endswith(
+                ".tbz2"
+            ):
+                archive_format = "tar.bz2"
+            elif path_lower.endswith(".tar.xz") or path_lower.endswith(".txz"):
+                archive_format = "tar.xz"
+            elif path_lower.endswith(".tar.lzma"):
+                archive_format = "tar.lzma"
 
         return archive_format
 
@@ -123,7 +126,7 @@ class ArchiveHandler(ArchiveHandlerInterface):
         self,
         archive_path: str,
         extract_to: Optional[str] = None,
-        PASSWORD_REMOVED: Optional[bytes] = None
+        PASSWORD_REMOVED: Optional[bytes] = None,
     ) -> dict[str, str]:
         """Extract archive contents to directory.
 
@@ -142,11 +145,13 @@ class ArchiveHandler(ArchiveHandlerInterface):
         try:
             archive_path_obj = Path(archive_path)
             if not archive_path_obj.exists():
-                raise FileNotFoundError(f"Archive file not found: {archive_path}")
+                raise FileNotFoundError(
+                    f"Archive file not found: {archive_path}"
+                )
 
             # Create extraction directory if not provided
             if extract_to is None:
-                temp_dir = tempfile.mkdtemp(prefix='nodupe_archive_')
+                temp_dir = tempfile.mkdtemp(prefix="nodupe_archive_")
                 self._temp_dirs.append(temp_dir)
                 extract_dir = Path(temp_dir)
             else:
@@ -157,14 +162,13 @@ class ArchiveHandler(ArchiveHandlerInterface):
             archive_format = self.detect_archive_format(archive_path)
             if not archive_format:
                 mime_type = MIMEDetection.detect_mime_type(archive_path)
-                raise ArchiveHandlerError(f"Unsupported archive format: {mime_type}")
+                raise ArchiveHandlerError(
+                    f"Unsupported archive format: {mime_type}"
+                )
 
             # Extract archive
             extracted_paths = Compression.extract_archive(
-                archive_path_obj,
-                extract_dir,
-                archive_format,
-                PASSWORD_REMOVED
+                archive_path_obj, extract_dir, archive_format, PASSWORD_REMOVED
             )
 
             # Convert to dictionary of relative paths to absolute strings
@@ -184,9 +188,14 @@ class ArchiveHandler(ArchiveHandlerInterface):
             raise
         except Exception as e:
             # Check if the cause is one of the types we should re-raise
-            if hasattr(e, '__cause__') and isinstance(
+            if hasattr(e, "__cause__") and isinstance(
                 e.__cause__,
-                (zipfile.BadZipFile, tarfile.TarError, PermissionError, OSError)
+                (
+                    zipfile.BadZipFile,
+                    tarfile.TarError,
+                    PermissionError,
+                    OSError,
+                ),
             ):
                 cause = e.__cause__
                 if isinstance(cause, BaseException):
@@ -199,7 +208,7 @@ class ArchiveHandler(ArchiveHandlerInterface):
         self,
         output_path: str,
         files: list[str],
-        archive_format: Optional[str] = None
+        archive_format: Optional[str] = None,
     ) -> str:
         """Create an archive from a list of files.
 
@@ -214,16 +223,20 @@ class ArchiveHandler(ArchiveHandlerInterface):
         try:
             # Detect format
             if not archive_format:
-                archive_format = self.detect_archive_format(output_path) or 'zip'
+                archive_format = (
+                    self.detect_archive_format(output_path) or "zip"
+                )
 
-            if archive_format == 'zip':
-                with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+            if archive_format == "zip":
+                with zipfile.ZipFile(
+                    output_path, "w", zipfile.ZIP_DEFLATED
+                ) as zf:
                     for f in files:
                         p = Path(f)
                         if p.exists():
                             zf.write(p, arcname=p.name)
-            elif archive_format.startswith('tar'):
-                mode = 'w:gz' if 'gz' in archive_format else 'w'
+            elif archive_format.startswith("tar"):
+                mode = "w:gz" if "gz" in archive_format else "w"
                 with tarfile.open(output_path, mode) as tf:
                     for f in files:
                         p = Path(f)
@@ -244,9 +257,7 @@ class ArchiveHandler(ArchiveHandlerInterface):
             ) from e
 
     def get_archive_contents_info(
-        self,
-        archive_path: str,
-        base_path: str
+        self, archive_path: str, base_path: str
     ) -> list[dict[str, Any]]:
         """Get file information for archive contents.
 
@@ -268,23 +279,23 @@ class ArchiveHandler(ArchiveHandlerInterface):
                     try:
                         stat = file_path.stat()
                         archive_rel_path = (
-                            str(Path(archive_path).name) + '/' + relative_path
+                            str(Path(archive_path).name) + "/" + relative_path
                         )
 
                         file_info = {
-                            'path': str(file_path),
-                            'relative_path': archive_rel_path,
-                            'name': file_path.name,
-                            'suffix': file_path.suffix.lower(),
-                            'size': stat.st_size,
-                            'modified_time': int(stat.st_mtime),
-                            'created_time': int(stat.st_ctime),
-                            'is_directory': False,
-                            'is_file': True,
-                            'is_symlink': file_path.is_symlink(),
-                            'is_archive_content': True,
-                            'archive_source': archive_path,
-                            'archive_path': archive_rel_path
+                            "path": str(file_path),
+                            "relative_path": archive_rel_path,
+                            "name": file_path.name,
+                            "suffix": file_path.suffix.lower(),
+                            "size": stat.st_size,
+                            "modified_time": int(stat.st_mtime),
+                            "created_time": int(stat.st_ctime),
+                            "is_directory": False,
+                            "is_file": True,
+                            "is_symlink": file_path.is_symlink(),
+                            "is_archive_content": True,
+                            "archive_source": archive_path,
+                            "archive_path": archive_rel_path,
                         }
                         file_infos.append(file_info)
 
@@ -323,6 +334,7 @@ class ArchiveHandler(ArchiveHandlerInterface):
     def __del__(self):
         """Destructor to ensure cleanup."""
         self.cleanup()
+
 
 def create_archive_handler() -> ArchiveHandler:
     """Create and return an ArchiveHandler instance.

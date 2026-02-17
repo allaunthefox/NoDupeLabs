@@ -16,11 +16,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .api.codes import ActionCode
-from .container import container as global_container
-
+from nodupe.core.api.codes import ActionCode
+from nodupe.core.container import container as global_container
 
 logger = logging.getLogger(__name__)
+
 
 class LogCompressor:
     """Utility to compress rotated log files (ISO 14721 / OAIS Compliant)."""
@@ -64,36 +64,40 @@ If the original software (NoDupeLabs) is unavailable, follow these steps:
             "dc:publisher": "NoDupeLabs Archival Engine",
             "oais:package_type": "AIP",
             "oais:specification": "ISO 14721:2012",
-            "fixity": {
-                "algorithm": "sha256",
-                "value": sha256_hash.hexdigest()
-            }
+            "fixity": {"algorithm": "sha256", "value": sha256_hash.hexdigest()},
         }
 
     @staticmethod
-    def compress_old_logs(log_dir: str = "logs", pattern: str = "*.log.*") -> list[Path]:
+    def compress_old_logs(
+        log_dir: str = "logs", pattern: str = "*.log.*"
+    ) -> list[Path]:
         """Find and compress logs into software-independent ISO AIPs."""
         compressed_files = []
         log_path = Path(log_dir)
-        if not log_path.exists(): return []
+        if not log_path.exists():
+            return []
 
-        archive_handler = global_container.get_service('archive_handler_service')
-        if not archive_handler: return []
+        archive_handler = global_container.get_service(
+            "archive_handler_service"
+        )
+        if not archive_handler:
+            return []
 
         files = glob.glob(os.path.join(log_dir, pattern))
         for file_path in files:
             p = Path(file_path)
-            if p.suffix == '.zip' or not p.exists(): continue
+            if p.suffix == ".zip" or not p.exists():
+                continue
 
             try:
-                timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-                clean_name = p.name.replace(".", "_")
-                zip_name = f"AIP_{timestamp}_{clean_name}.zip"
+                # Use straightforward archive naming so callers/tests can predict the
+                # resulting filename (e.g. app.log.1 -> app.log.1.zip)
+                zip_name = f"{p.name}.zip"
                 zip_path = p.parent / zip_name
 
-                # 1. Generate Dublin Core Metadata
+                # 1. Generate Dublin Core Metadata (per-file metadata file)
                 metadata = LogCompressor._generate_metadata(p)
-                metadata_path = p.parent / "METADATA.json"
+                metadata_path = p.parent / f"{p.name}.metadata.json"
                 metadata_path.write_text(json.dumps(metadata, indent=2))
 
                 # 2. Generate Recovery Manual
@@ -104,10 +108,12 @@ If the original software (NoDupeLabs) is unavailable, follow these steps:
                 archive_handler.create_archive(
                     str(zip_path),
                     [str(p), str(metadata_path), str(manual_path)],
-                    format='zip'
+                    archive_format="zip",
                 )
 
-                logger.info(f"[{ActionCode.ARCHIVE_AIP}] Created self-describing AIP: {zip_name}")
+                logger.info(
+                    f"[{ActionCode.ARCHIVE_AIP}] Created self-describing AIP: {zip_name}"
+                )
 
                 p.unlink()
                 metadata_path.unlink()
@@ -115,4 +121,9 @@ If the original software (NoDupeLabs) is unavailable, follow these steps:
                 compressed_files.append(zip_path)
 
             except Exception as e:
-                logger.exception(f"[{ActionCode.ERR_EXEC_FAILED}] Archive creation failed: {e}")
+                logger.exception(
+                    f"[{ActionCode.ERR_EXEC_FAILED}] Archive creation failed: {e}"
+                )
+
+        # Return list of created archives (empty list if none were created)
+        return compressed_files

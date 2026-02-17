@@ -42,10 +42,10 @@ class TestFileWalker:
         assert len(results) == 3
 
         # Check that we have the expected files
-        file_paths = [r['path'] for r in results]
-        assert any('file1.txt' in path for path in file_paths)
-        assert any('file2.txt' in path for path in file_paths)
-        assert any('file3.log' in path for path in file_paths)
+        file_paths = [r["path"] for r in results]
+        assert any("file1.txt" in path for path in file_paths)
+        assert any("file2.txt" in path for path in file_paths)
+        assert any("file3.log" in path for path in file_paths)
 
     def test_walk_with_file_filter(self, tmp_path):
         """Test file walking with filter."""
@@ -60,7 +60,7 @@ class TestFileWalker:
 
         # Filter for .txt files only - file_filter receives file_info dict
         def txt_filter(file_info):
-            return file_info['path'].endswith('.txt')
+            return file_info["path"].endswith(".txt")
 
         walker = FileWalker()
         results = walker.walk(str(tmp_path), file_filter=txt_filter)
@@ -68,7 +68,7 @@ class TestFileWalker:
         # Should only find .txt files
         assert len(results) == 2
         for result in results:
-            assert result['path'].endswith('.txt')
+            assert result["path"].endswith(".txt")
 
     def test_walk_with_progress_callback(self, tmp_path):
         """Test file walking with progress callback."""
@@ -92,11 +92,11 @@ class TestFileWalker:
         # If we got progress updates, verify they have the expected structure
         if len(progress_updates) > 0:
             for update in progress_updates:
-                assert 'files_processed' in update
-                assert 'directories_processed' in update
-                assert 'errors_encountered' in update
-                assert 'elapsed_time' in update
-                assert 'files_per_second' in update
+                assert "files_processed" in update
+                assert "directories_processed" in update
+                assert "errors_encountered" in update
+                assert "elapsed_time" in update
+                assert "files_per_second" in update
 
     def test_walk_empty_directory(self, tmp_path):
         """Test walking empty directory."""
@@ -131,14 +131,14 @@ class TestFileWalker:
         stats = walker.get_statistics()
 
         # Should have statistics
-        assert 'total_files' in stats
-        assert 'total_directories' in stats
-        assert 'total_errors' in stats
-        assert 'total_time' in stats
+        assert "total_files" in stats
+        assert "total_directories" in stats
+        assert "total_errors" in stats
+        assert "total_time" in stats
 
         # Should have found 2 files
-        assert stats['total_files'] == 2
-        assert stats['total_directories'] >= 1  # At least the root directory
+        assert stats["total_files"] == 2
+        assert stats["total_directories"] >= 1  # At least the root directory
 
     def test_walk_file_info_collection(self, tmp_path):
         """Test that file information is properly collected."""
@@ -156,18 +156,18 @@ class TestFileWalker:
         result = results[0]
 
         # Check that we have basic file info
-        assert 'path' in result
-        assert 'relative_path' in result
-        assert 'size' in result
-        assert 'modified_time' in result
-        assert 'name' in result
-        assert 'extension' in result
+        assert "path" in result
+        assert "relative_path" in result
+        assert "size" in result
+        assert "modified_time" in result
+        assert "name" in result
+        assert "extension" in result
 
         # File path should be absolute
-        assert Path(result['path']).is_absolute()
+        assert Path(result["path"]).is_absolute()
 
         # File size should match
-        assert result['size'] == len(test_content.encode())
+        assert result["size"] == len(test_content.encode())
 
     def test_walk_large_directory_structure(self, tmp_path):
         """Test walking larger directory structure."""
@@ -204,10 +204,10 @@ class TestFileWalker:
         assert len(results) == 3
 
         # Check that special characters are preserved
-        file_paths = [r['path'] for r in results]
-        assert any('file with spaces.txt' in path for path in file_paths)
-        assert any('file-with-dashes.txt' in path for path in file_paths)
-        assert any('file_with_underscores.txt' in path for path in file_paths)
+        file_paths = [r["path"] for r in results]
+        assert any("file with spaces.txt" in path for path in file_paths)
+        assert any("file-with-dashes.txt" in path for path in file_paths)
+        assert any("file_with_underscores.txt" in path for path in file_paths)
 
     def test_walk_reset_counters(self, tmp_path):
         """Test that counters can be reset between walks."""
@@ -233,4 +233,4 @@ class TestFileWalker:
 
         # Both walks should have same results
         assert len(results1) == len(results2) == 2
-        assert stats1['total_files'] == stats2['total_files'] == 2
+        assert stats1["total_files"] == stats2["total_files"] == 2

@@ -14,12 +14,13 @@ from typing import Any, Callable, Optional
 @dataclass(frozen=True)
 class ToolMetadata:
     """Metadata for a tool (ISO 19770-2 / SWID tag compliant)."""
+
     name: str
     version: str
     software_id: str  # SWID Tag ID (e.g. org.nodupe.tool.name)
     description: str
     author: str
-    license: str      # SPDX License Identifier (RFC standard)
+    license: str  # SPDX License Identifier (RFC standard)
     dependencies: list[str]
     tags: list[str]
     persistent_id: Optional[str] = None
@@ -67,8 +68,7 @@ class Tool(ABC):
 
     @abstractmethod
     def describe_usage(self) -> str:
-        """Return human-readable, jargon-free instructions for this component.
-        """
+        """Return human-readable, jargon-free instructions for this component."""
 
 
 # Note: The full AccessibleTool implementation is in accessible_base.py

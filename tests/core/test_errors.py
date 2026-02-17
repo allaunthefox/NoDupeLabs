@@ -2,7 +2,13 @@
 
 import pytest
 
-from nodupe.core.errors import DatabaseError, NoDupeError, SecurityError, ToolError, ValidationError
+from nodupe.core.errors import (
+    DatabaseError,
+    NoDupeError,
+    SecurityError,
+    ToolError,
+    ValidationError,
+)
 
 
 class TestErrorHierarchy:
@@ -111,6 +117,7 @@ class TestErrorIntegration:
 
     def test_error_in_function(self):
         """Test using errors in functions."""
+
         def validate_input(value):
             if not value:
                 raise ValidationError("Input cannot be empty")
@@ -126,6 +133,7 @@ class TestErrorIntegration:
 
     def test_error_in_class_method(self):
         """Test using errors in class methods."""
+
         class UserService:
             def validate_user(self, username):
                 if not username:
@@ -149,6 +157,7 @@ class TestErrorIntegration:
 
     def test_error_in_tool_system(self):
         """Test using errors in tool system."""
+
         class MockTool:
             def __init__(self, name):
                 if not name:
@@ -156,7 +165,7 @@ class TestErrorIntegration:
                 self.name = name
 
             def execute(self):
-                if not hasattr(self, 'initialized'):
+                if not hasattr(self, "initialized"):
                     raise ToolError("Tool not initialized")
                 return f"Tool {self.name} executed"
 
@@ -212,7 +221,8 @@ class TestErrorHierarchyVerification:
             SecurityError,
             ValidationError,
             ToolError,
-            DatabaseError]
+            DatabaseError,
+        ]
 
         for error_class in error_classes:
             assert issubclass(error_class, NoDupeError)
@@ -230,7 +240,7 @@ class TestErrorHierarchyVerification:
             SecurityError("security"),
             ValidationError("validation"),
             ToolError("tool"),
-            DatabaseError("database")
+            DatabaseError("database"),
         ]
 
         for error in errors:

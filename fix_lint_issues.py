@@ -1,5 +1,3 @@
-
-
 #!/usr/bin/env python3
 """Script to programmatically fix lint issues in the NoDupeLabs project.
 
@@ -10,7 +8,6 @@ This script fixes:
 """
 
 from pathlib import Path
-
 
 # Directories to scan
 SCAN_DIRS = ["nodupe", "tests"]
@@ -62,7 +59,10 @@ def fix_file(path: Path) -> tuple[int, list[str]]:
         fixes.append("missing-final-newline")
 
     # 3. Add pylint disable comments for broad-exception-caught (intentional)
-    if "except Exception:" in content and "broad-exception-caught" not in content:
+    if (
+        "except Exception:" in content
+        and "broad-exception-caught" not in content
+    ):
         # Add disable comment at module level
         lines = content.split("\n")
         new_lines = []
@@ -73,10 +73,16 @@ def fix_file(path: Path) -> tuple[int, list[str]]:
             if i == 0 and line.startswith('"""'):
                 # Find end of docstring
                 continue
-            if i > 0 and '"""' in content[:content.find(line)] and not added_disable:
+            if (
+                i > 0
+                and '"""' in content[: content.find(line)]
+                and not added_disable
+            ):
                 # Add after docstring
                 new_lines.append("")
-                new_lines.append("# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation")
+                new_lines.append(
+                    "# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation"
+                )
                 added_disable = True
                 fixes.append("broad-exception-disable")
         content = "\n".join(new_lines)

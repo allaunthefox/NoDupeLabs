@@ -1,7 +1,7 @@
 """Test tool discovery functionality."""
 
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch, mock_open
+from unittest.mock import MagicMock, Mock, mock_open, patch
 
 import pytest
 
@@ -518,9 +518,12 @@ class TestToolDiscoveryMainMethods:
             discovery, "discover_tools_in_directory"
         ) as mock_discover_dir:
             # Return different tools for each directory
-            t1 = Mock(); t1.name = "Tool1"
-            t2 = Mock(); t2.name = "Tool2"
-            t3 = Mock(); t3.name = "Tool1"
+            t1 = Mock()
+            t1.name = "Tool1"
+            t2 = Mock()
+            t2.name = "Tool2"
+            t3 = Mock()
+            t3.name = "Tool1"
             mock_discover_dir.side_effect = [
                 [t1],  # First directory
                 [t2],  # Second directory

@@ -74,7 +74,9 @@ class Filesystem:
             return file_path.read_bytes()
 
         except OSError as e:
-            raise FilesystemError(f"Failed to read file {file_path}: {e}") from e
+            raise FilesystemError(
+                f"Failed to read file {file_path}: {e}"
+            ) from e
 
     @staticmethod
     def safe_write(file_path: Path, data: bytes, atomic: bool = True) -> None:
@@ -100,8 +102,7 @@ class Filesystem:
                 # Atomic write: write to temp file then rename
                 # This ensures file is never partially written
                 temp_fd, temp_path = tempfile.mkstemp(
-                    dir=file_path.parent,
-                    prefix=f".{file_path.name}.tmp"
+                    dir=file_path.parent, prefix=f".{file_path.name}.tmp"
                 )
                 try:
                     # Write to temp file
@@ -120,7 +121,9 @@ class Filesystem:
                 file_path.write_bytes(data)
 
         except OSError as e:
-            raise FilesystemError(f"Failed to write file {file_path}: {e}") from e
+            raise FilesystemError(
+                f"Failed to write file {file_path}: {e}"
+            ) from e
 
     @staticmethod
     def validate_path(file_path: Path, must_exist: bool = False) -> bool:
@@ -173,7 +176,9 @@ class Filesystem:
             return file_path.stat().st_size
 
         except OSError as e:
-            raise FilesystemError(f"Failed to get file size {file_path}: {e}") from e
+            raise FilesystemError(
+                f"Failed to get file size {file_path}: {e}"
+            ) from e
 
     @staticmethod
     def list_directory(dir_path: Path, pattern: str = "*") -> list[Path]:
@@ -199,7 +204,9 @@ class Filesystem:
             return list(dir_path.glob(pattern))
 
         except OSError as e:
-            raise FilesystemError(f"Failed to list directory {dir_path}: {e}") from e
+            raise FilesystemError(
+                f"Failed to list directory {dir_path}: {e}"
+            ) from e
 
     @staticmethod
     def ensure_directory(dir_path: Path) -> None:
@@ -218,7 +225,9 @@ class Filesystem:
             dir_path.mkdir(parents=True, exist_ok=True)
 
         except OSError as e:
-            raise FilesystemError(f"Failed to create directory {dir_path}: {e}") from e
+            raise FilesystemError(
+                f"Failed to create directory {dir_path}: {e}"
+            ) from e
 
     @staticmethod
     def remove_file(file_path: Path, missing_ok: bool = True) -> None:
@@ -238,7 +247,9 @@ class Filesystem:
             file_path.unlink(missing_ok=missing_ok)
 
         except OSError as e:
-            raise FilesystemError(f"Failed to remove file {file_path}: {e}") from e
+            raise FilesystemError(
+                f"Failed to remove file {file_path}: {e}"
+            ) from e
 
     @staticmethod
     def copy_file(src: Path, dst: Path, overwrite: bool = False) -> None:
@@ -271,7 +282,9 @@ class Filesystem:
             shutil.copy2(src, dst)
 
         except OSError as e:
-            raise FilesystemError(f"Failed to copy file {src} to {dst}: {e}") from e
+            raise FilesystemError(
+                f"Failed to copy file {src} to {dst}: {e}"
+            ) from e
 
     @staticmethod
     def move_file(src: Path, dst: Path, overwrite: bool = False) -> None:
@@ -304,4 +317,6 @@ class Filesystem:
             shutil.move(str(src), str(dst))
 
         except OSError as e:
-            raise FilesystemError(f"Failed to move file {src} to {dst}: {e}") from e
+            raise FilesystemError(
+                f"Failed to move file {src} to {dst}: {e}"
+            ) from e

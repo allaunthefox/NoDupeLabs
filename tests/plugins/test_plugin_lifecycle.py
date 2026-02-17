@@ -5,7 +5,11 @@ from unittest.mock import MagicMock
 import pytest
 
 from nodupe.core.tool_system.base import Tool
-from nodupe.core.tool_system.lifecycle import ToolLifecycleError, ToolLifecycleManager, ToolState
+from nodupe.core.tool_system.lifecycle import (
+    ToolLifecycleError,
+    ToolLifecycleManager,
+    ToolState,
+)
 from nodupe.core.tool_system.registry import ToolRegistry
 
 
@@ -22,18 +26,18 @@ class TestToolLifecycleManager:
         assert lifecycle_manager.registry is registry
 
         # Test that it has expected attributes
-        assert hasattr(lifecycle_manager, 'initialize_tool')
-        assert hasattr(lifecycle_manager, 'shutdown_tool')
-        assert hasattr(lifecycle_manager, 'initialize_all_tools')
-        assert hasattr(lifecycle_manager, 'shutdown_all_tools')
-        assert hasattr(lifecycle_manager, 'get_tool_state')
-        assert hasattr(lifecycle_manager, 'is_tool_initialized')
-        assert hasattr(lifecycle_manager, 'is_tool_active')
-        assert hasattr(lifecycle_manager, 'get_active_tools')
-        assert hasattr(lifecycle_manager, 'get_tool_dependencies')
-        assert hasattr(lifecycle_manager, 'set_tool_dependencies')
-        assert hasattr(lifecycle_manager, 'initialize')
-        assert hasattr(lifecycle_manager, 'shutdown')
+        assert hasattr(lifecycle_manager, "initialize_tool")
+        assert hasattr(lifecycle_manager, "shutdown_tool")
+        assert hasattr(lifecycle_manager, "initialize_all_tools")
+        assert hasattr(lifecycle_manager, "shutdown_all_tools")
+        assert hasattr(lifecycle_manager, "get_tool_state")
+        assert hasattr(lifecycle_manager, "is_tool_initialized")
+        assert hasattr(lifecycle_manager, "is_tool_active")
+        assert hasattr(lifecycle_manager, "get_active_tools")
+        assert hasattr(lifecycle_manager, "get_tool_dependencies")
+        assert hasattr(lifecycle_manager, "set_tool_dependencies")
+        assert hasattr(lifecycle_manager, "initialize")
+        assert hasattr(lifecycle_manager, "shutdown")
 
     def test_tool_lifecycle_manager_with_container(self):
         """Test tool lifecycle manager with dependency container."""
@@ -74,10 +78,10 @@ class TestToolState:
     def test_tool_state_enum(self):
         """Test tool state enum values."""
         # Test that all expected states are present
-        assert hasattr(ToolState, 'UNINITIALIZED')
-        assert hasattr(ToolState, 'INITIALIZED')
-        assert hasattr(ToolState, 'ACTIVE')
-        assert hasattr(ToolState, 'FAILED')
+        assert hasattr(ToolState, "UNINITIALIZED")
+        assert hasattr(ToolState, "INITIALIZED")
+        assert hasattr(ToolState, "ACTIVE")
+        assert hasattr(ToolState, "FAILED")
 
         # Test state values
         assert ToolState.UNINITIALIZED.value == 0
@@ -170,6 +174,7 @@ class TestToolLifecycleOperations:
         # Create multiple test tools
         tools = []
         for i in range(5):
+
             class TestTool(Tool):
                 def __init__(self, tool_id):
                     self.name = f"test_tool_{tool_id}"
@@ -208,6 +213,7 @@ class TestToolLifecycleOperations:
         # Create multiple test tools
         tools = []
         for i in range(5):
+
             class TestTool(Tool):
                 def __init__(self, tool_id):
                     self.name = f"test_tool_{tool_id}"
@@ -358,6 +364,7 @@ class TestToolLifecycleOperations:
         # Create multiple test tools
         tools = []
         for i in range(5):
+
             class TestTool(Tool):
                 def __init__(self, tool_id):
                     self.name = f"test_tool_{tool_id}"
@@ -446,7 +453,8 @@ class TestToolLifecycleOperations:
 
         # Set tool dependencies
         lifecycle_manager.set_tool_dependencies(
-            "test_tool", ["new_dep1", "new_dep2"])
+            "test_tool", ["new_dep1", "new_dep2"]
+        )
 
         # Get tool dependencies
         dependencies = lifecycle_manager.get_tool_dependencies("test_tool")
@@ -623,6 +631,7 @@ class TestToolLifecyclePerformance:
         # Create many test tools
         tools = []
         for i in range(100):
+
             class TestTool(Tool):
                 def __init__(self, tool_id):
                     self.name = f"test_tool_{tool_id}"
@@ -661,6 +670,7 @@ class TestToolLifecyclePerformance:
         # Create many test tools
         tools = []
         for i in range(1000):
+
             class TestTool(Tool):
                 def __init__(self, tool_id):
                     self.name = f"perf_tool_{tool_id}"

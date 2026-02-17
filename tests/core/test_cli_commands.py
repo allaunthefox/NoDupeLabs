@@ -21,7 +21,9 @@ import pytest
 from nodupe.core.main import CLIHandler
 from nodupe.tools.commands.apply import ApplyTool
 from nodupe.tools.commands.scan import ScanTool
-from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+from nodupe.tools.commands.similarity import (
+    SimilarityCommandTool as SimilarityTool,
+)
 
 
 class TestScanCommand:
@@ -76,6 +78,7 @@ class TestScanCommand:
             # Should return 0 for success
             assert result == 0
 
+
 class TestApplyCommand:
     """Test apply command functionality."""
 
@@ -111,7 +114,7 @@ class TestApplyCommand:
             duplicates_data = {
                 "files": [
                     {"path": test_file1, "size": 12, "hash": "abc123"},
-                    {"path": test_file2, "size": 12, "hash": "abc123"}
+                    {"path": test_file2, "size": 12, "hash": "abc123"},
                 ]
             }
 
@@ -133,13 +136,14 @@ class TestApplyCommand:
             # Should return 0 for success
             assert result == 0
 
+
 class TestSimilarityCommand:
     """Test similarity command functionality."""
 
     def test_similarity_command_initialization(self):
         """Test similarity tool initialization."""
         tool = SimilarityTool()
-        assert tool.name == "similarity_command"
+        assert tool.name == "similarity"
         assert tool.version == "1.0.0"
         assert tool.description == "Find similar files using various metrics"
 
@@ -175,6 +179,7 @@ class TestSimilarityCommand:
 
             # Should return 0 for success
             assert result == 0
+
 
 class TestToolCommands:
     """Test tool command functionality."""
@@ -217,6 +222,7 @@ class TestToolCommands:
         # Execute tool command
         result = cli._cmd_tool(args)
         assert result == 0
+
 
 class TestCommandIntegration:
     """Test command integration scenarios."""
@@ -295,6 +301,7 @@ class TestCommandIntegration:
 
         apply_result = apply_tool.execute_apply(apply_args)
         assert apply_result != 0
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

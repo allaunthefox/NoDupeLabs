@@ -18,8 +18,8 @@ class TestProgressTracker:
         # We need to call start() to initialize with total values
         tracker.start(total_items=100)
         progress_info = tracker.get_progress()
-        assert progress_info['total_items'] == 100
-        assert progress_info['completed_items'] == 0
+        assert progress_info["total_items"] == 100
+        assert progress_info["completed_items"] == 0
 
     def test_update_progress(self):
         """Test updating progress."""
@@ -29,12 +29,12 @@ class TestProgressTracker:
         # Update progress
         tracker.update(items_completed=10)
         progress_info = tracker.get_progress()
-        assert progress_info['completed_items'] == 10
+        assert progress_info["completed_items"] == 10
 
         # Update again
         tracker.update(items_completed=20)
         progress_info = tracker.get_progress()
-        assert progress_info['completed_items'] == 30
+        assert progress_info["completed_items"] == 30
 
     def test_get_progress_percentage(self):
         """Test getting progress percentage."""
@@ -42,16 +42,18 @@ class TestProgressTracker:
         tracker.start(total_items=100)
 
         progress_info = tracker.get_progress()
-        assert progress_info['percent_complete'] == 0.0
+        assert progress_info["percent_complete"] == 0.0
 
         tracker.update(items_completed=25)
         progress_info = tracker.get_progress()
-        assert abs(progress_info['percent_complete'] - 25.0) < 0.1  # Allow for floating point precision
+        assert (
+            abs(progress_info["percent_complete"] - 25.0) < 0.1
+        )  # Allow for floating point precision
 
         # Complete the rest
         tracker.update(items_completed=75)
         progress_info = tracker.get_progress()
-        assert abs(progress_info['percent_complete'] - 100.0) < 0.1
+        assert abs(progress_info["percent_complete"] - 100.0) < 0.1
 
     def test_get_elapsed_time(self):
         """Test getting elapsed time."""
@@ -78,7 +80,7 @@ class TestProgressTracker:
 
         # Should have an ETA based on current rate
         progress_info = tracker.get_progress()
-        eta = progress_info['time_remaining']
+        eta = progress_info["time_remaining"]
         assert eta is not None
         assert eta >= 0  # Could be 0 if very fast
 
@@ -89,7 +91,7 @@ class TestProgressTracker:
 
         # Initially no rate since no time has passed
         progress_info = tracker.get_progress()
-        progress_info['items_per_second']
+        progress_info["items_per_second"]
         # Rate could be 0 if no time has passed
 
         # Make some progress
@@ -98,7 +100,7 @@ class TestProgressTracker:
 
         # Should have a rate
         progress_info = tracker.get_progress()
-        progress_info['items_per_second']
+        progress_info["items_per_second"]
         # Rate could still be low due to small time interval
 
     def test_progress_complete(self):
@@ -108,12 +110,12 @@ class TestProgressTracker:
 
         tracker.update(items_completed=100)
         progress_info = tracker.get_progress()
-        assert abs(progress_info['percent_complete'] - 100.0) < 0.1
+        assert abs(progress_info["percent_complete"] - 100.0) < 0.1
 
         # Should not go over 100%
         tracker.update(items_completed=10)
         progress_info = tracker.get_progress()
-        assert progress_info['completed_items'] == 110  # Actual items processed
+        assert progress_info["completed_items"] == 110  # Actual items processed
         # But percentage might still be capped at 100% depending on implementation
 
     def test_reset_progress(self):
@@ -123,9 +125,9 @@ class TestProgressTracker:
 
         tracker.update(items_completed=50)
         progress_info = tracker.get_progress()
-        assert progress_info['completed_items'] == 50
+        assert progress_info["completed_items"] == 50
 
         tracker.reset()
         progress_info = tracker.get_progress()
-        assert progress_info['completed_items'] == 0
-        assert progress_info['total_items'] == 0  # Reset also clears totals
+        assert progress_info["completed_items"] == 0
+        assert progress_info["total_items"] == 0  # Reset also clears totals

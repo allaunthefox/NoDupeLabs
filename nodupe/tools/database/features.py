@@ -12,7 +12,6 @@ from typing import Any, Optional
 
 from nodupe.core.tool_system import Tool, ToolMetadata
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -61,27 +60,34 @@ class DatabaseShardingTool(Tool):
             author="NoDupeLabs",
             license="Apache-2.0",
             dependencies=self.dependencies,
-            tags=["database", "sharding", "partitioning"]
+            tags=["database", "sharding", "partitioning"],
         )
 
-    def create_shard(self, shard_name: str, db_path: Optional[str] = None) -> str:
+    def create_shard(
+        self, shard_name: str, db_path: Optional[str] = None
+    ) -> str:
         """TODO: Document create_shard."""
         if not self._is_valid_identifier(shard_name):
             raise ValueError(f"Invalid shard name: {shard_name}")
 
         if db_path is None:
-            db_path = os.path.join(os.path.dirname(self.config.get('db_path', '.')), f"{shard_name}.db")
+            db_path = os.path.join(
+                os.path.dirname(self.config.get("db_path", ".")),
+                f"{shard_name}.db",
+            )
 
         shard_conn = sqlite3.connect(db_path)
         try:
-            shard_conn.execute("""
+            shard_conn.execute(
+                """
                 CREATE TABLE IF NOT EXISTS shard_data (
                     id INTEGER PRIMARY KEY,
                     key TEXT UNIQUE,
                     value BLOB,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+            )
             shard_conn.commit()
         finally:
             shard_conn.close()
@@ -92,8 +98,12 @@ class DatabaseShardingTool(Tool):
 
     def _is_valid_identifier(self, name: str) -> bool:
         """TODO: Document _is_valid_identifier."""
-        return bool(name and name.replace('_', '').replace('-', '').isalnum()
-                   and not name.startswith('_') and len(name) <= 64)
+        return bool(
+            name
+            and name.replace("_", "").replace("-", "").isalnum()
+            and not name.startswith("_")
+            and len(name) <= 64
+        )
 
     def list_shards(self) -> list[str]:
         """TODO: Document list_shards."""
@@ -106,6 +116,8 @@ class DatabaseShardingTool(Tool):
     def shutdown(self, container: Any) -> None:
         """TODO: Document shutdown."""
         logger.info("Database sharding tool shutdown")
+
+
 class DatabaseReplicationTool(Tool):
     """
     Database replication functionality tool.
@@ -158,7 +170,7 @@ class DatabaseReplicationTool(Tool):
             author="NoDupeLabs",
             license="Apache-2.0",
             dependencies=self.dependencies,
-            tags=["database", "replication", "redundancy", "availability"]
+            tags=["database", "replication", "redundancy", "availability"],
         )
 
 
@@ -214,7 +226,7 @@ class DatabaseExportTool(Tool):
             author="NoDupeLabs",
             license="Apache-2.0",
             dependencies=self.dependencies,
-            tags=["database", "export", "migration", "backup"]
+            tags=["database", "export", "migration", "backup"],
         )
 
 
@@ -270,5 +282,5 @@ class DatabaseImportTool(Tool):
             author="NoDupeLabs",
             license="Apache-2.0",
             dependencies=self.dependencies,
-            tags=["database", "import", "migration", "restore"]
+            tags=["database", "import", "migration", "restore"],
         )

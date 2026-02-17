@@ -69,24 +69,39 @@ class TestQueryCache:
         cache = QueryCache(max_size=2)  # Small cache for testing
 
         # Fill the cache
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}])
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 2}, [{"id": 2}])
+        cache.set_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}]
+        )
+        cache.set_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 2}, [{"id": 2}]
+        )
 
         # Verify both are cached
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1}) == [{"id": 1}]
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 2}) == [{"id": 2}]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}
+        ) == [{"id": 1}]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 2}
+        ) == [{"id": 2}]
 
         # Add a third query, which should evict the least recently used
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 3}, [{"id": 3}])
+        cache.set_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 3}, [{"id": 3}]
+        )
 
         # Verify the first query was evicted and others remain
         assert (
-            cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1}) is None
+            cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1})
+            is None
         )  # Should be evicted
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 2}) == [
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 2}
+        ) == [
             {"id": 2}
         ]  # Should still be there
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 3}) == [
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 3}
+        ) == [
             {"id": 3}
         ]  # Should be added
 
@@ -95,27 +110,44 @@ class TestQueryCache:
         cache = QueryCache()
 
         # Set results for two queries
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}])
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 2}, [{"id": 2}])
+        cache.set_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}]
+        )
+        cache.set_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 2}, [{"id": 2}]
+        )
 
         # Verify both are cached
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1}) == [{"id": 1}]
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 2}) == [{"id": 2}]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}
+        ) == [{"id": 1}]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 2}
+        ) == [{"id": 2}]
 
         # Invalidate first query
-        invalidated = cache.invalidate("SELECT * FROM users WHERE id = ?", {"id": 1})
+        invalidated = cache.invalidate(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}
+        )
         assert invalidated is True
 
         # Verify first query is no longer cached
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1}) is None
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 2}) == [{"id": 2}]
+        assert (
+            cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1})
+            is None
+        )
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 2}
+        ) == [{"id": 2}]
 
     def test_invalidate_nonexistent_entry(self):
         """Test invalidating a non-existent cache entry."""
         cache = QueryCache()
 
         # Try to invalidate non-cached query
-        invalidated = cache.invalidate("SELECT * FROM users WHERE id = ?", {"id": 1})
+        invalidated = cache.invalidate(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}
+        )
         assert invalidated is False
 
     def test_invalidate_all_entries(self):
@@ -123,19 +155,33 @@ class TestQueryCache:
         cache = QueryCache()
 
         # Set results for two queries
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}])
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 2}, [{"id": 2}])
+        cache.set_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}]
+        )
+        cache.set_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 2}, [{"id": 2}]
+        )
 
         # Verify both are cached
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1}) == [{"id": 1}]
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 2}) == [{"id": 2}]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}
+        ) == [{"id": 1}]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 2}
+        ) == [{"id": 2}]
 
         # Invalidate all entries
         cache.invalidate_all()
 
         # Verify neither is cached
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1}) is None
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 2}) is None
+        assert (
+            cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1})
+            is None
+        )
+        assert (
+            cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 2})
+            is None
+        )
 
     def test_cache_statistics(self):
         """Test cache statistics tracking."""
@@ -157,7 +203,9 @@ class TestQueryCache:
         assert stats["hit_rate"] == 0.0
 
         # Add to cache
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}])
+        cache.set_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}]
+        )
 
         # Hit - query in cache
         result = cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1})
@@ -195,50 +243,77 @@ class TestQueryCache:
         cache = QueryCache()
 
         # Initially not cached
-        assert cache.is_cached("SELECT * FROM users WHERE id = ?", {"id": 1}) is False
+        assert (
+            cache.is_cached("SELECT * FROM users WHERE id = ?", {"id": 1})
+            is False
+        )
 
         # Add to cache
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}])
+        cache.set_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}]
+        )
 
         # Now cached
-        assert cache.is_cached("SELECT * FROM users WHERE id = ?", {"id": 1}) is True
+        assert (
+            cache.is_cached("SELECT * FROM users WHERE id = ?", {"id": 1})
+            is True
+        )
 
         # Remove from cache (by TTL expiration)
         cache.ttl_seconds = 0.1
         time.sleep(1.2)
-        assert cache.is_cached("SELECT * FROM users WHERE id = ?", {"id": 1}) is False
+        assert (
+            cache.is_cached("SELECT * FROM users WHERE id = ?", {"id": 1})
+            is False
+        )
 
     def test_resize_cache(self):
         """Test resizing the cache."""
         cache = QueryCache(max_size=2)
 
         # Fill the cache
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}])
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 2}, [{"id": 2}])
+        cache.set_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}]
+        )
+        cache.set_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 2}, [{"id": 2}]
+        )
 
         # Verify both are cached
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1}) == [{"id": 1}]
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 2}) == [{"id": 2}]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}
+        ) == [{"id": 1}]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 2}
+        ) == [{"id": 2}]
 
         # Add a third query, which should evict one due to size limit
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 3}, [{"id": 3}])
+        cache.set_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 3}, [{"id": 3}]
+        )
 
         # Resize to allow more entries
         cache.resize(5)
 
         # Add the evicted query back
         cache.set_result(
-            "SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1, "updated": True}]
+            "SELECT * FROM users WHERE id = ?",
+            {"id": 1},
+            [{"id": 1, "updated": True}],
         )
 
         # Verify all three can now be cached
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1}) == [
-            {"id": 1, "updated": True}
-        ]
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 2}) == [
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}
+        ) == [{"id": 1, "updated": True}]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 2}
+        ) == [
             {"id": 2}
         ]  # Should still be there
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 3}) == [
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 3}
+        ) == [
             {"id": 3}
         ]  # Should still be there
 
@@ -275,7 +350,9 @@ class TestQueryCache:
         # Add some entries
         for i in range(5):
             cache.set_result(
-                "SELECT * FROM table WHERE id = ?", {"id": i}, [{"id": i, "data": f"data_{i}"}]
+                "SELECT * FROM table WHERE id = ?",
+                {"id": i},
+                [{"id": i, "data": f"data_{i}"}],
             )
 
         # Usage should be greater after adding entries
@@ -287,20 +364,30 @@ class TestQueryCache:
         cache = QueryCache()
 
         # Same query and params should generate same key
-        key1 = cache._generate_key("SELECT * FROM users WHERE id = ?", {"id": 1})
-        key2 = cache._generate_key("SELECT * FROM users WHERE id = ?", {"id": 1})
+        key1 = cache._generate_key(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}
+        )
+        key2 = cache._generate_key(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}
+        )
         assert key1 == key2
 
         # Different params should generate different keys
-        key3 = cache._generate_key("SELECT * FROM users WHERE id = ?", {"id": 2})
+        key3 = cache._generate_key(
+            "SELECT * FROM users WHERE id = ?", {"id": 2}
+        )
         assert key1 != key3
 
         # Different queries should generate different keys
-        key4 = cache._generate_key("SELECT name FROM users WHERE id = ?", {"id": 1})
+        key4 = cache._generate_key(
+            "SELECT name FROM users WHERE id = ?", {"id": 1}
+        )
         assert key1 != key4
 
         # Case insensitive query normalization
-        key5 = cache._generate_key("select * from users where id = ?", {"id": 1})
+        key5 = cache._generate_key(
+            "select * from users where id = ?", {"id": 1}
+        )
         assert key1 == key5  # Should be the same after normalization
 
     def test_invalidate_by_prefix(self):
@@ -308,62 +395,96 @@ class TestQueryCache:
         cache = QueryCache()
 
         # Add entries with different prefixes
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}])
-        cache.set_result("SELECT * FROM users WHERE name = ?", {"name": "John"}, [{"id": 1}])
         cache.set_result(
-            "SELECT * FROM orders WHERE user_id = ?", {"user_id": 1}, [{"order_id": 10}]
+            "SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}]
+        )
+        cache.set_result(
+            "SELECT * FROM users WHERE name = ?", {"name": "John"}, [{"id": 1}]
+        )
+        cache.set_result(
+            "SELECT * FROM orders WHERE user_id = ?",
+            {"user_id": 1},
+            [{"order_id": 10}],
         )
 
         # Verify all are cached
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1}) == [{"id": 1}]
-        assert cache.get_result("SELECT * FROM users WHERE name = ?", {"name": "John"}) == [
-            {"id": 1}
-        ]
-        assert cache.get_result("SELECT * FROM orders WHERE user_id = ?", {"user_id": 1}) == [
-            {"order_id": 10}
-        ]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}
+        ) == [{"id": 1}]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE name = ?", {"name": "John"}
+        ) == [{"id": 1}]
+        assert cache.get_result(
+            "SELECT * FROM orders WHERE user_id = ?", {"user_id": 1}
+        ) == [{"order_id": 10}]
 
         # Invalidate entries with "SELECT * FROM users" prefix
-        invalidated_count = cache.invalidate_by_prefix("select * from users")  # Normalized
+        invalidated_count = cache.invalidate_by_prefix(
+            "select * from users"
+        )  # Normalized
         assert invalidated_count == 2  # Both user queries should be invalidated
 
         # Verify user queries are no longer cached but order query remains
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1}) is None
-        assert cache.get_result("SELECT * FROM users WHERE name = ?", {"name": "John"}) is None
-        assert cache.get_result("SELECT * FROM orders WHERE user_id = ?", {"user_id": 1}) == [
-            {"order_id": 10}
-        ]
+        assert (
+            cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1})
+            is None
+        )
+        assert (
+            cache.get_result(
+                "SELECT * FROM users WHERE name = ?", {"name": "John"}
+            )
+            is None
+        )
+        assert cache.get_result(
+            "SELECT * FROM orders WHERE user_id = ?", {"user_id": 1}
+        ) == [{"order_id": 10}]
 
     def test_clear_by_query_pattern(self):
         """Test clear_by_query_pattern method."""
         cache = QueryCache()
 
         # Add entries with different patterns
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}])
-        cache.set_result("SELECT * FROM users WHERE name = ?", {"name": "John"}, [{"id": 1}])
         cache.set_result(
-            "SELECT * FROM orders WHERE user_id = ?", {"user_id": 1}, [{"order_id": 10}]
+            "SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}]
+        )
+        cache.set_result(
+            "SELECT * FROM users WHERE name = ?", {"name": "John"}, [{"id": 1}]
+        )
+        cache.set_result(
+            "SELECT * FROM orders WHERE user_id = ?",
+            {"user_id": 1},
+            [{"order_id": 10}],
         )
 
         # Verify all are cached
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1}) == [{"id": 1}]
-        assert cache.get_result("SELECT * FROM users WHERE name = ?", {"name": "John"}) == [
-            {"id": 1}
-        ]
-        assert cache.get_result("SELECT * FROM orders WHERE user_id = ?", {"user_id": 1}) == [
-            {"order_id": 10}
-        ]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE id = ?", {"id": 1}
+        ) == [{"id": 1}]
+        assert cache.get_result(
+            "SELECT * FROM users WHERE name = ?", {"name": "John"}
+        ) == [{"id": 1}]
+        assert cache.get_result(
+            "SELECT * FROM orders WHERE user_id = ?", {"user_id": 1}
+        ) == [{"order_id": 10}]
 
         # Clear entries matching "users" pattern (case insensitive)
         cleared_count = cache.clear_by_query_pattern("users")
         assert cleared_count == 2  # Both user queries should be cleared
 
         # Verify user queries are no longer cached but order query remains
-        assert cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1}) is None
-        assert cache.get_result("SELECT * FROM users WHERE name = ?", {"name": "John"}) is None
-        assert cache.get_result("SELECT * FROM orders WHERE user_id = ?", {"user_id": 1}) == [
-            {"order_id": 10}
-        ]
+        assert (
+            cache.get_result("SELECT * FROM users WHERE id = ?", {"id": 1})
+            is None
+        )
+        assert (
+            cache.get_result(
+                "SELECT * FROM users WHERE name = ?", {"name": "John"}
+            )
+            is None
+        )
+        assert cache.get_result(
+            "SELECT * FROM orders WHERE user_id = ?", {"user_id": 1}
+        ) == [{"order_id": 10}]
 
     def test_get_cached_queries(self):
         """Test get_cached_queries method."""
@@ -374,10 +495,16 @@ class TestQueryCache:
         assert queries == []
 
         # Add some queries
-        cache.set_result("SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}])
-        cache.set_result("SELECT * FROM users WHERE name = ?", {"name": "John"}, [{"id": 1}])
         cache.set_result(
-            "SELECT * FROM orders WHERE user_id = ?", {"user_id": 1}, [{"order_id": 10}]
+            "SELECT * FROM users WHERE id = ?", {"id": 1}, [{"id": 1}]
+        )
+        cache.set_result(
+            "SELECT * FROM users WHERE name = ?", {"name": "John"}, [{"id": 1}]
+        )
+        cache.set_result(
+            "SELECT * FROM orders WHERE user_id = ?",
+            {"user_id": 1},
+            [{"order_id": 10}],
         )
 
         # Get cached queries

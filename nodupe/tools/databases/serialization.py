@@ -98,7 +98,7 @@ class DatabaseSerialization:
         try:
             return self.serialize(data)
         except ValueError:
-            return '{}'
+            return "{}"
 
     def deserialize_safe(self, serialized_data: str) -> Any:
         """Safely deserialize data, returning original on failure.

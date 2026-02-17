@@ -37,7 +37,7 @@ git push origin feature/my-feature
 
 - All new code requires tests
 - Run `pytest tests/` before submitting
-- Aim for 60%+ coverage
+- Aim for 80%+ (CI gate). Current focus: core `tool_system` tests (loader/registry/lifecycle) — see Testing Guide for suggested tasks and templates.
 
 ## Pull Requests
 

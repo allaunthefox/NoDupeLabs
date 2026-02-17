@@ -33,9 +33,11 @@ Example usage:
 
 import socket as socket
 from logging import getLogger
+from typing import Iterable, Optional
 
-from .time_sync_tool import time_synchronizationTool as _time_sync_impl
+from .time_sync_tool import TimeSynchronizationTool as _time_sync_impl
 from .time_sync_tool import logger as logger
+
 
 # Backwards-compatible public name expected by tests and external callers
 class TimeSyncTool(_time_sync_impl):
@@ -56,7 +58,11 @@ class TimeSyncTool(_time_sync_impl):
         **kwargs,
     ) -> None:
         # Historical default server list used by the test-suite
-        default_servers = ["time.google.com", "time.cloudflare.com", "pool.ntp.org"]
+        default_servers = [
+            "time.google.com",
+            "time.cloudflare.com",
+            "pool.ntp.org",
+        ]
         if servers is None:
             servers = default_servers
         super().__init__(
@@ -74,16 +80,14 @@ class TimeSyncTool(_time_sync_impl):
         return "TimeSync"
 
     def describe_usage(self) -> str:  # concrete implementation required by Tool
-        return (
-            "TimeSyncTool - NTP-based time synchronization and FastDate64 helpers."
-        )
+        return "TimeSyncTool - NTP-based time synchronization and FastDate64 helpers."
 
     @staticmethod
     def _get_exception_class():
         """Return the exception class used for disabled/network errors (compat shim)."""
-        from .time_sync_tool import time_synchronizationDisabledError
+        from .time_sync_tool import TimeSynchronizationDisabledError
 
-        return time_synchronizationDisabledError
+        return TimeSynchronizationDisabledError
 
 
 __all__ = ["TimeSyncTool", "socket", "logger"]

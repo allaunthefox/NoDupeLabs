@@ -199,6 +199,8 @@ disallow_untyped_defs = true
 disallow_incomplete_defs = true
 check_untyped_defs = true
 ignore_missing_imports = true
+# Exclude duplicate stub that conflicts with runtime module
+exclude = "nodupe/core/api/codes\\.pyi$"
 
 [tool.pyright]
 # Pyright/Pylance configuration

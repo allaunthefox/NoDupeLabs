@@ -3,8 +3,12 @@ from unittest.mock import Mock
 
 import pytest
 
-from nodupe.tools.databases.indexing import DatabaseIndexing, create_covering_index, IndexingError
 from nodupe.tools.databases.connection import DatabaseConnection
+from nodupe.tools.databases.indexing import (
+    DatabaseIndexing,
+    IndexingError,
+    create_covering_index,
+)
 from nodupe.tools.databases.schema import DatabaseSchema
 
 
@@ -45,7 +49,9 @@ def test_get_index_info_and_create_covering_index(tmp_path):
     idx = DatabaseIndexing(conn)
 
     # Create covering index using helper
-    create_covering_index(conn, "cov_idx", "files", ["status"], ["path", "hash"])
+    create_covering_index(
+        conn, "cov_idx", "files", ["status"], ["path", "hash"]
+    )
 
     indexes = idx.get_indexes(table_name="files")
     names = [i["name"] for i in indexes]
@@ -62,7 +68,9 @@ def test_find_missing_indexes_and_stats(tmp_path):
 
     # create a lightweight table with a 'status' column and no indexes
     cur = conn.cursor()
-    cur.execute("CREATE TABLE IF NOT EXISTS temp_table (id INTEGER PRIMARY KEY, status TEXT)")
+    cur.execute(
+        "CREATE TABLE IF NOT EXISTS temp_table (id INTEGER PRIMARY KEY, status TEXT)"
+    )
     conn.commit()
 
     suggestions = idx.find_missing_indexes()
@@ -117,10 +125,10 @@ def test_get_table_stats_uses_dbstat_when_available(tmp_path):
     conn.commit()
 
     # create a fake dbstat table to simulate page-size reporting
+    cur.execute("CREATE TABLE IF NOT EXISTS dbstat (name TEXT, pgsize INTEGER)")
     cur.execute(
-        "CREATE TABLE IF NOT EXISTS dbstat (name TEXT, pgsize INTEGER)"
+        "INSERT INTO dbstat (name, pgsize) VALUES (?, ?)", ("files", 12345)
     )
-    cur.execute("INSERT INTO dbstat (name, pgsize) VALUES (?, ?)", ("files", 12345))
     conn.commit()
 
     stats = idx.get_table_stats("files")
@@ -145,7 +153,9 @@ def test_create_unique_index_enforces_uniqueness(tmp_path):
 
     # create a small table without uniqueness and enforce a unique index
     cur = conn.cursor()
-    cur.execute("CREATE TABLE IF NOT EXISTS tmp_unique (id INTEGER PRIMARY KEY, val TEXT)")
+    cur.execute(
+        "CREATE TABLE IF NOT EXISTS tmp_unique (id INTEGER PRIMARY KEY, val TEXT)"
+    )
     conn.commit()
 
     idx.create_index("tmp_val_unique", "tmp_unique", ["val"], unique=True)
@@ -187,7 +197,11 @@ def test_get_table_stats_without_dbstat_raises(tmp_path):
             if isinstance(sql, str) and "FROM dbstat" in sql:
                 # simulate missing/readonly dbstat access
                 raise sqlite3.OperationalError("no such table: dbstat")
-            return self._base.execute(sql, params) if params is not None else self._base.execute(sql)
+            return (
+                self._base.execute(sql, params)
+                if params is not None
+                else self._base.execute(sql)
+            )
 
         def fetchone(self):
             return self._base.fetchone()
@@ -259,11 +273,16 @@ def test_find_missing_indexes_suggests_common_columns(tmp_path):
     idx = DatabaseIndexing(conn)
 
     cur = conn.cursor()
-    cur.execute("CREATE TABLE IF NOT EXISTS missing_idx (id INTEGER PRIMARY KEY, created_at INTEGER, other TEXT)")
+    cur.execute(
+        "CREATE TABLE IF NOT EXISTS missing_idx (id INTEGER PRIMARY KEY, created_at INTEGER, other TEXT)"
+    )
     conn.commit()
 
     suggestions = idx.find_missing_indexes()
-    assert any(s.get("table") == "missing_idx" and s.get("column") == "created_at" for s in suggestions)
+    assert any(
+        s.get("table") == "missing_idx" and s.get("column") == "created_at"
+        for s in suggestions
+    )
 
 
 def test_get_index_stats_handles_empty_catalog():

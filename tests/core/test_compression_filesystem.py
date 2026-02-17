@@ -13,7 +13,10 @@ from pathlib import Path
 
 import pytest
 
-from nodupe.tools.compression_standard.engine_logic import Compression, CompressionError
+from nodupe.tools.compression_standard.engine_logic import (
+    Compression,
+    CompressionError,
+)
 
 
 class TestCompressionFilesystemBased:
@@ -31,21 +34,25 @@ class TestCompressionFilesystemBased:
 
         # Store original path for verification
         original_path = test_file
-        assert original_path.exists(), "Test file should exist before compression"
+        assert (
+            original_path.exists()
+        ), "Test file should exist before compression"
 
         # Compress with remove_original=True
         compressed = Compression.compress_file(
             test_file,
-            format='gzip',
-            remove_original=True  # This MUST execute lines 93-94
+            format="gzip",
+            remove_original=True,  # This MUST execute lines 93-94
         )
 
         # Critical assertions
-        assert not original_path.exists(), "Original file MUST be deleted (line 94)"
+        assert (
+            not original_path.exists()
+        ), "Original file MUST be deleted (line 94)"
         assert compressed.exists(), "Compressed file must exist"
 
         # Verify compressed file is valid
-        with gzip.open(compressed, 'rb') as f:
+        with gzip.open(compressed, "rb") as f:
             content = f.read()
         assert content == b"test content to compress"
 
@@ -53,22 +60,26 @@ class TestCompressionFilesystemBased:
         """Test remove_compressed deletes source file - Lines 144-145."""
         # Create compressed file
         compressed_file = tmp_path / "test.txt.gz"
-        with gzip.open(compressed_file, 'wb') as f:
+        with gzip.open(compressed_file, "wb") as f:
             f.write(b"test content to decompress")
 
         # Store compressed path for verification
         compressed_path = compressed_file
-        assert compressed_path.exists(), "Compressed file should exist before decompression"
+        assert (
+            compressed_path.exists()
+        ), "Compressed file should exist before decompression"
 
         # Decompress with remove_compressed=True
         decompressed = Compression.decompress_file(
             compressed_file,
-            format='gzip',
-            remove_compressed=True  # This MUST execute lines 144-145
+            format="gzip",
+            remove_compressed=True,  # This MUST execute lines 144-145
         )
 
         # Critical assertions
-        assert not compressed_path.exists(), "Compressed file MUST be deleted (line 145)"
+        assert (
+            not compressed_path.exists()
+        ), "Compressed file MUST be deleted (line 145)"
         assert decompressed.exists(), "Decompressed file must exist"
         assert decompressed.read_bytes() == b"test content to decompress"
 
@@ -92,11 +103,11 @@ class TestCompressionFilesystemBased:
             output_file = output_dir / "test.txt.gz"
 
             # This should raise CompressionError wrapping PermissionError
-            with pytest.raises(CompressionError, match="File compression failed"):
+            with pytest.raises(
+                CompressionError, match="File compression failed"
+            ):
                 Compression.compress_file(
-                    test_file,
-                    output_path=output_file,
-                    format='gzip'
+                    test_file, output_path=output_file, format="gzip"
                 )  # Should hit lines 104-105
         finally:
             # Restore permissions for cleanup
@@ -106,7 +117,7 @@ class TestCompressionFilesystemBased:
         """Test decompress_file exception handler - Lines 146-147."""
         # Create valid compressed file
         compressed_file = tmp_path / "test.txt.gz"
-        with gzip.open(compressed_file, 'wb') as f:
+        with gzip.open(compressed_file, "wb") as f:
             f.write(b"content")
 
         # Create read-only output directory
@@ -118,11 +129,11 @@ class TestCompressionFilesystemBased:
             output_file = output_dir / "test.txt"
 
             # This should raise CompressionError wrapping PermissionError
-            with pytest.raises(CompressionError, match="File decompression failed"):
+            with pytest.raises(
+                CompressionError, match="File decompression failed"
+            ):
                 Compression.decompress_file(
-                    compressed_file,
-                    output_path=output_file,
-                    format='gzip'
+                    compressed_file, output_path=output_file, format="gzip"
                 )  # Should hit lines 146-147
         finally:
             os.chmod(output_dir, stat.S_IRWXU)
@@ -139,7 +150,7 @@ class TestCompressionFilesystemBased:
 
         # Should raise CompressionError, caught and re-raised at line 186
         with pytest.raises(CompressionError, match="File not found"):
-            Compression.create_archive([nonexistent], output, format='zip')
+            Compression.create_archive([nonexistent], output, format="zip")
 
     def test_extract_archive_compression_error_path(self, tmp_path):
         """Test extract_archive CompressionError re-raise - Line 225."""
@@ -149,7 +160,7 @@ class TestCompressionFilesystemBased:
 
         # Should raise CompressionError, caught and re-raised at line 225
         with pytest.raises(CompressionError, match="Archive not found"):
-            Compression.extract_archive(nonexistent, output_dir, format='zip')
+            Compression.extract_archive(nonexistent, output_dir, format="zip")
 
     def test_create_archive_generic_exception_handler(self, tmp_path):
         """Test create_archive Exception handler - Lines 195-196."""
@@ -166,8 +177,10 @@ class TestCompressionFilesystemBased:
             output = output_dir / "archive.zip"
 
             # Should raise CompressionError wrapping OSError/PermissionError
-            with pytest.raises(CompressionError, match="Archive creation failed"):
-                Compression.create_archive([test_file], output, format='zip')
+            with pytest.raises(
+                CompressionError, match="Archive creation failed"
+            ):
+                Compression.create_archive([test_file], output, format="zip")
                 # Should hit lines 195-196
         finally:
             os.chmod(output_dir, stat.S_IRWXU)
@@ -179,7 +192,7 @@ class TestCompressionFilesystemBased:
         test_file = tmp_path / "test.txt"
         test_file.write_bytes(b"content")
 
-        with zipfile.ZipFile(archive_file, 'w') as zf:
+        with zipfile.ZipFile(archive_file, "w") as zf:
             zf.write(test_file, arcname="test.txt")
 
         # Create read-only output directory
@@ -189,8 +202,12 @@ class TestCompressionFilesystemBased:
 
         try:
             # Should raise CompressionError wrapping PermissionError
-            with pytest.raises(CompressionError, match="Archive extraction failed"):
-                Compression.extract_archive(archive_file, output_dir, format='zip')
+            with pytest.raises(
+                CompressionError, match="Archive extraction failed"
+            ):
+                Compression.extract_archive(
+                    archive_file, output_dir, format="zip"
+                )
                 # Should hit line 240
         finally:
             os.chmod(output_dir, stat.S_IRWXU)
@@ -206,37 +223,38 @@ class TestCompressionFilesystemBased:
         # Test all valid format/data_type combinations
         # Note: tar.* formats use the base format ratios (gz, bz2, xz)
         test_cases = [
-            ('gzip', 'text', 300),
-            ('gzip', 'binary', 600),
-            ('gzip', 'image', 900),
-            ('gzip', 'video', 950),
-            ('bz2', 'text', 250),
-            ('bz2', 'binary', 550),
-            ('bz2', 'image', 900),
-            ('bz2', 'video', 950),
-            ('lzma', 'text', 200),
-            ('lzma', 'binary', 500),
-            ('lzma', 'image', 900),
-            ('lzma', 'video', 950),
-            ('tar.gz', 'text', 300),  # gz is in ratios -> 0.3 * 1000
-            ('tar.bz2', 'binary', 550),  # bz2 is in ratios -> 0.55 * 1000
-            ('tar.xz', 'text', 200),  # xz is in ratios -> 0.2 * 1000
-            ('unknown_format', 'text', 500),  # Default ratio
-            ('gzip', 'unknown_type', 500),     # Default ratio
-            ('unknown', 'unknown', 500),        # Default ratio
+            ("gzip", "text", 300),
+            ("gzip", "binary", 600),
+            ("gzip", "image", 900),
+            ("gzip", "video", 950),
+            ("bz2", "text", 250),
+            ("bz2", "binary", 550),
+            ("bz2", "image", 900),
+            ("bz2", "video", 950),
+            ("lzma", "text", 200),
+            ("lzma", "binary", 500),
+            ("lzma", "image", 900),
+            ("lzma", "video", 950),
+            ("tar.gz", "text", 300),  # gz is in ratios -> 0.3 * 1000
+            ("tar.bz2", "binary", 550),  # bz2 is in ratios -> 0.55 * 1000
+            ("tar.xz", "text", 200),  # xz is in ratios -> 0.2 * 1000
+            ("unknown_format", "text", 500),  # Default ratio
+            ("gzip", "unknown_type", 500),  # Default ratio
+            ("unknown", "unknown", 500),  # Default ratio
         ]
 
         for fmt, dtype, expected in test_cases:
             result = Compression.estimate_compressed_size(data_size, fmt, dtype)
-            assert result == expected, f"Failed for format={fmt}, data_type={dtype}, got {result}"
+            assert (
+                result == expected
+            ), f"Failed for format={fmt}, data_type={dtype}, got {result}"
 
         # This covers all branches in lines 258-260
 
 
 # Platform-specific test marker
 @pytest.mark.skipif(
-    os.name == 'nt',
-    reason="Permission tests may not work correctly on Windows"
+    os.name == "nt", reason="Permission tests may not work correctly on Windows"
 )
 class TestCompressionPermissions:
     """Permission-based tests that may be platform-specific."""
@@ -249,4 +267,11 @@ class TestCompressionPermissions:
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--cov=nodupe.core.compression", "--cov-report=term-missing"])
+    pytest.main(
+        [
+            __file__,
+            "-v",
+            "--cov=nodupe.core.compression",
+            "--cov-report=term-missing",
+        ]
+    )

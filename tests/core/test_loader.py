@@ -34,9 +34,13 @@ class TestCoreLoaderInitialization:
         loader = CoreLoader()
 
         # Mock the initialization to avoid actual setup
-        with patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.load_config') as mock_load_config, \
-                patch('nodupe.core.loader.logging') as mock_logging:
+        with (
+            patch.object(
+                loader, "_apply_platform_autoconfig"
+            ) as mock_autoconfig,
+            patch("nodupe.core.loader.load_config") as mock_load_config,
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
 
             mock_autoconfig.return_value = {}
             mock_load_config.return_value = Mock(config={})
@@ -55,8 +59,10 @@ class TestCoreLoaderInitialization:
         """Test initialization error handling."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.load_config') as mock_load_config, \
-                patch('nodupe.core.loader.logging') as mock_logging:
+        with (
+            patch("nodupe.core.loader.load_config") as mock_load_config,
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
 
             mock_load_config.side_effect = Exception("Config load failed")
             mock_logging.error = MagicMock()
@@ -74,55 +80,58 @@ class TestCoreLoaderConfiguration:
         """Test platform autoconfiguration."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.platform') as mock_platform, \
-                patch('nodupe.core.loader.os') as mock_os, \
-                patch('nodupe.core.loader.multiprocessing') as mock_multiprocessing, \
-                patch('nodupe.core.loader.psutil') as mock_psutil, \
-                patch('nodupe.core.loader.logging') as mock_logging:
+        with (
+            patch("nodupe.core.loader.platform") as mock_platform,
+            patch("nodupe.core.loader.os") as mock_os,
+            patch("nodupe.core.loader.multiprocessing") as mock_multiprocessing,
+            patch("nodupe.core.loader.psutil") as mock_psutil,
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
 
             # Mock platform detection
-            mock_platform.system.return_value = 'Linux'
+            mock_platform.system.return_value = "Linux"
             mock_os.environ = {}
             mock_multiprocessing.cpu_count.return_value = 4
-            mock_psutil.virtual_memory.return_value = Mock(total=8 * 1024 ** 3)
+            mock_psutil.virtual_memory.return_value = Mock(total=8 * 1024**3)
             mock_psutil.disk_partitions.return_value = [
-                Mock(mountpoint='/', device='/dev/sda1', opts='')
+                Mock(mountpoint="/", device="/dev/sda1", opts="")
             ]
             mock_logging.info = MagicMock()
 
             config = loader._apply_platform_autoconfig()
 
-            assert 'db_path' in config
-            assert 'log_dir' in config
-            assert 'tools' in config
-            assert 'cpu_cores' in config
-            assert 'ram_gb' in config
-            assert 'drive_type' in config
+            assert "db_path" in config
+            assert "log_dir" in config
+            assert "tools" in config
+            assert "cpu_cores" in config
+            assert "ram_gb" in config
+            assert "drive_type" in config
 
     def test_config_merging(self):
         """Test configuration merging logic."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.load_config') as mock_load_config, \
-                patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.logging') as mock_logging:
+        with (
+            patch("nodupe.core.loader.load_config") as mock_load_config,
+            patch.object(
+                loader, "_apply_platform_autoconfig"
+            ) as mock_autoconfig,
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
 
             # Mock config with nested structure
             mock_config = Mock()
             mock_config.config = {
-                'existing_key': 'existing_value',
-                'tools': {
-                    'directories': ['custom_tools'],
-                    'auto_load': False
-                }
+                "existing_key": "existing_value",
+                "tools": {"directories": ["custom_tools"], "auto_load": False},
             }
 
             mock_autoconfig.return_value = {
-                'new_key': 'new_value',
-                'tools': {
-                    'hot_reload': True,
-                    'loading_order': ['core', 'database']
-                }
+                "new_key": "new_value",
+                "tools": {
+                    "hot_reload": True,
+                    "loading_order": ["core", "database"],
+                },
             }
 
             mock_load_config.return_value = mock_config
@@ -132,14 +141,17 @@ class TestCoreLoaderConfiguration:
             loader.initialize()
 
             # Verify that platform config was merged into main config
-            assert mock_config.config['new_key'] == 'new_value'
-            assert mock_config.config['tools']['hot_reload']
-            assert mock_config.config['tools']['loading_order'] == [
-                'core', 'database']
+            assert mock_config.config["new_key"] == "new_value"
+            assert mock_config.config["tools"]["hot_reload"]
+            assert mock_config.config["tools"]["loading_order"] == [
+                "core",
+                "database",
+            ]
             # Original values should be preserved
-            assert mock_config.config['tools']['directories'] == [
-                'custom_tools']
-            assert not mock_config.config['tools']['auto_load']
+            assert mock_config.config["tools"]["directories"] == [
+                "custom_tools"
+            ]
+            assert not mock_config.config["tools"]["auto_load"]
 
 
 class TestCoreLoaderToolSystem:
@@ -149,24 +161,30 @@ class TestCoreLoaderToolSystem:
         """Test tool discovery and loading."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.load_config') as mock_load_config, \
-                patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.ToolRegistry') as mock_registry, \
-                patch('nodupe.core.loader.create_tool_loader') as mock_loader, \
-                patch('nodupe.core.loader.create_tool_discovery') as mock_discovery, \
-                patch('nodupe.core.loader.create_lifecycle_manager') as mock_lifecycle, \
-                patch('nodupe.core.loader.ToolHotReload') as mock_hot_reload, \
-                patch('nodupe.core.loader.get_connection') as mock_db, \
-                patch('nodupe.core.loader.logging') as mock_logging, \
-                patch('nodupe.core.loader.Path') as mock_path:
+        with (
+            patch("nodupe.core.loader.load_config") as mock_load_config,
+            patch.object(
+                loader, "_apply_platform_autoconfig"
+            ) as mock_autoconfig,
+            patch("nodupe.core.loader.ToolRegistry") as mock_registry,
+            patch("nodupe.core.loader.create_tool_loader") as mock_loader,
+            patch("nodupe.core.loader.create_tool_discovery") as mock_discovery,
+            patch(
+                "nodupe.core.loader.create_lifecycle_manager"
+            ) as mock_lifecycle,
+            patch("nodupe.core.loader.ToolHotReload") as mock_hot_reload,
+            patch("nodupe.core.loader.get_connection") as mock_db,
+            patch("nodupe.core.loader.logging") as mock_logging,
+            patch("nodupe.core.loader.Path") as mock_path,
+        ):
 
             # Mock config
             mock_config = Mock()
             mock_config.config = {
-                'tools': {
-                    'directories': ['tools'],
-                    'auto_load': True,
-                    'loading_order': ['core']
+                "tools": {
+                    "directories": ["tools"],
+                    "auto_load": True,
+                    "loading_order": ["core"],
                 }
             }
 
@@ -178,18 +196,22 @@ class TestCoreLoaderToolSystem:
             # Mock tool discovery
             mock_discovery_instance = Mock()
             mock_discovery_instance.discover_tools_in_directory.return_value = [
-                Mock(name='core', path='tools/core.py')]
+                Mock(name="core", path="tools/core.py")
+            ]
             mock_discovery_instance.get_discovered_tool.return_value = Mock(
-                name='core', path='tools/core.py')
+                name="core", path="tools/core.py"
+            )
             mock_discovery_instance.get_discovered_tools.return_value = [
-                Mock(name='core', path='tools/core.py')]
+                Mock(name="core", path="tools/core.py")
+            ]
             mock_discovery.return_value = mock_discovery_instance
 
             # Mock tool loader
             mock_loader_instance = Mock()
             mock_loader_instance.load_tool_from_file.return_value = Mock
             mock_loader_instance.instantiate_tool.return_value = Mock(
-                name='core')
+                name="core"
+            )
             mock_loader_instance.register_loaded_tool.return_value = None
             mock_loader.return_value = mock_loader_instance
 
@@ -229,23 +251,23 @@ class TestCoreLoaderToolSystem:
         """Test tool loading when disabled in config."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.load_config') as mock_load_config, \
-                patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.ToolRegistry'), \
-                patch('nodupe.core.loader.create_tool_loader'), \
-                patch('nodupe.core.loader.create_tool_discovery') as mock_discovery, \
-                patch('nodupe.core.loader.create_lifecycle_manager'), \
-                patch('nodupe.core.loader.ToolHotReload'), \
-                patch('nodupe.core.loader.get_connection'), \
-                patch('nodupe.core.loader.logging') as mock_logging:
+        with (
+            patch("nodupe.core.loader.load_config") as mock_load_config,
+            patch.object(
+                loader, "_apply_platform_autoconfig"
+            ) as mock_autoconfig,
+            patch("nodupe.core.loader.ToolRegistry"),
+            patch("nodupe.core.loader.create_tool_loader"),
+            patch("nodupe.core.loader.create_tool_discovery") as mock_discovery,
+            patch("nodupe.core.loader.create_lifecycle_manager"),
+            patch("nodupe.core.loader.ToolHotReload"),
+            patch("nodupe.core.loader.get_connection"),
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
 
             # Mock config with auto_load disabled
             mock_config = Mock()
-            mock_config.config = {
-                'tools': {
-                    'auto_load': False
-                }
-            }
+            mock_config.config = {"tools": {"auto_load": False}}
 
             mock_load_config.return_value = mock_config
             mock_autoconfig.return_value = {}
@@ -265,15 +287,19 @@ class TestCoreLoaderDatabase:
         """Test database initialization."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.load_config') as mock_load_config, \
-                patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.ToolRegistry'), \
-                patch('nodupe.core.loader.create_tool_loader'), \
-                patch('nodupe.core.loader.create_tool_discovery'), \
-                patch('nodupe.core.loader.create_lifecycle_manager'), \
-                patch('nodupe.core.loader.ToolHotReload'), \
-                patch('nodupe.core.loader.get_connection') as mock_db, \
-                patch('nodupe.core.loader.logging') as mock_logging:
+        with (
+            patch("nodupe.core.loader.load_config") as mock_load_config,
+            patch.object(
+                loader, "_apply_platform_autoconfig"
+            ) as mock_autoconfig,
+            patch("nodupe.core.loader.ToolRegistry"),
+            patch("nodupe.core.loader.create_tool_loader"),
+            patch("nodupe.core.loader.create_tool_discovery"),
+            patch("nodupe.core.loader.create_lifecycle_manager"),
+            patch("nodupe.core.loader.ToolHotReload"),
+            patch("nodupe.core.loader.get_connection") as mock_db,
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
 
             # Mock config
             mock_config = Mock()
@@ -302,17 +328,23 @@ class TestCoreLoaderHashAutotuning:
         """Test hash algorithm autotuning."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.load_config') as mock_load_config, \
-                patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.ToolRegistry'), \
-                patch('nodupe.core.loader.create_tool_loader'), \
-                patch('nodupe.core.loader.create_tool_discovery'), \
-                patch('nodupe.core.loader.create_lifecycle_manager'), \
-                patch('nodupe.core.loader.ToolHotReload'), \
-                patch('nodupe.core.loader.get_connection'), \
-                patch('nodupe.core.loader.autotune_hash_algorithm') as mock_autotune, \
-                patch('nodupe.core.loader.create_autotuned_hasher') as mock_hasher, \
-                patch('nodupe.core.loader.logging') as mock_logging:
+        with (
+            patch("nodupe.core.loader.load_config") as mock_load_config,
+            patch.object(
+                loader, "_apply_platform_autoconfig"
+            ) as mock_autoconfig,
+            patch("nodupe.core.loader.ToolRegistry"),
+            patch("nodupe.core.loader.create_tool_loader"),
+            patch("nodupe.core.loader.create_tool_discovery"),
+            patch("nodupe.core.loader.create_lifecycle_manager"),
+            patch("nodupe.core.loader.ToolHotReload"),
+            patch("nodupe.core.loader.get_connection"),
+            patch(
+                "nodupe.core.loader.autotune_hash_algorithm"
+            ) as mock_autotune,
+            patch("nodupe.core.loader.create_autotuned_hasher") as mock_hasher,
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
 
             # Mock config
             mock_config = Mock()
@@ -320,11 +352,11 @@ class TestCoreLoaderHashAutotuning:
 
             # Mock autotune results
             mock_autotune.return_value = {
-                'optimal_algorithm': 'blake3',
-                'benchmark_results': {'blake3': 0.1, 'sha256': 0.2},
-                'available_algorithms': ['blake3', 'sha256'],
-                'has_blake3': True,
-                'has_xxhash': False
+                "optimal_algorithm": "blake3",
+                "benchmark_results": {"blake3": 0.1, "sha256": 0.2},
+                "available_algorithms": ["blake3", "sha256"],
+                "has_blake3": True,
+                "has_xxhash": False,
             }
 
             # Mock hasher
@@ -342,25 +374,34 @@ class TestCoreLoaderHashAutotuning:
             mock_autotune.assert_called_once()
 
             # Verify hasher was registered in container
-            assert loader.container.get_service(
-                'hasher') is mock_hasher_instance
-            assert loader.container.get_service(
-                'hash_autotune_results') is not None
+            assert (
+                loader.container.get_service("hasher") is mock_hasher_instance
+            )
+            assert (
+                loader.container.get_service("hash_autotune_results")
+                is not None
+            )
 
     def test_hash_autotuning_fallback(self):
         """Test hash autotuning fallback on error."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.load_config') as mock_load_config, \
-                patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.ToolRegistry'), \
-                patch('nodupe.core.loader.create_tool_loader'), \
-                patch('nodupe.core.loader.create_tool_discovery'), \
-                patch('nodupe.core.loader.create_lifecycle_manager'), \
-                patch('nodupe.core.loader.ToolHotReload'), \
-                patch('nodupe.core.loader.get_connection'), \
-                patch('nodupe.core.loader.autotune_hash_algorithm') as mock_autotune, \
-                patch('nodupe.core.loader.logging') as mock_logging:
+        with (
+            patch("nodupe.core.loader.load_config") as mock_load_config,
+            patch.object(
+                loader, "_apply_platform_autoconfig"
+            ) as mock_autoconfig,
+            patch("nodupe.core.loader.ToolRegistry"),
+            patch("nodupe.core.loader.create_tool_loader"),
+            patch("nodupe.core.loader.create_tool_discovery"),
+            patch("nodupe.core.loader.create_lifecycle_manager"),
+            patch("nodupe.core.loader.ToolHotReload"),
+            patch("nodupe.core.loader.get_connection"),
+            patch(
+                "nodupe.core.loader.autotune_hash_algorithm"
+            ) as mock_autotune,
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
 
             # Mock config
             mock_config = Mock()
@@ -379,8 +420,9 @@ class TestCoreLoaderHashAutotuning:
 
             # Verify fallback was used
             mock_logging.error.assert_called_with(
-                "Hash autotuning failed: Autotune failed")
-            assert loader.container.get_service('hasher') is not None
+                "Hash autotuning failed: Autotune failed"
+            )
+            assert loader.container.get_service("hasher") is not None
 
 
 class TestCoreLoaderShutdown:
@@ -390,15 +432,19 @@ class TestCoreLoaderShutdown:
         """Test shutdown functionality."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.load_config') as mock_load_config, \
-                patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.ToolRegistry'), \
-                patch('nodupe.core.loader.create_tool_loader'), \
-                patch('nodupe.core.loader.create_tool_discovery'), \
-                patch('nodupe.core.loader.create_lifecycle_manager'), \
-                patch('nodupe.core.loader.ToolHotReload'), \
-                patch('nodupe.core.loader.get_connection'), \
-                patch('nodupe.core.loader.logging') as mock_logging:
+        with (
+            patch("nodupe.core.loader.load_config") as mock_load_config,
+            patch.object(
+                loader, "_apply_platform_autoconfig"
+            ) as mock_autoconfig,
+            patch("nodupe.core.loader.ToolRegistry"),
+            patch("nodupe.core.loader.create_tool_loader"),
+            patch("nodupe.core.loader.create_tool_discovery"),
+            patch("nodupe.core.loader.create_lifecycle_manager"),
+            patch("nodupe.core.loader.ToolHotReload"),
+            patch("nodupe.core.loader.get_connection"),
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
 
             # Mock config
             mock_config = Mock()
@@ -431,7 +477,7 @@ class TestCoreLoaderShutdown:
         """Test shutdown when not initialized."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.logging') as mock_logging:
+        with patch("nodupe.core.loader.logging") as mock_logging:
             mock_logging.info = MagicMock()
 
             # Shutdown without initialization
@@ -448,10 +494,12 @@ class TestCoreLoaderSystemDetection:
         """Test system resource detection."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.multiprocessing') as mock_multiprocessing, \
-                patch('nodupe.core.loader.os') as mock_os, \
-                patch('nodupe.core.loader.psutil') as mock_psutil, \
-                patch('nodupe.core.loader.logging') as mock_logging:
+        with (
+            patch("nodupe.core.loader.multiprocessing") as mock_multiprocessing,
+            patch("nodupe.core.loader.os") as mock_os,
+            patch("nodupe.core.loader.psutil") as mock_psutil,
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
 
             # Mock system resources
             mock_multiprocessing.cpu_count.return_value = 8
@@ -460,50 +508,52 @@ class TestCoreLoaderSystemDetection:
 
             # Mock psutil
             mock_virtual_memory = Mock()
-            mock_virtual_memory.total = 16 * 1024 ** 3
+            mock_virtual_memory.total = 16 * 1024**3
             mock_psutil.virtual_memory.return_value = mock_virtual_memory
 
             mock_disk_partition = Mock()
-            mock_disk_partition.mountpoint = '/'
-            mock_disk_partition.device = '/dev/nvme0n1'
-            mock_disk_partition.opts = ''
+            mock_disk_partition.mountpoint = "/"
+            mock_disk_partition.device = "/dev/nvme0n1"
+            mock_disk_partition.opts = ""
             mock_psutil.disk_partitions.return_value = [mock_disk_partition]
 
             mock_logging.warning = MagicMock()
 
             system_info = loader._detect_system_resources()
 
-            assert system_info['cpu_cores'] == 8
-            assert system_info['cpu_threads'] == 8
-            assert system_info['ram_gb'] == 16
-            assert system_info['drive_type'] == 'ssd'
-            assert system_info['max_workers'] == 16
-            assert system_info['batch_size'] == 500
+            assert system_info["cpu_cores"] == 8
+            assert system_info["cpu_threads"] == 8
+            assert system_info["ram_gb"] == 16
+            assert system_info["drive_type"] == "ssd"
+            assert system_info["max_workers"] == 16
+            assert system_info["batch_size"] == 500
 
     def test_thread_restriction_detection(self):
         """Test thread restriction detection."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.os') as mock_os, \
-                patch('nodupe.core.loader.logging'):
+        with (
+            patch("nodupe.core.loader.os") as mock_os,
+            patch("nodupe.core.loader.logging"),
+        ):
 
             # Test Kubernetes detection
-            mock_os.environ = {'KUBERNETES_SERVICE_HOST': 'localhost'}
-            system_info = {'cpu_cores': 8}
+            mock_os.environ = {"KUBERNETES_SERVICE_HOST": "localhost"}
+            system_info = {"cpu_cores": 8}
 
             loader._detect_thread_restrictions(system_info)
 
-            assert system_info['thread_restrictions_detected'] is True
-            assert 'kubernetes' in system_info['thread_restriction_reasons']
+            assert system_info["thread_restrictions_detected"] is True
+            assert "kubernetes" in system_info["thread_restriction_reasons"]
 
             # Test Docker detection
-            mock_os.environ = {'DOCKER_CONTAINER': 'true'}
-            system_info = {'cpu_cores': 8}
+            mock_os.environ = {"DOCKER_CONTAINER": "true"}
+            system_info = {"cpu_cores": 8}
 
             loader._detect_thread_restrictions(system_info)
 
-            assert system_info['thread_restrictions_detected'] is True
-            assert 'container' in system_info['thread_restriction_reasons']
+            assert system_info["thread_restrictions_detected"] is True
+            assert "container" in system_info["thread_restriction_reasons"]
 
 
 class TestBootstrapFunction:
@@ -511,8 +561,12 @@ class TestBootstrapFunction:
 
     def test_bootstrap(self):
         """Test bootstrap function."""
-        with patch('nodupe.core.loader.logging.basicConfig') as mock_basic_config, \
-                patch('nodupe.core.loader.CoreLoader') as mock_core_loader:
+        with (
+            patch(
+                "nodupe.core.loader.logging.basicConfig"
+            ) as mock_basic_config,
+            patch("nodupe.core.loader.CoreLoader") as mock_core_loader,
+        ):
 
             # Mock CoreLoader
             mock_loader_instance = Mock()
@@ -535,27 +589,35 @@ class TestCoreLoaderIntegration:
         """Test complete initialization workflow."""
         loader = CoreLoader()
 
-        with patch('nodupe.core.loader.load_config') as mock_load_config, \
-                patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                patch('nodupe.core.loader.ToolRegistry') as mock_registry, \
-                patch('nodupe.core.loader.create_tool_loader') as mock_loader, \
-                patch('nodupe.core.loader.create_tool_discovery') as mock_discovery, \
-                patch('nodupe.core.loader.create_lifecycle_manager') as mock_lifecycle, \
-                patch('nodupe.core.loader.ToolHotReload') as mock_hot_reload, \
-                patch('nodupe.core.loader.get_connection') as mock_db, \
-                patch('nodupe.core.loader.autotune_hash_algorithm') as mock_autotune, \
-                patch('nodupe.core.loader.create_autotuned_hasher') as mock_hasher, \
-                patch('nodupe.core.loader.logging') as mock_logging, \
-                patch('nodupe.core.loader.Path') as mock_path:
+        with (
+            patch("nodupe.core.loader.load_config") as mock_load_config,
+            patch.object(
+                loader, "_apply_platform_autoconfig"
+            ) as mock_autoconfig,
+            patch("nodupe.core.loader.ToolRegistry") as mock_registry,
+            patch("nodupe.core.loader.create_tool_loader") as mock_loader,
+            patch("nodupe.core.loader.create_tool_discovery") as mock_discovery,
+            patch(
+                "nodupe.core.loader.create_lifecycle_manager"
+            ) as mock_lifecycle,
+            patch("nodupe.core.loader.ToolHotReload") as mock_hot_reload,
+            patch("nodupe.core.loader.get_connection") as mock_db,
+            patch(
+                "nodupe.core.loader.autotune_hash_algorithm"
+            ) as mock_autotune,
+            patch("nodupe.core.loader.create_autotuned_hasher") as mock_hasher,
+            patch("nodupe.core.loader.logging") as mock_logging,
+            patch("nodupe.core.loader.Path") as mock_path,
+        ):
 
             # Mock config
             mock_config = Mock()
             mock_config.config = {
-                'tools': {
-                    'directories': ['tools'],
-                    'auto_load': True,
-                    'hot_reload': True,
-                    'loading_order': ['core']
+                "tools": {
+                    "directories": ["tools"],
+                    "auto_load": True,
+                    "hot_reload": True,
+                    "loading_order": ["core"],
                 }
             }
 
@@ -567,18 +629,22 @@ class TestCoreLoaderIntegration:
             # Mock tool discovery
             mock_discovery_instance = Mock()
             mock_discovery_instance.discover_tools_in_directory.return_value = [
-                Mock(name='core', path='tools/core.py')]
+                Mock(name="core", path="tools/core.py")
+            ]
             mock_discovery_instance.get_discovered_tool.return_value = Mock(
-                name='core', path='tools/core.py')
+                name="core", path="tools/core.py"
+            )
             mock_discovery_instance.get_discovered_tools.return_value = [
-                Mock(name='core', path='tools/core.py')]
+                Mock(name="core", path="tools/core.py")
+            ]
             mock_discovery.return_value = mock_discovery_instance
 
             # Mock tool loader
             mock_loader_instance = Mock()
             mock_loader_instance.load_tool_from_file.return_value = Mock
             mock_loader_instance.instantiate_tool.return_value = Mock(
-                name='core')
+                name="core"
+            )
             mock_loader_instance.register_loaded_tool.return_value = None
             mock_loader.return_value = mock_loader_instance
 
@@ -597,11 +663,11 @@ class TestCoreLoaderIntegration:
 
             # Mock autotune
             mock_autotune.return_value = {
-                'optimal_algorithm': 'blake3',
-                'benchmark_results': {},
-                'available_algorithms': ['blake3'],
-                'has_blake3': True,
-                'has_xxhash': False
+                "optimal_algorithm": "blake3",
+                "benchmark_results": {},
+                "available_algorithms": ["blake3"],
+                "has_blake3": True,
+                "has_xxhash": False,
             }
 
             # Mock hasher
@@ -629,20 +695,31 @@ class TestCoreLoaderIntegration:
             assert loader.initialized is True
 
             # Verify services were registered in container
-            assert loader.container.get_service('config') is mock_config
-            assert loader.container.get_service(
-                'tool_registry') is mock_registry_instance
-            assert loader.container.get_service(
-                'tool_loader') is mock_loader_instance
-            assert loader.container.get_service(
-                'tool_discovery') is mock_discovery_instance
-            assert loader.container.get_service(
-                'tool_lifecycle') is mock_lifecycle_instance
-            assert loader.container.get_service(
-                'hot_reload') is mock_hot_reload_instance
-            assert loader.container.get_service('database') is mock_db_instance
-            assert loader.container.get_service(
-                'hasher') is mock_hasher_instance
+            assert loader.container.get_service("config") is mock_config
+            assert (
+                loader.container.get_service("tool_registry")
+                is mock_registry_instance
+            )
+            assert (
+                loader.container.get_service("tool_loader")
+                is mock_loader_instance
+            )
+            assert (
+                loader.container.get_service("tool_discovery")
+                is mock_discovery_instance
+            )
+            assert (
+                loader.container.get_service("tool_lifecycle")
+                is mock_lifecycle_instance
+            )
+            assert (
+                loader.container.get_service("hot_reload")
+                is mock_hot_reload_instance
+            )
+            assert loader.container.get_service("database") is mock_db_instance
+            assert (
+                loader.container.get_service("hasher") is mock_hasher_instance
+            )
 
             # Test shutdown
             loader.shutdown()

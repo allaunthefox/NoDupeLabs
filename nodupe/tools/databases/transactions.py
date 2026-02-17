@@ -29,6 +29,7 @@ class TransactionError(Exception):
 
 class IsolationLevel(Enum):
     """SQL isolation levels"""
+
     DEFERRED = "DEFERRED"
     IMMEDIATE = "IMMEDIATE"
     EXCLUSIVE = "EXCLUSIVE"
@@ -44,7 +45,7 @@ class DatabaseTransaction:
     def __init__(
         self,
         connection: sqlite3.Connection,
-        isolation_level: IsolationLevel = IsolationLevel.DEFERRED
+        isolation_level: IsolationLevel = IsolationLevel.DEFERRED,
     ):
         """Initialize transaction manager.
 
@@ -114,7 +115,9 @@ class DatabaseTransaction:
             self._savepoints.clear()
 
         except sqlite3.Error as e:
-            raise TransactionError(f"Failed to rollback transaction: {e}") from e
+            raise TransactionError(
+                f"Failed to rollback transaction: {e}"
+            ) from e
 
     def create_savepoint(self, name: str) -> None:
         """Create a savepoint within the current transaction.
@@ -134,7 +137,9 @@ class DatabaseTransaction:
             self._savepoints.append(name)
 
         except sqlite3.Error as e:
-            raise TransactionError(f"Failed to create savepoint '{name}': {e}") from e
+            raise TransactionError(
+                f"Failed to create savepoint '{name}': {e}"
+            ) from e
 
     def release_savepoint(self, name: str) -> None:
         """Release a savepoint.
@@ -153,7 +158,9 @@ class DatabaseTransaction:
             self._savepoints.remove(name)
 
         except sqlite3.Error as e:
-            raise TransactionError(f"Failed to release savepoint '{name}': {e}") from e
+            raise TransactionError(
+                f"Failed to release savepoint '{name}': {e}"
+            ) from e
 
     def rollback_to_savepoint(self, name: str) -> None:
         """Rollback to a savepoint.
@@ -171,13 +178,12 @@ class DatabaseTransaction:
             self.connection.execute(f"ROLLBACK TO SAVEPOINT {name}")
 
         except sqlite3.Error as e:
-            raise TransactionError(f"Failed to rollback to savepoint '{name}': {e}") from e
+            raise TransactionError(
+                f"Failed to rollback to savepoint '{name}': {e}"
+            ) from e
 
     def execute_in_transaction(
-        self,
-        operation: Callable,
-        *args,
-        **kwargs
+        self, operation: Callable, *args, **kwargs
     ) -> Any:
         """Execute an operation within a transaction.
 
@@ -305,8 +311,7 @@ class DatabaseTransactions:
         self.connection = connection
 
     def begin_transaction(
-        self,
-        isolation_level: IsolationLevel = IsolationLevel.DEFERRED
+        self, isolation_level: IsolationLevel = IsolationLevel.DEFERRED
     ) -> DatabaseTransaction:
         """Begin a new transaction.
 
@@ -344,8 +349,7 @@ class DatabaseTransactions:
 
     @contextmanager
     def transaction(
-        self,
-        isolation_level: IsolationLevel = IsolationLevel.DEFERRED
+        self, isolation_level: IsolationLevel = IsolationLevel.DEFERRED
     ):
         """Context manager for transaction.
 
@@ -392,7 +396,7 @@ class DatabaseTransactions:
         operation: Callable,
         *args,
         isolation_level: IsolationLevel = IsolationLevel.DEFERRED,
-        **kwargs
+        **kwargs,
     ) -> Any:
         """Execute operation in a transaction.
 
@@ -411,7 +415,7 @@ class DatabaseTransactions:
 
 # Convenience function for creating transaction manager
 def create_transaction_manager(
-    connection: sqlite3.Connection
+    connection: sqlite3.Connection,
 ) -> DatabaseTransactions:
     """Create a transaction manager for a database connection.
 

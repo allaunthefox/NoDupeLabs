@@ -1,6 +1,7 @@
 """
 Basic tests for NoDupeLabs functionality.
 """
+
 from pathlib import Path
 
 import pytest
@@ -19,7 +20,9 @@ def test_temp_dir_fixture(temp_dir):
 
 def test_sample_files_fixture(sample_files):
     """Test that the sample_files fixture creates files correctly."""
-    assert len(sample_files) == 5  # Updated to match actual fixture: small.txt, medium.txt, large.txt, duplicate_small.txt, binary.dat
+    assert (
+        len(sample_files) == 5
+    )  # Updated to match actual fixture: small.txt, medium.txt, large.txt, duplicate_small.txt, binary.dat
 
     # Check that all files exist
     for name, file_path in sample_files.items():
@@ -61,6 +64,7 @@ def test_nodupe_import():
     """Test that we can import the main nodupe module."""
     try:
         import nodupe
+
         assert nodupe is not None
     except ImportError:
         pytest.skip("nodupe module not available for import testing")

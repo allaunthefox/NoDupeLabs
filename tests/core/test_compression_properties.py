@@ -1,9 +1,13 @@
 """Property-based tests for compression module using Hypothesis."""
+
 import pytest
-from hypothesis import HealthCheck, Verbosity, assume, given, settings, strategies as st
+from hypothesis import HealthCheck, Verbosity, assume, given, settings
+from hypothesis import strategies as st
 
-from nodupe.tools.compression_standard.engine_logic import Compression, CompressionError
-
+from nodupe.tools.compression_standard.engine_logic import (
+    Compression,
+    CompressionError,
+)
 
 binary_data = st.binary(min_size=0, max_size=10_000)
 compression_formats = st.sampled_from(["gzip", "bz2", "lzma"])
@@ -52,7 +56,10 @@ def test_corrupted_data_fails(data):
 
 # 4. File Roundtrip Property
 @given(binary_data)
-@settings(verbosity=Verbosity.quiet, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@settings(
+    verbosity=Verbosity.quiet,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
 def test_file_roundtrip(tmp_path, data):
     """File-based compression/decompression should preserve data exactly."""
     file = tmp_path / "file.bin"
@@ -66,7 +73,11 @@ def test_file_roundtrip(tmp_path, data):
 
 # 5. Path Traversal Fuzzing
 @given(st.text(min_size=1, max_size=20))
-@settings(verbosity=Verbosity.quiet, max_examples=50, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@settings(
+    verbosity=Verbosity.quiet,
+    max_examples=50,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
 def test_zip_extraction_never_escapes(tmp_path, name):
     """Zip extraction should never escape the target directory."""
     zip_path = tmp_path / "test.zip"
@@ -75,6 +86,7 @@ def test_zip_extraction_never_escapes(tmp_path, name):
     malicious_name = f"../../{name}"
 
     import zipfile
+
     with zipfile.ZipFile(zip_path, "w") as zf:
         zf.writestr(malicious_name, "data")
 

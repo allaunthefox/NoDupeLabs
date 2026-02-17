@@ -1,7 +1,7 @@
 """Test tool loader functionality."""
 
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, call, patch, PropertyMock
+from unittest.mock import MagicMock, Mock, PropertyMock, call, patch
 
 import pytest
 
@@ -107,7 +107,9 @@ class TestToolLoadingFromFile:
 
         with (
             patch.object(Path, "exists", return_value=True),
-            patch.object(Path, "suffix", new_callable=PropertyMock, return_value=".py"),
+            patch.object(
+                Path, "suffix", new_callable=PropertyMock, return_value=".py"
+            ),
             patch(
                 "importlib.util.spec_from_file_location"
             ) as mock_spec_from_file,
@@ -145,7 +147,9 @@ class TestToolLoadingFromFile:
 
         with (
             patch.object(Path, "exists", return_value=True),
-            patch.object(Path, "suffix", new_callable=PropertyMock, return_value=".py"),
+            patch.object(
+                Path, "suffix", new_callable=PropertyMock, return_value=".py"
+            ),
             patch(
                 "importlib.util.spec_from_file_location"
             ) as mock_spec_from_file,
@@ -175,7 +179,9 @@ class TestToolLoadingFromFile:
 
             assert "No Tool subclass found" in str(exc_info.value)
 
-    def test_load_tool_from_file_with_relative_imports(self, tmp_path, monkeypatch):
+    def test_load_tool_from_file_with_relative_imports(
+        self, tmp_path, monkeypatch
+    ):
         """ToolLoader should correctly load modules that use relative imports.
 
         This verifies the package-aware loading we added so that modules which
@@ -194,7 +200,7 @@ class TestToolLoadingFromFile:
         (pkg_dir / "helper.py").write_text("def hello():\n    return 'ok'\n")
 
         # Tool module that uses a relative import and defines a Tool subclass
-        tool_code = '''
+        tool_code = """
 from .helper import hello
 from nodupe.core.tool_system.base import Tool
 
@@ -221,7 +227,7 @@ class DummyTool(Tool):
 
     def describe_usage(self):
         return "usage"
-'''
+"""
         tool_path = pkg_dir / "tool_mod.py"
         tool_path.write_text(tool_code)
 
@@ -248,7 +254,9 @@ class DummyTool(Tool):
 
         with (
             patch.object(Path, "exists", return_value=True),
-            patch.object(Path, "suffix", new_callable=PropertyMock, return_value=".py"),
+            patch.object(
+                Path, "suffix", new_callable=PropertyMock, return_value=".py"
+            ),
             patch(
                 "importlib.util.spec_from_file_location"
             ) as mock_spec_from_file,
@@ -531,7 +539,7 @@ def test_load_tool_from_file_synthetic_module_name(tmp_path, monkeypatch):
     pkg_dir = tmp_path / "external_pkg"
     pkg_dir.mkdir()
 
-    tool_code = '''
+    tool_code = """
 from nodupe.core.tool_system.base import Tool
 
 class ExternalTool(Tool):
@@ -557,7 +565,7 @@ class ExternalTool(Tool):
 
     def describe_usage(self):
         return "usage"
-'''
+"""
     tool_path = pkg_dir / "external_tool.py"
     tool_path.write_text(tool_code)
 
@@ -578,11 +586,15 @@ def test_load_tool_from_directory_recursive_real_files(tmp_path):
 
     # File in root
     root_tool = root / "root_tool.py"
-    root_tool.write_text('from nodupe.core.tool_system.base import Tool\nclass RootTool(Tool):\n    name = "root_tool"\n    version="1"\n    dependencies=[]\n    def initialize(self, container): pass\n    def shutdown(self): pass\n    def get_capabilities(self): return {}\n    @property\n    def api_methods(self): return {}\n    def run_standalone(self, args): return 0\n    def describe_usage(self): return "u"')
+    root_tool.write_text(
+        'from nodupe.core.tool_system.base import Tool\nclass RootTool(Tool):\n    name = "root_tool"\n    version="1"\n    dependencies=[]\n    def initialize(self, container): pass\n    def shutdown(self): pass\n    def get_capabilities(self): return {}\n    @property\n    def api_methods(self): return {}\n    def run_standalone(self, args): return 0\n    def describe_usage(self): return "u"'
+    )
 
     # File in subdir
     sub_tool = sub / "sub_tool.py"
-    sub_tool.write_text('from nodupe.core.tool_system.base import Tool\nclass SubTool(Tool):\n    name = "sub_tool"\n    version="1"\n    dependencies=[]\n    def initialize(self, container): pass\n    def shutdown(self): pass\n    def get_capabilities(self): return {}\n    @property\n    def api_methods(self): return {}\n    def run_standalone(self, args): return 0\n    def describe_usage(self): return "u"')
+    sub_tool.write_text(
+        'from nodupe.core.tool_system.base import Tool\nclass SubTool(Tool):\n    name = "sub_tool"\n    version="1"\n    dependencies=[]\n    def initialize(self, container): pass\n    def shutdown(self): pass\n    def get_capabilities(self): return {}\n    @property\n    def api_methods(self): return {}\n    def run_standalone(self, args): return 0\n    def describe_usage(self): return "u"'
+    )
 
     loader = ToolLoader()
     found = loader.load_tool_from_directory(root, recursive=True)
@@ -596,7 +608,9 @@ def test_load_tool_by_name_with_package_init(tmp_path, monkeypatch):
     """load_tool_by_name should load a tool from a package __init__.py"""
     pkg_dir = tmp_path / "mypkg"
     pkg_dir.mkdir()
-    (pkg_dir / "__init__.py").write_text('from nodupe.core.tool_system.base import Tool\nclass PkgTool(Tool):\n    name = "pkg_tool"\n    version = "1"\n    dependencies=[]\n    def initialize(self, container): pass\n    def shutdown(self): pass\n    def get_capabilities(self): return {}\n    @property\n    def api_methods(self): return {}\n    def run_standalone(self, args): return 0\n    def describe_usage(self): return "u"')
+    (pkg_dir / "__init__.py").write_text(
+        'from nodupe.core.tool_system.base import Tool\nclass PkgTool(Tool):\n    name = "pkg_tool"\n    version = "1"\n    dependencies=[]\n    def initialize(self, container): pass\n    def shutdown(self): pass\n    def get_capabilities(self): return {}\n    @property\n    def api_methods(self): return {}\n    def run_standalone(self, args): return 0\n    def describe_usage(self): return "u"'
+    )
 
     monkeypatch.syspath_prepend(str(tmp_path))
 
@@ -621,8 +635,8 @@ def test_unload_tool_removes_module_from_sys_modules(monkeypatch):
     loader._loaded_tools["fake"] = fake_instance
 
     # Insert a dummy module into sys.modules
-    import types
     import sys as _sys
+    import types
 
     mod = types.ModuleType("fake_mod")
     _sys.modules["fake_mod"] = mod

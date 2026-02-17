@@ -32,7 +32,9 @@ class Validators:
     """
 
     @staticmethod
-    def validate_type(value: Any, expected_type: type, allow_none: bool = False) -> bool:
+    def validate_type(
+        value: Any, expected_type: type, allow_none: bool = False
+    ) -> bool:
         """Validate type.
 
         Args:
@@ -61,7 +63,7 @@ class Validators:
         value: Union[int, float],
         min_val: Optional[Union[int, float]] = None,
         max_val: Optional[Union[int, float]] = None,
-        inclusive: bool = True
+        inclusive: bool = True,
     ) -> bool:
         """Validate range.
 
@@ -79,7 +81,9 @@ class Validators:
         """
         # Validate type
         if not isinstance(value, (int, float)):
-            raise ValidationError(f"Expected numeric type, got {type(value).__name__}")
+            raise ValidationError(
+                f"Expected numeric type, got {type(value).__name__}"
+            )
 
         # Check minimum
         if min_val is not None:
@@ -103,7 +107,7 @@ class Validators:
     def validate_string_length(
         value: str,
         min_length: Optional[int] = None,
-        max_length: Optional[int] = None
+        max_length: Optional[int] = None,
     ) -> bool:
         """Validate string length.
 
@@ -120,7 +124,9 @@ class Validators:
         """
         # Validate type
         if not isinstance(value, str):
-            raise ValidationError(f"Expected string, got {type(value).__name__}")
+            raise ValidationError(
+                f"Expected string, got {type(value).__name__}"
+            )
 
         length = len(value)
 
@@ -154,15 +160,21 @@ class Validators:
         """
         # Validate type
         if not isinstance(value, str):
-            raise ValidationError(f"Expected string, got {type(value).__name__}")
+            raise ValidationError(
+                f"Expected string, got {type(value).__name__}"
+            )
 
         # Compile and match pattern
         try:
             regex = re.compile(pattern)
             if not regex.match(value):
-                raise ValidationError(f"String '{value}' doesn't match pattern '{pattern}'")
+                raise ValidationError(
+                    f"String '{value}' doesn't match pattern '{pattern}'"
+                )
         except re.error as e:
-            raise ValidationError(f"Invalid regex pattern '{pattern}': {e}") from e
+            raise ValidationError(
+                f"Invalid regex pattern '{pattern}': {e}"
+            ) from e
 
         return True
 
@@ -180,7 +192,7 @@ class Validators:
             ValidationError: If email is invalid
         """
         # Simple email validation regex
-        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         return Validators.validate_pattern(email, email_pattern)
 
     @staticmethod
@@ -188,7 +200,7 @@ class Validators:
         file_path: Union[str, Path],
         must_exist: bool = False,
         must_be_file: bool = False,
-        must_be_dir: bool = False
+        must_be_dir: bool = False,
     ) -> bool:
         """Validate file path.
 
@@ -209,7 +221,9 @@ class Validators:
             file_path = Path(file_path)
 
         if not isinstance(file_path, Path):
-            raise ValidationError(f"Expected Path or str, got {type(file_path).__name__}")
+            raise ValidationError(
+                f"Expected Path or str, got {type(file_path).__name__}"
+            )
 
         # Check existence
         if must_exist and not file_path.exists():
@@ -256,7 +270,7 @@ class Validators:
     def validate_dict_keys(
         data: dict,
         required_keys: Optional[list[str]] = None,
-        allowed_keys: Optional[list[str]] = None
+        allowed_keys: Optional[list[str]] = None,
     ) -> bool:
         """Validate dictionary keys.
 
@@ -294,7 +308,7 @@ class Validators:
         items: list,
         item_type: type,
         min_items: Optional[int] = None,
-        max_items: Optional[int] = None
+        max_items: Optional[int] = None,
     ) -> bool:
         """Validate list items.
 
@@ -369,7 +383,9 @@ class Validators:
             ValidationError: If value is not positive
         """
         if not isinstance(value, (int, float)):
-            raise ValidationError(f"Expected numeric type, got {type(value).__name__}")
+            raise ValidationError(
+                f"Expected numeric type, got {type(value).__name__}"
+            )
 
         if value <= 0:
             raise ValidationError(f"Value {value} is not positive")
@@ -390,7 +406,9 @@ class Validators:
             ValidationError: If value is negative
         """
         if not isinstance(value, (int, float)):
-            raise ValidationError(f"Expected numeric type, got {type(value).__name__}")
+            raise ValidationError(
+                f"Expected numeric type, got {type(value).__name__}"
+            )
 
         if value < 0:
             raise ValidationError(f"Value {value} is negative")

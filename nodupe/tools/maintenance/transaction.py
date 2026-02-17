@@ -71,7 +71,9 @@ class TransactionLog:
             operation: Operation to log
         """
         if self.current_transaction is None:
-            raise RuntimeError("No active transaction. Call begin_transaction() first.")
+            raise RuntimeError(
+                "No active transaction. Call begin_transaction() first."
+            )
         self.current_operations.append(operation)
 
     def commit_transaction(self) -> str:

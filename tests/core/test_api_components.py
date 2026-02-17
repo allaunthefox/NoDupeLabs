@@ -18,12 +18,12 @@ class TestActionCode:
     def test_action_code_creation(self):
         """Test ActionCode enum creation."""
         # Test that all expected codes exist
-        assert hasattr(ActionCode, 'FIA_UAU_INIT')
-        assert hasattr(ActionCode, 'FPT_STM_ERR')
-        assert hasattr(ActionCode, 'FPT_FLS_FAIL')
-        assert hasattr(ActionCode, 'ACC_ISO_CMP')
-        assert hasattr(ActionCode, 'ACC_SCREEN_READER_INIT')
-        assert hasattr(ActionCode, 'ACC_BRAILLE_INIT')
+        assert hasattr(ActionCode, "FIA_UAU_INIT")
+        assert hasattr(ActionCode, "FPT_STM_ERR")
+        assert hasattr(ActionCode, "FPT_FLS_FAIL")
+        assert hasattr(ActionCode, "ACC_ISO_CMP")
+        assert hasattr(ActionCode, "ACC_SCREEN_READER_INIT")
+        assert hasattr(ActionCode, "ACC_BRAILLE_INIT")
 
     def test_action_code_values(self):
         """Test ActionCode values."""
@@ -102,7 +102,7 @@ class TestToolIPCServerConnectionHandling:
         mock_conn = Mock()
         mock_conn.recv.return_value = b"invalid json"
 
-        with patch('nodupe.core.api.ipc.logging') as mock_logging:
+        with patch("nodupe.core.api.ipc.logging") as mock_logging:
             mock_logger = Mock()
             mock_logging.getLogger.return_value = mock_logger
 
@@ -122,7 +122,7 @@ class TestToolIPCServerConnectionHandling:
         mock_conn = Mock()
         mock_conn.recv.return_value = b'{"method": "test"}'
 
-        with patch('nodupe.core.api.ipc.logging') as mock_logging:
+        with patch("nodupe.core.api.ipc.logging") as mock_logging:
             mock_logger = Mock()
             mock_logging.getLogger.return_value = mock_logger
 
@@ -142,7 +142,7 @@ class TestToolIPCServerConnectionHandling:
         mock_conn = Mock()
         mock_conn.recv.return_value = b'{"jsonrpc": "2.0", "id": 1}'
 
-        with patch('nodupe.core.api.ipc.logging') as mock_logging:
+        with patch("nodupe.core.api.ipc.logging") as mock_logging:
             mock_logger = Mock()
             mock_logging.getLogger.return_value = mock_logger
 
@@ -165,11 +165,11 @@ class TestToolIPCServerConnectionHandling:
             "jsonrpc": "2.0",
             "tool": "NonExistentTool",
             "method": "test_method",
-            "id": 1
+            "id": 1,
         }
-        mock_conn.recv.return_value = json.dumps(request_data).encode('utf-8')
+        mock_conn.recv.return_value = json.dumps(request_data).encode("utf-8")
 
-        with patch('nodupe.core.api.ipc.logging') as mock_logging:
+        with patch("nodupe.core.api.ipc.logging") as mock_logging:
             mock_logger = Mock()
             mock_logging.getLogger.return_value = mock_logger
 
@@ -197,11 +197,11 @@ class TestToolIPCServerConnectionHandling:
             "jsonrpc": "2.0",
             "tool": "TestTool",
             "method": "non_exposed_method",
-            "id": 1
+            "id": 1,
         }
-        mock_conn.recv.return_value = json.dumps(request_data).encode('utf-8')
+        mock_conn.recv.return_value = json.dumps(request_data).encode("utf-8")
 
-        with patch('nodupe.core.api.ipc.logging') as mock_logging:
+        with patch("nodupe.core.api.ipc.logging") as mock_logging:
             mock_logger = Mock()
             mock_logging.getLogger.return_value = mock_logger
 
@@ -231,11 +231,11 @@ class TestToolIPCServerConnectionHandling:
             "tool": "TestTool",
             "method": "test_method",
             "params": {"param1": "value1"},
-            "id": 1
+            "id": 1,
         }
-        mock_conn.recv.return_value = json.dumps(request_data).encode('utf-8')
+        mock_conn.recv.return_value = json.dumps(request_data).encode("utf-8")
 
-        with patch('nodupe.core.api.ipc.logging') as mock_logging:
+        with patch("nodupe.core.api.ipc.logging") as mock_logging:
             mock_logger = Mock()
             mock_logging.getLogger.return_value = mock_logger
 
@@ -268,11 +268,11 @@ class TestToolIPCServerConnectionHandling:
             "tool": "TestTool",
             "method": "failing_method",
             "params": {"param1": "value1"},
-            "id": 1
+            "id": 1,
         }
-        mock_conn.recv.return_value = json.dumps(request_data).encode('utf-8')
+        mock_conn.recv.return_value = json.dumps(request_data).encode("utf-8")
 
-        with patch('nodupe.core.api.ipc.logging') as mock_logging:
+        with patch("nodupe.core.api.ipc.logging") as mock_logging:
             mock_logger = Mock()
             mock_logging.getLogger.return_value = mock_logger
 
@@ -286,6 +286,49 @@ class TestToolIPCServerConnectionHandling:
             # Verify error was logged
             mock_logger.error.assert_called()
 
+    def test_handle_connection_rate_limited(self):
+        """When rate limiter rejects a client, IPC should send a rate-limit error."""
+        mock_registry = Mock()
+        server = ToolIPCServer(mock_registry)
+
+        mock_conn = Mock()
+        mock_conn.recv.return_value = json.dumps(
+            {"jsonrpc": "2.0", "tool": "T", "method": "m", "id": 1}
+        ).encode("utf-8")
+
+        # Make the rate limiter block the request
+        server.rate_limiter.check_rate_limit = Mock(return_value=False)
+
+        server._handle_connection(mock_conn)
+
+        # Should send an error response indicating rate limiting
+        mock_conn.sendall.assert_called_once()
+        sent = json.loads(mock_conn.sendall.call_args[0][0].decode("utf-8"))
+        assert "error" in sent
+        assert sent["error"]["data"]["action_code"] == int(
+            ActionCode.RATE_LIMIT_HIT
+        )
+
+    def test_send_error_converts_action_code_to_jsonrpc(self):
+        """Ensure internal ActionCode values convert to JSON-RPC error codes."""
+        server = ToolIPCServer(Mock())
+        mock_conn = Mock()
+
+        server._send_error(
+            mock_conn, "Test", 1, code=int(ActionCode.FPT_FLS_FAIL)
+        )
+
+        mock_conn.sendall.assert_called_once()
+        sent = json.loads(mock_conn.sendall.call_args[0][0].decode("utf-8"))
+
+        # JSON-RPC error code should be a negative integer and original action
+        # code should be present in the "data" payload
+        assert isinstance(sent["error"]["code"], int)
+        assert sent["error"]["code"] < 0
+        assert sent["error"]["data"]["action_code"] == int(
+            ActionCode.FPT_FLS_FAIL
+        )
+
     def test_send_response(self):
         """Test sending successful response."""
         mock_registry = Mock()
@@ -298,7 +341,7 @@ class TestToolIPCServerConnectionHandling:
         # Verify response was sent
         mock_conn.sendall.assert_called_once()
         # Parse the sent data to verify it's valid JSON-RPC
-        sent_data = mock_conn.sendall.call_args[0][0].decode('utf-8')
+        sent_data = mock_conn.sendall.call_args[0][0].decode("utf-8")
         response = json.loads(sent_data)
 
         assert response["jsonrpc"] == "2.0"
@@ -317,7 +360,7 @@ class TestToolIPCServerConnectionHandling:
         # Verify error response was sent
         mock_conn.sendall.assert_called_once()
         # Parse the sent data to verify it's valid JSON-RPC error
-        sent_data = mock_conn.sendall.call_args[0][0].decode('utf-8')
+        sent_data = mock_conn.sendall.call_args[0][0].decode("utf-8")
         response = json.loads(sent_data)
 
         assert response["jsonrpc"] == "2.0"
@@ -331,16 +374,21 @@ class TestToolIPCServerConnectionHandling:
         mock_registry = Mock()
         server = ToolIPCServer(mock_registry)
 
-        with patch('nodupe.core.api.ipc.ActionCode') as mock_action_code:
+        with patch("nodupe.core.api.ipc.ActionCode") as mock_action_code:
             mock_action_code.FIA_UAU_INIT = 300001
             mock_action_code.name = "FIA_UAU_INIT"
 
-            with patch('nodupe.core.api.ipc.logging') as mock_logging:
+            with patch("nodupe.core.api.ipc.logging") as mock_logging:
                 mock_logger = Mock()
                 mock_logging.getLogger.return_value = mock_logger
                 server.logger = mock_logger
 
-                server._log_event(mock_action_code, "Test message", level="info", test_param="value")
+                server._log_event(
+                    mock_action_code,
+                    "Test message",
+                    level="info",
+                    test_param="value",
+                )
 
                 # Verify logging was called
                 mock_logger.info.assert_called_once()
@@ -355,17 +403,20 @@ class TestToolIPCServerLifecycle:
         server = ToolIPCServer(mock_registry)
 
         # Start the server
-        with patch('socket.socket') as mock_socket_class:
+        with patch("socket.socket") as mock_socket_class:
             mock_socket = Mock()
             mock_socket_class.return_value.__enter__.return_value = mock_socket
-            mock_socket.accept.side_effect = [socket.timeout()]  # Stop after first iteration
+            mock_socket.accept.side_effect = [
+                socket.timeout()
+            ]  # Stop after first iteration
 
             # Mock the _handle_connection method to avoid actual processing
-            with patch.object(server, '_handle_connection'):
+            with patch.object(server, "_handle_connection"):
                 server.start()
 
                 # Wait briefly then stop
                 import time
+
                 time.sleep(0.1)
                 server.stop()
 
@@ -380,19 +431,24 @@ class TestToolIPCServerLifecycle:
         server = ToolIPCServer(mock_registry)
 
         # Mock that the socket path exists
-        with patch('os.path.exists', return_value=True), \
-             patch('os.remove') as mock_remove, \
-             patch('socket.socket') as mock_socket_class:
+        with (
+            patch("os.path.exists", return_value=True),
+            patch("os.remove") as mock_remove,
+            patch("socket.socket") as mock_socket_class,
+        ):
 
             mock_socket = Mock()
             mock_socket_class.return_value.__enter__.return_value = mock_socket
-            mock_socket.accept.side_effect = [socket.timeout()]  # Stop after first iteration
+            mock_socket.accept.side_effect = [
+                socket.timeout()
+            ]  # Stop after first iteration
 
-            with patch.object(server, '_handle_connection'):
+            with patch.object(server, "_handle_connection"):
                 server.start()
 
                 # Wait briefly then stop
                 import time
+
                 time.sleep(0.1)
                 server.stop()
 
@@ -408,10 +464,12 @@ class TestToolIPCServerLifecycle:
         server._stop_event.set()
 
         # Run the server (should exit immediately due to stop event)
-        with patch('socket.socket') as mock_socket_class:
+        with patch("socket.socket") as mock_socket_class:
             mock_socket = Mock()
             mock_socket_class.return_value.__enter__.return_value = mock_socket
-            mock_socket.accept.side_effect = socket.timeout  # This shouldn't be reached
+            mock_socket.accept.side_effect = (
+                socket.timeout
+            )  # This shouldn't be reached
 
             # This should return quickly due to stop event
             server._run_server()

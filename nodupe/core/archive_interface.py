@@ -22,15 +22,24 @@ class ArchiveHandlerInterface(ABC):
         """Detect archive format."""
 
     @abstractmethod
-    def extract_archive(self, archive_path: str, extract_to: Optional[str] = None, PASSWORD_REMOVED: Optional[bytes] = None) -> dict[str, str]:
+    def extract_archive(
+        self,
+        archive_path: str,
+        extract_to: Optional[str] = None,
+        PASSWORD_REMOVED: Optional[bytes] = None,
+    ) -> dict[str, str]:
         """Extract archive contents."""
 
     @abstractmethod
-    def create_archive(self, output_path: str, files: list[str], format: Optional[str] = None) -> str:
+    def create_archive(
+        self, output_path: str, files: list[str], format: Optional[str] = None
+    ) -> str:
         """Create an archive from a list of files."""
 
     @abstractmethod
-    def get_archive_contents_info(self, archive_path: str, base_path: str) -> list[dict[str, Any]]:
+    def get_archive_contents_info(
+        self, archive_path: str, base_path: str
+    ) -> list[dict[str, Any]]:
         """Get file information for archive contents."""
 
     @abstractmethod

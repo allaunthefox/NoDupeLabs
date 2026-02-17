@@ -1,16 +1,16 @@
 import argparse
 import hashlib
 import json
-from types import SimpleNamespace
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pytest
 
 from nodupe.tools.commands.verify import VerifyTool
 from nodupe.tools.databases.connection import DatabaseConnection
-from nodupe.tools.databases.schema import DatabaseSchema
 from nodupe.tools.databases.files import FileRepository
+from nodupe.tools.databases.schema import DatabaseSchema
 
 
 @pytest.fixture(autouse=True)
@@ -45,7 +45,9 @@ def test_verify_integrity_missing_file_counts_error(tmp_path: Path):
     assert results["warnings"] == 0
 
 
-def test_verify_integrity_size_mismatch_and_read_error(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def test_verify_integrity_size_mismatch_and_read_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
     _, repo = _make_db_and_repo(tmp_path)
 
     # create a real file but store an incorrect size in DB
@@ -81,7 +83,9 @@ def test_verify_integrity_success(tmp_path: Path):
     content = b"good-content"
     p.write_bytes(content)
 
-    fid = repo.add_file(str(p), len(content), 1, hashlib.sha256(content).hexdigest())
+    fid = repo.add_file(
+        str(p), len(content), 1, hashlib.sha256(content).hexdigest()
+    )
     assert fid is not None
 
     tool = VerifyTool()
@@ -133,7 +137,9 @@ def test_verify_consistency_orphan_and_self_reference(tmp_path: Path):
     assert results["errors"] >= 2
 
 
-def test_verify_checksums_fast_and_missing_and_mismatch_and_match(tmp_path: Path):
+def test_verify_checksums_fast_and_missing_and_mismatch_and_match(
+    tmp_path: Path,
+):
     _, repo = _make_db_and_repo(tmp_path)
 
     # fast mode should skip and return zeros
@@ -174,7 +180,9 @@ def test_verify_checksums_fast_and_missing_and_mismatch_and_match(tmp_path: Path
     assert results["checks"] >= 1
 
 
-def test_execute_verify_returns_nonzero_on_error_and_writes_output(tmp_path: Path, capsys):
+def test_execute_verify_returns_nonzero_on_error_and_writes_output(
+    tmp_path: Path, capsys
+):
     db_conn, repo = _make_db_and_repo(tmp_path)
 
     # add file with bad hash
@@ -191,7 +199,14 @@ def test_execute_verify_returns_nonzero_on_error_and_writes_output(tmp_path: Pat
 
     tool = VerifyTool()
     out_file = tmp_path / "out.json"
-    args = SimpleNamespace(mode="checksums", fast=False, verbose=False, repair=False, output=str(out_file), container=C())
+    args = SimpleNamespace(
+        mode="checksums",
+        fast=False,
+        verbose=False,
+        repair=False,
+        output=str(out_file),
+        container=C(),
+    )
 
     rc = tool.execute_verify(args)
     assert rc == 1

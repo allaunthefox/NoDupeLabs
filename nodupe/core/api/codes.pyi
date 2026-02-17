@@ -121,7 +121,6 @@ class ActionCode(IntEnum):
     def to_jsonrpc_code(cls, internal_code: int) -> int:
         """Convert an internal ISO code to a JSON-RPC 2.0 standard error code."""
 
-
 # Module-level variables
 SENSITIVE_METHODS: dict[str, int]
 RISK_LEVELS: dict[int, str]

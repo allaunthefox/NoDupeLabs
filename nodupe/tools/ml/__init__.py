@@ -10,7 +10,6 @@ from typing import Any, Optional
 
 import numpy as np
 
-
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -95,7 +94,9 @@ class ONNXBackend(MLBackend):
             else:
                 logger.warning("ONNX backend: no model path provided")
         except ImportError:
-            logger.warning("ONNX runtime not available, falling back to CPU backend")
+            logger.warning(
+                "ONNX runtime not available, falling back to CPU backend"
+            )
         except Exception:
             logger.exception("Failed to load ONNX model")
 
@@ -146,7 +147,7 @@ def create_ml_backend(backend_type: str = "auto", **kwargs) -> MLBackend:
     if backend_type == "auto":
         # Try ONNX first, fallback to CPU
         try:
-            onnx_backend = ONNXBackend(kwargs.get('model_path'))
+            onnx_backend = ONNXBackend(kwargs.get("model_path"))
             if onnx_backend.is_available():
                 logger.info("Using ONNX backend")
                 return onnx_backend
@@ -158,7 +159,7 @@ def create_ml_backend(backend_type: str = "auto", **kwargs) -> MLBackend:
         return CPUBackend()
 
     elif backend_type == "onnx":
-        return ONNXBackend(kwargs.get('model_path'))
+        return ONNXBackend(kwargs.get("model_path"))
 
     elif backend_type == "cpu":
         return CPUBackend()
@@ -184,4 +185,10 @@ def get_ml_backend() -> MLBackend:
 # Initialize backend on import
 get_ml_backend()
 
-__all__ = ['CPUBackend', 'MLBackend', 'ONNXBackend', 'create_ml_backend', 'get_ml_backend']
+__all__ = [
+    "CPUBackend",
+    "MLBackend",
+    "ONNXBackend",
+    "create_ml_backend",
+    "get_ml_backend",
+]

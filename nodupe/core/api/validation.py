@@ -15,7 +15,9 @@ from typing import Any, Callable, Optional
 class SchemaValidationError(Exception):
     """Exception raised when schema validation fails."""
 
-    def __init__(self, message: str, errors: Optional[list[str]] = None) -> None:
+    def __init__(
+        self, message: str, errors: Optional[list[str]] = None
+    ) -> None:
         """Initialize validation error."""
         self.message = message
         self.errors = errors or []
@@ -41,10 +43,14 @@ class SchemaValidator:
             raise SchemaValidationError("Validation failed", errors)
         return True
 
-    def _validate_recursive(self, schema: dict[str, Any], data: Any, path: str, errors: list[str]) -> bool:
+    def _validate_recursive(
+        self, schema: dict[str, Any], data: Any, path: str, errors: list[str]
+    ) -> bool:
         """Recursively validate data against schema."""
         if "type" in schema and not self._check_type(data, schema["type"]):
-            errors.append(f"{path}: expected {schema['type']}, got {type(data).__name__}")
+            errors.append(
+                f"{path}: expected {schema['type']}, got {type(data).__name__}"
+            )
         return len(errors) == 0 or not self.strict_mode
 
     def _check_type(self, data: Any, expected_type: str) -> bool:
@@ -66,21 +72,31 @@ class SchemaValidator:
         return True
 
 
-def validate_request(schema: dict[str, Any]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def validate_request(
+    schema: dict[str, Any]
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to validate request data against a schema."""
+
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
-def validate_response(schema: dict[str, Any]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def validate_response(
+    schema: dict[str, Any]
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to validate response data against a schema."""
+
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator

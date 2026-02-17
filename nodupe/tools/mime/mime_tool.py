@@ -31,10 +31,10 @@ class StandardMIMETool(Tool):
     @property
     def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
-            'detect_mime_type': self.detector.detect_mime_type,
-            'is_text': self.detector.is_text,
-            'is_image': self.detector.is_image,
-            'is_archive': self.detector.is_archive
+            "detect_mime_type": self.detector.detect_mime_type,
+            "is_text": self.detector.is_text,
+            "is_image": self.detector.is_image,
+            "is_archive": self.detector.is_archive,
         }
 
     def __init__(self):
@@ -43,7 +43,7 @@ class StandardMIMETool(Tool):
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool and register services."""
-        container.register_service('mime_service', self.detector)
+        container.register_service("mime_service", self.detector)
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
@@ -51,8 +51,13 @@ class StandardMIMETool(Tool):
     def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
-            'features': ['magic_number_detection', 'extension_mapping', 'rfc6838_compliance']
+            "features": [
+                "magic_number_detection",
+                "extension_mapping",
+                "rfc6838_compliance",
+            ]
         }
+
 
 def register_tool():
     """Register the MIME tool."""

@@ -26,7 +26,6 @@ from .snapshot import (
 )
 from .transaction import Operation, TransactionLog
 
-
 __all__ = [
     "HASH_ALGORITHMS",
     "Operation",

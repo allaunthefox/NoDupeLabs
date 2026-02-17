@@ -15,12 +15,12 @@ from .base import Tool
 class ToolRegistry:
     """Singleton registry for managing system tools."""
 
-    _instance: Optional['ToolRegistry'] = None
+    _instance: Optional["ToolRegistry"] = None
     _tools: dict[str, Tool]
     _initialized: bool
     _container: Any
 
-    def __new__(cls) -> 'ToolRegistry':
+    def __new__(cls) -> "ToolRegistry":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._tools = {}
@@ -35,18 +35,24 @@ class ToolRegistry:
         # Check for accessibility compliance before registering
         import logging
 
-        from .api.codes import ActionCode
+        from ..api.codes import ActionCode
+
         logger = logging.getLogger(__name__)
 
         # Check if the tool implements accessibility features
         from .base import AccessibleTool
+
         if isinstance(tool, AccessibleTool):
-            logger.info(f"[{ActionCode.ACC_ISO_CMP}] Registering ISO accessibility compliant tool: {tool.name}")
+            logger.info(
+                f"[{ActionCode.ACC_ISO_CMP}] Registering ISO accessibility compliant tool: {tool.name}"
+            )
         else:
-            logger.info(f"[{ActionCode.ACC_FEATURE_DISABLED}] Registering tool without accessibility features: {tool.name}")
+            logger.info(
+                f"[{ActionCode.ACC_FEATURE_DISABLED}] Registering tool without accessibility features: {tool.name}"
+            )
 
         self._tools[tool.name] = tool
-        if hasattr(self, '_container') and self._container:
+        if hasattr(self, "_container") and self._container:
             tool.initialize(self._container)
 
     def unregister(self, name: str) -> None:
@@ -77,7 +83,10 @@ class ToolRegistry:
                 tool.shutdown()
             except Exception as e:
                 import logging
-                logging.getLogger(__name__).warning(f"Error shutting down tool {tool.name}: {e}")
+
+                logging.getLogger(__name__).warning(
+                    f"Error shutting down tool {tool.name}: {e}"
+                )
 
         self._tools.clear()
         self._container = None
@@ -91,7 +100,7 @@ class ToolRegistry:
     @property
     def container(self):
         """Get the service container."""
-        return getattr(self, '_container', None)
+        return getattr(self, "_container", None)
 
     @classmethod
     def _reset_instance(cls):

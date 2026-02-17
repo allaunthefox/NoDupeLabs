@@ -43,7 +43,7 @@ class ConcreteAccessibleTool(AccessibleTool):
             "name": self.name,
             "version": self.version,
             "description": "Test accessible tool",
-            "capabilities": ["test"]
+            "capabilities": ["test"],
         }
 
     @property
@@ -74,7 +74,7 @@ class TestAccessibleToolInitialization:
         tool = ConcreteAccessibleTool()
         container = Mock()
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             tool.initialize(container)
             assert tool._initialized is True
             mock_print.assert_called()  # Should announce to assistive tech
@@ -84,7 +84,7 @@ class TestAccessibleToolInitialization:
         tool = ConcreteAccessibleTool()
         tool._initialized = True
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             tool.shutdown()
             assert tool._initialized is False
             mock_print.assert_called()  # Should announce to assistive tech
@@ -97,7 +97,7 @@ class TestAccessibleOutput:
         """Test announcing to assistive technology."""
         tool = ConcreteAccessibleTool()
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             tool.announce_to_assistive_tech("Test message")
             mock_print.assert_called_with("Test message")
 
@@ -109,7 +109,7 @@ class TestAccessibleOutput:
             "status": "running",
             "count": 42,
             "active": True,
-            "nested": {"inner": "value"}
+            "nested": {"inner": "value"},
         }
 
         result = tool.format_for_accessibility(test_data)
@@ -199,7 +199,7 @@ class TestAccessibleLogging:
         """Test logging accessible message."""
         tool = ConcreteAccessibleTool()
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             tool.log_accessible_message("Test info message", "info")
             # Should print the message
             assert mock_print.called
@@ -240,6 +240,7 @@ class TestDescribeValue:
         # Test object
         class TestObj:
             pass
+
         obj = TestObj()
         result = tool.describe_value(obj)
         assert "TestObj object" in result

@@ -25,7 +25,7 @@ class OpenAPIGenerator:
         self.info: dict[str, Any] = {
             "title": "NoDupeLabs API",
             "version": "1.0.0",
-            "description": "NoDupeLabs API for duplicate file detection"
+            "description": "NoDupeLabs API for duplicate file detection",
         }
         self.servers: list[dict[str, str]] = []
         self.paths: dict[str, dict[str, Any]] = {}
@@ -33,19 +33,23 @@ class OpenAPIGenerator:
             "schemas": {},
             "responses": {},
             "parameters": {},
-            "securitySchemes": {}
+            "securitySchemes": {},
         }
         self.security: list[dict[str, list[str]]] = []
         self.tags: list[dict[str, str]] = []
 
-    def set_info(self, title: str, version: str, description: Optional[str] = None) -> OpenAPIGenerator:
+    def set_info(
+        self, title: str, version: str, description: Optional[str] = None
+    ) -> OpenAPIGenerator:
         """Set API information."""
         self.info = {"title": title, "version": version}
         if description:
             self.info["description"] = description
         return self
 
-    def add_server(self, url: str, description: Optional[str] = None) -> OpenAPIGenerator:
+    def add_server(
+        self, url: str, description: Optional[str] = None
+    ) -> OpenAPIGenerator:
         """Add a server URL."""
         server: dict[str, str] = {"url": url}
         if description:
@@ -53,7 +57,9 @@ class OpenAPIGenerator:
         self.servers.append(server)
         return self
 
-    def add_path(self, path: str, method: str, operation: dict[str, Any]) -> OpenAPIGenerator:
+    def add_path(
+        self, path: str, method: str, operation: dict[str, Any]
+    ) -> OpenAPIGenerator:
         """Add an API path/endpoint."""
         method = method.lower()
         if path not in self.paths:
@@ -71,7 +77,7 @@ class OpenAPIGenerator:
         spec: dict[str, Any] = {
             "openapi": self.openapi_version,
             "info": self.info,
-            "paths": self.paths
+            "paths": self.paths,
         }
         if self.servers:
             spec["servers"] = self.servers
@@ -79,13 +85,17 @@ class OpenAPIGenerator:
             spec["components"] = self.components
         return spec
 
-    def to_json(self, spec: Optional[dict[str, Any]] = None, indent: int = 2) -> str:
+    def to_json(
+        self, spec: Optional[dict[str, Any]] = None, indent: int = 2
+    ) -> str:
         """Convert spec to JSON string."""
         if spec is None:
             spec = self.generate_spec()
         return json.dumps(spec, indent=indent)
 
-    def validate_spec(self, spec: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    def validate_spec(
+        self, spec: Optional[dict[str, Any]] = None
+    ) -> dict[str, Any]:
         """Validate the OpenAPI specification."""
         if spec is None:
             spec = self.generate_spec()

@@ -43,7 +43,7 @@ class Logging:
         console_output: bool = True,
         max_file_size: int = 10 * 1024 * 1024,  # 10MB
         backup_count: int = 5,
-        log_format: Optional[str] = None
+        log_format: Optional[str] = None,
     ) -> None:
         """Set up logging configuration.
 
@@ -101,7 +101,7 @@ class Logging:
                     filename=str(log_file),
                     maxBytes=max_file_size,
                     backupCount=backup_count,
-                    encoding='utf-8'
+                    encoding="utf-8",
                 )
                 file_handler.setLevel(numeric_level)
                 file_handler.setFormatter(formatter)
@@ -140,9 +140,7 @@ class Logging:
 
     @staticmethod
     def log_exception(
-        logger: logging.Logger,
-        message: str,
-        exc_info: bool = True
+        logger: logging.Logger, message: str, exc_info: bool = True
     ) -> None:
         """Log an exception with full traceback.
 
@@ -155,10 +153,7 @@ class Logging:
 
     @staticmethod
     def log_with_context(
-        logger: logging.Logger,
-        level: str,
-        message: str,
-        **context: Any
+        logger: logging.Logger, level: str, message: str, **context: Any
     ) -> None:
         """Log message with additional context.
 
@@ -178,8 +173,7 @@ class Logging:
 
     @staticmethod
     def configure_module_logger(
-        module_name: str,
-        log_level: Optional[str] = None
+        module_name: str, log_level: Optional[str] = None
     ) -> logging.Logger:
         """Configure logger for specific module.
 
@@ -221,7 +215,7 @@ class Logging:
         log_file: Path,
         log_level: str = "INFO",
         max_file_size: int = 10 * 1024 * 1024,
-        backup_count: int = 5
+        backup_count: int = 5,
     ) -> None:
         """Add file handler to existing logger.
 
@@ -257,7 +251,7 @@ class Logging:
                 filename=str(log_file),
                 maxBytes=max_file_size,
                 backupCount=backup_count,
-                encoding='utf-8'
+                encoding="utf-8",
             )
             file_handler.setLevel(numeric_level)
             file_handler.setFormatter(formatter)
@@ -285,7 +279,7 @@ def get_logger(name: str) -> logging.Logger:
 def setup_logging(
     log_file: Optional[Path] = None,
     log_level: str = "INFO",
-    console_output: bool = True
+    console_output: bool = True,
 ) -> None:
     """Convenience function to setup logging.
 
@@ -295,7 +289,5 @@ def setup_logging(
         console_output: Enable console output
     """
     Logging.setup_logging(
-        log_file=log_file,
-        log_level=log_level,
-        console_output=console_output
+        log_file=log_file, log_level=log_level, console_output=console_output
     )

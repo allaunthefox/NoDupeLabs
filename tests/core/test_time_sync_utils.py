@@ -31,7 +31,7 @@ class TestDNSCache:
     def test_set_and_get(self):
         """Test setting and getting cache entries."""
         cache = DNSCache(ttl=60.0, max_size=10)
-        addresses = [(2, 2, 17, '', ('216.239.35.0', 123))]
+        addresses = [(2, 2, 17, "", ("216.239.35.0", 123))]
         cache.set("time.google.com", 123, addresses)
         result = cache.get("time.google.com", 123)
         assert result is not None
@@ -61,8 +61,9 @@ class TestDNSCache:
     def test_cache_expiry(self, monkeypatch):
         """Test cache entry expires after TTL."""
         import time
+
         cache = DNSCache(ttl=0.01, max_size=10)
-        cache.set("test.example.com", 123, [(2, 2, 17, '', ('127.0.0.1', 123))])
+        cache.set("test.example.com", 123, [(2, 2, 17, "", ("127.0.0.1", 123))])
 
         # Should exist immediately
         result = cache.get("test.example.com", 123)
@@ -214,8 +215,9 @@ class TestFastDate64Encoder:
     def test_encode_overflow(self):
         """Test encoding too large timestamp raises."""
         import math
+
         # Use a timestamp that would overflow the 34-bit field
-        large_ts = (1 << 35)  # Beyond FASTDATE_SECONDS_MAX
+        large_ts = 1 << 35  # Beyond FASTDATE_SECONDS_MAX
         with pytest.raises(OverflowError):
             FastDate64Encoder.encode(float(large_ts))
 
@@ -254,15 +256,15 @@ class TestPerformanceMetrics:
     def test_init(self):
         """Test initialization."""
         metrics = PerformanceMetrics()
-        assert 'ntp_queries' in metrics._metrics
-        assert 'dns_cache_hits' in metrics._metrics
+        assert "ntp_queries" in metrics._metrics
+        assert "dns_cache_hits" in metrics._metrics
 
     def test_record_ntp_query(self):
         """Test recording NTP query."""
         metrics = PerformanceMetrics()
         metrics.record_ntp_query("time.google.com", 0.05, True, 0.5)
         summary = metrics.get_summary()
-        assert summary['total_queries'] == 1
+        assert summary["total_queries"] == 1
 
     def test_record_dns_cache_hit(self):
         """Test recording DNS cache hit."""
@@ -270,28 +272,28 @@ class TestPerformanceMetrics:
         metrics.record_dns_cache_hit()
         metrics.record_dns_cache_miss()
         summary = metrics.get_summary()
-        assert summary['dns_cache_hit_rate'] == 0.5
+        assert summary["dns_cache_hit_rate"] == 0.5
 
     def test_record_parallel_query(self):
         """Test recording parallel query."""
         metrics = PerformanceMetrics()
         metrics.record_parallel_query(3, 5, True, 1.0, 0.05)
         summary = metrics.get_summary()
-        assert summary['total_parallel_queries'] == 1
+        assert summary["total_parallel_queries"] == 1
 
     def test_record_fallback_usage(self):
         """Test recording fallback usage."""
         metrics = PerformanceMetrics()
         metrics.record_fallback_usage("file_time", 0.1)
         summary = metrics.get_summary()
-        assert summary['fallback_count'] == 1
+        assert summary["fallback_count"] == 1
 
     def test_record_error(self):
         """Test recording error."""
         metrics = PerformanceMetrics()
         metrics.record_error("timeout", "Connection timed out")
         summary = metrics.get_summary()
-        assert summary['error_count'] == 1
+        assert summary["error_count"] == 1
 
     def test_get_summary(self):
         """Test getting summary."""
@@ -300,8 +302,8 @@ class TestPerformanceMetrics:
         metrics.record_ntp_query("pool.ntp.org", 0.1, True, 0.6)
         metrics.record_ntp_query("bad.server.com", 0.5, False, 1.0)
         summary = metrics.get_summary()
-        assert summary['total_queries'] == 3
-        assert summary['success_rate'] == 2/3
+        assert summary["total_queries"] == 3
+        assert summary["success_rate"] == 2 / 3
 
 
 class TestGlobalInstances:
@@ -380,7 +382,9 @@ class TestParallelNTPClient:
     def test_resolve_host_addresses_error(self):
         """Test host address resolution with error."""
         client = ParallelNTPClient()
-        addresses = client._resolve_host_addresses("this-host-does-not-exist-123456.invalid")
+        addresses = client._resolve_host_addresses(
+            "this-host-does-not-exist-123456.invalid"
+        )
         assert addresses == []
 
     def test_query_single_address_failure(self):
@@ -388,7 +392,13 @@ class TestParallelNTPClient:
         client = ParallelNTPClient(timeout=0.1)
         try:
             # This will likely fail due to invalid address
-            addr_info = (socket.AF_INET, socket.SOCK_DGRAM, 0, '', ('127.0.0.1', 123))
+            addr_info = (
+                socket.AF_INET,
+                socket.SOCK_DGRAM,
+                0,
+                "",
+                ("127.0.0.1", 123),
+            )
             client._query_single_address(0, "localhost", addr_info, 0)
         except Exception:
             pass  # Expected - may fail in test env
@@ -413,7 +423,7 @@ class TestParallelNTPClient:
         result = client.query_hosts_parallel(
             ["192.0.2.1"],  # TEST-NET-1 (reserved for documentation)
             attempts_per_host=1,
-            stop_on_good_result=False
+            stop_on_good_result=False,
         )
         # Should return failure but not crash
         assert result.success is False or len(result.errors) >= 0
@@ -423,9 +433,7 @@ class TestParallelNTPClient:
         client = ParallelNTPClient(timeout=0.5)
         # Use valid host but will likely fail
         result = client.query_hosts_parallel(
-            ["localhost"],
-            attempts_per_host=1,
-            stop_on_good_result=True
+            ["localhost"], attempts_per_host=1, stop_on_good_result=True
         )
         # Should return some result
         assert result is not None
@@ -434,9 +442,7 @@ class TestParallelNTPClient:
         """Test parallel query with multiple attempts."""
         client = ParallelNTPClient(timeout=0.5)
         result = client.query_hosts_parallel(
-            ["192.0.2.1"],
-            attempts_per_host=2,
-            stop_on_good_result=False
+            ["192.0.2.1"], attempts_per_host=2, stop_on_good_result=False
         )
         assert result is not None
 
@@ -445,10 +451,16 @@ class TestParallelNTPClient:
         client = ParallelNTPClient(timeout=1.0)
         try:
             # Use actual localhost
-            addr_info = (socket.AF_INET, socket.SOCK_DGRAM, 0, '', ('127.0.0.1', 123))
+            addr_info = (
+                socket.AF_INET,
+                socket.SOCK_DGRAM,
+                0,
+                "",
+                ("127.0.0.1", 123),
+            )
             result = client._query_single_address(0, "localhost", addr_info, 0)
             # Result may be None if failed
-            assert result is None or hasattr(result, 'offset')
+            assert result is None or hasattr(result, "offset")
         except Exception:
             pass  # Network operations may fail in test env
 

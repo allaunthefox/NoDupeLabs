@@ -450,7 +450,13 @@ class ToolDiscovery:
         # since some tools are defined primarily by module-level metadata.
         has_metadata = any(
             kw in lower_content
-            for kw in ("__version__", "version", "name =", "dependencies", "capabilities")
+            for kw in (
+                "__version__",
+                "version",
+                "name =",
+                "dependencies",
+                "capabilities",
+            )
         )
 
         # For testing we accept files that either contain code-level

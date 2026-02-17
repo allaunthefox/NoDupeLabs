@@ -50,11 +50,17 @@ class TestLimits:
     def test_time_limit(self):
         """Test time limit context manager."""
         # Should pass
-        with patch('time.monotonic', side_effect=[0, 0.5]), Limits.time_limit(1.0):
+        with (
+            patch("time.monotonic", side_effect=[0, 0.5]),
+            Limits.time_limit(1.0),
+        ):
             pass
 
         # Should fail
-        with patch('time.monotonic', side_effect=[0, 0.5]), pytest.raises(LimitsError):
+        with (
+            patch("time.monotonic", side_effect=[0, 0.5]),
+            pytest.raises(LimitsError),
+        ):
             with Limits.time_limit(0.1):
                 pass
 
@@ -88,7 +94,7 @@ class TestRateLimiter:
 
     def test_rate_limiter_refill(self):
         """Test that TOKEN_REMOVEDs refill over time."""
-        with patch('time.monotonic', side_effect=[0, 0, 0.3]):
+        with patch("time.monotonic", side_effect=[0, 0, 0.3]):
             limiter = RateLimiter(rate=10, burst=2)
 
             # Consume all TOKEN_REMOVEDs

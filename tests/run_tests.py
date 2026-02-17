@@ -68,11 +68,19 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Run NoDupeLabs tests")
     parser.add_argument("pattern", nargs="?", help="Test pattern to run")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
-    parser.add_argument("--unit", action="store_true", help="Run only unit tests")
-    parser.add_argument("--integration", action="store_true", help="Run only integration tests")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Verbose output"
+    )
+    parser.add_argument(
+        "--unit", action="store_true", help="Run only unit tests"
+    )
+    parser.add_argument(
+        "--integration", action="store_true", help="Run only integration tests"
+    )
     parser.add_argument("--slow", action="store_true", help="Run slow tests")
-    parser.add_argument("--all", action="store_true", help="Run all tests (default)")
+    parser.add_argument(
+        "--all", action="store_true", help="Run all tests (default)"
+    )
 
     args = parser.parse_args()
 

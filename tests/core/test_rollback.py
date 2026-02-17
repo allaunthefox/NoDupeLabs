@@ -1,11 +1,12 @@
 """Tests for rollback system."""
+
 import shutil
 import tempfile
 from pathlib import Path
 
 import pytest
 
-from nodupe.core.rollback import (
+from nodupe.tools.maintenance import (
     Operation,
     RollbackManager,
     Snapshot,
@@ -82,7 +83,7 @@ class TestTransactionLog:
 
         transactions = log.list_transactions()
         assert len(transactions) == 1
-        assert transactions[0]['transaction_id'] == tx_id
+        assert transactions[0]["transaction_id"] == tx_id
 
 
 class TestRollbackManager:

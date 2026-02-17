@@ -3,7 +3,10 @@ import zipfile
 
 import pytest
 
-from nodupe.tools.compression_standard.engine_logic import Compression, CompressionError
+from nodupe.tools.compression_standard.engine_logic import (
+    Compression,
+    CompressionError,
+)
 
 
 def test_compress_decompress_data_all_formats():
@@ -24,7 +27,11 @@ def test_invalid_format_data():
 
 
 def test_compress_data_exception(monkeypatch):
-    monkeypatch.setattr(gzip, "compress", lambda *a, **k: (_ for _ in ()).throw(Exception("boom")))
+    monkeypatch.setattr(
+        gzip,
+        "compress",
+        lambda *a, **k: (_ for _ in ()).throw(Exception("boom")),
+    )
     with pytest.raises(CompressionError):
         Compression.compress_data(b"x", "gzip")
 
@@ -33,7 +40,9 @@ def test_file_compression_and_removal(tmp_path):
     file = tmp_path / "file.txt"
     file.write_text("hello")
 
-    output = Compression.compress_file(file, format="gzip", remove_original=True)
+    output = Compression.compress_file(
+        file, format="gzip", remove_original=True
+    )
     assert output.exists()
     assert not file.exists()
 
@@ -48,7 +57,9 @@ def test_decompress_file(tmp_path):
     file.write_text("hello")
 
     compressed = Compression.compress_file(file, format="gzip")
-    decompressed = Compression.decompress_file(compressed, remove_compressed=True)
+    decompressed = Compression.decompress_file(
+        compressed, remove_compressed=True
+    )
 
     assert decompressed.exists()
     assert not compressed.exists()

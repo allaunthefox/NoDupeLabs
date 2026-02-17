@@ -31,12 +31,14 @@ class TestHashAutotune(unittest.TestCase):
         available = tuner.available_algorithms
 
         # Should always have at least SHA-256
-        self.assertIn('sha256', available)
+        self.assertIn("sha256", available)
 
         # Should have some standard algorithms
-        standard_algorithms = ['md5', 'sha1', 'sha256', 'sha512']
+        standard_algorithms = ["md5", "sha1", "sha256", "sha512"]
         found_standard = any(algo in available for algo in standard_algorithms)
-        self.assertTrue(found_standard, "Should have at least one standard algorithm")
+        self.assertTrue(
+            found_standard, "Should have at least one standard algorithm"
+        )
 
     def test_benchmark_algorithm(self):
         """Test benchmarking a single algorithm."""
@@ -44,7 +46,7 @@ class TestHashAutotune(unittest.TestCase):
         test_data = b"test data for benchmarking"
 
         # Test with a known algorithm
-        avg_time = tuner.benchmark_algorithm('sha256', test_data, iterations=3)
+        avg_time = tuner.benchmark_algorithm("sha256", test_data, iterations=3)
         self.assertIsInstance(avg_time, float)
         self.assertGreater(avg_time, 0)
 
@@ -64,7 +66,9 @@ class TestHashAutotune(unittest.TestCase):
     def test_select_optimal_algorithm(self):
         """Test selecting optimal algorithm from benchmarks."""
         tuner = HashAutotuner(sample_size=1024)
-        optimal_algo, benchmark_results = tuner.select_optimal_algorithm(iterations=3)
+        optimal_algo, benchmark_results = tuner.select_optimal_algorithm(
+            iterations=3
+        )
 
         self.assertIsInstance(optimal_algo, str)
         self.assertIsInstance(benchmark_results, dict)
@@ -72,29 +76,25 @@ class TestHashAutotune(unittest.TestCase):
 
     def test_autotune_hash_algorithm_function(self):
         """Test the convenience autotune function."""
-        results = autotune_hash_algorithm(
-            sample_size=1024,
-            iterations=3
-        )
+        results = autotune_hash_algorithm(sample_size=1024, iterations=3)
 
         self.assertIsInstance(results, dict)
-        self.assertIn('optimal_algorithm', results)
-        self.assertIn('benchmark_results', results)
-        self.assertIn('recommendations', results)
-        self.assertIn('available_algorithms', results)
-        self.assertIn('has_blake3', results)
-        self.assertIn('has_xxhash', results)
+        self.assertIn("optimal_algorithm", results)
+        self.assertIn("benchmark_results", results)
+        self.assertIn("recommendations", results)
+        self.assertIn("available_algorithms", results)
+        self.assertIn("has_blake3", results)
+        self.assertIn("has_xxhash", results)
 
-        self.assertIsInstance(results['optimal_algorithm'], str)
-        self.assertIsInstance(results['benchmark_results'], dict)
-        self.assertIsInstance(results['recommendations'], dict)
-        self.assertIsInstance(results['available_algorithms'], list)
+        self.assertIsInstance(results["optimal_algorithm"], str)
+        self.assertIsInstance(results["benchmark_results"], dict)
+        self.assertIsInstance(results["recommendations"], dict)
+        self.assertIsInstance(results["available_algorithms"], list)
 
     def test_create_autotuned_hasher(self):
         """Test creating an autotuned hasher."""
         hasher, autotune_results = create_autotuned_hasher(
-            sample_size=1024,
-            iterations=3
+            sample_size=1024, iterations=3
         )
 
         # Test that we can use the hasher
@@ -106,7 +106,7 @@ class TestHashAutotune(unittest.TestCase):
 
         # Test that the autotune results are valid
         self.assertIsInstance(autotune_results, dict)
-        self.assertIn('optimal_algorithm', autotune_results)
+        self.assertIn("optimal_algorithm", autotune_results)
 
     def test_hash_consistency(self):
         """Test that hash results are consistent."""
@@ -114,8 +114,8 @@ class TestHashAutotune(unittest.TestCase):
         test_data = b"consistent test data"
 
         # Hash the same data multiple times
-        hash1 = tuner.available_algorithms['sha256'](test_data)
-        hash2 = tuner.available_algorithms['sha256'](test_data)
+        hash1 = tuner.available_algorithms["sha256"](test_data)
+        hash2 = tuner.available_algorithms["sha256"](test_data)
 
         self.assertEqual(hash1, hash2, "Same data should produce same hash")
 
@@ -134,7 +134,10 @@ class TestHashAutotune(unittest.TestCase):
 
             # Fastest algorithm should be first
             fastest_time = sorted_algorithms[0][1]
-            for _, time_taken in sorted_algorithms:  # Use _ to indicate unused variable
+            for (
+                _,
+                time_taken,
+            ) in sorted_algorithms:  # Use _ to indicate unused variable
                 self.assertGreaterEqual(time_taken, fastest_time)
 
 
@@ -149,11 +152,10 @@ def test_loader_integration():
 
     import nodupe.core.config
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump({
-            'db_path': ':memory:',
-            'log_dir': 'logs'
-        }, f)
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False
+    ) as f:
+        json.dump({"db_path": ":memory:", "log_dir": "logs"}, f)
         temp_config_path = f.name
 
     # Store original function before try block
@@ -164,15 +166,16 @@ def test_loader_integration():
 
         def mock_load_config():
             from nodupe.core.config import ConfigManager
+
             config_manager = ConfigManager()
             config_manager.config = {
-                'db_path': ':memory:',
-                'log_dir': 'logs',
-                'tools': {
-                    'directories': [],
-                    'auto_load': False,
-                    'hot_reload': False
-                }
+                "db_path": ":memory:",
+                "log_dir": "logs",
+                "tools": {
+                    "directories": [],
+                    "auto_load": False,
+                    "hot_reload": False,
+                },
             }
             return config_manager
 
@@ -186,8 +189,10 @@ def test_loader_integration():
         # Check that hasher service was registered
         container = loader.container
         if container is not None:
-            hasher = container.get_service('hasher')
-            hash_autotune_results = container.get_service('hash_autotune_results')
+            hasher = container.get_service("hasher")
+            hash_autotune_results = container.get_service(
+                "hash_autotune_results"
+            )
         else:
             # If container is None, we can't test the services
             print("Container is None, skipping service tests")
@@ -197,7 +202,7 @@ def test_loader_integration():
         print(f"Autotune results: {hash_autotune_results}")
 
         # Test that the hasher works
-        if hasher is not None and hasattr(hasher, 'hash_string'):
+        if hasher is not None and hasattr(hasher, "hash_string"):
             test_hash = hasher.hash_string("test")
             print(f"Test hash: {test_hash}")
             assert isinstance(test_hash, str) and len(test_hash) > 0
@@ -223,9 +228,9 @@ def test_loader_integration():
             os.unlink(temp_config_path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run the unit tests
-    unittest.main(argv=[''], exit=False, verbosity=2)
+    unittest.main(argv=[""], exit=False, verbosity=2)
 
     # Run the integration test
     test_loader_integration()

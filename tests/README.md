@@ -270,11 +270,19 @@ addopts = """
 
 | Coverage Type | Current | Phase 1 | Phase 2 | Phase 3 | Final |
 |---------------|---------|---------|---------|---------|-------|
-| **Line Coverage** | ~31% | >60% | >80% | >90% | **100%** |
-| **Branch Coverage** | ~31% | >50% | >70% | >85% | **100%** |
-| **Unit Tests** | ~31% | >60% | >80% | >95% | **100%** |
+| **Line Coverage** | ≈9% (measured) | >60% | >80% | >90% | **100%** |
+| **Branch Coverage** | ≈1% (measured) | >50% | >70% | >85% | **100%** |
+| **Unit Tests** | ≈9% (measured) | >60% | >80% | >95% | **100%** |
 | **Integration Tests** | ~10% | >30% | >50% | >70% | >80% |
 | **E2E Tests** | ~5% | >15% | >30% | >50% | >60% |
+
+## Current status
+- Measured total coverage: **≈9%** (line-rate 0.089). Several focused unit tests have been added and pass locally (decorators, ratelimit, validation, logging, ScanTool/ApplyTool, smoke-imports). ✅
+- Biggest untested areas: `nodupe/core/tool_system` and most `nodupe/tools/*` modules. Next priority: add unit tests for `loader`, `registry`, `lifecycle`, then representative tool modules (`hashing`, `scanner_engine`, `commands`).
+
+## How to help
+- Pick a `tests/core/test_*.py` or `tests/tools/test_*.py` task from the backlog and open a PR; use `tests/utils` helpers and the `smoke-imports` test as templates.
+- Review open PRs: #36 (loader/discovery fixes), #37 (smoke-imports).
 
 ### Test Types and Distribution
 

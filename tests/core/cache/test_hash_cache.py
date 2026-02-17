@@ -12,7 +12,9 @@ class TestHashCache:
 
     def test_hash_cache_initialization(self):
         """Test hash cache initialization."""
-        cache = HashCache(max_size=100, ttl_seconds=1800, enable_persistence=False)
+        cache = HashCache(
+            max_size=100, ttl_seconds=1800, enable_persistence=False
+        )
         assert cache.max_size == 100
         assert cache.ttl_seconds == 1800
         assert cache.enable_persistence is False
@@ -365,4 +367,3 @@ class TestHashCache:
         # Usage should be greater after adding entries
         new_usage = cache.get_memory_usage()
         assert new_usage > usage
-

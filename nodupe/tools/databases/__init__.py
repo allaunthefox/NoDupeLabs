@@ -27,20 +27,22 @@ from .transactions import (
     IsolationLevel,
     TransactionError,
 )
-from .wrapper import Database, DatabaseError  # Updated: uses refactored wrapper.py
-
+from .wrapper import (  # Updated: uses refactored wrapper.py
+    Database,
+    DatabaseError,
+)
 
 __all__ = [
-    'Database',
-    'DatabaseConnection',
-    'DatabaseError',
-    'DatabaseSchema',
-    'DatabaseTransaction',
-    'DatabaseTransactions',
-    'EmbeddingRepository',
-    'FileRepository',
-    'IsolationLevel',
-    'SchemaError',
-    'TransactionError',
-    'get_connection'
+    "Database",
+    "DatabaseConnection",
+    "DatabaseError",
+    "DatabaseSchema",
+    "DatabaseTransaction",
+    "DatabaseTransactions",
+    "EmbeddingRepository",
+    "FileRepository",
+    "IsolationLevel",
+    "SchemaError",
+    "TransactionError",
+    "get_connection",
 ]

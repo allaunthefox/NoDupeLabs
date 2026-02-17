@@ -10,7 +10,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-
 # Supported hash algorithms
 HASH_ALGORITHMS = {
     "sha256": hashlib.sha256,
@@ -313,7 +312,9 @@ class SnapshotManager:
         # Create plain text recovery instructions (ISO-8859-1 compatible)
         recovery_path = self.backup_dir / "RECOVERY.txt"
         if not recovery_path.exists():
-            recovery_content = BACKUP_RECOVERY_PLAINTEXT.replace("{algorithm}", self.hash_algorithm)
+            recovery_content = BACKUP_RECOVERY_PLAINTEXT.replace(
+                "{algorithm}", self.hash_algorithm
+            )
             recovery_path.write_text(recovery_content, encoding="latin-1")
 
     def _compute_hash(self, filepath: Path) -> Optional[str]:
@@ -355,7 +356,9 @@ class SnapshotManager:
         any operations. This is idempotent - same content is only
         stored once.
         """
-        snapshot_id = hashlib.sha256(datetime.now().isoformat().encode()).hexdigest()[:16]
+        snapshot_id = hashlib.sha256(
+            datetime.now().isoformat().encode()
+        ).hexdigest()[:16]
 
         files = []
         for path_str in paths:
@@ -371,13 +374,17 @@ class SnapshotManager:
                             path=str(path.absolute()),
                             hash=file_hash,
                             size=path.stat().st_size,
-                            modified=datetime.fromtimestamp(path.stat().st_mtime).isoformat(),
+                            modified=datetime.fromtimestamp(
+                                path.stat().st_mtime
+                            ).isoformat(),
                             backup_path=backup_path,
                         )
                     )
 
         snapshot = Snapshot(
-            snapshot_id=snapshot_id, timestamp=datetime.now().isoformat(), files=files
+            snapshot_id=snapshot_id,
+            timestamp=datetime.now().isoformat(),
+            files=files,
         )
 
         snapshot_path = self.snapshot_dir / f"{snapshot_id}.json"

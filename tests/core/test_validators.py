@@ -4,7 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from nodupe.tools.security_audit.validator_logic import ValidationError, Validators
+from nodupe.tools.security_audit.validator_logic import (
+    ValidationError,
+    Validators,
+)
 
 
 class TestValidators:
@@ -46,19 +49,27 @@ class TestValidators:
     def test_validate_range_exclusive(self):
         """Test exclusive range validation."""
         # Exclusive range
-        assert Validators.validate_range(5, min_val=0, max_val=10, inclusive=False)
+        assert Validators.validate_range(
+            5, min_val=0, max_val=10, inclusive=False
+        )
 
         with pytest.raises(ValidationError):
             Validators.validate_range(0, min_val=0, max_val=10, inclusive=False)
 
         with pytest.raises(ValidationError):
-            Validators.validate_range(10, min_val=0, max_val=10, inclusive=False)
+            Validators.validate_range(
+                10, min_val=0, max_val=10, inclusive=False
+            )
 
     def test_validate_string_length(self):
         """Test string length validation."""
         # Should pass
-        assert Validators.validate_string_length("test", min_length=1, max_length=10)
-        assert Validators.validate_string_length("test", min_length=4, max_length=4)
+        assert Validators.validate_string_length(
+            "test", min_length=1, max_length=10
+        )
+        assert Validators.validate_string_length(
+            "test", min_length=4, max_length=4
+        )
 
         # Should fail
         with pytest.raises(ValidationError):
@@ -102,7 +113,9 @@ class TestValidators:
 
         # Should fail
         with pytest.raises(ValidationError):
-            Validators.validate_path(tmp_path / "nonexistent.txt", must_exist=True)
+            Validators.validate_path(
+                tmp_path / "nonexistent.txt", must_exist=True
+            )
 
     def test_validate_enum(self):
         """Test enum validation."""
@@ -120,8 +133,12 @@ class TestValidators:
 
         # Should pass
         assert Validators.validate_dict_keys(data, required_keys=["name"])
-        assert Validators.validate_dict_keys(data, required_keys=["name", "age"])
-        assert Validators.validate_dict_keys(data, allowed_keys=["name", "age", "email"])
+        assert Validators.validate_dict_keys(
+            data, required_keys=["name", "age"]
+        )
+        assert Validators.validate_dict_keys(
+            data, allowed_keys=["name", "age", "email"]
+        )
 
         # Should fail - missing required keys
         with pytest.raises(ValidationError):
@@ -135,7 +152,9 @@ class TestValidators:
         """Test list item validation."""
         # Should pass
         assert Validators.validate_list_items([1, 2, 3], int)
-        assert Validators.validate_list_items(["a", "b"], str, min_items=2, max_items=2)
+        assert Validators.validate_list_items(
+            ["a", "b"], str, min_items=2, max_items=2
+        )
 
         # Should fail - wrong type
         with pytest.raises(ValidationError):

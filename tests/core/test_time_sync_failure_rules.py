@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from nodupe.core.time_sync_failure_rules import (
+from nodupe.tools.time_sync.failure_rules import (
     AdaptiveFailureHandler,
     ConnectionAttempt,
     ConnectionStrategy,
@@ -104,19 +104,35 @@ class TestFailureRuleEngine:
     def setup_method(self):
         """Set up test fixtures."""
         self.engine = FailureRuleEngine(
-            max_retries=3,
-            base_retry_delay=1.0,
-            max_retry_delay=10.0
+            max_retries=3, base_retry_delay=1.0, max_retry_delay=10.0
         )
 
     def test_server_priority_detection(self):
         """Test automatic server priority detection."""
-        assert self.engine.get_server_priority("time.google.com") == ServerPriority.PRIMARY
-        assert self.engine.get_server_priority("time.cloudflare.com") == ServerPriority.PRIMARY
-        assert self.engine.get_server_priority("time.apple.com") == ServerPriority.SECONDARY
-        assert self.engine.get_server_priority("time.microsoft.com") == ServerPriority.SECONDARY
-        assert self.engine.get_server_priority("pool.ntp.org") == ServerPriority.TERTIARY
-        assert self.engine.get_server_priority("custom.server.com") == ServerPriority.FALLBACK
+        assert (
+            self.engine.get_server_priority("time.google.com")
+            == ServerPriority.PRIMARY
+        )
+        assert (
+            self.engine.get_server_priority("time.cloudflare.com")
+            == ServerPriority.PRIMARY
+        )
+        assert (
+            self.engine.get_server_priority("time.apple.com")
+            == ServerPriority.SECONDARY
+        )
+        assert (
+            self.engine.get_server_priority("time.microsoft.com")
+            == ServerPriority.SECONDARY
+        )
+        assert (
+            self.engine.get_server_priority("pool.ntp.org")
+            == ServerPriority.TERTIARY
+        )
+        assert (
+            self.engine.get_server_priority("custom.server.com")
+            == ServerPriority.FALLBACK
+        )
 
     def test_retry_decision(self):
         """Test retry decision logic."""
@@ -173,19 +189,25 @@ class TestFailureRuleEngine:
     def test_server_selection(self):
         """Test intelligent server selection based on health and priority."""
         # Add some test servers with different health levels
-        healthy_stats = ServerStats(host="healthy.com", priority=ServerPriority.PRIMARY)
+        healthy_stats = ServerStats(
+            host="healthy.com", priority=ServerPriority.PRIMARY
+        )
         for _ in range(5):
             healthy_stats.record_success(0.1)
         self.engine.server_stats["healthy.com"] = healthy_stats
 
-        unhealthy_stats = ServerStats(host="unhealthy.com", priority=ServerPriority.TERTIARY)
+        unhealthy_stats = ServerStats(
+            host="unhealthy.com", priority=ServerPriority.TERTIARY
+        )
         for _ in range(5):
             unhealthy_stats.record_failure(FailureReason.TIMEOUT)
         self.engine.server_stats["unhealthy.com"] = unhealthy_stats
 
         # Select best servers
         available_hosts = ["healthy.com", "unhealthy.com", "new.com"]
-        selected = self.engine.select_best_servers(available_hosts, max_selections=2)
+        selected = self.engine.select_best_servers(
+            available_hosts, max_selections=2
+        )
 
         # Healthy primary should be selected first
         assert selected[0] == "healthy.com"
@@ -200,7 +222,7 @@ class TestFailureRuleEngine:
                 host=f"server{i}.com",
                 attempt_time=time.time() - 1,
                 success=False,
-                failure_reason=FailureReason.TIMEOUT
+                failure_reason=FailureReason.TIMEOUT,
             )
             self.engine.record_attempt(attempt)
 
@@ -214,7 +236,7 @@ class TestFailureRuleEngine:
                 host=f"server{i}.com",
                 attempt_time=time.time() - 1,
                 success=False,
-                failure_reason=FailureReason.TIMEOUT
+                failure_reason=FailureReason.TIMEOUT,
             )
             self.engine.record_attempt(attempt)
 
@@ -236,7 +258,7 @@ class TestFailureRuleEngine:
                 host="time.google.com",
                 attempt_time=time.time() - 1,
                 success=False,
-                failure_reason=FailureReason.TIMEOUT
+                failure_reason=FailureReason.TIMEOUT,
             )
             self.engine.record_attempt(attempt)
 
@@ -247,10 +269,7 @@ class TestFailureRuleEngine:
     def test_connection_attempt_recording(self):
         """Test recording and analysis of connection attempts."""
         attempt = ConnectionAttempt(
-            host="test.com",
-            attempt_time=time.time(),
-            success=True,
-            delay=0.1
+            host="test.com", attempt_time=time.time(), success=True, delay=0.1
         )
         self.engine.record_attempt(attempt)
 
@@ -299,7 +318,7 @@ class TestAdaptiveFailureHandler:
                 host="server.com",
                 attempt_time=current_time - 60,  # 1 minute ago
                 success=False,
-                failure_reason=FailureReason.TIMEOUT
+                failure_reason=FailureReason.TIMEOUT,
             )
             self.rule_engine.record_attempt(attempt)
 
@@ -309,18 +328,23 @@ class TestAdaptiveFailureHandler:
                 host="dns-fail.com",
                 attempt_time=current_time - 60,
                 success=False,
-                failure_reason=FailureReason.DNS_FAILURE
+                failure_reason=FailureReason.DNS_FAILURE,
             )
             self.rule_engine.record_attempt(attempt)
 
         # Analyze pattern
         result = self.handler.analyze_network_pattern()
 
-        assert result["pattern"] in ["high_failure_network", "moderate_failure_network"]
+        assert result["pattern"] in [
+            "high_failure_network",
+            "moderate_failure_network",
+        ]
         assert len(result["recommendations"]) > 0
 
         # Check for timeout-specific recommendations
-        timeout_recs = [r for r in result["recommendations"] if "timeout" in r.lower()]
+        timeout_recs = [
+            r for r in result["recommendations"] if "timeout" in r.lower()
+        ]
         assert len(timeout_recs) > 0
 
         # Check for DNS-specific recommendations
@@ -337,7 +361,7 @@ class TestAdaptiveFailureHandler:
                 host="bad-server.com",
                 attempt_time=current_time - 60,
                 success=False,
-                failure_reason=FailureReason.TIMEOUT
+                failure_reason=FailureReason.TIMEOUT,
             )
             self.rule_engine.record_attempt(attempt)
 
@@ -347,14 +371,16 @@ class TestAdaptiveFailureHandler:
                 host="good-server.com",
                 attempt_time=current_time - 60,
                 success=True,
-                delay=0.1
+                delay=0.1,
             )
             self.rule_engine.record_attempt(attempt)
 
         result = self.handler.analyze_network_pattern()
 
         # Should recommend excluding the bad server
-        exclude_recs = [r for r in result["recommendations"] if "bad-server.com" in r]
+        exclude_recs = [
+            r for r in result["recommendations"] if "bad-server.com" in r
+        ]
         assert len(exclude_recs) > 0
 
 
@@ -398,7 +424,7 @@ class TestIntegration:
                 host=servers[i % len(servers)],
                 attempt_time=time.time() - 1,
                 success=False,
-                failure_reason=FailureReason.TIMEOUT
+                failure_reason=FailureReason.TIMEOUT,
             )
             engine.record_attempt(attempt)
 
@@ -420,7 +446,7 @@ class TestIntegration:
                 host="server.com",
                 attempt_time=time.time() - 3600,  # 1 hour ago
                 success=False,
-                failure_reason=FailureReason.TIMEOUT
+                failure_reason=FailureReason.TIMEOUT,
             )
             engine.record_attempt(attempt)
 
@@ -433,7 +459,7 @@ class TestIntegration:
                 host="server.com",
                 attempt_time=time.time(),
                 success=True,
-                delay=0.1
+                delay=0.1,
             )
             engine.record_attempt(attempt)
 
@@ -462,7 +488,7 @@ class TestPerformance:
                 attempt_time=time.time(),
                 success=(i % 2 == 0),
                 delay=0.1 if i % 2 == 0 else None,
-                failure_reason=FailureReason.TIMEOUT if i % 2 != 0 else None
+                failure_reason=FailureReason.TIMEOUT if i % 2 != 0 else None,
             )
             engine.record_attempt(attempt)
 
@@ -488,7 +514,7 @@ class TestPerformance:
                         host=f"worker{i % 5}.com",
                         attempt_time=time.time(),
                         success=(i % 3 == 0),
-                        delay=0.1 if i % 3 == 0 else None
+                        delay=0.1 if i % 3 == 0 else None,
                     )
                     engine.record_attempt(attempt)
 

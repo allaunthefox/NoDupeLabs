@@ -31,9 +31,9 @@ class MLTool(Tool):
     @property
     def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
-            'generate_embeddings': self.backend.generate_embeddings,
-            'get_dimensions': self.backend.get_embedding_dimensions,
-            'is_available': self.backend.is_available
+            "generate_embeddings": self.backend.generate_embeddings,
+            "get_dimensions": self.backend.get_embedding_dimensions,
+            "is_available": self.backend.is_available,
         }
 
     def __init__(self):
@@ -42,7 +42,7 @@ class MLTool(Tool):
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool and register services."""
-        container.register_service('ml_backend', self.backend)
+        container.register_service("ml_backend", self.backend)
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
@@ -50,9 +50,10 @@ class MLTool(Tool):
     def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
-            'dimensions': self.backend.get_embedding_dimensions(),
-            'available': self.backend.is_available()
+            "dimensions": self.backend.get_embedding_dimensions(),
+            "available": self.backend.is_available(),
         }
+
 
 def register_tool():
     """Register the ML tool."""

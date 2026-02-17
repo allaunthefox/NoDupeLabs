@@ -24,14 +24,14 @@ from .api.codes import ActionCode
 from .api.ipc import ToolIPCServer
 from .config import load_config
 from .container import container as global_container
+
+# Re-export helper used in tests and by other modules
+from .database.connection import get_connection
 from .tool_system.discovery import create_tool_discovery
 from .tool_system.hot_reload import ToolHotReload
 from .tool_system.lifecycle import create_lifecycle_manager
 from .tool_system.loader import create_tool_loader
 from .tool_system.registry import ToolRegistry
-
-# Re-export helper used in tests and by other modules
-from .database.connection import get_connection
 
 # Expose hashing autotune helpers at module level so unit tests can patch
 # these symbols (they may not be present if the hashing tool isn't available).
@@ -79,9 +79,8 @@ class CoreLoader:
                     else:
                         # If both sides are dict-like, merge missing sub-keys
                         existing = self.config.config.get(key)
-                        if (
-                            isinstance(existing, dict)
-                            and isinstance(value, dict)
+                        if isinstance(existing, dict) and isinstance(
+                            value, dict
                         ):
                             for subk, subv in value.items():
                                 if subk not in existing:
@@ -263,7 +262,9 @@ class CoreLoader:
             # If a convenience creator is available, use it to obtain a hasher
             if callable(globals().get("create_autotuned_hasher")):
                 try:
-                    hasher_instance, autotune_results = create_autotuned_hasher()
+                    hasher_instance, autotune_results = (
+                        create_autotuned_hasher()
+                    )
                     self.container.register_service("hasher", hasher_instance)
                     self.container.register_service(
                         "hash_autotune_results", autotune_results
@@ -276,7 +277,9 @@ class CoreLoader:
             # If we got autotune results but no creator, store results and
             # configure existing hasher service if present.
             if results:
-                self.container.register_service("hash_autotune_results", results)
+                self.container.register_service(
+                    "hash_autotune_results", results
+                )
                 algo = results.get("optimal_algorithm")
                 hasher = self.container.get_service("hasher")
                 if hasher and hasattr(hasher, "set_algorithm") and algo:
@@ -392,7 +395,10 @@ class CoreLoader:
         config: dict[str, Any] = {
             "db_path": "output/index.db",
             "log_dir": "logs",
-            "tools": {"directories": ["nodupe/tools", "tools"], "auto_load": True},
+            "tools": {
+                "directories": ["nodupe/tools", "tools"],
+                "auto_load": True,
+            },
             "cpu_cores": cpu_cores,
             "drive_type": drive_type,
         }

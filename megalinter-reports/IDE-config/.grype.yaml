@@ -126,9 +126,9 @@ fail-on-severity: "high"
   # file: ""
 
 # match:
-  # sets the matchers below to use cpes when trying to find 
+  # sets the matchers below to use cpes when trying to find
   # vulnerability matches. The stock matcher is the default
-  # when no primary matcher can be identified 
+  # when no primary matcher can be identified
   # java:
   #   using-cpes: true
   # python:

@@ -31,8 +31,9 @@ from typing import Any, Callable, Optional
 from nodupe.core.api.codes import ActionCode
 from nodupe.core.archive_interface import ArchiveHandlerInterface
 from nodupe.core.container import container as global_container
-from nodupe.tools.archive.archive_logic import ArchiveHandler as SecurityHardenedArchiveHandler
-
+from nodupe.tools.archive.archive_logic import (
+    ArchiveHandler as SecurityHardenedArchiveHandler,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,9 @@ class FileWalker:
     - Track progress
     """
 
-    def __init__(self, archive_handler: Optional[ArchiveHandlerInterface] = None):
+    def __init__(
+        self, archive_handler: Optional[ArchiveHandlerInterface] = None
+    ):
         """Initialize file walker.
 
         Args:
@@ -68,14 +71,20 @@ class FileWalker:
             self._archive_handler = archive_handler
         else:
             # Service Location fallback for backward compatibility
-            self._archive_handler = global_container.get_service('archive_handler_service')
+            self._archive_handler = global_container.get_service(
+                "archive_handler_service"
+            )
             if not self._archive_handler:
                 self._archive_handler = SecurityHardenedArchiveHandler()
 
         self._enable_archive_support = True
 
-    def walk(self, root_path: str, file_filter: Optional[Callable[[str], bool]] = None,
-             on_progress: Optional[Callable[[dict[str, Any]], None]] = None) -> list[dict[str, Any]]:
+    def walk(
+        self,
+        root_path: str,
+        file_filter: Optional[Callable[[str], bool]] = None,
+        on_progress: Optional[Callable[[dict[str, Any]], None]] = None,
+    ) -> list[dict[str, Any]]:
         """Walk directory tree and return file information.
 
         Args:
@@ -102,15 +111,22 @@ class FileWalker:
                     relative_path = os.path.relpath(file_path, root_path)
 
                     try:
-                        file_info = self._get_file_info(file_path, relative_path)
+                        file_info = self._get_file_info(
+                            file_path, relative_path
+                        )
 
                         if file_filter is None or file_filter(file_info):
                             files.append(file_info)
                             self._file_count += 1
 
                             # Check for archive files and extract contents
-                            if self._enable_archive_support and self._is_archive_file(file_path):
-                                archive_files = self._process_archive_file(file_path, root_path)
+                            if (
+                                self._enable_archive_support
+                                and self._is_archive_file(file_path)
+                            ):
+                                archive_files = self._process_archive_file(
+                                    file_path, root_path
+                                )
                                 files.extend(archive_files)
                                 self._file_count += len(archive_files)
 
@@ -119,19 +135,25 @@ class FileWalker:
                     except Exception as e:
                         self._error_count += 1
                         # pylint: disable=logging-fstring-interpolation
-                        self.logger.warning(f"[{ActionCode.FPT_FLS_FAIL}] Error processing file {file_path}: {e}")
+                        self.logger.warning(
+                            f"[{ActionCode.FPT_FLS_FAIL}] Error processing file {file_path}: {e}"
+                        )
 
                 # Update progress after each directory
                 self._check_progress_update(on_progress)
 
         except Exception:
             # pylint: disable=logging-fstring-interpolation
-            self.logger.exception(f"[{ActionCode.FPT_FLS_FAIL}] Failed to walk directory {root_path}")
+            self.logger.exception(
+                f"[{ActionCode.FPT_FLS_FAIL}] Failed to walk directory {root_path}"
+            )
             raise
 
         return files
 
-    def _get_file_info(self, file_path: str, relative_path: str) -> dict[str, Any]:
+    def _get_file_info(
+        self, file_path: str, relative_path: str
+    ) -> dict[str, Any]:
         """Get file information for a single file.
 
         Args:
@@ -145,20 +167,22 @@ class FileWalker:
             stat = os.stat(file_path)
 
             return {
-                'path': file_path,
-                'relative_path': relative_path,
-                'name': os.path.basename(file_path),
-                'extension': os.path.splitext(file_path)[1].lower(),
-                'size': stat.st_size,
-                'modified_time': int(stat.st_mtime),
-                'created_time': int(stat.st_ctime),
-                'is_directory': False,
-                'is_file': True,
-                'is_symlink': os.path.islink(file_path),
-                'is_archive': self._is_archive_file(file_path)
+                "path": file_path,
+                "relative_path": relative_path,
+                "name": os.path.basename(file_path),
+                "extension": os.path.splitext(file_path)[1].lower(),
+                "size": stat.st_size,
+                "modified_time": int(stat.st_mtime),
+                "created_time": int(stat.st_ctime),
+                "is_directory": False,
+                "is_file": True,
+                "is_symlink": os.path.islink(file_path),
+                "is_archive": self._is_archive_file(file_path),
             }
         except Exception as e:
-            self.logger.warning(f"[{ActionCode.FPT_FLS_FAIL}] Error getting file info for {file_path}: {e}")
+            self.logger.warning(
+                f"[{ActionCode.FPT_FLS_FAIL}] Error getting file info for {file_path}: {e}"
+            )
             raise
 
     def _is_archive_file(self, file_path: str) -> bool:
@@ -175,7 +199,9 @@ class FileWalker:
         except Exception:
             return False
 
-    def _process_archive_file(self, archive_path: str, base_path: str) -> list[dict[str, Any]]:
+    def _process_archive_file(
+        self, archive_path: str, base_path: str
+    ) -> list[dict[str, Any]]:
         """Process archive file and return contents information.
 
         Args:
@@ -186,12 +212,18 @@ class FileWalker:
             List of file information dictionaries for archive contents
         """
         try:
-            return self._archive_handler.get_archive_contents_info(archive_path, base_path)
+            return self._archive_handler.get_archive_contents_info(
+                archive_path, base_path
+            )
         except Exception as e:
-            self.logger.warning(f"[{ActionCode.FPT_FLS_FAIL}] Error processing archive {archive_path}: {e}")
+            self.logger.warning(
+                f"[{ActionCode.FPT_FLS_FAIL}] Error processing archive {archive_path}: {e}"
+            )
             return []
 
-    def _check_progress_update(self, on_progress: Optional[Callable[[dict[str, Any]], None]]) -> None:
+    def _check_progress_update(
+        self, on_progress: Optional[Callable[[dict[str, Any]], None]]
+    ) -> None:
         """Check if progress update should be sent.
 
         Args:
@@ -213,11 +245,13 @@ class FileWalker:
         """
         elapsed = time.monotonic() - self._start_time
         return {
-            'files_processed': self._file_count,
-            'directories_processed': self._dir_count,
-            'errors_encountered': self._error_count,
-            'elapsed_time': elapsed,
-            'files_per_second': self._file_count / elapsed if elapsed > 0 else 0
+            "files_processed": self._file_count,
+            "directories_processed": self._dir_count,
+            "errors_encountered": self._error_count,
+            "elapsed_time": elapsed,
+            "files_per_second": (
+                self._file_count / elapsed if elapsed > 0 else 0
+            ),
         }
 
     def _reset_counters(self) -> None:
@@ -236,11 +270,13 @@ class FileWalker:
         """
         elapsed = time.monotonic() - self._start_time
         return {
-            'total_files': self._file_count,
-            'total_directories': self._dir_count,
-            'total_errors': self._error_count,
-            'total_time': elapsed,
-            'average_files_per_second': self._file_count / elapsed if elapsed > 0 else 0
+            "total_files": self._file_count,
+            "total_directories": self._dir_count,
+            "total_errors": self._error_count,
+            "total_time": elapsed,
+            "average_files_per_second": (
+                self._file_count / elapsed if elapsed > 0 else 0
+            ),
         }
 
     def enable_archive_support(self, enable: bool = True) -> None:
@@ -268,9 +304,13 @@ def create_file_walker() -> FileWalker:
     """
     return FileWalker()
 
+
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="This tool walks through folders and lists all files found.")
+
+    parser = argparse.ArgumentParser(
+        description="This tool walks through folders and lists all files found."
+    )
     parser.add_argument("path", help="The folder you want to scan")
     args = parser.parse_args()
     walker = FileWalker()

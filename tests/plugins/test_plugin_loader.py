@@ -22,12 +22,12 @@ class TestToolLoader:
         assert loader.registry is registry
 
         # Test that it has expected attributes
-        assert hasattr(loader, 'load_tool')
-        assert hasattr(loader, 'unload_tool')
-        assert hasattr(loader, 'get_loaded_tools')
-        assert hasattr(loader, 'get_loaded_tool')
-        assert hasattr(loader, 'initialize')
-        assert hasattr(loader, 'shutdown')
+        assert hasattr(loader, "load_tool")
+        assert hasattr(loader, "unload_tool")
+        assert hasattr(loader, "get_loaded_tools")
+        assert hasattr(loader, "get_loaded_tool")
+        assert hasattr(loader, "initialize")
+        assert hasattr(loader, "shutdown")
 
     def test_tool_loader_with_container(self):
         """Test tool loader with dependency container."""
@@ -211,6 +211,7 @@ class TestToolLoading:
         # Create and load multiple tools
         tools = []
         for i in range(5):
+
             class TestTool(Tool):
                 def __init__(self, tool_id):
                     self.name = f"test_tool_{tool_id}"
@@ -376,6 +377,7 @@ class TestToolLoadingPerformance:
         # Create and load many tools
         tools = []
         for i in range(100):
+
             class TestTool(Tool):
                 def __init__(self, tool_id):
                     self.name = f"mass_tool_{tool_id}"
@@ -413,6 +415,7 @@ class TestToolLoadingPerformance:
         # Test loading performance
         start_time = time.time()
         for i in range(1000):
+
             class TestTool(Tool):
                 def __init__(self, tool_id):
                     self.name = f"perf_tool_{tool_id}"

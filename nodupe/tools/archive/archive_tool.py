@@ -31,10 +31,10 @@ class StandardArchiveTool(Tool):
     @property
     def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
-            'extract_archive': self.handler.extract_archive,
-            'create_archive': self.handler.create_archive,
-            'is_archive': self.handler.is_archive_file,
-            'detect_format': self.handler.detect_archive_format
+            "extract_archive": self.handler.extract_archive,
+            "create_archive": self.handler.create_archive,
+            "is_archive": self.handler.is_archive_file,
+            "detect_format": self.handler.detect_archive_format,
         }
 
     def __init__(self):
@@ -43,7 +43,7 @@ class StandardArchiveTool(Tool):
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool and register services."""
-        container.register_service('archive_handler_service', self.handler)
+        container.register_service("archive_handler_service", self.handler)
 
     def shutdown(self) -> None:
         """Shutdown the tool and cleanup."""
@@ -52,9 +52,14 @@ class StandardArchiveTool(Tool):
     def run_standalone(self, args: list[str]) -> int:
         """Execute archive operations in stand-alone mode."""
         import argparse
+
         parser = argparse.ArgumentParser(description=self.describe_usage())
-        parser.add_argument("archive", help="The compressed collection (zip/tar)")
-        parser.add_argument("--extract", help="The folder where you want the files to go")
+        parser.add_argument(
+            "archive", help="The compressed collection (zip/tar)"
+        )
+        parser.add_argument(
+            "--extract", help="The folder where you want the files to go"
+        )
 
         if not args:
             parser.print_help()
@@ -63,11 +68,15 @@ class StandardArchiveTool(Tool):
         parsed = parser.parse_args(args)
         try:
             if parsed.extract:
-                res = self.handler.extract_archive(parsed.archive, parsed.extract)
+                res = self.handler.extract_archive(
+                    parsed.archive, parsed.extract
+                )
                 print(f"Success: Put {len(res)} files into {parsed.extract}")
             else:
                 fmt = self.handler.detect_archive_format(parsed.archive)
-                print(f"Type: {fmt or 'Unknown Collection Type'} for {parsed.archive}")
+                print(
+                    f"Type: {fmt or 'Unknown Collection Type'} for {parsed.archive}"
+                )
             return 0
         except Exception as e:
             print(f"Error: {e}")
@@ -84,15 +93,25 @@ class StandardArchiveTool(Tool):
     def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
-            'formats': ['zip', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz', 'tar.lzma'],
-            'features': ['extraction', 'detection', 'PASSWORD_REMOVED_support']
+            "formats": [
+                "zip",
+                "tar",
+                "tar.gz",
+                "tar.bz2",
+                "tar.xz",
+                "tar.lzma",
+            ],
+            "features": ["extraction", "detection", "PASSWORD_REMOVED_support"],
         }
+
 
 def register_tool():
     """Register the archive tool."""
     return StandardArchiveTool()
 
+
 if __name__ == "__main__":
     import sys
+
     tool = StandardArchiveTool()
     sys.exit(tool.run_standalone(sys.argv[1:]))

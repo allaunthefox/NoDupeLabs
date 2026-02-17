@@ -23,7 +23,6 @@ import hashlib
 import os
 from typing import Any, Callable, Optional
 
-
 try:
     from ..hasher_interface import HasherInterface
 except (ImportError, ValueError):
@@ -41,7 +40,7 @@ class FileHasher(HasherInterface):
     - Handle hashing errors
     """
 
-    def __init__(self, algorithm: str = 'sha256', buffer_size: int = 65536):
+    def __init__(self, algorithm: str = "sha256", buffer_size: int = 65536):
         """Initialize file hasher.
 
         Args:
@@ -51,7 +50,11 @@ class FileHasher(HasherInterface):
         self.set_algorithm(algorithm)
         self.set_buffer_size(buffer_size)
 
-    def hash_file(self, file_path: str, on_progress: Optional[Callable[[dict[str, Any]], None]] = None) -> str:
+    def hash_file(
+        self,
+        file_path: str,
+        on_progress: Optional[Callable[[dict[str, Any]], None]] = None,
+    ) -> str:
         """Calculate hash of a file.
 
         Args:
@@ -69,7 +72,7 @@ class FileHasher(HasherInterface):
             hasher = hashlib.new(self._algorithm)
             bytes_read = 0
 
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 while True:
                     data = f.read(self._buffer_size)
                     if not data:
@@ -81,10 +84,14 @@ class FileHasher(HasherInterface):
                     # Update progress
                     if on_progress:
                         progress = {
-                            'file_path': file_path,
-                            'bytes_read': bytes_read,
-                            'total_bytes': file_size,
-                            'percent_complete': (bytes_read / file_size) * 100 if file_size > 0 else 100
+                            "file_path": file_path,
+                            "bytes_read": bytes_read,
+                            "total_bytes": file_size,
+                            "percent_complete": (
+                                (bytes_read / file_size) * 100
+                                if file_size > 0
+                                else 100
+                            ),
                         }
                         on_progress(progress)
 
@@ -94,8 +101,11 @@ class FileHasher(HasherInterface):
             print(f"[ERROR] Failed to hash file {file_path}: {e}")
             raise
 
-    def hash_files(self, file_paths: list[str],
-                   on_progress: Optional[Callable[[dict[str, Any]], None]] = None) -> dict[str, str]:
+    def hash_files(
+        self,
+        file_paths: list[str],
+        on_progress: Optional[Callable[[dict[str, Any]], None]] = None,
+    ) -> dict[str, str]:
         """Calculate hashes for multiple files.
 
         Args:
@@ -118,10 +128,10 @@ class FileHasher(HasherInterface):
                 # Update overall progress
                 if on_progress:
                     overall_progress = {
-                        'files_processed': i + 1,
-                        'total_files': len(file_paths),
-                        'current_file': file_path,
-                        'current_hash': file_hash
+                        "files_processed": i + 1,
+                        "total_files": len(file_paths),
+                        "current_file": file_path,
+                        "current_hash": file_hash,
                     }
                     on_progress(overall_progress)
 
@@ -142,7 +152,7 @@ class FileHasher(HasherInterface):
         """
         try:
             hasher = hashlib.new(self._algorithm)
-            hasher.update(data.encode('utf-8'))
+            hasher.update(data.encode("utf-8"))
             return hasher.hexdigest()
         except Exception as e:
             print(f"[ERROR] Failed to hash string: {e}")
@@ -236,7 +246,9 @@ class FileHasher(HasherInterface):
         return sorted(hashlib.algorithms_available)
 
 
-def create_file_hasher(algorithm: str = 'sha256', buffer_size: int = 65536) -> FileHasher:
+def create_file_hasher(
+    algorithm: str = "sha256", buffer_size: int = 65536
+) -> FileHasher:
     """Create and return a FileHasher instance.
 
     Args:

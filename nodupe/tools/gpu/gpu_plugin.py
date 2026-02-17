@@ -31,10 +31,10 @@ class GPUBackendTool(Tool):
     @property
     def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
-            'compute_embeddings': self.backend.compute_embeddings,
-            'matrix_multiply': self.backend.matrix_multiply,
-            'get_device_info': self.backend.get_device_info,
-            'is_available': self.backend.is_available
+            "compute_embeddings": self.backend.compute_embeddings,
+            "matrix_multiply": self.backend.matrix_multiply,
+            "get_device_info": self.backend.get_device_info,
+            "is_available": self.backend.is_available,
         }
 
     def __init__(self):
@@ -43,7 +43,7 @@ class GPUBackendTool(Tool):
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool and register services."""
-        container.register_service('gpu_backend', self.backend)
+        container.register_service("gpu_backend", self.backend)
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
@@ -52,10 +52,11 @@ class GPUBackendTool(Tool):
         """Get tool capabilities."""
         info = self.backend.get_device_info()
         return {
-            'device_type': info.get('type', 'unknown'),
-            'device_name': info.get('name', 'unknown'),
-            'available': self.backend.is_available()
+            "device_type": info.get("type", "unknown"),
+            "device_name": info.get("name", "unknown"),
+            "available": self.backend.is_available(),
         }
+
 
 def register_tool():
     """Register the GPU tool."""

@@ -166,6 +166,7 @@ class TestRateLimitedDecorator:
 
     def test_decorator_allows_requests(self):
         """Test decorator allows requests under limit."""
+
         @rate_limited(requests_per_minute=60)
         def test_func():
             return "success"
@@ -206,6 +207,7 @@ class TestApiEndpointDecorator:
 
     def test_decorator_basic(self):
         """Test basic decorator functionality."""
+
         @api_endpoint()
         def test_func():
             return "test"
@@ -219,6 +221,7 @@ class TestCorsDecorator:
 
     def test_decorator_adds_cors_headers(self):
         """Test decorator adds CORS headers."""
+
         @cors(origins=["https://example.com"])
         def test_func():
             return {"data": "test"}

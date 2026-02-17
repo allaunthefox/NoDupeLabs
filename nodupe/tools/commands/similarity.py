@@ -181,9 +181,7 @@ class SimilarityCommandTool(Tool):
                 print("[TOOL] No files in database to analyze.")
                 return 0
 
-            print(
-                f"[TOOL] Analyzing {len(files)} files using metric: {metric}"
-            )
+            print(f"[TOOL] Analyzing {len(files)} files using metric: {metric}")
 
             pairs_found = 0
 

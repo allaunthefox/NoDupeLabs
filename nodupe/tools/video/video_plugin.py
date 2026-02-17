@@ -31,9 +31,9 @@ class VideoTool(Tool):
     @property
     def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
-            'extract_frames': self.manager.extract_frames,
-            'get_metadata': self.manager.get_video_metadata,
-            'compute_phash': self.manager.compute_perceptual_hash
+            "extract_frames": self.manager.extract_frames,
+            "get_metadata": self.manager.get_video_metadata,
+            "compute_phash": self.manager.compute_perceptual_hash,
         }
 
     def __init__(self):
@@ -42,7 +42,7 @@ class VideoTool(Tool):
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool and register services."""
-        container.register_service('video_manager', self.manager)
+        container.register_service("video_manager", self.manager)
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
@@ -50,9 +50,10 @@ class VideoTool(Tool):
     def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
-            'backends': [b.__class__.__name__ for b in self.manager.backends],
-            'available': len(self.manager.backends) > 0
+            "backends": [b.__class__.__name__ for b in self.manager.backends],
+            "available": len(self.manager.backends) > 0,
         }
+
 
 def register_tool():
     """Register the video tool."""

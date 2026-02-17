@@ -462,7 +462,9 @@ class FailureRuleEngine:
     def _calculate_average_success_rate(self) -> float:
         """Calculate average success rate across all servers."""
         if not self.server_stats:
-            return 100.0  # Default: assume healthy until data suggests otherwise
+            return (
+                100.0  # Default: assume healthy until data suggests otherwise
+            )
 
         total_success = sum(
             stats.success_count for stats in self.server_stats.values()

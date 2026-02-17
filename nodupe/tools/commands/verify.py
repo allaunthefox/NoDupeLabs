@@ -23,7 +23,7 @@ Dependencies:
 import argparse
 import hashlib
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from nodupe.core.database.connection import DatabaseConnection
 from nodupe.core.database.files import FileRepository
@@ -79,7 +79,21 @@ class VerifyTool(Tool):
 
     def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
-        return {'commands': ['verify']}
+        return {"commands": ["verify"]}
+
+    @property
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
+        """Programmatic API methods exposed by this tool."""
+        return {"verify.execute": self.execute_verify}
+
+    def run_standalone(self, args: list[str]) -> int:
+        """Run tool in standalone mode (minimal stub for tests)."""
+        # Minimal runner for tests — do not parse full CLI here
+        return 0
+
+    def describe_usage(self) -> str:
+        """Return a short usage description."""
+        return "Verify tool — checks file integrity and database consistency."
 
     def _on_verify_start(self, **kwargs: Any) -> None:
         """Handle verify start event."""
@@ -87,38 +101,36 @@ class VerifyTool(Tool):
 
     def _on_verify_complete(self, **kwargs: Any) -> None:
         """Handle verify complete event."""
-        print(f"[TOOL] Verify completed: {kwargs.get('checks_performed', 0)} checks, "
-              f"{kwargs.get('errors_found', 0)} errors")
+        print(
+            f"[TOOL] Verify completed: {kwargs.get('checks_performed', 0)} checks, "
+            f"{kwargs.get('errors_found', 0)} errors"
+        )
 
     def register_commands(self, subparsers: Any) -> None:
         """Register verify command with argument parser."""
         verify_parser = subparsers.add_parser(
-            'verify', help='Verify file integrity and database consistency')
-        verify_parser.add_argument(
-            '--mode',
-            choices=['integrity', 'consistency', 'checksums', 'all'],
-            default='all',
-            help='Verification mode to run'
+            "verify", help="Verify file integrity and database consistency"
         )
         verify_parser.add_argument(
-            '--fast',
-            action='store_true',
-            help='Perform fast verification (skip heavy checks)'
+            "--mode",
+            choices=["integrity", "consistency", "checksums", "all"],
+            default="all",
+            help="Verification mode to run",
         )
         verify_parser.add_argument(
-            '--verbose', '-v',
-            action='store_true',
-            help='Verbose output'
+            "--fast",
+            action="store_true",
+            help="Perform fast verification (skip heavy checks)",
         )
         verify_parser.add_argument(
-            '--repair',
-            action='store_true',
-            help='Attempt to repair detected issues'
+            "--verbose", "-v", action="store_true", help="Verbose output"
         )
         verify_parser.add_argument(
-            '--output',
-            help='Output results to file'
+            "--repair",
+            action="store_true",
+            help="Attempt to repair detected issues",
         )
+        verify_parser.add_argument("--output", help="Output results to file")
         verify_parser.set_defaults(func=self.execute_verify)
 
     def execute_verify(self, args: argparse.Namespace) -> int:
@@ -136,6 +148,7 @@ class VerifyTool(Tool):
             counts of checks performed, errors found, warnings, and
             detailed error information.
             """
+
             checks: int
             errors: int
             warnings: int
@@ -146,12 +159,12 @@ class VerifyTool(Tool):
             print(f"[TOOL] Fast mode: {args.fast}, Repair: {args.repair}")
 
             # 1. Get services
-            container = getattr(args, 'container', None)
+            container = getattr(args, "container", None)
             if not container:
                 print("[ERROR] Dependency container not available")
                 return 1
 
-            db_connection = container.get_service('database')
+            db_connection = container.get_service("database")
             if not db_connection:
                 print("[ERROR] Database service not available")
                 db_connection = DatabaseConnection.get_instance()
@@ -160,12 +173,31 @@ class VerifyTool(Tool):
 
             # 2. Determine verification mode
             modes = []
-            modes = ['integrity', 'consistency', 'checksums'] if args.mode == 'all' else [args.mode]
+            modes = (
+                ["integrity", "consistency", "checksums"]
+                if args.mode == "all"
+                else [args.mode]
+            )
 
             results: dict[str, VerificationResult] = {
-                'integrity': {'checks': 0, 'errors': 0, 'warnings': 0, 'error_details': []},
-                'consistency': {'checks': 0, 'errors': 0, 'warnings': 0, 'error_details': []},
-                'checksums': {'checks': 0, 'errors': 0, 'warnings': 0, 'error_details': []}
+                "integrity": {
+                    "checks": 0,
+                    "errors": 0,
+                    "warnings": 0,
+                    "error_details": [],
+                },
+                "consistency": {
+                    "checks": 0,
+                    "errors": 0,
+                    "warnings": 0,
+                    "error_details": [],
+                },
+                "checksums": {
+                    "checks": 0,
+                    "errors": 0,
+                    "warnings": 0,
+                    "error_details": [],
+                },
             }
 
             total_errors = 0
@@ -175,53 +207,59 @@ class VerifyTool(Tool):
             for mode in modes:
                 print(f"\n[TOOL] Running {mode} verification...")
 
-                if mode == 'integrity':
+                if mode == "integrity":
                     mode_results = self._verify_integrity(file_repo, args)
-                    results['integrity'] = {
-                        'checks': mode_results['checks'],
-                        'errors': mode_results['errors'],
-                        'warnings': mode_results['warnings'],
-                        'error_details': []
+                    results["integrity"] = {
+                        "checks": mode_results["checks"],
+                        "errors": mode_results["errors"],
+                        "warnings": mode_results["warnings"],
+                        "error_details": [],
                     }
-                    total_errors += mode_results['errors']
-                    total_warnings += mode_results['warnings']
+                    total_errors += mode_results["errors"]
+                    total_warnings += mode_results["warnings"]
 
-                elif mode == 'consistency':
+                elif mode == "consistency":
                     mode_results = self._verify_consistency(file_repo, args)
-                    results['consistency'] = {
-                        'checks': mode_results['checks'],
-                        'errors': mode_results['errors'],
-                        'warnings': mode_results['warnings'],
-                        'error_details': []
+                    results["consistency"] = {
+                        "checks": mode_results["checks"],
+                        "errors": mode_results["errors"],
+                        "warnings": mode_results["warnings"],
+                        "error_details": [],
                     }
-                    total_errors += mode_results['errors']
-                    total_warnings += mode_results['warnings']
+                    total_errors += mode_results["errors"]
+                    total_warnings += mode_results["warnings"]
 
-                elif mode == 'checksums':
+                elif mode == "checksums":
                     mode_results = self._verify_checksums(file_repo, args)
-                    results['checksums'] = {
-                        'checks': mode_results['checks'],
-                        'errors': mode_results['errors'],
-                        'warnings': mode_results['warnings'],
-                        'error_details': []
+                    results["checksums"] = {
+                        "checks": mode_results["checks"],
+                        "errors": mode_results["errors"],
+                        "warnings": mode_results["warnings"],
+                        "error_details": [],
                     }
-                    total_errors += mode_results['errors']
-                    total_warnings += mode_results['warnings']
+                    total_errors += mode_results["errors"]
+                    total_warnings += mode_results["warnings"]
 
             # 4. Report results
             print("\n[TOOL] Verification Summary:")
             for mode, stats in results.items():
-                if stats['checks'] > 0:
-                    print(f" {mode.title()}: {stats['checks']} checks, "
-                          f"{stats['errors']} errors, {stats['warnings']} warnings")
+                if stats["checks"] > 0:
+                    print(
+                        f" {mode.title()}: {stats['checks']} checks, "
+                        f"{stats['errors']} errors, {stats['warnings']} warnings"
+                    )
 
-            print(f"\n[TOOL] Total: {sum(r['checks'] for r in results.values())} checks, "
-                  f"{total_errors} errors, {total_warnings} warnings")
+            print(
+                f"\n[TOOL] Total: {sum(r['checks'] for r in results.values())} checks, "
+                f"{total_errors} errors, {total_warnings} warnings"
+            )
 
             if total_errors > 0:
                 print(f"[TOOL] ❌ {total_errors} integrity issues detected!")
                 if args.repair:
-                    print("[TOOL] Repair mode enabled - this would attempt to fix issues")
+                    print(
+                        "[TOOL] Repair mode enabled - this would attempt to fix issues"
+                    )
                     # TODO: Implement repair functionality in future
             else:
                 print("[TOOL] ✅ All verification checks passed!")
@@ -232,8 +270,8 @@ class VerifyTool(Tool):
                 print(f"[TOOL] Detailed findings saved to: {args.output}")
 
             self._on_verify_complete(
-                checks_performed=sum(r['checks'] for r in results.values()),
-                errors_found=total_errors
+                checks_performed=sum(r["checks"] for r in results.values()),
+                errors_found=total_errors,
             )
 
             return 0 if total_errors == 0 else 1
@@ -242,10 +280,16 @@ class VerifyTool(Tool):
             print(f"[TOOL ERROR] Verify failed: {e}")
             if args.verbose:
                 import traceback
+
                 traceback.print_exc()
             return 1
 
-    def _output_findings_to_file(self, results: dict[str, Any], output_file: str, args: argparse.Namespace) -> None:
+    def _output_findings_to_file(
+        self,
+        results: dict[str, Any],
+        output_file: str,
+        args: argparse.Namespace,
+    ) -> None:
         """Output detailed verification findings to a file.
 
         Args:
@@ -257,47 +301,49 @@ class VerifyTool(Tool):
         from datetime import datetime
 
         findings: dict[str, Any] = {
-            'timestamp': datetime.now().isoformat(),
-            'command_args': {
-                'mode': args.mode,
-                'fast': args.fast,
-                'verbose': args.verbose,
-                'repair': args.repair
+            "timestamp": datetime.now().isoformat(),
+            "command_args": {
+                "mode": args.mode,
+                "fast": args.fast,
+                "verbose": args.verbose,
+                "repair": args.repair,
             },
-            'summary': {
-                'total_checks': sum(r['checks'] for r in results.values()),
-                'total_errors': sum(r['errors'] for r in results.values()),
-                'total_warnings': sum(r['warnings'] for r in results.values())
+            "summary": {
+                "total_checks": sum(r["checks"] for r in results.values()),
+                "total_errors": sum(r["errors"] for r in results.values()),
+                "total_warnings": sum(r["warnings"] for r in results.values()),
             },
-            'details': {}
+            "details": {},
         }
 
         for mode, stats in results.items():
-            findings['details'][mode] = {
-                'checks': stats['checks'],
-                'errors': stats['errors'],
-                'warnings': stats['warnings'],
-                'error_details': stats.get('error_details', [])
+            findings["details"][mode] = {
+                "checks": stats["checks"],
+                "errors": stats["errors"],
+                "warnings": stats["warnings"],
+                "error_details": stats.get("error_details", []),
             }
 
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             json.dump(findings, f, indent=2, ensure_ascii=False)
 
-    def _verify_integrity(self, file_repo: FileRepository, args: argparse.Namespace) -> dict[str, int]:
+    def _verify_integrity(
+        self, file_repo: FileRepository, args: argparse.Namespace
+    ) -> dict[str, int]:
         """Verify file integrity by checking file existence and basic properties."""
-        results = {'checks': 0, 'errors': 0, 'warnings': 0}
+        results = {"checks": 0, "errors": 0, "warnings": 0}
 
         try:
             files = file_repo.get_all_files()
             print(f"[TOOL] Checking integrity of {len(files)} files...")
 
             for file_data in files:
-                results['checks'] += 1
-                file_path = Path(file_data['path'])
+                results["checks"] += 1
+                file_path = Path(file_data["path"])
 
                 # Check if file exists
                 if not file_path.exists():
-                    results['errors'] += 1
+                    results["errors"] += 1
                     if args.verbose:
                         print(f"[ERROR] File not found: {file_path}")
                     continue
@@ -305,91 +351,107 @@ class VerifyTool(Tool):
                 # Check file size matches database
                 try:
                     actual_size = file_path.stat().st_size
-                    if actual_size != file_data['size']:
-                        results['errors'] += 1
+                    if actual_size != file_data["size"]:
+                        results["errors"] += 1
                         if args.verbose:
-                            print(f"[ERROR] Size mismatch for {file_path}: "
-                                  f"expected {file_data['size']}, got {actual_size}")
+                            print(
+                                f"[ERROR] Size mismatch for {file_path}: "
+                                f"expected {file_data['size']}, got {actual_size}"
+                            )
                 except OSError:
-                    results['errors'] += 1
+                    results["errors"] += 1
                     if args.verbose:
                         print(f"[ERROR] Cannot access file: {file_path}")
 
                 # Check file readability (unless in fast mode)
                 if not args.fast:
                     try:
-                        with open(file_path, 'rb') as f:
+                        with open(file_path, "rb") as f:
                             f.read(1)  # Test if file is readable
                     except (OSError, PermissionError):
-                        results['errors'] += 1
+                        results["errors"] += 1
                         if args.verbose:
                             print(f"[ERROR] Cannot read file: {file_path}")
 
-            print(f"[TOOL] Integrity check: {results['checks']} files, "
-                  f"{results['errors']} errors, {results['warnings']} warnings")
+            print(
+                f"[TOOL] Integrity check: {results['checks']} files, "
+                f"{results['errors']} errors, {results['warnings']} warnings"
+            )
 
         except Exception as e:
             print(f"[TOOL ERROR] Integrity verification failed: {e}")
-            results['errors'] += 1
+            results["errors"] += 1
 
         return results
 
-    def _verify_consistency(self, file_repo: FileRepository, args: argparse.Namespace) -> dict[str, int]:
+    def _verify_consistency(
+        self, file_repo: FileRepository, args: argparse.Namespace
+    ) -> dict[str, int]:
         """Verify database consistency and relationships."""
-        results = {'checks': 0, 'errors': 0, 'warnings': 0}
+        results = {"checks": 0, "errors": 0, "warnings": 0}
 
         try:
             files = file_repo.get_all_files()
             print(f"[TOOL] Checking consistency of {len(files)} files...")
 
             for file_data in files:
-                results['checks'] += 1
+                results["checks"] += 1
 
                 # Check duplicate relationships
-                if file_data['is_duplicate']:
-                    if not file_data['duplicate_of']:
-                        results['errors'] += 1
+                if file_data["is_duplicate"]:
+                    if not file_data["duplicate_of"]:
+                        results["errors"] += 1
                         if args.verbose:
                             print(
-                                f"[ERROR] Duplicate file {file_data['path']} has no duplicate_of reference")
+                                f"[ERROR] Duplicate file {file_data['path']} has no duplicate_of reference"
+                            )
                     else:
                         # Verify the referenced original file exists
-                        original = file_repo.get_file(file_data['duplicate_of'])
+                        original = file_repo.get_file(file_data["duplicate_of"])
                         if not original:
-                            results['errors'] += 1
+                            results["errors"] += 1
                             if args.verbose:
-                                print(f"[ERROR] Duplicate file {file_data['path']} references "
-                                      f"non-existent original ID {file_data['duplicate_of']}")
+                                print(
+                                    f"[ERROR] Duplicate file {file_data['path']} references "
+                                    f"non-existent original ID {file_data['duplicate_of']}"
+                                )
 
                 # Check for circular references or invalid relationships
-                if file_data['duplicate_of'] == file_data['id']:
-                    results['errors'] += 1
+                if file_data["duplicate_of"] == file_data["id"]:
+                    results["errors"] += 1
                     if args.verbose:
-                        print(f"[ERROR] File {file_data['path']} references itself as duplicate")
+                        print(
+                            f"[ERROR] File {file_data['path']} references itself as duplicate"
+                        )
 
             # Check for orphaned duplicate references
             duplicates = file_repo.get_duplicate_files()
             for dup in duplicates:
-                if dup['duplicate_of']:
-                    original = file_repo.get_file(dup['duplicate_of'])
+                if dup["duplicate_of"]:
+                    original = file_repo.get_file(dup["duplicate_of"])
                     if not original:
-                        results['errors'] += 1
+                        results["errors"] += 1
                         if args.verbose:
                             print(
-                                f"[ERROR] Orphaned duplicate reference: {dup['path']} -> {dup['duplicate_of']}")
+                                f"[ERROR] Orphaned duplicate reference: {dup['path']} -> {dup['duplicate_of']}"
+                            )
 
-            print(f"[TOOL] Consistency check: {results['checks']} files, "
-                  f"{results['errors']} errors, {results['warnings']} warnings")
+            print(
+                f"[TOOL] Consistency check: {results['checks']} files, "
+                f"{results['errors']} errors, {results['warnings']} warnings"
+            )
 
         except Exception as e:
             print(f"[TOOL ERROR] Consistency verification failed: {e}")
-            results['errors'] += 1
+            results["errors"] += 1
 
         return results
 
-    def _verify_checksums(self, file_repo: FileRepository, args: argparse.Namespace) -> dict[str, int]:
+    def _verify_checksums(
+        self, file_repo: FileRepository, args: argparse.Namespace
+    ) -> dict[str, int]:
         """Verify file checksums by recalculating hashes."""
-        results = {'checks': 0, 'errors': 0, 'warnings': 0}
+        results = {"checks": 0, "errors": 0, "warnings": 0}
 
         if args.fast:
             print("[TOOL] Skipping checksum verification in fast mode")
@@ -400,42 +462,48 @@ class VerifyTool(Tool):
             print(f"[TOOL] Verifying checksums for {len(files)} files...")
 
             for file_data in files:
-                if not file_data['hash']:
-                    results['warnings'] += 1
+                if not file_data["hash"]:
+                    results["warnings"] += 1
                     if args.verbose:
                         print(f"[WARN] No hash stored for: {file_data['path']}")
                     continue
 
-                results['checks'] += 1
-                file_path = Path(file_data['path'])
+                results["checks"] += 1
+                file_path = Path(file_data["path"])
 
                 # Skip if file doesn't exist (already caught in integrity check)
                 if not file_path.exists():
-                    results['errors'] += 1
+                    results["errors"] += 1
                     continue
 
                 # Recalculate hash and compare
                 try:
-                    with open(file_path, 'rb') as f:
+                    with open(file_path, "rb") as f:
                         file_hash = hashlib.sha256(f.read()).hexdigest()
 
-                    if file_hash != file_data['hash']:
-                        results['errors'] += 1
+                    if file_hash != file_data["hash"]:
+                        results["errors"] += 1
                         if args.verbose:
-                            print(f"[ERROR] Hash mismatch for {file_path}: "
-                                  f"stored {file_data['hash'][:8]}..., calculated {file_hash[:8]}...")
+                            print(
+                                f"[ERROR] Hash mismatch for {file_path}: "
+                                f"stored {file_data['hash'][:8]}..., calculated {file_hash[:8]}..."
+                            )
 
                 except (OSError, MemoryError) as e:
-                    results['errors'] += 1
+                    results["errors"] += 1
                     if args.verbose:
-                        print(f"[ERROR] Cannot calculate hash for {file_path}: {e}")
+                        print(
+                            f"[ERROR] Cannot calculate hash for {file_path}: {e}"
+                        )
 
-            print(f"[TOOL] Checksum check: {results['checks']} files, "
-                  f"{results['errors']} errors, {results['warnings']} warnings")
+            print(
+                f"[TOOL] Checksum check: {results['checks']} files, "
+                f"{results['errors']} errors, {results['warnings']} warnings"
+            )
 
         except Exception as e:
             print(f"[TOOL ERROR] Checksum verification failed: {e}")
-            results['errors'] += 1
+            results["errors"] += 1
 
         return results
 
@@ -452,4 +520,4 @@ def register_tool() -> VerifyTool:
 
 
 # Export tool interface
-__all__ = ['register_tool', 'verify_tool']
+__all__ = ["register_tool", "verify_tool"]

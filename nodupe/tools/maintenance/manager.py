@@ -8,7 +8,9 @@ from .transaction import TransactionLog
 class RollbackManager:
     """High-level rollback orchestration."""
 
-    def __init__(self, snapshot_manager: SnapshotManager, transaction_log: TransactionLog):
+    def __init__(
+        self, snapshot_manager: SnapshotManager, transaction_log: TransactionLog
+    ):
         """Initialize rollback manager.
 
         Args:
@@ -18,7 +20,9 @@ class RollbackManager:
         self.snapshots = snapshot_manager
         self.transactions = transaction_log
 
-    def execute_with_protection(self, paths: list[str], operation: Callable) -> Any:
+    def execute_with_protection(
+        self, paths: list[str], operation: Callable
+    ) -> Any:
         """Execute an operation with rollback protection.
 
         Creates snapshot before, logs operations, rollback on failure.
@@ -75,7 +79,9 @@ class RollbackManager:
         # Find most recent completed transaction
         for tx in transactions:
             if tx["status"] == "completed":
-                return self.transactions.rollback_transaction(tx["transaction_id"])
+                return self.transactions.rollback_transaction(
+                    tx["transaction_id"]
+                )
 
         return False
 

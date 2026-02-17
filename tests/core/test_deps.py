@@ -13,7 +13,7 @@ class TestDependencyManager:
     def test_initialization(self):
         """Test DependencyManager initialization."""
         dm = DependencyManager()
-        assert hasattr(dm, 'dependencies')
+        assert hasattr(dm, "dependencies")
         assert isinstance(dm.dependencies, dict)
         assert len(dm.dependencies) == 0
 
@@ -22,31 +22,31 @@ class TestDependencyManager:
         dm = DependencyManager()
 
         # Test with a standard library module that should be available
-        result = dm.check_dependency('json')
+        result = dm.check_dependency("json")
         assert result is True
-        assert 'json' in dm.dependencies
-        assert dm.dependencies['json'] is True
+        assert "json" in dm.dependencies
+        assert dm.dependencies["json"] is True
 
     def test_check_dependency_unavailable(self):
         """Test checking unavailable dependency."""
         dm = DependencyManager()
 
         # Test with a module that doesn't exist
-        result = dm.check_dependency('nonexistent_module_12345')
+        result = dm.check_dependency("nonexistent_module_12345")
         assert result is False
-        assert 'nonexistent_module_12345' in dm.dependencies
-        assert dm.dependencies['nonexistent_module_12345'] is False
+        assert "nonexistent_module_12345" in dm.dependencies
+        assert dm.dependencies["nonexistent_module_12345"] is False
 
     def test_check_dependency_caching(self):
         """Test dependency checking caching."""
         dm = DependencyManager()
 
         # First check
-        result1 = dm.check_dependency('json')
+        result1 = dm.check_dependency("json")
         assert result1 is True
 
         # Second check should use cache
-        result2 = dm.check_dependency('json')
+        result2 = dm.check_dependency("json")
         assert result2 is True
 
         # Should only have one entry in dependencies
@@ -96,16 +96,16 @@ class TestDependencyManager:
         """Test try_import with successful import."""
         dm = DependencyManager()
 
-        result = dm.try_import('json')
+        result = dm.try_import("json")
         assert result is not None
-        assert hasattr(result, '__name__')
-        assert result.__name__ == 'json'
+        assert hasattr(result, "__name__")
+        assert result.__name__ == "json"
 
     def test_try_import_failure(self):
         """Test try_import with failed import."""
         dm = DependencyManager()
 
-        result = dm.try_import('nonexistent_module_12345')
+        result = dm.try_import("nonexistent_module_12345")
         assert result is None
 
     def test_try_import_with_fallback(self):
@@ -113,7 +113,7 @@ class TestDependencyManager:
         dm = DependencyManager()
 
         fallback_value = {"status": "fallback"}
-        result = dm.try_import('nonexistent_module_12345', fallback_value)
+        result = dm.try_import("nonexistent_module_12345", fallback_value)
         assert result is fallback_value
         assert result["status"] == "fallback"
 
@@ -122,11 +122,11 @@ class TestDependencyManager:
         dm = DependencyManager()
 
         # Mock importlib to raise unexpected exception
-        with patch('importlib.import_module') as mock_import:
+        with patch("importlib.import_module") as mock_import:
             mock_import.side_effect = RuntimeError("Unexpected error")
 
             fallback_value = {"status": "fallback"}
-            result = dm.try_import('test_module', fallback_value)
+            result = dm.try_import("test_module", fallback_value)
 
             assert result is fallback_value
             assert result["status"] == "fallback"
@@ -138,7 +138,7 @@ class TestGlobalDependencyManager:
     def test_global_dep_manager_instance(self):
         """Test that global dep_manager is a DependencyManager instance."""
         assert isinstance(dep_manager, DependencyManager)
-        assert hasattr(dep_manager, 'dependencies')
+        assert hasattr(dep_manager, "dependencies")
 
     def test_global_dep_manager_isolation(self):
         """Test that global dep_manager maintains isolation."""
@@ -146,9 +146,9 @@ class TestGlobalDependencyManager:
         dep_manager.dependencies.clear()
 
         # Test dependency checking
-        result = dep_manager.check_dependency('json')
+        result = dep_manager.check_dependency("json")
         assert result is True
-        assert 'json' in dep_manager.dependencies
+        assert "json" in dep_manager.dependencies
 
         # Clean up
         dep_manager.dependencies.clear()
@@ -162,17 +162,18 @@ class TestDependencyManagerIntegration:
         dm = DependencyManager()
 
         # Check available dependency
-        json_available = dm.check_dependency('json')
+        json_available = dm.check_dependency("json")
         assert json_available is True
 
         # Check unavailable dependency
-        fake_available = dm.check_dependency('fake_module_12345')
+        fake_available = dm.check_dependency("fake_module_12345")
         assert fake_available is False
 
         # Use with_fallback for resilient operation
         def primary_operation():
             # This would use the optional dependency
             import json
+
             return json.dumps({"status": "success"})
 
         def fallback_operation():
@@ -182,10 +183,10 @@ class TestDependencyManagerIntegration:
         assert result is not None
 
         # Test try_import
-        json_module = dm.try_import('json')
+        json_module = dm.try_import("json")
         assert json_module is not None
 
-        fake_module = dm.try_import('fake_module_12345', {"fallback": True})
+        fake_module = dm.try_import("fake_module_12345", {"fallback": True})
         assert fake_module == {"fallback": True}
 
     def test_graceful_degradation_scenario(self):
@@ -196,16 +197,16 @@ class TestDependencyManagerIntegration:
         def use_optional_dependency():
             # This would normally use an optional dependency
             import nonexistent_module
+
             return nonexistent_module.some_function()
 
         def use_standard_library():
             import json
+
             return json.dumps({"status": "using_standard_library"})
 
         # Should gracefully fall back to standard library
-        result = dm.with_fallback(
-            use_optional_dependency,
-            use_standard_library)
+        result = dm.with_fallback(use_optional_dependency, use_standard_library)
         assert result is not None
         assert "using_standard_library" in result
 
@@ -218,13 +219,13 @@ class TestDependencyManagerEdgeCases:
         dm = DependencyManager()
 
         # Mock importlib to raise ImportError
-        with patch('importlib.util.find_spec') as mock_find_spec:
+        with patch("importlib.util.find_spec") as mock_find_spec:
             mock_find_spec.side_effect = ImportError("Mocked import error")
 
-            result = dm.check_dependency('test_module')
+            result = dm.check_dependency("test_module")
             assert result is False
-            assert 'test_module' in dm.dependencies
-            assert dm.dependencies['test_module'] is False
+            assert "test_module" in dm.dependencies
+            assert dm.dependencies["test_module"] is False
 
     def test_with_fallback_both_fail(self):
         """Test with_fallback when both primary and fallback fail."""
@@ -245,12 +246,13 @@ class TestDependencyManagerEdgeCases:
         dm = DependencyManager()
 
         # Mock importlib to raise unexpected exception
-        with patch('importlib.import_module') as mock_import:
+        with patch("importlib.import_module") as mock_import:
             mock_import.side_effect = RuntimeError(
-                "Unexpected error during import")
+                "Unexpected error during import"
+            )
 
             fallback_value = {"status": "fallback"}
-            result = dm.try_import('test_module', fallback_value)
+            result = dm.try_import("test_module", fallback_value)
 
             assert result is fallback_value
             assert result["status"] == "fallback"

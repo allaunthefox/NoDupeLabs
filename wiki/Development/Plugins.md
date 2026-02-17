@@ -26,10 +26,10 @@ from nodupe.core.plugins import SimilarityCommandPlugin
 
 class MyPlugin(SimilarityCommandPlugin):
     """Plugin description."""
-    
+
     name: str = "my_plugin"
     version: str = "1.0.0"
-    
+
     def execute(self, args):
         """Execute the plugin."""
         pass

@@ -43,8 +43,13 @@ class FileRepository:
         """
         self.db = db_connection
 
-    def add_file(self, file_path: str, size: int, modified_time: int,
-                 hash_value: Optional[str] = None) -> Optional[int]:
+    def add_file(
+        self,
+        file_path: str,
+        size: int,
+        modified_time: int,
+        hash_value: Optional[str] = None,
+    ) -> Optional[int]:
         """Add file to database.
 
         Args:
@@ -59,11 +64,19 @@ class FileRepository:
         try:
             current_time = int(time.monotonic())
             cursor = self.db.execute(
-                '''
+                """
                 INSERT INTO files (path, size, modified_time, hash, created_time, scanned_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-                ''',
-                (file_path, size, modified_time, hash_value, modified_time, current_time, current_time)
+                """,
+                (
+                    file_path,
+                    size,
+                    modified_time,
+                    hash_value,
+                    modified_time,
+                    current_time,
+                    current_time,
+                ),
             )
             return cursor.lastrowid
         except Exception as e:
@@ -81,19 +94,18 @@ class FileRepository:
         """
         try:
             cursor = self.db.execute(
-                'SELECT * FROM files WHERE id = ?',
-                (file_id,)
+                "SELECT * FROM files WHERE id = ?", (file_id,)
             )
             row = cursor.fetchone()
             if row:
                 return {
-                    'id': row[0],
-                    'path': row[1],
-                    'size': row[2],
-                    'modified_time': row[3],
-                    'hash': row[8],
-                    'is_duplicate': bool(row[9]),
-                    'duplicate_of': row[10]
+                    "id": row[0],
+                    "path": row[1],
+                    "size": row[2],
+                    "modified_time": row[3],
+                    "hash": row[8],
+                    "is_duplicate": bool(row[9]),
+                    "duplicate_of": row[10],
                 }
             return None
         except Exception as e:
@@ -111,19 +123,18 @@ class FileRepository:
         """
         try:
             cursor = self.db.execute(
-                'SELECT * FROM files WHERE path = ?',
-                (file_path,)
+                "SELECT * FROM files WHERE path = ?", (file_path,)
             )
             row = cursor.fetchone()
             if row:
                 return {
-                    'id': row[0],
-                    'path': row[1],
-                    'size': row[2],
-                    'modified_time': row[3],
-                    'hash': row[8],
-                    'is_duplicate': bool(row[9]),
-                    'duplicate_of': row[10]
+                    "id": row[0],
+                    "path": row[1],
+                    "size": row[2],
+                    "modified_time": row[3],
+                    "hash": row[8],
+                    "is_duplicate": bool(row[9]),
+                    "duplicate_of": row[10],
                 }
             return None
         except Exception as e:
@@ -143,14 +154,20 @@ class FileRepository:
         if not kwargs:
             return False
 
-        valid_fields = {'size', 'modified_time', 'hash', 'is_duplicate', 'duplicate_of'}
+        valid_fields = {
+            "size",
+            "modified_time",
+            "hash",
+            "is_duplicate",
+            "duplicate_of",
+        }
         update_fields = {k: v for k, v in kwargs.items() if k in valid_fields}
 
         if not update_fields:
             return False
 
         try:
-            set_clause = ', '.join([f"{field} = ?" for field in update_fields])
+            set_clause = ", ".join([f"{field} = ?" for field in update_fields])
             values = list(update_fields.values())
             values.append(file_id)
 
@@ -174,8 +191,8 @@ class FileRepository:
         """
         try:
             cursor = self.db.execute(
-                'UPDATE files SET is_duplicate = TRUE, duplicate_of = ? WHERE id = ?',
-                (duplicate_of, file_id)
+                "UPDATE files SET is_duplicate = TRUE, duplicate_of = ? WHERE id = ?",
+                (duplicate_of, file_id),
             )
             return cursor.rowcount > 0
         except Exception as e:
@@ -193,18 +210,18 @@ class FileRepository:
         """
         try:
             cursor = self.db.execute(
-                'SELECT * FROM files WHERE hash = ? ORDER BY path',
-                (hash_value,)
+                "SELECT * FROM files WHERE hash = ? ORDER BY path",
+                (hash_value,),
             )
             return [
                 {
-                    'id': row[0],
-                    'path': row[1],
-                    'size': row[2],
-                    'modified_time': row[3],
-                    'hash': row[8],
-                    'is_duplicate': bool(row[9]),
-                    'duplicate_of': row[10]
+                    "id": row[0],
+                    "path": row[1],
+                    "size": row[2],
+                    "modified_time": row[3],
+                    "hash": row[8],
+                    "is_duplicate": bool(row[9]),
+                    "duplicate_of": row[10],
                 }
                 for row in cursor.fetchall()
             ]
@@ -223,18 +240,17 @@ class FileRepository:
         """
         try:
             cursor = self.db.execute(
-                'SELECT * FROM files WHERE size = ? ORDER BY path',
-                (size,)
+                "SELECT * FROM files WHERE size = ? ORDER BY path", (size,)
             )
             return [
                 {
-                    'id': row[0],
-                    'path': row[1],
-                    'size': row[2],
-                    'modified_time': row[3],
-                    'hash': row[8],
-                    'is_duplicate': bool(row[9]),
-                    'duplicate_of': row[10]
+                    "id": row[0],
+                    "path": row[1],
+                    "size": row[2],
+                    "modified_time": row[3],
+                    "hash": row[8],
+                    "is_duplicate": bool(row[9]),
+                    "duplicate_of": row[10],
                 }
                 for row in cursor.fetchall()
             ]
@@ -249,16 +265,16 @@ class FileRepository:
             List of all files
         """
         try:
-            cursor = self.db.execute('SELECT * FROM files ORDER BY path')
+            cursor = self.db.execute("SELECT * FROM files ORDER BY path")
             return [
                 {
-                    'id': row[0],
-                    'path': row[1],
-                    'size': row[2],
-                    'modified_time': row[3],
-                    'hash': row[8],
-                    'is_duplicate': bool(row[9]),
-                    'duplicate_of': row[10]
+                    "id": row[0],
+                    "path": row[1],
+                    "size": row[2],
+                    "modified_time": row[3],
+                    "hash": row[8],
+                    "is_duplicate": bool(row[9]),
+                    "duplicate_of": row[10],
                 }
                 for row in cursor.fetchall()
             ]
@@ -277,8 +293,7 @@ class FileRepository:
         """
         try:
             cursor = self.db.execute(
-                'DELETE FROM files WHERE id = ?',
-                (file_id,)
+                "DELETE FROM files WHERE id = ?", (file_id,)
             )
             return cursor.rowcount > 0
         except Exception as e:
@@ -293,17 +308,17 @@ class FileRepository:
         """
         try:
             cursor = self.db.execute(
-                'SELECT * FROM files WHERE is_duplicate = TRUE ORDER BY path'
+                "SELECT * FROM files WHERE is_duplicate = TRUE ORDER BY path"
             )
             return [
                 {
-                    'id': row[0],
-                    'path': row[1],
-                    'size': row[2],
-                    'modified_time': row[3],
-                    'hash': row[8],
-                    'is_duplicate': bool(row[9]),
-                    'duplicate_of': row[10]
+                    "id": row[0],
+                    "path": row[1],
+                    "size": row[2],
+                    "modified_time": row[3],
+                    "hash": row[8],
+                    "is_duplicate": bool(row[9]),
+                    "duplicate_of": row[10],
                 }
                 for row in cursor.fetchall()
             ]
@@ -319,17 +334,17 @@ class FileRepository:
         """
         try:
             cursor = self.db.execute(
-                'SELECT * FROM files WHERE is_duplicate = FALSE ORDER BY path'
+                "SELECT * FROM files WHERE is_duplicate = FALSE ORDER BY path"
             )
             return [
                 {
-                    'id': row[0],
-                    'path': row[1],
-                    'size': row[2],
-                    'modified_time': row[3],
-                    'hash': row[8],
-                    'is_duplicate': bool(row[9]),
-                    'duplicate_of': row[10]
+                    "id": row[0],
+                    "path": row[1],
+                    "size": row[2],
+                    "modified_time": row[3],
+                    "hash": row[8],
+                    "is_duplicate": bool(row[9]),
+                    "duplicate_of": row[10],
                 }
                 for row in cursor.fetchall()
             ]
@@ -344,7 +359,7 @@ class FileRepository:
             Total file count
         """
         try:
-            cursor = self.db.execute('SELECT COUNT(*) FROM files')
+            cursor = self.db.execute("SELECT COUNT(*) FROM files")
             return cursor.fetchone()[0]
         except Exception as e:
             print(f"[ERROR] Failed to count files: {e}")
@@ -357,7 +372,9 @@ class FileRepository:
             Duplicate file count
         """
         try:
-            cursor = self.db.execute('SELECT COUNT(*) FROM files WHERE is_duplicate = TRUE')
+            cursor = self.db.execute(
+                "SELECT COUNT(*) FROM files WHERE is_duplicate = TRUE"
+            )
             return cursor.fetchone()[0]
         except Exception as e:
             print(f"[ERROR] Failed to count duplicates: {e}")
@@ -379,22 +396,22 @@ class FileRepository:
             current_time = int(time.monotonic())
             data = [
                 (
-                    file_data['path'],
-                    file_data['size'],
-                    file_data['modified_time'],
-                    file_data.get('hash'),
-                    file_data.get('created_time', file_data['modified_time']),
+                    file_data["path"],
+                    file_data["size"],
+                    file_data["modified_time"],
+                    file_data.get("hash"),
+                    file_data.get("created_time", file_data["modified_time"]),
                     current_time,
-                    current_time
+                    current_time,
                 )
                 for file_data in files
             ]
 
             self.db.executemany(
-                '''INSERT INTO files
+                """INSERT INTO files
                 (path, size, modified_time, hash, created_time, scanned_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                data
+                VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                data,
             )
             return len(files)
         except Exception as e:  # pylint: disable=broad-exception-caught
@@ -404,7 +421,7 @@ class FileRepository:
     def clear_all_files(self) -> None:
         """Clear all files from database."""
         try:
-            self.db.execute('DELETE FROM files')
+            self.db.execute("DELETE FROM files")
             self.db.commit()
         except Exception as e:
             print(f"[ERROR] Failed to clear all files: {e}")

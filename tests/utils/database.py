@@ -14,7 +14,7 @@ def create_test_database(
     schema: Optional[str] = None,
     data: Optional[list[dict[str, Any]]] = None,
     db_name: str = "test_db",
-    use_memory: bool = True
+    use_memory: bool = True,
 ) -> Union[str, Path]:
     """
     Create a test database with optional schema and data.
@@ -37,10 +37,8 @@ def create_test_database(
         conn.close()
         return str(db_path)
 
-def setup_test_database_schema(
-    conn: sqlite3.Connection,
-    schema: str
-) -> None:
+
+def setup_test_database_schema(conn: sqlite3.Connection, schema: str) -> None:
     """
     Set up database schema for testing.
 
@@ -52,10 +50,9 @@ def setup_test_database_schema(
     cursor.executescript(schema)
     conn.commit()
 
+
 def insert_test_data(
-    conn: sqlite3.Connection,
-    table: str,
-    data: list[dict[str, Any]]
+    conn: sqlite3.Connection, table: str, data: list[dict[str, Any]]
 ) -> None:
     """
     Insert test data into a database table.
@@ -80,15 +77,16 @@ def insert_test_data(
         values = [item[col] for col in columns]
         cursor.execute(
             f"INSERT INTO {table} ({columns_str}) VALUES ({placeholders})",
-            values
+            values,
         )
 
     conn.commit()
 
+
 def verify_database_state(
     conn: sqlite3.Connection,
     expected_state: dict[str, Any],
-    tolerance: float = 0.0
+    tolerance: float = 0.0,
 ) -> bool:
     """
     Verify database state matches expected state.
@@ -137,6 +135,7 @@ def verify_database_state(
 
     return True
 
+
 def create_database_mock() -> MagicMock:
     """
     Create a mock database connection for testing.
@@ -155,9 +154,9 @@ def create_database_mock() -> MagicMock:
 
     return mock_conn
 
+
 def create_database_fixture(
-    schema: str,
-    initial_data: Optional[list[dict[str, Any]]] = None
+    schema: str, initial_data: Optional[list[dict[str, Any]]] = None
 ) -> Callable:
     """
     Create a pytest fixture for database testing.
@@ -169,6 +168,7 @@ def create_database_fixture(
     Returns:
         Fixture function
     """
+
     def database_fixture():
         # Create in-memory database
         conn = sqlite3.connect(":memory:")
@@ -189,9 +189,9 @@ def create_database_fixture(
 
     return database_fixture
 
+
 def simulate_database_errors(
-    error_type: str = "connection",
-    operation: str = "execute"
+    error_type: str = "connection", operation: str = "execute"
 ) -> Callable:
     """
     Create a context manager to simulate database errors.
@@ -203,18 +203,19 @@ def simulate_database_errors(
     Returns:
         Context manager for error simulation
     """
+
     @contextlib.contextmanager
     def error_context():
         error_map = {
             "connection": sqlite3.OperationalError("Unable to connect"),
             "integrity": sqlite3.IntegrityError("Constraint violation"),
             "programming": sqlite3.ProgrammingError("SQL syntax error"),
-            "timeout": sqlite3.OperationalError("Database locked")
+            "timeout": sqlite3.OperationalError("Database locked"),
         }
 
         error = error_map.get(error_type, sqlite3.Error("Database error"))
 
-        with patch('sqlite3.Connection') as mock_conn_class:
+        with patch("sqlite3.Connection") as mock_conn_class:
             mock_conn = MagicMock()
             mock_cursor = MagicMock()
 
@@ -232,10 +233,9 @@ def simulate_database_errors(
 
     return error_context
 
+
 def benchmark_database_operations(
-    conn: sqlite3.Connection,
-    operations: list[Callable],
-    iterations: int = 100
+    conn: sqlite3.Connection, operations: list[Callable], iterations: int = 100
 ) -> dict[str, float]:
     """
     Benchmark database operations performance.
@@ -263,6 +263,7 @@ def benchmark_database_operations(
 
     return results
 
+
 def create_transaction_test_scenarios() -> list[dict[str, Any]]:
     """
     Create test scenarios for transaction testing.
@@ -276,18 +277,18 @@ def create_transaction_test_scenarios() -> list[dict[str, Any]]:
             "operations": [
                 "BEGIN",
                 "INSERT INTO test VALUES (1, 'data')",
-                "COMMIT"
+                "COMMIT",
             ],
-            "expected_result": "success"
+            "expected_result": "success",
         },
         {
             "name": "failed_transaction",
             "operations": [
                 "BEGIN",
                 "INSERT INTO test VALUES (1, 'data')",
-                "ROLLBACK"
+                "ROLLBACK",
             ],
-            "expected_result": "rollback"
+            "expected_result": "rollback",
         },
         {
             "name": "nested_transaction",
@@ -296,17 +297,18 @@ def create_transaction_test_scenarios() -> list[dict[str, Any]]:
                 "SAVEPOINT sp1",
                 "INSERT INTO test VALUES (1, 'data')",
                 "RELEASE SAVEPOINT sp1",
-                "COMMIT"
+                "COMMIT",
             ],
-            "expected_result": "success"
-        }
+            "expected_result": "success",
+        },
     ]
+
 
 def verify_database_performance(
     conn: sqlite3.Connection,
     query: str,
     max_execution_time: float = 1.0,
-    iterations: int = 10
+    iterations: int = 10,
 ) -> bool:
     """
     Verify database query performance meets requirements.
@@ -329,13 +331,14 @@ def verify_database_performance(
         cursor.fetchall()
         end_time = time.time()
 
-        total_time += (end_time - start_time)
+        total_time += end_time - start_time
 
     avg_time = total_time / iterations
     return avg_time <= max_execution_time
 
+
 def create_database_snapshot(
-    conn: sqlite3.Connection
+    conn: sqlite3.Connection,
 ) -> dict[str, list[dict[str, Any]]]:
     """
     Create a snapshot of current database state.
@@ -372,9 +375,9 @@ def create_database_snapshot(
 
     return snapshot
 
+
 def restore_database_snapshot(
-    conn: sqlite3.Connection,
-    snapshot: dict[str, list[dict[str, Any]]]
+    conn: sqlite3.Connection, snapshot: dict[str, list[dict[str, Any]]]
 ) -> None:
     """
     Restore database to a previous snapshot state.
@@ -399,7 +402,7 @@ def restore_database_snapshot(
                 values = [item[col] for col in columns]
                 cursor.execute(
                     f"INSERT INTO {table} ({columns_str}) VALUES ({placeholders})",
-                    values
+                    values,
                 )
 
     conn.commit()

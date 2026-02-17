@@ -14,7 +14,11 @@ class HasherInterface(ABC):
     """Abstract base class for hashers."""
 
     @abstractmethod
-    def hash_file(self, file_path: str, on_progress: Optional[Callable[[dict[str, Any]], None]] = None) -> str:
+    def hash_file(
+        self,
+        file_path: str,
+        on_progress: Optional[Callable[[dict[str, Any]], None]] = None,
+    ) -> str:
         """Calculate hash of a file."""
 
     @abstractmethod

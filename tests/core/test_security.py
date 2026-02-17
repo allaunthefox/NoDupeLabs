@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from nodupe.core.security import Security, SecurityError
+from nodupe.tools.security_audit.security_logic import Security, SecurityError
 
 
 class TestSecurity:
@@ -42,7 +42,9 @@ class TestSecurity:
     def test_validate_path_nonexistent(self, tmp_path):
         """Test validation of nonexistent path."""
         with pytest.raises(SecurityError):
-            Security.validate_path(str(tmp_path / "nonexistent.txt"), must_exist=True)
+            Security.validate_path(
+                str(tmp_path / "nonexistent.txt"), must_exist=True
+            )
 
     def test_validate_path_must_be_file(self, tmp_path):
         """Test validation that path must be file."""
@@ -76,7 +78,9 @@ class TestSecurity:
         # Should fail - file is outside allowed parent
         other_dir = tmp_path.parent
         with pytest.raises(SecurityError):
-            Security.validate_path(str(test_file), allowed_parent=other_dir / "other")
+            Security.validate_path(
+                str(test_file), allowed_parent=other_dir / "other"
+            )
 
     def test_sanitize_filename(self):
         """Test filename sanitization."""
@@ -124,7 +128,9 @@ class TestSecurity:
     def test_check_permissions_nonexistent(self, tmp_path):
         """Test permission check on nonexistent file."""
         with pytest.raises(SecurityError):
-            Security.check_permissions(str(tmp_path / "nonexistent.txt"), readable=True)
+            Security.check_permissions(
+                str(tmp_path / "nonexistent.txt"), readable=True
+            )
 
     def test_is_symlink(self, tmp_path):
         """Test symlink detection."""
@@ -160,7 +166,9 @@ class TestSecurity:
 
     def test_generate_safe_filename_with_timestamp(self):
         """Test safe filename generation with timestamp."""
-        name = Security.generate_safe_filename("test", extension=".txt", add_timestamp=True)
+        name = Security.generate_safe_filename(
+            "test", extension=".txt", add_timestamp=True
+        )
         assert name.endswith(".txt")
         assert "test" in name
         # Should contain timestamp pattern (numbers)

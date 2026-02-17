@@ -47,7 +47,7 @@ class TestToolLoadInfo:
             required_dependencies=["core"],
             optional_dependencies=["cache"],
             critical=False,
-            description="Test tool"
+            description="Test tool",
         )
 
         assert info.name == "test_tool"
@@ -69,7 +69,9 @@ class TestToolLoadingOrder:
     def test_initialization(self):
         """Test that loading order initializes with known tools."""
         # Check that core tools are registered
-        core_tools = self.loading_order.get_tools_for_order(ToolLoadOrder.CORE_INFRASTRUCTURE)
+        core_tools = self.loading_order.get_tools_for_order(
+            ToolLoadOrder.CORE_INFRASTRUCTURE
+        )
         assert "core" in core_tools
         assert "deps" in core_tools
         assert "container" in core_tools
@@ -87,13 +89,17 @@ class TestToolLoadingOrder:
     def test_get_tools_for_order(self):
         """Test getting tools for specific order levels."""
         # Core infrastructure should have multiple tools
-        core_tools = self.loading_order.get_tools_for_order(ToolLoadOrder.CORE_INFRASTRUCTURE)
+        core_tools = self.loading_order.get_tools_for_order(
+            ToolLoadOrder.CORE_INFRASTRUCTURE
+        )
         assert len(core_tools) > 0
         assert "core" in core_tools
         assert "container" in core_tools
 
         # System utilities should have specific tools
-        utility_tools = self.loading_order.get_tools_for_order(ToolLoadOrder.SYSTEM_UTILITIES)
+        utility_tools = self.loading_order.get_tools_for_order(
+            ToolLoadOrder.SYSTEM_UTILITIES
+        )
         assert "config" in utility_tools
         assert "logging" in utility_tools
         assert "limits" in utility_tools
@@ -134,17 +140,23 @@ class TestToolLoadingOrder:
     def test_validate_dependencies(self):
         """Test dependency validation."""
         # Test with missing dependencies
-        is_valid, missing = self.loading_order.validate_dependencies("container", {"core"})
+        is_valid, missing = self.loading_order.validate_dependencies(
+            "container", {"core"}
+        )
         assert is_valid is False
         assert "deps" in missing
 
         # Test with all dependencies available
-        is_valid, missing = self.loading_order.validate_dependencies("container", {"core", "deps"})
+        is_valid, missing = self.loading_order.validate_dependencies(
+            "container", {"core", "deps"}
+        )
         assert is_valid is True
         assert missing == []
 
         # Test with unknown tool
-        is_valid, missing = self.loading_order.validate_dependencies("unknown", set())
+        is_valid, missing = self.loading_order.validate_dependencies(
+            "unknown", set()
+        )
         assert is_valid is True
         assert missing == []
 
@@ -209,21 +221,25 @@ class TestToolLoadingOrder:
             required_dependencies=["core", "commands"],
             optional_dependencies=["database"],
             critical=False,
-            description="Test tool"
+            description="Test tool",
         )
 
         self.loading_order.register_tool(info)
 
         # Check that tool was registered
         assert self.loading_order.get_tool_info("test_tool") is not None
-        assert "test_tool" in self.loading_order.get_tools_for_order(ToolLoadOrder.SPECIALIZED_TOOLS)
+        assert "test_tool" in self.loading_order.get_tools_for_order(
+            ToolLoadOrder.SPECIALIZED_TOOLS
+        )
 
         # Check dependencies
         deps = self.loading_order.get_required_dependencies("test_tool")
         assert "core" in deps
         assert "commands" in deps
 
-        optional_deps = self.loading_order.get_optional_dependencies("test_tool")
+        optional_deps = self.loading_order.get_optional_dependencies(
+            "test_tool"
+        )
         assert "database" in optional_deps
 
     def test_circular_dependency_detection(self):
@@ -248,11 +264,15 @@ class TestToolLoadingOrder:
     def test_tool_order_consistency(self):
         """Test that tools are loaded in consistent order within levels."""
         # Get tools for a specific order level
-        utility_tools = self.loading_order.get_tools_for_order(ToolLoadOrder.SYSTEM_UTILITIES)
+        utility_tools = self.loading_order.get_tools_for_order(
+            ToolLoadOrder.SYSTEM_UTILITIES
+        )
 
         # Should always return the same tools in the same order
         for _ in range(5):
-            tools = self.loading_order.get_tools_for_order(ToolLoadOrder.SYSTEM_UTILITIES)
+            tools = self.loading_order.get_tools_for_order(
+                ToolLoadOrder.SYSTEM_UTILITIES
+            )
             assert tools == utility_tools
 
     def test_dependency_graph_consistency(self):
@@ -272,7 +292,7 @@ class TestToolLoadingOrder:
             required_dependencies=["core"],
             optional_dependencies=[],
             critical=False,
-            description="Test tool"
+            description="Test tool",
         )
 
         # Register twice
@@ -322,9 +342,23 @@ class TestIntegration:
         """Test loading sequence for a complete system."""
         # Simulate loading core system tools
         core_system = [
-            "core", "deps", "container", "registry", "discovery", "loader", "security",
-            "config", "logging", "limits", "parallel", "pools", "cache",
-            "database", "filesystem", "scan", "incremental"
+            "core",
+            "deps",
+            "container",
+            "registry",
+            "discovery",
+            "loader",
+            "security",
+            "config",
+            "logging",
+            "limits",
+            "parallel",
+            "pools",
+            "cache",
+            "database",
+            "filesystem",
+            "scan",
+            "incremental",
         ]
 
         sequence = self.loading_order.get_load_sequence(core_system)
@@ -335,7 +369,9 @@ class TestIntegration:
 
         # Verify load order constraints
         # Core infrastructure should come first
-        core_tools = self.loading_order.get_tools_for_order(ToolLoadOrder.CORE_INFRASTRUCTURE)
+        core_tools = self.loading_order.get_tools_for_order(
+            ToolLoadOrder.CORE_INFRASTRUCTURE
+        )
         for tool in core_tools:
             if tool in sequence:
                 # All core tools should come before non-core tools
@@ -376,19 +412,17 @@ class TestIntegration:
         # Test database tool dependencies
         is_valid, missing = self.loading_order.validate_dependencies(
             "database",
-            {"core", "config", "security", "limits", "cache", "time_sync"}
+            {"core", "config", "security", "limits", "cache", "time_sync"},
         )
         assert is_valid is True
         assert missing == []
 
         # Test with missing critical dependency
         is_valid, missing = self.loading_order.validate_dependencies(
-            "database",
-            {"core", "config", "security"}  # Missing limits
+            "database", {"core", "config", "security"}  # Missing limits
         )
         assert is_valid is False
         assert "limits" in missing
-
 
     def test_validate_load_sequence(self):
         """Test load sequence validation for dependencies and conflicts."""
@@ -495,8 +529,14 @@ class TestIntegration:
         assert "tools_with_optional_deps" in stats
 
         # Should have statistics for each load order level
-        for order in ["CORE_INFRASTRUCTURE", "SYSTEM_UTILITIES", "STORAGE_SERVICES",
-                      "PROCESSING_SERVICES", "UI_COMMANDS", "SPECIALIZED_TOOLS"]:
+        for order in [
+            "CORE_INFRASTRUCTURE",
+            "SYSTEM_UTILITIES",
+            "STORAGE_SERVICES",
+            "PROCESSING_SERVICES",
+            "UI_COMMANDS",
+            "SPECIALIZED_TOOLS",
+        ]:
             assert order in stats["tools_by_order"]
 
     def test_cascading_failure_prevention(self):
@@ -515,7 +555,11 @@ class TestIntegration:
         """Test dependency validation with optional dependencies."""
         # Test tool with optional dependencies
         is_valid, missing = self.loading_order.validate_dependencies(
-            "config", {"core", "container"}  # Has required deps, missing optional security
+            "config",
+            {
+                "core",
+                "container",
+            },  # Has required deps, missing optional security
         )
         # Should still be valid since security is optional
         assert is_valid is True
@@ -541,7 +585,7 @@ class TestIntegration:
             optional_dependencies=["database"],
             critical=False,
             description="Custom tool",
-            load_priority=10
+            load_priority=10,
         )
 
         self.loading_order.register_tool(custom_info)
@@ -572,7 +616,7 @@ class TestToolLoadingErrorHandling:
             load_order=ToolLoadOrder.SPECIALIZED_TOOLS,
             required_dependencies=["tool_b"],
             optional_dependencies=[],
-            critical=False
+            critical=False,
         )
 
         tool_b = ToolLoadInfo(
@@ -580,15 +624,15 @@ class TestToolLoadingErrorHandling:
             load_order=ToolLoadOrder.SPECIALIZED_TOOLS,
             required_dependencies=["tool_a"],
             optional_dependencies=[],
-            critical=False
+            critical=False,
         )
 
         self.loading_order.register_tool(tool_a)
         self.loading_order.register_tool(tool_b)
 
         # Should detect circular dependency
-        is_valid, _missing, circular = self.loading_order.validate_load_sequence(
-            ["tool_a", "tool_b"]
+        is_valid, _missing, circular = (
+            self.loading_order.validate_load_sequence(["tool_a", "tool_b"])
         )
         assert is_valid is False
         assert len(circular) > 0
@@ -605,7 +649,9 @@ class TestToolLoadingErrorHandling:
     def test_empty_tool_list_handling(self):
         """Test handling of empty tool lists."""
         # Empty sequence should be valid
-        is_valid, missing, circular = self.loading_order.validate_load_sequence([])
+        is_valid, missing, circular = self.loading_order.validate_load_sequence(
+            []
+        )
         assert is_valid is True
         assert missing == []
         assert circular == []
@@ -622,7 +668,9 @@ class TestToolLoadingErrorHandling:
         assert self.loading_order.get_required_dependencies("unknown") == []
         assert self.loading_order.get_optional_dependencies("unknown") == []
         assert self.loading_order.is_critical("unknown") is False
-        assert self.loading_order.get_tool_description("unknown") == "Unknown tool"
+        assert (
+            self.loading_order.get_tool_description("unknown") == "Unknown tool"
+        )
         assert self.loading_order.get_dependency_chain("unknown") == []
 
 
@@ -638,16 +686,41 @@ class TestToolLoadingIntegration:
         """Test loading sequence for a complete system boot."""
         # Simulate loading the complete NoDupeLabs system
         system_tools = [
-            "core", "deps", "container", "registry", "discovery", "loader", "security",
-            "config", "logging", "limits", "parallel", "pools", "cache", "time_sync", "leap_year",
-            "database", "filesystem", "compression", "mime_detection",
-            "scan", "incremental", "hash_autotune",
-            "cli", "commands",
-            "similarity", "apply", "scan_command", "verify", "plan"
+            "core",
+            "deps",
+            "container",
+            "registry",
+            "discovery",
+            "loader",
+            "security",
+            "config",
+            "logging",
+            "limits",
+            "parallel",
+            "pools",
+            "cache",
+            "time_sync",
+            "leap_year",
+            "database",
+            "filesystem",
+            "compression",
+            "mime_detection",
+            "scan",
+            "incremental",
+            "hash_autotune",
+            "cli",
+            "commands",
+            "similarity",
+            "apply",
+            "scan_command",
+            "verify",
+            "plan",
         ]
 
         # Get safe loading sequence
-        safe_seq, _excluded = self.loading_order.get_safe_load_sequence(system_tools)
+        safe_seq, _excluded = self.loading_order.get_safe_load_sequence(
+            system_tools
+        )
 
         # Should load most tools successfully
         assert len(safe_seq) > 0
@@ -665,9 +738,20 @@ class TestToolLoadingIntegration:
     def test_partial_system_loading(self):
         """Test loading only a subset of the system."""
         # Load core infrastructure and database (including its requirements)
-        partial_tools = ["core", "deps", "container", "registry", "config", "security", "limits", "database"]
+        partial_tools = [
+            "core",
+            "deps",
+            "container",
+            "registry",
+            "config",
+            "security",
+            "limits",
+            "database",
+        ]
 
-        safe_seq, _excluded = self.loading_order.get_safe_load_sequence(partial_tools)
+        safe_seq, _excluded = self.loading_order.get_safe_load_sequence(
+            partial_tools
+        )
 
         assert len(safe_seq) == 8
         assert set(safe_seq) == set(partial_tools)

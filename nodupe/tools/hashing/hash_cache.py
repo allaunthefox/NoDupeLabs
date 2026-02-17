@@ -40,7 +40,7 @@ class HashCache:
         self,
         max_size: int = 1000,
         ttl_seconds: int = 3600,
-        enable_persistence: bool = False
+        enable_persistence: bool = False,
     ):
         """Initialize hash cache.
 
@@ -56,12 +56,7 @@ class HashCache:
         # Cache storage: path -> (hash_value, mtime, timestamp)
         self._cache: OrderedDict[str, tuple[str, float, float]] = OrderedDict()
         self._lock = threading.RLock()
-        self._stats = {
-            'hits': 0,
-            'misses': 0,
-            'evictions': 0,
-            'insertions': 0
-        }
+        self._stats = {"hits": 0, "misses": 0, "evictions": 0, "insertions": 0}
 
     def get_hash(self, file_path: Path) -> Optional[str]:
         """Get cached hash for a file.
@@ -76,7 +71,7 @@ class HashCache:
             path_str = str(file_path)
 
             if path_str not in self._cache:
-                self._stats['misses'] += 1
+                self._stats["misses"] += 1
                 return None
 
             hash_value, stored_mtime, timestamp = self._cache[path_str]
@@ -84,7 +79,7 @@ class HashCache:
             # Check if entry is expired
             if time.monotonic() - timestamp > self.ttl_seconds:
                 del self._cache[path_str]
-                self._stats['misses'] += 1
+                self._stats["misses"] += 1
                 return None
 
             # Check if file has been modified since caching
@@ -92,15 +87,15 @@ class HashCache:
                 current_mtime = file_path.stat().st_mtime
                 if current_mtime != stored_mtime:
                     del self._cache[path_str]
-                    self._stats['misses'] += 1
+                    self._stats["misses"] += 1
                     return None
             except OSError:
                 # File no longer exists, remove from cache
                 del self._cache[path_str]
-                self._stats['misses'] += 1
+                self._stats["misses"] += 1
                 return None
 
-            self._stats['hits'] += 1
+            self._stats["hits"] += 1
             return hash_value
 
     def set_hash(self, file_path: Path, hash_value: str) -> None:
@@ -122,7 +117,7 @@ class HashCache:
             # Remove oldest entry if at max size
             if len(self._cache) >= self.max_size:
                 self._cache.popitem(last=False)
-                self._stats['evictions'] += 1
+                self._stats["evictions"] += 1
 
             # Store with current timestamp
             timestamp = time.monotonic()
@@ -131,7 +126,7 @@ class HashCache:
             # Move to end to mark as most recently used
             self._cache.move_to_end(path_str, last=True)
 
-            self._stats['insertions'] += 1
+            self._stats["insertions"] += 1
 
     def invalidate(self, file_path: Path) -> bool:
         """Invalidate cache entry for a file.
@@ -156,7 +151,7 @@ class HashCache:
             num_entries = len(self._cache)
             self._cache.clear()
             # Increment evictions by the number of entries that were cleared
-            self._stats['evictions'] += num_entries
+            self._stats["evictions"] += num_entries
 
     def validate_cache(self) -> int:
         """Validate all cache entries and remove stale ones.
@@ -170,7 +165,11 @@ class HashCache:
 
             # Collect keys to remove
             keys_to_remove = []
-            for path_str, (hash_value, stored_mtime, timestamp) in self._cache.items():
+            for path_str, (
+                hash_value,
+                stored_mtime,
+                timestamp,
+            ) in self._cache.items():
                 # Check TTL expiration
                 if current_time - timestamp > self.ttl_seconds:
                     keys_to_remove.append(path_str)
@@ -201,11 +200,11 @@ class HashCache:
         """
         with self._lock:
             stats = self._stats.copy()
-            stats['size'] = len(self._cache)
-            stats['capacity'] = self.max_size
-            stats['hit_rate'] = (
-                stats['hits'] / (stats['hits'] + stats['misses'])
-                if (stats['hits'] + stats['misses']) > 0
+            stats["size"] = len(self._cache)
+            stats["capacity"] = self.max_size
+            stats["hit_rate"] = (
+                stats["hits"] / (stats["hits"] + stats["misses"])
+                if (stats["hits"] + stats["misses"]) > 0
                 else 0.0
             )
             return stats
@@ -250,7 +249,7 @@ class HashCache:
             # Remove excess entries from the beginning (LRU)
             while len(self._cache) > self.max_size:
                 self._cache.popitem(last=False)
-                self._stats['evictions'] += 1
+                self._stats["evictions"] += 1
 
     def get_memory_usage(self) -> int:
         """Get approximate memory usage of cache.
@@ -261,9 +260,13 @@ class HashCache:
         with self._lock:
             # Rough estimate: path string + hash string + timestamps + overhead
             usage = 0
-            for path_str, (hash_value, stored_mtime, timestamp) in self._cache.items():
-                usage += len(path_str.encode('utf-8'))  # Path
-                usage += len(hash_value.encode('utf-8'))  # Hash
+            for path_str, (
+                hash_value,
+                stored_mtime,
+                timestamp,
+            ) in self._cache.items():
+                usage += len(path_str.encode("utf-8"))  # Path
+                usage += len(hash_value.encode("utf-8"))  # Hash
                 usage += 16  # Two floats (mtime, timestamp)
                 usage += 50  # Overhead per entry
 
@@ -273,7 +276,7 @@ class HashCache:
 def create_hash_cache(
     max_size: int = 1000,
     ttl_seconds: int = 3600,
-    enable_persistence: bool = False
+    enable_persistence: bool = False,
 ) -> HashCache:
     """Create a hash cache instance.
 

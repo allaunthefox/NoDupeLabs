@@ -25,11 +25,11 @@ class TestToolsModule:
         """Test module exports."""
         import nodupe.core.tools as tools_module
 
-        assert hasattr(tools_module, 'ToolManager')
-        assert hasattr(tools_module, 'tool_manager')
-        assert hasattr(tools_module, '__all__')
+        assert hasattr(tools_module, "ToolManager")
+        assert hasattr(tools_module, "tool_manager")
+        assert hasattr(tools_module, "__all__")
 
-        expected_exports = ['ToolManager', 'tool_manager']
+        expected_exports = ["ToolManager", "tool_manager"]
         assert tools_module.__all__ == expected_exports
 
 
@@ -48,11 +48,11 @@ class TestToolManagerFunctionality:
         assert isinstance(tool_manager, ToolRegistry)
 
         # Test that it has expected attributes
-        assert hasattr(tool_manager, 'initialize')
-        assert hasattr(tool_manager, 'register')
-        assert hasattr(tool_manager, 'get_tool')
-        assert hasattr(tool_manager, 'get_tools')
-        assert hasattr(tool_manager, 'shutdown')
+        assert hasattr(tool_manager, "initialize")
+        assert hasattr(tool_manager, "register")
+        assert hasattr(tool_manager, "get_tool")
+        assert hasattr(tool_manager, "get_tools")
+        assert hasattr(tool_manager, "shutdown")
 
     def test_tool_manager_operations(self):
         """Test tool manager operations."""
@@ -108,6 +108,7 @@ class TestToolManagerIntegration:
         """Test tool manager lifecycle operations."""
         # Test initialization
         from nodupe.core.container import ServiceContainer
+
         container = ServiceContainer()
 
         tool_manager.initialize(container)
@@ -236,11 +237,12 @@ class TestToolManagerCompatibility:
 
         # Check key methods are present
         key_methods = [
-            'initialize',
-            'register_tool',
-            'get_tool',
-            'get_all_tools',
-            'shutdown']
+            "initialize",
+            "register_tool",
+            "get_tool",
+            "get_all_tools",
+            "shutdown",
+        ]
         for method in key_methods:
             assert method in manager_methods
             assert method in registry_methods
@@ -276,7 +278,7 @@ class TestToolManagerIntegrationWithCore:
         from unittest.mock import patch
 
         # Mock the core loader to test integration
-        with patch('nodupe.core.loader.ToolRegistry') as mock_registry_class:
+        with patch("nodupe.core.loader.ToolRegistry") as mock_registry_class:
             # Create mock registry instance
             mock_registry_instance = MagicMock()
             mock_registry_class.return_value = mock_registry_instance
@@ -287,14 +289,18 @@ class TestToolManagerIntegrationWithCore:
             loader = CoreLoader()
 
             # Mock initialization
-            with patch('nodupe.core.loader.load_config') as mock_config, \
-                    patch.object(loader, '_apply_platform_autoconfig') as mock_autoconfig, \
-                    patch('nodupe.core.loader.create_tool_loader'), \
-                    patch('nodupe.core.loader.create_tool_discovery'), \
-                    patch('nodupe.core.loader.create_lifecycle_manager'), \
-                    patch('nodupe.core.loader.ToolHotReload'), \
-                    patch('nodupe.core.loader.get_connection'), \
-                    patch('nodupe.core.loader.logging') as mock_logging:
+            with (
+                patch("nodupe.core.loader.load_config") as mock_config,
+                patch.object(
+                    loader, "_apply_platform_autoconfig"
+                ) as mock_autoconfig,
+                patch("nodupe.core.loader.create_tool_loader"),
+                patch("nodupe.core.loader.create_tool_discovery"),
+                patch("nodupe.core.loader.create_lifecycle_manager"),
+                patch("nodupe.core.loader.ToolHotReload"),
+                patch("nodupe.core.loader.get_connection"),
+                patch("nodupe.core.loader.logging") as mock_logging,
+            ):
 
                 mock_config.return_value = MagicMock(config={})
                 mock_autoconfig.return_value = {}
@@ -317,10 +323,10 @@ class TestToolManagerIntegrationWithCore:
         tool_manager.initialize(container)
 
         # Register tool manager in container
-        container.register_service('tool_manager', tool_manager)
+        container.register_service("tool_manager", tool_manager)
 
         # Verify it can be retrieved
-        retrieved = container.get_service('tool_manager')
+        retrieved = container.get_service("tool_manager")
         assert retrieved is tool_manager
 
         # Test tool operations through container
@@ -393,7 +399,7 @@ class TestToolRegistryAdvanced:
         assert len(tool_manager.get_all_tools()) == 10
 
         # Clear registry (if supported)
-        if hasattr(tool_manager, 'clear'):
+        if hasattr(tool_manager, "clear"):
             tool_manager.clear()
             assert len(tool_manager.get_all_tools()) == 0
 
@@ -410,9 +416,9 @@ class TestToolLoader:
         assert loader is not None
 
         # Test that it has expected attributes
-        assert hasattr(loader, 'load_tool_from_file')
-        assert hasattr(loader, 'unload_tool')
-        assert hasattr(loader, 'get_all_loaded_tools')
+        assert hasattr(loader, "load_tool_from_file")
+        assert hasattr(loader, "unload_tool")
+        assert hasattr(loader, "get_all_loaded_tools")
 
     def test_tool_loader_with_container(self):
         """Test tool loader with dependency container."""
@@ -437,11 +443,16 @@ class TestToolLoader:
         # Create a mock tool class
         class TestTool(Tool):
             @property
-            def name(self): return "test_tool"
+            def name(self):
+                return "test_tool"
+
             @property
-            def version(self): return "1.0.0"
+            def version(self):
+                return "1.0.0"
+
             @property
-            def dependencies(self): return []
+            def dependencies(self):
+                return []
 
             def __init__(self):
                 self.initialized = False
@@ -480,8 +491,8 @@ class TestToolDiscovery:
         assert discovery is not None
 
         # Test that it has expected attributes
-        assert hasattr(discovery, 'discover_tools')
-        assert hasattr(discovery, 'get_discovered_tools')
+        assert hasattr(discovery, "discover_tools")
+        assert hasattr(discovery, "get_discovered_tools")
 
     def test_tool_discovery_with_container(self):
         """Test tool discovery with dependency container."""
@@ -507,9 +518,9 @@ class TestToolLifecycle:
         assert lifecycle is not None
 
         # Test that it has expected attributes
-        assert hasattr(lifecycle, 'initialize_tools')
-        assert hasattr(lifecycle, 'shutdown_tools')
-        assert hasattr(lifecycle, 'get_tool_states')
+        assert hasattr(lifecycle, "initialize_tools")
+        assert hasattr(lifecycle, "shutdown_tools")
+        assert hasattr(lifecycle, "get_tool_states")
 
     def test_tool_lifecycle_with_container(self):
         """Test tool lifecycle with dependency container."""
@@ -535,9 +546,9 @@ class TestToolHotReload:
         assert hot_reload is not None
 
         # Test that it has expected attributes
-        assert hasattr(hot_reload, 'start_watching')
-        assert hasattr(hot_reload, 'stop_watching')
-        assert hasattr(hot_reload, 'reload_tools')
+        assert hasattr(hot_reload, "start_watching")
+        assert hasattr(hot_reload, "stop_watching")
+        assert hasattr(hot_reload, "reload_tools")
 
     def test_tool_hot_reload_with_container(self):
         """Test tool hot reload with dependency container."""
@@ -563,8 +574,8 @@ class TestToolCompatibility:
         assert compatibility is not None
 
         # Test that it has expected attributes
-        assert hasattr(compatibility, 'check_compatibility')
-        assert hasattr(compatibility, 'get_compatibility_report')
+        assert hasattr(compatibility, "check_compatibility")
+        assert hasattr(compatibility, "get_compatibility_report")
 
     def test_tool_compatibility_checking(self):
         """Test tool compatibility checking."""
@@ -573,11 +584,16 @@ class TestToolCompatibility:
 
         class TestTool(Tool):
             @property
-            def name(self): return "test_tool"
+            def name(self):
+                return "test_tool"
+
             @property
-            def version(self): return "1.0.0"
+            def version(self):
+                return "1.0.0"
+
             @property
-            def dependencies(self): return ["core>=1.0.0"]
+            def dependencies(self):
+                return ["core>=1.0.0"]
 
             def initialize(self, container):
                 pass
@@ -608,8 +624,8 @@ class TestToolDependencies:
         assert dependency_manager is not None
 
         # Test that it has expected attributes
-        assert hasattr(dependency_manager, 'resolve_dependencies')
-        assert hasattr(dependency_manager, 'check_dependency_graph')
+        assert hasattr(dependency_manager, "resolve_dependencies")
+        assert hasattr(dependency_manager, "check_dependency_graph")
 
     def test_tool_dependency_resolution(self):
         """Test tool dependency resolution."""
@@ -618,11 +634,16 @@ class TestToolDependencies:
 
         class ToolA(Tool):
             @property
-            def name(self): return "tool_a"
+            def name(self):
+                return "tool_a"
+
             @property
-            def version(self): return "1.0.0"
+            def version(self):
+                return "1.0.0"
+
             @property
-            def dependencies(self): return []
+            def dependencies(self):
+                return []
 
             def initialize(self, container):
                 pass
@@ -635,11 +656,16 @@ class TestToolDependencies:
 
         class ToolB(Tool):
             @property
-            def name(self): return "tool_b"
+            def name(self):
+                return "tool_b"
+
             @property
-            def version(self): return "1.0.0"
+            def version(self):
+                return "1.0.0"
+
             @property
-            def dependencies(self): return ["tool_a"]
+            def dependencies(self):
+                return ["tool_a"]
 
             def initialize(self, container):
                 pass
@@ -672,8 +698,8 @@ class TestToolSecurity:
         assert security is not None
 
         # Test that it has expected attributes
-        assert hasattr(security, 'validate_tool')
-        assert hasattr(security, 'check_tool_permissions')
+        assert hasattr(security, "validate_tool")
+        assert hasattr(security, "check_tool_permissions")
 
     def test_tool_security_validation(self):
         """Test tool security validation."""
@@ -682,11 +708,16 @@ class TestToolSecurity:
 
         class TestTool(Tool):
             @property
-            def name(self): return "test_tool"
+            def name(self):
+                return "test_tool"
+
             @property
-            def version(self): return "1.0.0"
+            def version(self):
+                return "1.0.0"
+
             @property
-            def dependencies(self): return []
+            def dependencies(self):
+                return []
 
             def initialize(self, container):
                 pass
@@ -725,11 +756,16 @@ class TestToolIntegration:
         # Create a test tool
         class TestTool(Tool):
             @property
-            def name(self): return "integration_test_tool"
+            def name(self):
+                return "integration_test_tool"
+
             @property
-            def version(self): return "1.0.0"
+            def version(self):
+                return "1.0.0"
+
             @property
-            def dependencies(self): return []
+            def dependencies(self):
+                return []
 
             def __init__(self):
                 self.initialized = False
@@ -795,11 +831,16 @@ class TestToolIntegration:
         # Create a simple test tool class
         class SimpleTool(Tool):
             @property
-            def name(self): return f"perf_tool_{self.tool_id}"
+            def name(self):
+                return f"perf_tool_{self.tool_id}"
+
             @property
-            def version(self): return "1.0.0"
+            def version(self):
+                return "1.0.0"
+
             @property
-            def dependencies(self): return []
+            def dependencies(self):
+                return []
 
             def __init__(self, tool_id):
                 self.tool_id = tool_id

@@ -5,7 +5,11 @@ from unittest.mock import Mock, patch
 import pytest
 
 from nodupe.core.tool_system.base import Tool
-from nodupe.core.tool_system.lifecycle import ToolLifecycleError, ToolLifecycleManager, ToolState
+from nodupe.core.tool_system.lifecycle import (
+    ToolLifecycleError,
+    ToolLifecycleManager,
+    ToolState,
+)
 from nodupe.core.tool_system.registry import ToolRegistry
 
 
@@ -148,6 +152,9 @@ class TestToolLifecycleInitialization:
         manager = ToolLifecycleManager()
         container = Mock()
 
+        # ensure manager.container is set so initialize_tools passes it through
+        manager.initialize(container)
+
         mock_tool1 = Mock()
         mock_tool1.name = "Tool1"
         mock_tool1.initialize = Mock()
@@ -176,6 +183,9 @@ class TestToolLifecycleShutdown:
         mock_tool.name = "TestTool"
         mock_tool.shutdown = Mock()
 
+        # Ensure registry returns our mock tool so shutdown_tool can find it
+        manager.registry = Mock(get_tool=Mock(return_value=mock_tool))
+
         # Set initial state to initialized
         manager._tool_states["TestTool"] = ToolState.INITIALIZED
 
@@ -201,6 +211,9 @@ class TestToolLifecycleShutdown:
         mock_tool.name = "TestTool"
         mock_tool.shutdown = Mock()
 
+        # Ensure registry returns our mock tool
+        manager.registry = Mock(get_tool=Mock(return_value=mock_tool))
+
         # Set initial state to shutdown
         manager._tool_states["TestTool"] = ToolState.SHUTDOWN
 
@@ -217,6 +230,9 @@ class TestToolLifecycleShutdown:
         mock_tool = Mock()
         mock_tool.name = "TestTool"
         mock_tool.shutdown = Mock(side_effect=Exception("Shutdown failed"))
+
+        # Ensure registry returns our mock tool
+        manager.registry = Mock(get_tool=Mock(return_value=mock_tool))
 
         # Set initial state to initialized
         manager._tool_states["TestTool"] = ToolState.INITIALIZED
@@ -240,6 +256,11 @@ class TestToolLifecycleShutdown:
         mock_tool2 = Mock()
         mock_tool2.name = "Tool2"
         mock_tool2.shutdown = Mock()
+
+        # Ensure registry can resolve names to mock objects
+        manager.registry = Mock(
+            get_tool=lambda n: mock_tool1 if n == "Tool1" else mock_tool2
+        )
 
         # Set initial states
         manager._tool_states["Tool1"] = ToolState.INITIALIZED
@@ -265,9 +286,12 @@ class TestToolLifecycleShutdown:
         mock_tool2.name = "Tool2"
         mock_tool2.shutdown = Mock()
 
-        # Set up registry to return tools
+        # Set up registry to return tools and resolve by name
         mock_registry = Mock()
         mock_registry.get_tools.return_value = [mock_tool1, mock_tool2]
+        mock_registry.get_tool.side_effect = lambda n: (
+            mock_tool1 if n == "Tool1" else mock_tool2
+        )
         manager.registry = mock_registry
 
         # Set initial states
@@ -294,7 +318,7 @@ class TestToolLifecycleStateManagement:
         manager._tool_states = {
             "Tool1": ToolState.INITIALIZED,
             "Tool2": ToolState.SHUTDOWN,
-            "Tool3": ToolState.ERROR
+            "Tool3": ToolState.ERROR,
         }
 
         result = manager.get_tool_states()
@@ -302,7 +326,7 @@ class TestToolLifecycleStateManagement:
         assert result == {
             "Tool1": ToolState.INITIALIZED,
             "Tool2": ToolState.SHUTDOWN,
-            "Tool3": ToolState.ERROR
+            "Tool3": ToolState.ERROR,
         }
         # Should return a copy, not the original dict
         assert result is not manager._tool_states
@@ -363,7 +387,7 @@ class TestToolLifecycleStateManagement:
             "ActiveTool1": ToolState.INITIALIZED,
             "ActiveTool2": ToolState.INITIALIZING,
             "InactiveTool": ToolState.SHUTDOWN,
-            "UnloadedTool": ToolState.UNLOADED
+            "UnloadedTool": ToolState.UNLOADED,
         }
 
         result = manager.get_active_tools()

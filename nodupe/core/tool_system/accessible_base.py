@@ -27,7 +27,7 @@ class AccessibleTool(Tool):
         Accessibility is a core requirement, not optional. Even if external
         libraries fail, basic accessibility through console output must remain.
         """
-        from .api.codes import ActionCode
+        from ..api.codes import ActionCode
 
         class AccessibleOutput:
             def __init__(self):
@@ -39,24 +39,34 @@ class AccessibleTool(Tool):
                 # Try to initialize screen reader support
                 try:
                     from accessible_output2.outputs.auto import Auto
+
                     self.outputter = Auto()
                     self.screen_reader_available = True
-                    print(f"[{ActionCode.ACC_SCREEN_READER_INIT}] Screen reader initialized successfully")
+                    print(
+                        f"[{ActionCode.ACC_SCREEN_READER_INIT}] Screen reader initialized successfully"
+                    )
                 except ImportError:
                     # Even if external library not available, we still have basic accessibility
                     self.screen_reader_available = False
-                    print(f"[{ActionCode.ACC_SCREEN_READER_UNAVAIL}] Screen reader support unavailable, using console fallback")
+                    print(
+                        f"[{ActionCode.ACC_SCREEN_READER_UNAVAIL}] Screen reader support unavailable, using console fallback"
+                    )
 
                 # Try to initialize braille support
                 try:
                     import brlapi
+
                     self.braille_client = brlapi.Connection()
                     self.braille_available = True
-                    print(f"[{ActionCode.ACC_BRAILLE_INIT}] Braille display initialized successfully")
+                    print(
+                        f"[{ActionCode.ACC_BRAILLE_INIT}] Braille display initialized successfully"
+                    )
                 except (ImportError, Exception):
                     # Even if braille not available, we still have basic accessibility
                     self.braille_available = False
-                    print(f"[{ActionCode.ACC_BRAILLE_UNAVAIL}] Braille display support unavailable, using console fallback")
+                    print(
+                        f"[{ActionCode.ACC_BRAILLE_UNAVAIL}] Braille display support unavailable, using console fallback"
+                    )
 
             def output(self, text: str, interrupt: bool = True):
                 """Output text to all available accessibility channels.
@@ -71,19 +81,29 @@ class AccessibleTool(Tool):
                 if self.screen_reader_available and self.outputter:
                     try:
                         self.outputter.output(text, interrupt=interrupt)
-                        print(f"[{ActionCode.ACC_OUTPUT_SENT}] Screen reader output sent")
+                        print(
+                            f"[{ActionCode.ACC_OUTPUT_SENT}] Screen reader output sent"
+                        )
                     except Exception as e:
                         # Log the error but don't fail the core accessibility
-                        print(f"[{ActionCode.ACC_OUTPUT_FAILED}] Screen reader output failed: {e}")
+                        print(
+                            f"[{ActionCode.ACC_OUTPUT_FAILED}] Screen reader output failed: {e}"
+                        )
 
                 # ENHANCEMENT: Braille output if available
                 if self.braille_available and self.braille_client:
                     try:
-                        self.braille_client.writeText(text[:40])  # Limit to display size
-                        print(f"[{ActionCode.ACC_OUTPUT_SENT}] Braille output sent")
+                        self.braille_client.writeText(
+                            text[:40]
+                        )  # Limit to display size
+                        print(
+                            f"[{ActionCode.ACC_OUTPUT_SENT}] Braille output sent"
+                        )
                     except Exception as e:
                         # Log the error but don't fail the core accessibility
-                        print(f"[{ActionCode.ACC_OUTPUT_FAILED}] Braille output failed: {e}")
+                        print(
+                            f"[{ActionCode.ACC_OUTPUT_FAILED}] Braille output failed: {e}"
+                        )
 
         return AccessibleOutput()
 
@@ -94,32 +114,57 @@ class AccessibleTool(Tool):
         else:
             print(message)
 
-    def format_for_accessibility(self, data: Any) -> str:
+    def format_for_accessibility(self, data: Any, _nested: bool = False) -> str:
         """
         Format data for accessibility with screen readers and braille displays.
 
         Args:
             data: Data to format for accessibility
+            _nested: Internal flag used for recursive calls to control
+                     whether compact summaries or expanded output should be used.
 
         Returns:
             String formatted for accessibility
         """
         if isinstance(data, dict):
+            # If the dict contains only primitive values and this is the top-
+            # level call, return a compact summary. When nested, always
+            # expand to show keys/values for better context to screen readers.
+            if not _nested and not any(
+                isinstance(v, (dict, list)) for v in data.values()
+            ):
+                return f"Dictionary with {len(data)} keys"
+
             lines = []
             for key, value in data.items():
                 if isinstance(value, (dict, list)):
                     lines.append(f"{key}:")
-                    lines.append(self.format_for_accessibility(value))
+                    lines.append(
+                        self.format_for_accessibility(value, _nested=True)
+                    )
                 else:
                     lines.append(f"{key}: {self.describe_value(value)}")
             return "\n".join(lines)
         elif isinstance(data, list):
-            lines = []
-            for i, item in enumerate(data):
-                lines.append(f"Item {i + 1}: {self.describe_value(item)}")
-            return "\n".join(lines)
+            # If the list contains any complex items (dict/list) expand them,
+            # otherwise return a compact summary for primitive lists.
+            if any(isinstance(x, (dict, list)) for x in data):
+                lines = []
+                for i, item in enumerate(data):
+                    if isinstance(item, (dict, list)):
+                        formatted = self.format_for_accessibility(
+                            item, _nested=True
+                        )
+                    else:
+                        formatted = self.describe_value(item)
+                    lines.append(f"Item {i}: {formatted}")
+                return "\n".join(lines)
+            # Compact representation for simple primitive lists
+            return f"List with {len(data)} items"
         else:
-            return str(data)
+            # Use the describe_value helper for primitive types so callers get
+            # consistent, human-friendly strings (e.g. None -> "Not set").
+            return self.describe_value(data)
 
     def describe_value(self, value: Any) -> str:
         """Describe a value in an accessible way."""
@@ -138,7 +183,6 @@ class AccessibleTool(Tool):
         else:
             return f"{type(value).__name__} object"
 
-    @abstractmethod
     def get_ipc_socket_documentation(self) -> dict[str, Any]:
         """
         Document IPC socket interfaces for assistive technology integration.
@@ -154,8 +198,8 @@ class AccessibleTool(Tool):
                 "progress_reporting": True,
                 "error_explanation": True,
                 "screen_reader_integration": True,
-                "braille_api_support": True
-            }
+                "braille_api_support": True,
+            },
         }
 
     def get_accessible_status(self) -> str:
@@ -169,9 +213,15 @@ class AccessibleTool(Tool):
         status_info = {
             "name": self.name,
             "version": self.version,
-            "status": "ready" if hasattr(self, '_initialized') and self._initialized else "not initialized",
-            "capabilities": capabilities.get('capabilities', []),
-            "description": capabilities.get('description', 'No description available')
+            "status": (
+                "ready"
+                if hasattr(self, "_initialized") and self._initialized
+                else "not initialized"
+            ),
+            "capabilities": capabilities.get("capabilities", []),
+            "description": capabilities.get(
+                "description", "No description available"
+            ),
         }
 
         return self.format_for_accessibility(status_info)
@@ -184,14 +234,14 @@ class AccessibleTool(Tool):
             message: The message to log
             level: The logging level ('info', 'warning', 'error', 'debug')
         """
-        from .api.codes import ActionCode
+        from ..api.codes import ActionCode
 
         # Determine the appropriate action code based on level
-        if level.lower() == 'error':
+        if level.lower() == "error":
             code = ActionCode.ERR_INTERNAL
-        elif level.lower() == 'warning':
+        elif level.lower() == "warning":
             code = ActionCode.FPT_FLS_FAIL
-        elif level.lower() == 'debug':
+        elif level.lower() == "debug":
             code = ActionCode.FIA_UAU_INIT  # Generic info code
         else:
             code = ActionCode.FIA_UAU_INIT  # Generic info code
@@ -201,7 +251,7 @@ class AccessibleTool(Tool):
         log_method(f"[{code}] {message}")
 
         # Optionally announce to assistive tech if it's an important message
-        if level.lower() in ['warning', 'error']:
+        if level.lower() in ["warning", "error"]:
             self.announce_to_assistive_tech(f"Alert: {message}")
         else:
             self.announce_to_assistive_tech(message, interrupt=False)

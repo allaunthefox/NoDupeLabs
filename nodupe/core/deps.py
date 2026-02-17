@@ -56,7 +56,9 @@ class DependencyManager:
             self.dependencies[module_name] = False
             return False
 
-    def with_fallback(self, primary: Callable[[], Any], fallback: Callable[[], Any]) -> Any:
+    def with_fallback(
+        self, primary: Callable[[], Any], fallback: Callable[[], Any]
+    ) -> Any:
         """Execute primary function with fallback on failure.
 
         Args:
@@ -72,7 +74,9 @@ class DependencyManager:
             print(f"[WARN] Primary function failed, using fallback: {e}")
             return fallback()
 
-    def try_import(self, module_name: str, fallback: Optional[Any] = None) -> Optional[Any]:
+    def try_import(
+        self, module_name: str, fallback: Optional[Any] = None
+    ) -> Optional[Any]:
         """Try to import a module with fallback.
 
         Args:

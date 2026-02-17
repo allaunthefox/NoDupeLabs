@@ -92,7 +92,7 @@ This document summarizes the comprehensive review and update of NoDupeLabs docum
 ### 1. Rollback System ⚠️
 
 - **Status**: Planned for Phase 9
-- **Impact**: Reduced safety for file operations  
+- **Impact**: Reduced safety for file operations
 - **Priority**: Phase 9 implementation
 
 ### 2. Archive Support ❌

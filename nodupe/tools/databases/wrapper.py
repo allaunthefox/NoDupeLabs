@@ -149,9 +149,13 @@ class Database:
 
         # FIXED: Renamed from 'transaction' to 'transaction_manager'
         # to avoid conflict with the context manager method below
-        self.transaction_manager: DatabaseTransaction = DatabaseTransaction(self.connection)
+        self.transaction_manager: DatabaseTransaction = DatabaseTransaction(
+            self.connection
+        )
 
-        self.performance: DatabasePerformance = DatabasePerformance(self.connection)
+        self.performance: DatabasePerformance = DatabasePerformance(
+            self.connection
+        )
         self.integrity: DatabaseIntegrity = DatabaseIntegrity(self.connection)
         self.backup: DatabaseBackup = DatabaseBackup(self.connection)
         self.migration: DatabaseMigration = DatabaseMigration(self.connection)
@@ -163,14 +167,18 @@ class Database:
         self.cache: DatabaseCache = DatabaseCache(self.connection)
         self.locking: DatabaseLocking = DatabaseLocking(self.connection)
         self.session: DatabaseSession = DatabaseSession(self.connection)
-        self.compression: DatabaseCompression = DatabaseCompression(self.connection)
-        self.serialization: DatabaseSerialization = DatabaseSerialization(self.connection)
+        self.compression: DatabaseCompression = DatabaseCompression(
+            self.connection
+        )
+        self.serialization: DatabaseSerialization = DatabaseSerialization(
+            self.connection
+        )
         self.cleanup: DatabaseCleanup = DatabaseCleanup(self.connection)
 
         # BACKWARD COMPATIBILITY ALIASES - Map old attribute names to new
         # These aliases ensure compatibility with existing code/tests
         self.monitoring = self.performance  # Alias for performance monitoring
-        self.validation = self.integrity    # Alias for integrity checking
+        self.validation = self.integrity  # Alias for integrity checking
         self.schema_migration = self.migration  # Alias for migration
         self.optimization = self.performance  # Alias for optimization
 
@@ -229,7 +237,9 @@ class Database:
             # Use parameterized query for table creation
             conn.execute(f"CREATE TABLE {table_name} ({schema})")
         except sqlite3.Error as e:
-            raise DatabaseError(f"Failed to create table {table_name}: {self.security.sanitize_error_message(str(e))}")
+            raise DatabaseError(
+                f"Failed to create table {table_name}: {self.security.sanitize_error_message(str(e))}"
+            )
 
     def create(self, table_name: str, data: dict[str, Any]) -> Optional[int]:
         """Create a record and return the inserted ID.
@@ -260,7 +270,9 @@ class Database:
         conn.commit()
         return cursor.lastrowid
 
-    def read(self, query: str, params: Optional[tuple] = None) -> list[dict[str, Any]]:
+    def read(
+        self, query: str, params: Optional[tuple] = None
+    ) -> list[dict[str, Any]]:
         """Read records from the database.
 
         Executes a SELECT query and returns the results as a list of dictionaries.
@@ -351,7 +363,9 @@ class Database:
         """
         self.batch.execute_batch(operations)
 
-    def execute_transaction_batch(self, operations: list[tuple[str, tuple]]) -> None:
+    def execute_transaction_batch(
+        self, operations: list[tuple[str, tuple]]
+    ) -> None:
         """Execute multiple operations within a transaction.
 
         Executes multiple SQL operations atomically within a single transaction.

@@ -1,24 +1,24 @@
 [0001]  WARN no explicit name and version provided for directory source, deriving artifact ID from the given path (which is not ideal)
-NAME                                                  VERSION     TYPE                             
-SecureStackCo/actions-abom                            v0.1.5      github-action                    
-actions/cache                                         v4          github-action  (+1 duplicate)    
-actions/checkout                                      v3          github-action                    
-actions/checkout                                      v4          github-action  (+11 duplicates)  
-actions/download-artifact                             v4          github-action                    
-actions/setup-python                                  v4          github-action                    
-actions/setup-python                                  v5          github-action  (+4 duplicates)   
-actions/setup-python                                  v6          github-action                    
-actions/upload-artifact                               v4          github-action  (+2 duplicates)   
-codecov/codecov-action                                v5          github-action  (+1 duplicate)    
-docker://ghcr.io/aisecureworks/aisbom-scanner:latest  UNKNOWN     github-action                    
-github/codeql-action/analyze                          v3          github-action                    
-github/codeql-action/autobuild                        v3          github-action                    
-github/codeql-action/init                             v3          github-action                    
-github/codeql-action/upload-sarif                     v3          github-action                    
-github/codeql-action/upload-security-results          v3          github-action                    
-ossf/scorecard-action                                 v2          github-action                    
-oxsecurity/megalinter/v8                              latest      github-action                    
-peaceiris/actions-gh-pages                            v4          github-action                    
-pypa/gh-action-pypi-publish                           release/v1  github-action  (+1 duplicate)    
-softprops/action-gh-release                           v1          github-action                    
+NAME                                                  VERSION     TYPE
+SecureStackCo/actions-abom                            v0.1.5      github-action
+actions/cache                                         v4          github-action  (+1 duplicate)
+actions/checkout                                      v3          github-action
+actions/checkout                                      v4          github-action  (+11 duplicates)
+actions/download-artifact                             v4          github-action
+actions/setup-python                                  v4          github-action
+actions/setup-python                                  v5          github-action  (+4 duplicates)
+actions/setup-python                                  v6          github-action
+actions/upload-artifact                               v4          github-action  (+2 duplicates)
+codecov/codecov-action                                v5          github-action  (+1 duplicate)
+docker://ghcr.io/aisecureworks/aisbom-scanner:latest  UNKNOWN     github-action
+github/codeql-action/analyze                          v3          github-action
+github/codeql-action/autobuild                        v3          github-action
+github/codeql-action/init                             v3          github-action
+github/codeql-action/upload-sarif                     v3          github-action
+github/codeql-action/upload-security-results          v3          github-action
+ossf/scorecard-action                                 v2          github-action
+oxsecurity/megalinter/v8                              latest      github-action
+peaceiris/actions-gh-pages                            v4          github-action
+pypa/gh-action-pypi-publish                           release/v1  github-action  (+1 duplicate)
+softprops/action-gh-release                           v1          github-action
 trufflesecurity/trufflehog                            v3.93.3     github-action

@@ -669,74 +669,74 @@ def cors</code></pre></div><div class="py-4"><p class="text-gray-600">tests/util
         mock_getaddrinfo.return_value = [
             (socket.AF_INET, socket.SOCK_DGRAM, 17, '', ('1.1.1.1', 123))
         ]
-        
+
         # Mock NTP response
         server_time = 1600000000.5
         offset = 0.25
         delay = 0.01
         mock_query_address.return_value = (server_time, offset, delay)
-        
+
         tool = TimeSyncTool(servers=[&quot;test.ntp.com&quot;], enabled=True, allow_network=True)
-        
+
         result = tool.maybe_sync</code></pre></div><div class="py-4"><p class="text-gray-600">tests/plugins/test_time_sync.py (Line 339:9 - Line 351:5), tests/plugins/test_time_sync.py (Line 181:9 - Line 194:7)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn38" onclick="toggleCodeBlock('cloneGroup38', 'expandBtn38', 'collapseBtn38')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn38" onclick="toggleCodeBlock('cloneGroup38', 'expandBtn38', 'collapseBtn38')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup38"><code class="language-python text-sm text-gray-800"># Mock DNS resolution
         mock_getaddrinfo.return_value = [
             (socket.AF_INET, socket.SOCK_DGRAM, 17, '', ('1.1.1.1', 123))
         ]
-        
+
         # Mock NTP response
         server_time = 1600000000.5
         offset = 0.25
         delay = 0.01
         mock_query_address.return_value = (server_time, offset, delay)
-        
+
         tool = TimeSyncTool(servers=[&quot;test.ntp.com&quot;], enabled=True, allow_network=True)
         tool</code></pre></div><div class="py-4"><p class="text-gray-600">tests/plugins/test_time_sync.py (Line 460:9 - Line 469:7), tests/plugins/test_time_sync.py (Line 443:9 - Line 452:2)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn39" onclick="toggleCodeBlock('cloneGroup39', 'expandBtn39', 'collapseBtn39')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn39" onclick="toggleCodeBlock('cloneGroup39', 'expandBtn39', 'collapseBtn39')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup39"><code class="language-python text-sm text-gray-800">tool = TimeSyncTool(enabled=True)
-        
+
         # Mock sync_with_fallback to return a known time
         with patch.object(tool, 'sync_with_fallback') as mock_sync, \
              patch.object(tool, 'get_corrected_time') as mock_get_time:
-            
+
             mock_sync.return_value = (&quot;ntp&quot;, 1600000000.0, 0.0, 0.01)
             mock_get_time.return_value = 1600000000.123456
-            
+
             result = tool.get_authenticated_time(format</code></pre></div><div class="py-4"><p class="text-gray-600">tests/plugins/test_time_sync.py (Line 477:9 - Line 486:10), tests/plugins/test_time_sync.py (Line 443:9 - Line 469:7)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn40" onclick="toggleCodeBlock('cloneGroup40', 'expandBtn40', 'collapseBtn40')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn40" onclick="toggleCodeBlock('cloneGroup40', 'expandBtn40', 'collapseBtn40')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup40"><code class="language-python text-sm text-gray-800">tool = TimeSyncTool(enabled=True)
-        
+
         # Mock sync_with_fallback to return a known time
         with patch.object(tool, 'sync_with_fallback') as mock_sync, \
              patch.object(tool, 'get_corrected_time') as mock_get_time:
-            
+
             mock_sync.return_value = (&quot;ntp&quot;, 1600000000.0, 0.0, 0.01)
             mock_get_time.return_value = 1600000000.123456
-            
+
             result = tool.get_authenticated_time(format=&quot;rfc3339&quot;</code></pre></div><div class="py-4"><p class="text-gray-600">tests/plugins/test_time_sync.py (Line 493:9 - Line 502:8), tests/plugins/test_time_sync.py (Line 443:9 - Line 469:7)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn41" onclick="toggleCodeBlock('cloneGroup41', 'expandBtn41', 'collapseBtn41')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn41" onclick="toggleCodeBlock('cloneGroup41', 'expandBtn41', 'collapseBtn41')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup41"><code class="language-python text-sm text-gray-800">tool = TimeSyncTool(enabled=True)
-        
+
         # Mock sync_with_fallback to return a known time
         with patch.object(tool, 'sync_with_fallback') as mock_sync, \
              patch.object(tool, 'get_corrected_time') as mock_get_time:
-            
+
             mock_sync.return_value = (&quot;ntp&quot;, 1600000000.0, 0.0, 0.01)
             mock_get_time.return_value = 1600000000.123456
-            
+
             result = tool.get_authenticated_time(format=&quot;human&quot;</code></pre></div><div class="py-4"><p class="text-gray-600">tests/plugins/test_time_sync.py (Line 595:9 - Line 606:36), tests/plugins/test_time_sync.py (Line 443:9 - Line 454:32)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn42" onclick="toggleCodeBlock('cloneGroup42', 'expandBtn42', 'collapseBtn42')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn42" onclick="toggleCodeBlock('cloneGroup42', 'expandBtn42', 'collapseBtn42')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup42"><code class="language-python text-sm text-gray-800">tool = TimeSyncTool(enabled=True)
-        
+
         # Mock sync_with_fallback to return a known time
         with patch.object(tool, 'sync_with_fallback') as mock_sync, \
              patch.object(tool, 'get_corrected_time') as mock_get_time:
-            
+
             mock_sync.return_value = (&quot;ntp&quot;, 1600000000.0, 0.0, 0.01)
             mock_get_time.return_value = 1600000000.123456
-            
+
             result = tool.get_authenticated_time()
-            
+
             # Should end with Z (UTC indicator)</code></pre></div><div class="py-4"><p class="text-gray-600">tests/plugins/test_time_sync.py (Line 637:9 - Line 646:33), tests/plugins/test_time_sync.py (Line 443:9 - Line 452:7)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn43" onclick="toggleCodeBlock('cloneGroup43', 'expandBtn43', 'collapseBtn43')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn43" onclick="toggleCodeBlock('cloneGroup43', 'expandBtn43', 'collapseBtn43')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup43"><code class="language-python text-sm text-gray-800">tool = TimeSyncTool(enabled=True)
-        
+
         # Mock sync_with_fallback to return a known time
         with patch.object(tool, 'sync_with_fallback') as mock_sync, \
              patch.object(tool, 'get_corrected_time') as mock_get_time:
-            
+
             mock_sync.return_value = (&quot;ntp&quot;, 1600000000.0, 0.0, 0.01)
             mock_get_time.return_value = 1600000000.123456
-            
+
             # Test various case combinations</code></pre></div><div class="py-4"><p class="text-gray-600">tests/plugins/test_plugin_loader.py (Line 134:9 - Line 157:12), tests/plugins/test_plugin_loader.py (Line 68:9 - Line 91:15)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn44" onclick="toggleCodeBlock('cloneGroup44', 'expandBtn44', 'collapseBtn44')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn44" onclick="toggleCodeBlock('cloneGroup44', 'expandBtn44', 'collapseBtn44')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup44"><code class="language-python text-sm text-gray-800">registry = ToolRegistry()
         loader = ToolLoader(registry)
 
@@ -966,7 +966,7 @@ def cors</code></pre></div><div class="py-4"><p class="text-gray-600">tests/util
             mock_file.exists.return_value = True
             mock_file.stat.return_value.st_size = 100
             mock_files.append(mock_file)
-        
+
         mock_dir.iterdir.return_value = mock_files
 
         # Mock the discovery process
@@ -1619,20 +1619,20 @@ if</code></pre></div><div class="py-4"><p class="text-gray-600">tests/integratio
 
 class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_tool_loader.py (Line 136:9 - Line 144:47), tests/core/test_tool_loader.py (Line 102:9 - Line 110:42)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn95" onclick="toggleCodeBlock('cloneGroup95', 'expandBtn95', 'collapseBtn95')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn95" onclick="toggleCodeBlock('cloneGroup95', 'expandBtn95', 'collapseBtn95')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup95"><code class="language-python text-sm text-gray-800">loader = ToolLoader()
         mock_path = Path(&quot;/fake/tool.py&quot;)
-        
+
         with patch.object(mock_path, 'exists', return_value=True), \
              patch.object(mock_path, 'suffix', '.py'), \
              patch('importlib.util.spec_from_file_location') as mock_spec_from_file, \
              patch('importlib.util.module_from_spec') as mock_module_from_spec:
-            
+
             # Create a mock module with no Tool subclasses</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_tool_loader.py (Line 173:9 - Line 181:41), tests/core/test_tool_loader.py (Line 102:9 - Line 110:42)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn96" onclick="toggleCodeBlock('cloneGroup96', 'expandBtn96', 'collapseBtn96')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn96" onclick="toggleCodeBlock('cloneGroup96', 'expandBtn96', 'collapseBtn96')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup96"><code class="language-python text-sm text-gray-800">loader = ToolLoader()
         mock_path = Path(&quot;/fake/tool.py&quot;)
-        
+
         with patch.object(mock_path, 'exists', return_value=True), \
              patch.object(mock_path, 'suffix', '.py'), \
              patch('importlib.util.spec_from_file_location') as mock_spec_from_file, \
              patch('importlib.util.module_from_spec') as mock_module_from_spec:
-            
+
             # Create a mock module with invalid tool</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_tool_loader.py (Line 315:13 - Line 332:21), tests/core/test_tool_loader.py (Line 266:13 - Line 283:18)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn97" onclick="toggleCodeBlock('cloneGroup97', 'expandBtn97', 'collapseBtn97')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn97" onclick="toggleCodeBlock('cloneGroup97', 'expandBtn97', 'collapseBtn97')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup97"><code class="language-python text-sm text-gray-800">def initialize(self, container):
                 pass
 
@@ -1826,35 +1826,35 @@ class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/te
             db = DatabaseConnection(tmp.name)
             _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
-            
+
             repo = FileRepository(db)
-            
+
             # Add a file first
             file_id = repo.add_file(&quot;test.txt&quot;, 100, 12345, &quot;abc123&quot;)
             assert file_id is not None # Ensure file was added successfully
-            
+
             # Update the file</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_database.py (Line 489:9 - Line 498:7), tests/core/test_database.py (Line 463:9 - Line 472:8)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn110" onclick="toggleCodeBlock('cloneGroup110', 'expandBtn110', 'collapseBtn110')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn110" onclick="toggleCodeBlock('cloneGroup110', 'expandBtn110', 'collapseBtn110')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup110"><code class="language-python text-sm text-gray-800">with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
             _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
-            
+
             repo = FileRepository(db)
-            
+
             # Add files and mark some as duplicates
             original_id = repo.add_file(&quot;original.txt&quot;, 10, 12345, &quot;hash1&quot;)
             dup_id</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_database.py (Line 568:9 - Line 581:7), tests/core/test_database.py (Line 423:9 - Line 436:10)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn111" onclick="toggleCodeBlock('cloneGroup111', 'expandBtn111', 'collapseBtn111')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn111" onclick="toggleCodeBlock('cloneGroup111', 'expandBtn111', 'collapseBtn111')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup111"><code class="language-python text-sm text-gray-800">with tempfile.NamedTemporaryFile(suffix='.db') as tmp:
             db = DatabaseConnection(tmp.name)
             _ = db.get_connection()  # Use underscore to indicate unused variable
             _init_full_schema(db)
-            
+
             repo = FileRepository(db)
-            
+
             # Add some files
             file1_id = repo.add_file(&quot;file1.txt&quot;, 100, 12345, &quot;hash1&quot;)
             file2_id = repo.add_file(&quot;file2.txt&quot;, 200, 12346, &quot;hash2&quot;)
             assert file1_id is not None  # Ensure files were added successfully
             assert file2_id is not None
-            
+
             assert</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_config.py (Line 238:9 - Line 252:22), tests/core/test_config.py (Line 93:9 - Line 106:14)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn112" onclick="toggleCodeBlock('cloneGroup112', 'expandBtn112', 'collapseBtn112')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn112" onclick="toggleCodeBlock('cloneGroup112', 'expandBtn112', 'collapseBtn112')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup112"><code class="language-python text-sm text-gray-800">config_data = {
             'tool': {
                 'nodupe': {
@@ -1863,12 +1863,12 @@ class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/te
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
-        
+
         # Test existing value</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_config.py (Line 266:9 - Line 282:16), tests/core/test_config.py (Line 37:9 - Line 53:12)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn113" onclick="toggleCodeBlock('cloneGroup113', 'expandBtn113', 'collapseBtn113')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn113" onclick="toggleCodeBlock('cloneGroup113', 'expandBtn113', 'collapseBtn113')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup113"><code class="language-python text-sm text-gray-800">config_data = {
             'tool': {
                 'nodupe': {
@@ -1880,10 +1880,10 @@ class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/te
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
         assert config_manager.validate_config</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_config.py (Line 290:13 - Line 302:6), tests/core/test_config.py (Line 41:5 - Line 282:5)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn114" onclick="toggleCodeBlock('cloneGroup114', 'expandBtn114', 'collapseBtn114')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn114" onclick="toggleCodeBlock('cloneGroup114', 'expandBtn114', 'collapseBtn114')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup114"><code class="language-python text-sm text-gray-800">},
                     'similarity': {'threshold': 0.8},
@@ -1892,10 +1892,10 @@ class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/te
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
         assert config_manager.validate_config() is False</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_config.py (Line 582:9 - Line 597:8), tests/core/test_config.py (Line 37:9 - Line 52:15)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn115" onclick="toggleCodeBlock('cloneGroup115', 'expandBtn115', 'collapseBtn115')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn115" onclick="toggleCodeBlock('cloneGroup115', 'expandBtn115', 'collapseBtn115')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup115"><code class="language-python text-sm text-gray-800">config_data = {
             'tool': {
@@ -1908,10 +1908,10 @@ class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/te
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         results</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_config.py (Line 741:9 - Line 758:28), tests/core/test_config.py (Line 37:9 - Line 53:7)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn116" onclick="toggleCodeBlock('cloneGroup116', 'expandBtn116', 'collapseBtn116')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn116" onclick="toggleCodeBlock('cloneGroup116', 'expandBtn116', 'collapseBtn116')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup116"><code class="language-python text-sm text-gray-800">config_data = {
             'tool': {
                 'nodupe': {
@@ -1923,12 +1923,12 @@ class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/te
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
-        
+
         # Serialize and deserialize</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_config.py (Line 790:9 - Line 805:12), tests/core/test_config.py (Line 37:9 - Line 52:14)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn117" onclick="toggleCodeBlock('cloneGroup117', 'expandBtn117', 'collapseBtn117')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn117" onclick="toggleCodeBlock('cloneGroup117', 'expandBtn117', 'collapseBtn117')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup117"><code class="language-python text-sm text-gray-800">config_data = {
             'tool': {
                 'nodupe': {
@@ -1940,10 +1940,10 @@ class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/te
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = load_config</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_cli_integration.py (Line 46:13 - Line 59:42), tests/integration/test_system_security.py (Line 76:13 - Line 87:40)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn118" onclick="toggleCodeBlock('cloneGroup118', 'expandBtn118', 'collapseBtn118')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn118" onclick="toggleCodeBlock('cloneGroup118', 'expandBtn118', 'collapseBtn118')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup118"><code class="language-python text-sm text-gray-800">scan_tool = ScanTool()
             scan_args = MagicMock()
             scan_args.paths = [temp_dir]
@@ -2161,21 +2161,21 @@ class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/te
         assert scan_result != 0
 
         # Test apply with invalid input file</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_archive_handler.py (Line 102:9 - Line 114:33), tests/core/test_archive_handler.py (Line 74:9 - Line 86:25)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn130" onclick="toggleCodeBlock('cloneGroup130', 'expandBtn130', 'collapseBtn130')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn130" onclick="toggleCodeBlock('cloneGroup130', 'expandBtn130', 'collapseBtn130')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup130"><code class="language-python text-sm text-gray-800">), str(extract_path))
-        
+
         # Verify extraction
         assert len(extracted_files) == 1
         assert 'test.txt' in extracted_files
         assert extracted_files['test.txt'] == str(extract_path / 'test.txt')
-        
+
         # Verify file content
         extracted_file = extract_path / 'test.txt'
         assert extracted_file.exists()
         assert extracted_file.read_text() == test_content
 
     def test_extract_nonexistent_archive</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_archive_handler.py (Line 436:9 - Line 445:34), tests/core/test_archive_handler.py (Line 314:13 - Line 323:48)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn131" onclick="toggleCodeBlock('cloneGroup131', 'expandBtn131', 'collapseBtn131')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn131" onclick="toggleCodeBlock('cloneGroup131', 'expandBtn131', 'collapseBtn131')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup131"><code class="language-python text-sm text-gray-800">extract_path.mkdir()
-        
+
         extracted_files = self.archive_handler.extract_archive(str(zip_path), str(extract_path))
-        
+
         assert len(extracted_files) == 1
         extracted_file = extract_path / 'test.txt'
         assert extracted_file.exists()
@@ -2185,13 +2185,13 @@ class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/te
             &quot;id&quot;: 1
         }
         mock_conn.recv.return_value = json.dumps(request_data).encode('utf-8')
-        
+
         with patch('nodupe.core.api.ipc.logging') as mock_logging:
             mock_logger = Mock()
             mock_logging.getLogger.return_value = mock_logger
-            
+
             server._handle_connection(mock_conn)
-            
+
             # Should send error response
             mock_conn.sendall.assert_called_once()
             # Verify error was logged
@@ -2202,16 +2202,16 @@ class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/te
             &quot;id&quot;: 1
         }
         mock_conn.recv.return_value = json.dumps(request_data).encode('utf-8')
-        
+
         with patch('nodupe.core.api.ipc.logging') as mock_logging:
             mock_logger = Mock()
             mock_logging.getLogger.return_value = mock_logger
-            
+
             server._handle_connection(mock_conn)
-            
+
             # Should call the method
             mock_method.assert_called_once_with(param1=&quot;value1&quot;)
-            
+
             # Should send error response</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_accessible_base.py (Line 15:9 - Line 33:5), tests/core/test_tool_loader.py (Line 66:17 - Line 85:4)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn134" onclick="toggleCodeBlock('cloneGroup134', 'expandBtn134', 'collapseBtn134')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn134" onclick="toggleCodeBlock('cloneGroup134', 'expandBtn134', 'collapseBtn134')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup134"><code class="language-python text-sm text-gray-800">self._version = &quot;1.0.0&quot;
         self._dependencies = []
         self._initialized = False
@@ -2231,14 +2231,14 @@ class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/te
     def initialize(self, container):
         self._initialized = True
         self</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_accessible_base.py (Line 104:23 - Line 126:23), tests/core/test_example_accessible_tool.py (Line 209:22 - Line 231:22)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn135" onclick="toggleCodeBlock('cloneGroup135', 'expandBtn135', 'collapseBtn135')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn135" onclick="toggleCodeBlock('cloneGroup135', 'expandBtn135', 'collapseBtn135')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup135"><code class="language-python text-sm text-gray-800">()
-        
+
         test_data = {
             &quot;status&quot;: &quot;running&quot;,
             &quot;count&quot;: 42,
             &quot;active&quot;: True,
             &quot;nested&quot;: {&quot;inner&quot;: &quot;value&quot;}
         }
-        
+
         result = tool.format_for_accessibility(test_data)
         assert &quot;status:&quot; in result
         assert &quot;running&quot; in result
@@ -2253,33 +2253,33 @@ class</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/te
     def test_format_for_accessibility_list(self):
         &quot;&quot;&quot;Test formatting list for accessibility.&quot;&quot;&quot;
         tool = ConcreteAccessibleTool</code></pre></div><div class="py-4"><p class="text-gray-600">tests/core/test_accessible_base.py (Line 140:23 - Line 173:21), tests/core/test_example_accessible_tool.py (Line 246:22 - Line 279:35)</p><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2" id="expandBtn136" onclick="toggleCodeBlock('cloneGroup136', 'expandBtn136', 'collapseBtn136')">Show code</button><button class="bg-gray-500 text-white px-1 py-0.5 text-xs rounded focus:outline-none ml-2 hidden" id="collapseBtn136" onclick="toggleCodeBlock('cloneGroup136', 'expandBtn136', 'collapseBtn136')">Hide code</button><pre class="bg-gray-100 border border-gray-200 p-4 rounded mt-2 hidden" id="cloneGroup136"><code class="language-python text-sm text-gray-800">()
-        
+
         # Test None
         result = tool.format_for_accessibility(None)
         assert result == &quot;Not set&quot;
-        
+
         # Test boolean
         result = tool.format_for_accessibility(True)
         assert result == &quot;Enabled&quot;
         result = tool.format_for_accessibility(False)
         assert result == &quot;Disabled&quot;
-        
+
         # Test numbers
         result = tool.format_for_accessibility(42)
         assert result == &quot;42&quot;
         result = tool.format_for_accessibility(3.14)
         assert result == &quot;3.14&quot;
-        
+
         # Test string
         result = tool.format_for_accessibility(&quot;hello&quot;)
         assert result == &quot;'hello'&quot;
         result = tool.format_for_accessibility(&quot;&quot;)
         assert result == &quot;Empty&quot;
-        
+
         # Test list
         result = tool.format_for_accessibility([1, 2, 3])
         assert &quot;List with 3 items&quot; in result
-        
+
         # Test dict
         result = tool.format_for_accessibility({&quot;a&quot;: 1})
         assert &quot;Dictionary with 1 keys&quot; in result

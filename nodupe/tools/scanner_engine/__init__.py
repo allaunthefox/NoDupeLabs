@@ -23,13 +23,12 @@ from .processor import FileProcessor, create_file_processor
 from .progress import ProgressTracker
 from .walker import FileWalker, create_file_walker
 
-
 __all__ = [
-    'FileInfo',
-    'FileProcessor',
-    'FileWalker',
-    'Incremental',
-    'ProgressTracker',
-    'create_file_processor',
-    'create_file_walker',
+    "FileInfo",
+    "FileProcessor",
+    "FileWalker",
+    "Incremental",
+    "ProgressTracker",
+    "create_file_processor",
+    "create_file_walker",
 ]

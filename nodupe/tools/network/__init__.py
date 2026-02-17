@@ -10,7 +10,6 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Optional
 
-
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -63,7 +62,10 @@ class LocalStorageBackend(RemoteStorageBackend):
             remote_path_obj.parent.mkdir(parents=True, exist_ok=True)
 
             # Copy file
-            with open(local_path_obj, 'rb') as src, open(remote_path_obj, 'wb') as dst:
+            with (
+                open(local_path_obj, "rb") as src,
+                open(remote_path_obj, "wb") as dst,
+            ):
                 dst.write(src.read())
 
             logger.info(f"Uploaded {local_path} to {remote_path}")
@@ -85,7 +87,10 @@ class LocalStorageBackend(RemoteStorageBackend):
             local_path_obj.parent.mkdir(parents=True, exist_ok=True)
 
             # Copy file
-            with open(remote_path_obj, 'rb') as src, open(local_path_obj, 'wb') as dst:
+            with (
+                open(remote_path_obj, "rb") as src,
+                open(local_path_obj, "wb") as dst,
+            ):
                 dst.write(src.read())
 
             logger.info(f"Downloaded {remote_path} to {local_path}")
@@ -136,7 +141,8 @@ class S3StorageBackend(RemoteStorageBackend):
         if self._available:
             try:
                 import boto3
-                self._client = boto3.client('s3', **kwargs)
+
+                self._client = boto3.client("s3", **kwargs)
                 logger.info(f"S3 backend initialized for bucket {bucket_name}")
             except Exception as e:
                 logger.exception(f"Failed to initialize S3 client: {e}")
@@ -163,7 +169,9 @@ class S3StorageBackend(RemoteStorageBackend):
 
         try:
             self._client.upload_file(local_path, self.bucket_name, remote_path)
-            logger.info(f"Uploaded {local_path} to s3://{self.bucket_name}/{remote_path}")
+            logger.info(
+                f"Uploaded {local_path} to s3://{self.bucket_name}/{remote_path}"
+            )
             return True
         except Exception as e:
             logger.exception(f"Error uploading to S3: {e}")
@@ -177,8 +185,12 @@ class S3StorageBackend(RemoteStorageBackend):
             return fallback.download_file(remote_path, local_path)
 
         try:
-            self._client.download_file(self.bucket_name, remote_path, local_path)
-            logger.info(f"Downloaded s3://{self.bucket_name}/{remote_path} to {local_path}")
+            self._client.download_file(
+                self.bucket_name, remote_path, local_path
+            )
+            logger.info(
+                f"Downloaded s3://{self.bucket_name}/{remote_path} to {local_path}"
+            )
             return True
         except Exception as e:
             logger.exception(f"Error downloading from S3: {e}")
@@ -193,14 +205,13 @@ class S3StorageBackend(RemoteStorageBackend):
 
         try:
             response = self._client.list_objects_v2(
-                Bucket=self.bucket_name,
-                Prefix=prefix
+                Bucket=self.bucket_name, Prefix=prefix
             )
 
             files = []
-            if 'Contents' in response:
-                for obj in response['Contents']:
-                    files.append(obj['Key'])
+            if "Contents" in response:
+                for obj in response["Contents"]:
+                    files.append(obj["Key"])
             return files
         except Exception as e:
             logger.exception(f"Error listing S3 files: {e}")
@@ -233,8 +244,8 @@ class NetworkManager:
         """Initialize the best available storage backend"""
         # Try backends in priority order
         backends_to_try = [
-            ('s3', S3StorageBackend),
-            ('local', LocalStorageBackend)
+            ("s3", S3StorageBackend),
+            ("local", LocalStorageBackend),
         ]
 
         for name, backend_factory in backends_to_try:
@@ -283,11 +294,11 @@ def get_network_manager() -> NetworkManager:
 get_network_manager()
 
 __all__ = [
-    'LocalStorageBackend',
-    'NetworkManager',
-    'RemoteStorageBackend',
-    'S3StorageBackend',
-    'get_network_manager',
-    'register_tool'
+    "LocalStorageBackend",
+    "NetworkManager",
+    "RemoteStorageBackend",
+    "S3StorageBackend",
+    "get_network_manager",
+    "register_tool",
 ]
 from .network_tool import register_tool

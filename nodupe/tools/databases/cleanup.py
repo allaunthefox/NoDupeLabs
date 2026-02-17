@@ -91,7 +91,7 @@ class DatabaseCleanup:
             is_ok = result[0] == "ok"
             return {
                 "status": "ok" if is_ok else "error",
-                "integrity": result[0]
+                "integrity": result[0],
             }
         except Exception as e:
             return {"status": "error", "message": str(e)}
@@ -120,7 +120,7 @@ class DatabaseCleanup:
             conn.commit()
             return {
                 "status": "success",
-                "message": f"Cleared {len(tables)} temporary tables"
+                "message": f"Cleared {len(tables)} temporary tables",
             }
         except Exception as e:
             return {"status": "error", "message": str(e)}

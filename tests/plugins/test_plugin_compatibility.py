@@ -6,7 +6,10 @@ from unittest.mock import MagicMock
 import pytest
 
 from nodupe.core.tool_system.base import Tool
-from nodupe.core.tool_system.compatibility import ToolCompatibility, ToolCompatibilityError
+from nodupe.core.tool_system.compatibility import (
+    ToolCompatibility,
+    ToolCompatibilityError,
+)
 
 
 class TestToolCompatibility:
@@ -19,10 +22,10 @@ class TestToolCompatibility:
         assert isinstance(compatibility, ToolCompatibility)
 
         # Test that it has expected attributes
-        assert hasattr(compatibility, 'check_compatibility')
-        assert hasattr(compatibility, 'get_compatibility_report')
-        assert hasattr(compatibility, 'initialize')
-        assert hasattr(compatibility, 'shutdown')
+        assert hasattr(compatibility, "check_compatibility")
+        assert hasattr(compatibility, "get_compatibility_report")
+        assert hasattr(compatibility, "initialize")
+        assert hasattr(compatibility, "shutdown")
 
     def test_tool_compatibility_with_container(self):
         """Test tool compatibility with dependency container."""
@@ -376,6 +379,7 @@ class TestToolCompatibilityPerformance:
         # Create many test tools
         tools = []
         for i in range(100):
+
             class TestTool(Tool):
                 @property
                 def name(self) -> str:
@@ -419,6 +423,7 @@ class TestToolCompatibilityPerformance:
         # Create many test tools
         tools = []
         for i in range(1000):
+
             class TestTool(Tool):
                 @property
                 def name(self) -> str:
@@ -624,7 +629,7 @@ class TestToolCompatibilityAdvanced:
                     "core>=1.0.0",
                     "utils>=2.0.0",
                     "network>=1.5.0",
-                    "ml>=3.0.0"
+                    "ml>=3.0.0",
                 ]
 
             def __init__(self):
@@ -665,10 +670,7 @@ class TestToolCompatibilityAdvanced:
 
             @property
             def dependencies(self) -> list[str]:
-                return [
-                    "core>=1.0.0,<2.0.0",
-                    "utils>=2.0.0,<=3.0.0"
-                ]
+                return ["core>=1.0.0,<2.0.0", "utils>=2.0.0,<=3.0.0"]
 
             def __init__(self):
                 self.initialized = False

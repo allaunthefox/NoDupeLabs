@@ -37,11 +37,7 @@ class QueryCache:
     and configurable cache size limits.
     """
 
-    def __init__(
-        self,
-        max_size: int = 1000,
-        ttl_seconds: int = 3600
-    ):
+    def __init__(self, max_size: int = 1000, ttl_seconds: int = 3600):
         """Initialize query cache.
 
         Args:
@@ -54,14 +50,11 @@ class QueryCache:
         # Cache storage: query_key -> (result, timestamp)
         self._cache: OrderedDict[str, tuple[Any, float]] = OrderedDict()
         self._lock = threading.RLock()
-        self._stats = {
-            'hits': 0,
-            'misses': 0,
-            'evictions': 0,
-            'insertions': 0
-        }
+        self._stats = {"hits": 0, "misses": 0, "evictions": 0, "insertions": 0}
 
-    def get_result(self, query: str, params: Optional[dict[str, Any]] = None) -> Optional[Any]:
+    def get_result(
+        self, query: str, params: Optional[dict[str, Any]] = None
+    ) -> Optional[Any]:
         """Get cached result for a query.
 
         Args:
@@ -75,7 +68,7 @@ class QueryCache:
             query_key = self._generate_key(query, params)
 
             if query_key not in self._cache:
-                self._stats['misses'] += 1
+                self._stats["misses"] += 1
                 return None
 
             result, timestamp = self._cache[query_key]
@@ -83,13 +76,18 @@ class QueryCache:
             # Check if entry is expired
             if time.monotonic() - timestamp > self.ttl_seconds:
                 del self._cache[query_key]
-                self._stats['misses'] += 1
+                self._stats["misses"] += 1
                 return None
 
-            self._stats['hits'] += 1
+            self._stats["hits"] += 1
             return result
 
-    def set_result(self, query: str, params: Optional[dict[str, Any]] = None, result: Any = None) -> None:
+    def set_result(
+        self,
+        query: str,
+        params: Optional[dict[str, Any]] = None,
+        result: Any = None,
+    ) -> None:
         """Set result for a query in cache.
 
         Args:
@@ -103,7 +101,7 @@ class QueryCache:
             # Remove oldest entry if at max size
             if len(self._cache) >= self.max_size:
                 self._cache.popitem(last=False)
-                self._stats['evictions'] += 1
+                self._stats["evictions"] += 1
 
             # Store with current timestamp
             timestamp = time.monotonic()
@@ -112,9 +110,11 @@ class QueryCache:
             # Move to end to mark as most recently used
             self._cache.move_to_end(query_key, last=True)
 
-            self._stats['insertions'] += 1
+            self._stats["insertions"] += 1
 
-    def invalidate(self, query: str, params: Optional[dict[str, Any]] = None) -> bool:
+    def invalidate(
+        self, query: str, params: Optional[dict[str, Any]] = None
+    ) -> bool:
         """Invalidate cache entry for a query.
 
         Args:
@@ -138,7 +138,7 @@ class QueryCache:
             num_entries = len(self._cache)
             self._cache.clear()
             # Increment evictions by the number of entries that were cleared
-            self._stats['evictions'] += num_entries
+            self._stats["evictions"] += num_entries
 
     def invalidate_by_prefix(self, prefix: str) -> int:
         """Invalidate all cache entries with a specific prefix.
@@ -157,7 +157,7 @@ class QueryCache:
 
             for key in keys_to_remove:
                 del self._cache[key]
-                self._stats['evictions'] += 1
+                self._stats["evictions"] += 1
 
             return len(keys_to_remove)
 
@@ -193,11 +193,11 @@ class QueryCache:
         """
         with self._lock:
             stats = self._stats.copy()
-            stats['size'] = len(self._cache)
-            stats['capacity'] = self.max_size
-            stats['hit_rate'] = (
-                stats['hits'] / (stats['hits'] + stats['misses'])
-                if (stats['hits'] + stats['misses']) > 0
+            stats["size"] = len(self._cache)
+            stats["capacity"] = self.max_size
+            stats["hit_rate"] = (
+                stats["hits"] / (stats["hits"] + stats["misses"])
+                if (stats["hits"] + stats["misses"]) > 0
                 else 0.0
             )
             return stats
@@ -211,7 +211,9 @@ class QueryCache:
         with self._lock:
             return len(self._cache)
 
-    def is_cached(self, query: str, params: Optional[dict[str, Any]] = None) -> bool:
+    def is_cached(
+        self, query: str, params: Optional[dict[str, Any]] = None
+    ) -> bool:
         """Check if a query result is cached and valid.
 
         Args:
@@ -243,7 +245,7 @@ class QueryCache:
             # Remove excess entries from the beginning (LRU)
             while len(self._cache) > self.max_size:
                 self._cache.popitem(last=False)
-                self._stats['evictions'] += 1
+                self._stats["evictions"] += 1
 
     def get_memory_usage(self) -> int:
         """Get approximate memory usage of cache.
@@ -255,11 +257,11 @@ class QueryCache:
             # Rough estimate: query_key string + result + timestamp + overhead
             usage = 0
             for query_key, (result, timestamp) in self._cache.items():
-                usage += len(query_key.encode('utf-8'))  # Query key
+                usage += len(query_key.encode("utf-8"))  # Query key
                 # Estimate result size (this is a rough approximation)
                 try:
                     result_str = str(result)
-                    usage += len(result_str.encode('utf-8'))
+                    usage += len(result_str.encode("utf-8"))
                 except (UnicodeEncodeError, TypeError):
                     usage += 100  # Default estimate if conversion fails
                 usage += 8  # Timestamp (float)
@@ -267,7 +269,9 @@ class QueryCache:
 
             return usage
 
-    def _generate_key(self, query: str, params: Optional[dict[str, Any]] = None) -> str:
+    def _generate_key(
+        self, query: str, params: Optional[dict[str, Any]] = None
+    ) -> str:
         """Generate a unique cache key for a query and parameters.
 
         Args:
@@ -278,7 +282,7 @@ class QueryCache:
             Unique cache key
         """
         # Normalize query (remove extra whitespace, convert to lowercase)
-        normalized_query = ' '.join(query.split()).lower()
+        normalized_query = " ".join(query.split()).lower()
 
         # Create parameter string if params exist
         if params:
@@ -304,13 +308,13 @@ class QueryCache:
             keys_to_remove = []
             for key in self._cache:
                 # Extract query part from key (before the last colon)
-                query_part = key.rsplit(':', 1)[0] if ':' in key else key
+                query_part = key.rsplit(":", 1)[0] if ":" in key else key
                 if pattern.lower() in query_part.lower():
                     keys_to_remove.append(key)
 
             for key in keys_to_remove:
                 del self._cache[key]
-                self._stats['evictions'] += 1
+                self._stats["evictions"] += 1
 
             return len(keys_to_remove)
 
@@ -323,15 +327,14 @@ class QueryCache:
         with self._lock:
             queries = []
             for key in self._cache:
-                query_part = key.rsplit(':', 1)[0] if ':' in key else key
+                query_part = key.rsplit(":", 1)[0] if ":" in key else key
                 if query_part not in queries:
                     queries.append(query_part)
             return queries
 
 
 def create_query_cache(
-    max_size: int = 1000,
-    ttl_seconds: int = 3600
+    max_size: int = 1000, ttl_seconds: int = 3600
 ) -> QueryCache:
     """Create a query cache instance.
 

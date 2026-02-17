@@ -71,10 +71,7 @@ class ToolLoader:
         self._loaded_tools[tool.name] = tool
         return tool
 
-    def load_tool_from_file(
-        self,
-        tool_path: Path
-    ) -> Optional[type[Tool]]:
+    def load_tool_from_file(self, tool_path: Path) -> Optional[type[Tool]]:
         """Load a tool from a Python file.
 
         Args:
@@ -91,16 +88,74 @@ class ToolLoader:
             if not tool_path.exists():
                 raise ToolLoaderError(f"Tool file does not exist: {tool_path}")
 
-            if not tool_path.suffix == '.py':
+            if not tool_path.suffix == ".py":
                 raise ToolLoaderError(f"Tool file must be Python: {tool_path}")
 
-            # Create module spec and load module
-            module_name = f"tool_{tool_path.stem}_{id(tool_path)}"
-            spec = importlib.util.spec_from_file_location(module_name, tool_path)
+            # Create a package-aware module name so relative imports inside
+            # tool modules work (e.g. `from .connection import ...`). If the
+            # tool file lives under a top-level 'nodupe' package directory we
+            # build a qualified module name like
+            # 'nodupe.tools.databases.embeddings'. Otherwise fall back to a
+            # unique synthetic name.
+            def _module_name_for_path(p: Path) -> str:
+                parts = list(p.parts)
+                try:
+                    idx = parts.index("nodupe")
+                    rel = parts[idx:]
+                    rel[-1] = rel[-1].rsplit(".", 1)[0]
+                    return ".".join(rel)
+                except ValueError:
+                    # No nodupe ancestor found; use fallback synthetic name
+                    return f"tool_{p.stem}_{id(p)}"
+
+            module_name = _module_name_for_path(tool_path)
+            spec = importlib.util.spec_from_file_location(
+                module_name, tool_path
+            )
             if spec is None or spec.loader is None:
-                raise ToolLoaderError(f"Could not create module spec: {tool_path}")
+                raise ToolLoaderError(
+                    f"Could not create module spec: {tool_path}"
+                )
+
+            # If the module name represents a package-qualified path (for
+            # example: 'nodupe.tools.pkg.tool_mod'), make sure all parent
+            # package entries exist in sys.modules and have a correct
+            # __path__ that includes the directory on disk where the
+            # package lives. This fixes relative imports inside dynamically
+            # loaded tool modules and avoids collisions with an already
+            # imported top-level 'nodupe' package.
+            import types
+
+            pkg_parts = module_name.split(".")[:-1]
+            if pkg_parts:
+                try:
+                    idx = list(tool_path.parts).index("nodupe")
+                except ValueError:
+                    idx = None
+
+                if idx is not None:
+                    rel_parts = list(tool_path.parts)[
+                        idx:-1
+                    ]  # exclude filename
+                    for i in range(len(rel_parts)):
+                        pkg_name = ".".join(rel_parts[: i + 1])
+                        pkg_dir = Path(*tool_path.parts[: idx + i + 1])
+                        existing = sys.modules.get(pkg_name)
+                        if existing is None:
+                            mod = types.ModuleType(pkg_name)
+                            mod.__path__ = [str(pkg_dir)]
+                            sys.modules[pkg_name] = mod
+                        else:
+                            pkg_path = getattr(existing, "__path__", None)
+                            if pkg_path is None:
+                                existing.__path__ = [str(pkg_dir)]
+                            elif str(pkg_dir) not in pkg_path:
+                                existing.__path__.insert(0, str(pkg_dir))
 
             module = importlib.util.module_from_spec(spec)
+            # Ensure the module is available in sys.modules under the
+            # package-aware name so internal relative imports resolve.
+            sys.modules[module_name] = module
             spec.loader.exec_module(module)
 
             # Find tool class in module
@@ -116,14 +171,20 @@ class ToolLoader:
             import logging
 
             from ..api.codes import ActionCode
+
             logger = logging.getLogger(__name__)
 
             # Check if the tool inherits from AccessibleTool
             from .base import AccessibleTool
+
             if issubclass(tool_class, AccessibleTool):
-                logger.info(f"[{ActionCode.ACC_ISO_CMP}] Tool {tool_class.__name__} is ISO accessibility compliant")
+                logger.info(
+                    f"[{ActionCode.ACC_ISO_CMP}] Tool {tool_class.__name__} is ISO accessibility compliant"
+                )
             else:
-                logger.info(f"[{ActionCode.ACC_FEATURE_DISABLED}] Tool {tool_class.__name__} does not implement accessibility features")
+                logger.info(
+                    f"[{ActionCode.ACC_FEATURE_DISABLED}] Tool {tool_class.__name__} does not implement accessibility features"
+                )
 
             # Store module reference
             self._tool_modules[tool_class.__name__] = module
@@ -133,12 +194,12 @@ class ToolLoader:
         except Exception as e:
             if isinstance(e, ToolLoaderError):
                 raise
-            raise ToolLoaderError(f"Failed to load tool {tool_path}: {e}") from e
+            raise ToolLoaderError(
+                f"Failed to load tool {tool_path}: {e}"
+            ) from e
 
     def load_tool_from_directory(
-        self,
-        tool_dir: Path,
-        recursive: bool = False
+        self, tool_dir: Path, recursive: bool = False
     ) -> list[type[Tool]]:
         """Load all tools from a directory.
 
@@ -154,7 +215,9 @@ class ToolLoader:
         """
         try:
             if not tool_dir.exists():
-                raise ToolLoaderError(f"Tool directory does not exist: {tool_dir}")
+                raise ToolLoaderError(
+                    f"Tool directory does not exist: {tool_dir}"
+                )
 
             if not tool_dir.is_dir():
                 raise ToolLoaderError(f"Path is not a directory: {tool_dir}")
@@ -164,7 +227,7 @@ class ToolLoader:
             python_files = list(tool_dir.glob(pattern))
 
             # Filter out __init__.py files as they're not tools
-            python_files = [f for f in python_files if f.name != '__init__.py']
+            python_files = [f for f in python_files if f.name != "__init__.py"]
 
             loaded_tools: list[type[Tool]] = []
             for file_path in python_files:
@@ -181,12 +244,12 @@ class ToolLoader:
         except Exception as e:
             if isinstance(e, ToolLoaderError):
                 raise
-            raise ToolLoaderError(f"Failed to load tools from {tool_dir}: {e}") from e
+            raise ToolLoaderError(
+                f"Failed to load tools from {tool_dir}: {e}"
+            ) from e
 
     def load_tool_by_name(
-        self,
-        tool_name: str,
-        tool_dirs: list[Path]
+        self, tool_name: str, tool_dirs: list[Path]
     ) -> Optional[type[Tool]]:
         """Load a tool by name from specified directories.
 
@@ -213,10 +276,7 @@ class ToolLoader:
         return None
 
     def instantiate_tool(
-        self,
-        tool_class: type[Tool],
-        *args: Any,
-        **kwargs: Any
+        self, tool_class: type[Tool], *args: Any, **kwargs: Any
     ) -> Tool:
         """Instantiate a tool class.
 
@@ -235,12 +295,12 @@ class ToolLoader:
             instance = tool_class(*args, **kwargs)
             return instance
         except Exception as e:
-            raise ToolLoaderError(f"Failed to instantiate tool {tool_class}: {e}") from e
+            raise ToolLoaderError(
+                f"Failed to instantiate tool {tool_class}: {e}"
+            ) from e
 
     def register_loaded_tool(
-        self,
-        tool_instance: Tool,
-        tool_path: Optional[Path] = None
+        self, tool_instance: Tool, tool_path: Optional[Path] = None
     ) -> None:
         """Register a loaded tool with the registry.
 
@@ -255,7 +315,9 @@ class ToolLoader:
             self.registry.register(tool_instance)
 
         except Exception as e:
-            raise ToolLoaderError(f"Failed to register tool {tool_instance.name}: {e}") from e
+            raise ToolLoaderError(
+                f"Failed to register tool {tool_instance.name}: {e}"
+            ) from e
 
     def unload_tool(self, tool_name: Any) -> bool:
         """Unload a tool.
@@ -289,7 +351,7 @@ class ToolLoader:
             del self._loaded_tools[tool_name]
 
             # Remove module from sys.modules if it exists
-            module_name = getattr(tool_instance, '__module__', None)
+            module_name = getattr(tool_instance, "__module__", None)
             if module_name and module_name in sys.modules:
                 del sys.modules[module_name]
 
@@ -327,9 +389,11 @@ class ToolLoader:
         """
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
-            if (isinstance(attr, type) and
-                issubclass(attr, Tool) and
-                    attr != Tool):
+            if (
+                isinstance(attr, type)
+                and issubclass(attr, Tool)
+                and attr != Tool
+            ):
                 return attr
         return None
 
@@ -344,14 +408,14 @@ class ToolLoader:
         """
         try:
             # Check required attributes exist
-            required_attrs = ['name']
+            required_attrs = ["name"]
             for attr in required_attrs:
                 if not hasattr(tool_class, attr):
                     return False
 
             # Check name is valid
             # For properties, we need to check if it's a property descriptor
-            name_attr = getattr(tool_class, 'name')
+            name_attr = getattr(tool_class, "name")
 
             # Check if it's a property descriptor
             if isinstance(name_attr, property):
@@ -365,7 +429,9 @@ class ToolLoader:
                 # It's a class attribute
                 name = name_attr
 
-            return not (not name or not isinstance(name, str) or not name.strip())
+            return not (
+                not name or not isinstance(name, str) or not name.strip()
+            )
 
         except Exception:
             return False

@@ -26,9 +26,9 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from nodupe.core.tool_system.base import Tool
 
-
 try:
     import numpy as np
+
     NUMPY_AVAILABLE = True
 except ImportError:
     np = None
@@ -36,6 +36,7 @@ except ImportError:
 
 try:
     import faiss
+
     FAISS_AVAILABLE = True
 except ImportError:
     faiss = None
@@ -54,7 +55,9 @@ class SimilarityBackend(ABC):
         """
 
     @abstractmethod
-    def add_vectors(self, vectors: list[list[float]], metadata: list[dict[str, Any]]) -> bool:
+    def add_vectors(
+        self, vectors: list[list[float]], metadata: list[dict[str, Any]]
+    ) -> bool:
         """Add vectors to the index.
 
         Args:
@@ -66,7 +69,9 @@ class SimilarityBackend(ABC):
         """
 
     @abstractmethod
-    def search(self, query_vector: list[float], k: int = 5, threshold: float = 0.8) -> list[tuple[dict[str, Any], float]]:
+    def search(
+        self, query_vector: list[float], k: int = 5, threshold: float = 0.8
+    ) -> list[tuple[dict[str, Any], float]]:
         """Search for similar vectors.
 
         Args:
@@ -126,7 +131,9 @@ class BruteForceBackend(SimilarityBackend):
         self.vectors: list[list[float]] = []
         self.metadata: list[dict[str, Any]] = []
 
-    def add_vectors(self, vectors: list[list[float]], metadata: list[dict[str, Any]]) -> bool:
+    def add_vectors(
+        self, vectors: list[list[float]], metadata: list[dict[str, Any]]
+    ) -> bool:
         """Add vectors to the index."""
         try:
             if len(vectors) != len(metadata):
@@ -136,7 +143,8 @@ class BruteForceBackend(SimilarityBackend):
             for vector in vectors:
                 if len(vector) != self.dimensions:
                     warnings.warn(
-                        f"Vector dimension mismatch: expected {self.dimensions}, got {len(vector)}")
+                        f"Vector dimension mismatch: expected {self.dimensions}, got {len(vector)}"
+                    )
                     return False
 
             self.vectors.extend(vectors)
@@ -146,14 +154,17 @@ class BruteForceBackend(SimilarityBackend):
             warnings.warn(f"Failed to add vectors: {e}")
             return False
 
-    def search(self, query_vector: list[float], k: int = 5, threshold: float = 0.8) -> list[tuple[dict[str, Any], float]]:
+    def search(
+        self, query_vector: list[float], k: int = 5, threshold: float = 0.8
+    ) -> list[tuple[dict[str, Any], float]]:
         """Search for similar vectors."""
         if len(self.vectors) == 0:
             return []
 
         if len(query_vector) != self.dimensions:
             warnings.warn(
-                f"Query vector dimension mismatch: expected {self.dimensions}, got {len(query_vector)}")
+                f"Query vector dimension mismatch: expected {self.dimensions}, got {len(query_vector)}"
+            )
             return []
 
         try:
@@ -170,8 +181,11 @@ class BruteForceBackend(SimilarityBackend):
                 vector_norms = np.linalg.norm(vectors_array, axis=1)
 
                 # Avoid division by zero
-                similarities = np.where(vector_norms == 0, 0, dot_products /
-                                        (vector_norms * query_norm))
+                similarities = np.where(
+                    vector_norms == 0,
+                    0,
+                    dot_products / (vector_norms * query_norm),
+                )
 
                 # Get top k results
                 top_indices = np.argsort(similarities)[-k:][::-1]
@@ -184,9 +198,11 @@ class BruteForceBackend(SimilarityBackend):
                 # Fallback to standard library
                 for i, vector in enumerate(self.vectors):
                     # Calculate cosine similarity manually
-                    dot_product = sum(v * q for v, q in zip(vector, query_vector))
-                    query_norm = sum(q*q for q in query_vector)**0.5
-                    vector_norm = sum(v*v for v in vector)**0.5
+                    dot_product = sum(
+                        v * q for v, q in zip(vector, query_vector)
+                    )
+                    query_norm = sum(q * q for q in query_vector) ** 0.5
+                    vector_norm = sum(v * v for v in vector) ** 0.5
 
                     if query_norm == 0 or vector_norm == 0:
                         similarity = 0.0
@@ -210,12 +226,12 @@ class BruteForceBackend(SimilarityBackend):
         """Save index to file."""
         try:
             index_data = {
-                'vectors': self.vectors,
-                'metadata': self.metadata,
-                'dimensions': self.dimensions
+                "vectors": self.vectors,
+                "metadata": self.metadata,
+                "dimensions": self.dimensions,
             }
 
-            with open(path, 'wb') as f:
+            with open(path, "wb") as f:
                 pickle.dump(index_data, f)
 
             return True
@@ -227,23 +243,24 @@ class BruteForceBackend(SimilarityBackend):
         """Load index from file."""
         try:
             # First try JSON format (safer), fall back to pickle for backwards compatibility
-            json_path = path + '.json'
+            json_path = path + ".json"
             if Path(json_path).exists():
                 with open(json_path) as f:
                     index_data = json.load(f)
             else:
                 # Fallback to pickle for backwards compatibility - but validate
-                with open(path, 'rb') as f:
+                with open(path, "rb") as f:
                     # Only allow specific trusted content types
                     index_data = pickle.load(f)
 
-            if index_data.get('dimensions') != self.dimensions:
+            if index_data.get("dimensions") != self.dimensions:
                 warnings.warn(
-                    f"Index dimension mismatch: expected {self.dimensions}, got {index_data.get('dimensions')}")
+                    f"Index dimension mismatch: expected {self.dimensions}, got {index_data.get('dimensions')}"
+                )
                 return False
 
-            self.vectors = index_data['vectors']
-            self.metadata = index_data['metadata']
+            self.vectors = index_data["vectors"]
+            self.metadata = index_data["metadata"]
             return True
         except Exception as e:
             warnings.warn(f"Failed to load index: {e}")
@@ -276,7 +293,9 @@ class FaissBackend(SimilarityBackend):
         self.index = faiss.IndexFlatIP(dimensions)
         self.metadata: list[dict[str, Any]] = []
 
-    def add_vectors(self, vectors: list[list[float]], metadata: list[dict[str, Any]]) -> bool:
+    def add_vectors(
+        self, vectors: list[list[float]], metadata: list[dict[str, Any]]
+    ) -> bool:
         """Add vectors to the FAISS index."""
         if not FAISS_AVAILABLE:
             return False
@@ -289,7 +308,8 @@ class FaissBackend(SimilarityBackend):
             for vector in vectors:
                 if len(vector) != self.dimensions:
                     warnings.warn(
-                        f"Vector dimension mismatch: expected {self.dimensions}, got {len(vector)}")
+                        f"Vector dimension mismatch: expected {self.dimensions}, got {len(vector)}"
+                    )
                     return False
 
             # Convert to numpy array and normalize for inner product
@@ -304,14 +324,19 @@ class FaissBackend(SimilarityBackend):
             warnings.warn(f"Failed to add vectors to FAISS: {e}")
             return False
 
-    def search(self, query_vector: list[float], k: int = 5, threshold: float = 0.8) -> list[tuple[dict[str, Any], float]]:
+    def search(
+        self, query_vector: list[float], k: int = 5, threshold: float = 0.8
+    ) -> list[tuple[dict[str, Any], float]]:
         """Search for similar vectors using FAISS."""
-        if not FAISS_AVAILABLE or (self.index is not None and self.index.ntotal == 0):
+        if not FAISS_AVAILABLE or (
+            self.index is not None and self.index.ntotal == 0
+        ):
             return []
 
         if len(query_vector) != self.dimensions:
             warnings.warn(
-                f"Query vector dimension mismatch: expected {self.dimensions}, got {len(query_vector)}")
+                f"Query vector dimension mismatch: expected {self.dimensions}, got {len(query_vector)}"
+            )
             return []
 
         try:
@@ -324,7 +349,9 @@ class FaissBackend(SimilarityBackend):
             if self.index is not None:
                 scores, indices = self.index.search(query_array, k)
             else:
-                scores, indices = np.array([[]], dtype=np.float32), np.array([[]], dtype=np.int32)
+                scores, indices = np.array([[]], dtype=np.float32), np.array(
+                    [[]], dtype=np.int32
+                )
 
             results = []
             for score, idx in zip(scores[0], indices[0]):
@@ -347,7 +374,7 @@ class FaissBackend(SimilarityBackend):
 
             # Save metadata separately
             metadata_path = f"{path}.metadata"
-            with open(metadata_path, 'w') as f:
+            with open(metadata_path, "w") as f:
                 json.dump(self.metadata, f)
 
             return True
@@ -396,14 +423,14 @@ class SimilarityManager:
 
         # Try to initialize available backends
         try:
-            self.add_backend('bruteforce', BruteForceBackend(dimensions=512))
-            self.set_backend('bruteforce')
+            self.add_backend("bruteforce", BruteForceBackend(dimensions=512))
+            self.set_backend("bruteforce")
         except Exception:
             pass
 
         if FAISS_AVAILABLE:
             with contextlib.suppress(Exception):
-                self.add_backend('faiss', FaissBackend(dimensions=512))
+                self.add_backend("faiss", FaissBackend(dimensions=512))
 
     def add_backend(self, name: str, backend: SimilarityBackend) -> None:
         """Add a similarity backend.
@@ -447,13 +474,17 @@ class SimilarityManager:
         """
         return self.current_backend
 
-    def add_vectors(self, vectors: list[list[float]], metadata: list[dict[str, Any]]) -> bool:
+    def add_vectors(
+        self, vectors: list[list[float]], metadata: list[dict[str, Any]]
+    ) -> bool:
         """Add vectors to current backend."""
         if self.current_backend:
             return self.current_backend.add_vectors(vectors, metadata)
         return False
 
-    def search(self, query_vector: list[float], k: int = 5, threshold: float = 0.8) -> list[tuple[dict[str, Any], float]]:
+    def search(
+        self, query_vector: list[float], k: int = 5, threshold: float = 0.8
+    ) -> list[tuple[dict[str, Any], float]]:
         """Search for similar vectors."""
         if self.current_backend:
             return self.current_backend.search(query_vector, k, threshold)
@@ -506,11 +537,11 @@ class SimilarityBackendTool(Tool):
     @property
     def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
-            'add_vectors': self.manager.add_vectors,
-            'search': self.manager.search,
-            'save_index': self.manager.save_index,
-            'load_index': self.manager.load_index,
-            'get_index_size': self.manager.get_index_size
+            "add_vectors": self.manager.add_vectors,
+            "search": self.manager.search,
+            "save_index": self.manager.save_index,
+            "load_index": self.manager.load_index,
+            "get_index_size": self.manager.get_index_size,
         }
 
     def __init__(self):
@@ -520,7 +551,7 @@ class SimilarityBackendTool(Tool):
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool."""
-        container.register_service('similarity_manager', self.manager)
+        container.register_service("similarity_manager", self.manager)
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
@@ -528,9 +559,9 @@ class SimilarityBackendTool(Tool):
     def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
-            'backends': list(self.manager.backends.keys()),
-            'supports_faiss': FAISS_AVAILABLE,
-            'supports_numpy': NUMPY_AVAILABLE
+            "backends": list(self.manager.backends.keys()),
+            "supports_faiss": FAISS_AVAILABLE,
+            "supports_numpy": NUMPY_AVAILABLE,
         }
 
 
@@ -549,11 +580,14 @@ if __name__ == "__main__":
     print(f"Available backends: {list(manager.backends.keys())}")
 
     # Test with brute force backend
-    if manager.set_backend('bruteforce'):
+    if manager.set_backend("bruteforce"):
         # Add some test vectors
         vectors = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-        metadata = [{'id': 1, 'name': 'vector1'}, {
-            'id': 2, 'name': 'vector2'}, {'id': 3, 'name': 'vector3'}]
+        metadata = [
+            {"id": 1, "name": "vector1"},
+            {"id": 2, "name": "vector2"},
+            {"id": 3, "name": "vector3"},
+        ]
 
         success = manager.add_vectors(vectors, metadata)
         print(f"Added vectors: {success}")

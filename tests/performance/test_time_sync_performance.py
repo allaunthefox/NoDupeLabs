@@ -5,6 +5,7 @@ These tests validate the performance improvements implemented in the TimeSync to
 including parallel NTP queries, optimized file scanning, and FastDate64 encoding.
 """
 
+import socket
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -12,7 +13,8 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from nodupe.core.time_sync_utils import (
+from nodupe.tools.time_sync import TimeSyncTool
+from nodupe.tools.time_sync.sync_utils import (
     DNSCache,
     FastDate64Encoder,
     MonotonicTimeCalculator,
@@ -21,7 +23,6 @@ from nodupe.core.time_sync_utils import (
     get_global_dns_cache,
     get_global_metrics,
 )
-from nodupe.tools.time_sync import TimeSyncTool
 
 
 class TestParallelNTPClient:
@@ -30,9 +31,9 @@ class TestParallelNTPClient:
     def test_parallel_vs_sequential_performance(self):
         """Test that parallel queries are significantly faster than sequential."""
         # Mock DNS resolution
-        with patch('socket.getaddrinfo') as mock_getaddrinfo:
+        with patch("socket.getaddrinfo") as mock_getaddrinfo:
             mock_getaddrinfo.return_value = [
-                (socket.AF_INET, socket.SOCK_DGRAM, 17, '', ('1.1.1.1', 123))
+                (socket.AF_INET, socket.SOCK_DGRAM, 17, "", ("1.1.1.1", 123))
             ]
 
             # Mock socket responses with different delays
@@ -46,24 +47,28 @@ class TestParallelNTPClient:
                     offset=0.01 * query_id,
                     delay=delay,
                     host=f"test{query_id}.com",
-                    address=('1.1.1.1', 123),
+                    address=("1.1.1.1", 123),
                     attempt=0,
-                    timestamp=time.time()
+                    timestamp=time.time(),
                 )
 
-            with patch.object(ParallelNTPClient, '_query_single_address') as mock_query:
+            with patch.object(
+                ParallelNTPClient, "_query_single_address"
+            ) as mock_query:
                 # Set up mock responses
-                mock_query.side_effect = lambda qid, host, addr, attempt: mock_socket_response(qid)
+                mock_query.side_effect = (
+                    lambda qid, host, addr, attempt: mock_socket_response(qid)
+                )
 
                 client = ParallelNTPClient(timeout=1.0, max_workers=4)
 
                 # Test parallel execution
                 start_time = time.perf_counter()
                 result = client.query_hosts_parallel(
-                    hosts=['test1.com', 'test2.com', 'test3.com', 'test4.com'],
+                    hosts=["test1.com", "test2.com", "test3.com", "test4.com"],
                     attempts_per_host=1,
                     max_acceptable_delay=1.0,
-                    stop_on_good_result=False
+                    stop_on_good_result=False,
                 )
                 parallel_time = time.perf_counter() - start_time
 
@@ -73,8 +78,12 @@ class TestParallelNTPClient:
                 # With 4 hosts and different delays (0.1, 0.2, 0.05, 0.15),
                 # parallel should complete in roughly max(delay) time
                 # Sequential would take sum(delay) time
-                expected_sequential_time = 0.1 + 0.2 + 0.05 + 0.15  # 0.5 seconds
-                assert parallel_time < expected_sequential_time * 0.7  # At least 30% faster
+                expected_sequential_time = (
+                    0.1 + 0.2 + 0.05 + 0.15
+                )  # 0.5 seconds
+                assert (
+                    parallel_time < expected_sequential_time * 0.7
+                )  # At least 30% faster
 
                 # Verify we got responses from all hosts
                 assert len(result.all_responses) == 4
@@ -82,9 +91,9 @@ class TestParallelNTPClient:
 
     def test_early_termination_with_good_result(self):
         """Test that early termination works when a good result is found."""
-        with patch('socket.getaddrinfo') as mock_getaddrinfo:
+        with patch("socket.getaddrinfo") as mock_getaddrinfo:
             mock_getaddrinfo.return_value = [
-                (socket.AF_INET, socket.SOCK_DGRAM, 17, '', ('1.1.1.1', 123))
+                (socket.AF_INET, socket.SOCK_DGRAM, 17, "", ("1.1.1.1", 123))
             ]
 
             def slow_response(query_id):
@@ -94,9 +103,9 @@ class TestParallelNTPClient:
                     offset=0.1,
                     delay=0.2,
                     host=f"slow{query_id}.com",
-                    address=('1.1.1.1', 123),
+                    address=("1.1.1.1", 123),
                     attempt=0,
-                    timestamp=time.time()
+                    timestamp=time.time(),
                 )
 
             def fast_good_response(query_id):
@@ -106,14 +115,17 @@ class TestParallelNTPClient:
                     offset=0.01,
                     delay=0.05,  # Good delay
                     host=f"fast{query_id}.com",
-                    address=('1.1.1.1', 123),
+                    address=("1.1.1.1", 123),
                     attempt=0,
-                    timestamp=time.time()
+                    timestamp=time.time(),
                 )
 
-            with patch.object(ParallelNTPClient, '_query_single_address') as mock_query:
+            with patch.object(
+                ParallelNTPClient, "_query_single_address"
+            ) as mock_query:
                 # First call returns fast good response, subsequent calls return slow
                 call_count = 0
+
                 def response_selector(qid, host, addr, attempt):
                     nonlocal call_count
                     call_count += 1
@@ -128,11 +140,11 @@ class TestParallelNTPClient:
 
                 start_time = time.perf_counter()
                 result = client.query_hosts_parallel(
-                    hosts=['fast.com', 'slow1.com', 'slow2.com', 'slow3.com'],
+                    hosts=["fast.com", "slow1.com", "slow2.com", "slow3.com"],
                     attempts_per_host=1,
                     max_acceptable_delay=1.0,
                     stop_on_good_result=True,
-                    good_delay_threshold=0.1
+                    good_delay_threshold=0.1,
                 )
                 elapsed_time = time.perf_counter() - start_time
 
@@ -202,7 +214,9 @@ class TestTargetedFileScanner:
                     os.makedirs(subsubdir)
                     # Create some files
                     for k in range(5):
-                        with open(os.path.join(subsubdir, f"file_{k}.txt"), 'w') as f:
+                        with open(
+                            os.path.join(subsubdir, f"file_{k}.txt"), "w"
+                        ) as f:
                             f.write("test")
 
             # Test targeted scanner
@@ -230,7 +244,7 @@ class TestTargetedFileScanner:
                 current_dir = os.path.join(current_dir, f"level_{i}")
                 os.makedirs(current_dir)
                 # Create a file at each level
-                with open(os.path.join(current_dir, "test.txt"), 'w') as f:
+                with open(os.path.join(current_dir, "test.txt"), "w") as f:
                     f.write("test")
 
             # Scanner with depth limit should not go too deep
@@ -248,7 +262,7 @@ class TestTargetedFileScanner:
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create many files
             for i in range(200):
-                with open(os.path.join(temp_dir, f"file_{i}.txt"), 'w') as f:
+                with open(os.path.join(temp_dir, f"file_{i}.txt"), "w") as f:
                     f.write("test")
 
             # Scanner should limit file count
@@ -269,9 +283,9 @@ class TestFastDate64Encoder:
         """Test that FastDate64 encoding is fast."""
         test_timestamps = [
             1672531200.123456,  # 2023-01-01T00:00:00.123456Z
-            0.0,                # Unix epoch
-            1000000000.0,       # 2001-09-09T01:46:40Z
-            time.time(),        # Current time
+            0.0,  # Unix epoch
+            1000000000.0,  # 2001-09-09T01:46:40Z
+            time.time(),  # Current time
         ]
 
         # Test encoding performance
@@ -358,13 +372,15 @@ class TestTimeSyncToolPerformance:
     def test_parallel_sync_performance(self):
         """Test that parallel synchronization is faster than sequential."""
         tool = TimeSyncTool(
-            servers=['test1.com', 'test2.com', 'test3.com'],
+            servers=["test1.com", "test2.com", "test3.com"],
             timeout=1.0,
-            attempts=1
+            attempts=1,
         )
 
         # Mock the parallel client to simulate different response times
-        with patch('nodupe.core.time_sync_utils.ParallelNTPClient') as mock_client_class:
+        with patch(
+            "nodupe.tools.time_sync.sync_utils.ParallelNTPClient"
+        ) as mock_client_class:
             mock_client = Mock()
             mock_client.query_hosts_parallel.return_value = Mock(
                 success=True,
@@ -372,10 +388,10 @@ class TestTimeSyncToolPerformance:
                     server_time=1600000000.0,
                     offset=0.01,
                     delay=0.05,
-                    host="test1.com"
+                    host="test1.com",
                 ),
                 all_responses=[],
-                errors=[]
+                errors=[],
             )
             mock_client_class.return_value = mock_client
 
@@ -390,7 +406,7 @@ class TestTimeSyncToolPerformance:
 
     def test_dns_cache_integration(self):
         """Test that DNS cache is used by the tool."""
-        TimeSyncTool(servers=['test.com'])
+        TimeSyncTool(servers=["test.com"])
 
         # Verify global DNS cache is being used
         cache = get_global_dns_cache()
@@ -416,10 +432,10 @@ class TestTimeSyncToolPerformance:
         summary = metrics.get_summary()
 
         # Verify metrics were recorded
-        assert summary['total_queries'] == 1
-        assert summary['dns_cache_hit_rate'] > 0
-        assert summary['total_parallel_queries'] == 1
-        assert summary['success_rate'] == 1.0
+        assert summary["total_queries"] == 1
+        assert summary["dns_cache_hit_rate"] > 0
+        assert summary["total_parallel_queries"] == 1
+        assert summary["success_rate"] == 1.0
 
     def test_file_scanner_integration(self):
         """Test that optimized file scanner is used in fallback."""
@@ -429,7 +445,7 @@ class TestTimeSyncToolPerformance:
         TimeSyncTool()
 
         # Create a test file
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
             f.write("test")
             test_file = f.name
 

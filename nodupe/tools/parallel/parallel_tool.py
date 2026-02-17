@@ -40,20 +40,20 @@ class ParallelTool(Tool):
             author="NoDupeLabs",
             license="Apache-2.0",
             dependencies=self.dependencies,
-            tags=["parallel", "performance", "posix", "threading"]
+            tags=["parallel", "performance", "posix", "threading"],
         )
 
     @property
     def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
-            'map': Parallel.map_parallel,
-            'smart_map': Parallel.smart_map,
-            'get_workers': Parallel.get_optimal_workers
+            "map": Parallel.map_parallel,
+            "smart_map": Parallel.smart_map,
+            "get_workers": Parallel.get_optimal_workers,
         }
 
     def initialize(self, container: Any) -> None:
         """Register the parallel service."""
-        container.register_service('parallel_service', self)
+        container.register_service("parallel_service", self)
 
     def shutdown(self) -> None:
         """Gracefully cleanup any pending pools."""
@@ -65,7 +65,7 @@ class ParallelTool(Tool):
         """Execute demonstration in stand-alone mode."""
         print("Parallel Tool: Self-test mode.")
         print("Demonstrating 4-way parallel mapping of math functions...")
-        results = Parallel.map_parallel(lambda x: x*x, range(10), workers=4)
+        results = Parallel.map_parallel(lambda x: x * x, range(10), workers=4)
         print(f"Results: {results}")
         return 0
 
@@ -79,16 +79,19 @@ class ParallelTool(Tool):
 
     def get_capabilities(self) -> dict[str, Any]:
         return {
-            'cpu_count': Parallel.get_cpu_count(),
-            'supports_interpreters': Parallel.supports_interpreter_pool(),
-            'is_free_threaded': Parallel.is_free_threaded()
+            "cpu_count": Parallel.get_cpu_count(),
+            "supports_interpreters": Parallel.supports_interpreter_pool(),
+            "is_free_threaded": Parallel.is_free_threaded(),
         }
+
 
 def register_tool():
     """Register the parallel tool."""
     return ParallelTool()
 
+
 if __name__ == "__main__":
     import sys
+
     tool = ParallelTool()
     sys.exit(tool.run_standalone(sys.argv[1:]))

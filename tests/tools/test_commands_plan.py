@@ -1,14 +1,14 @@
 import argparse
 import json
-from types import SimpleNamespace
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
+from nodupe.core.database.files import FileRepository
 from nodupe.tools.commands.plan import PlanTool
 from nodupe.tools.databases.connection import DatabaseConnection
 from nodupe.tools.databases.schema import DatabaseSchema
-from nodupe.core.database.files import FileRepository
 
 
 @pytest.fixture(autouse=True)
@@ -36,7 +36,9 @@ def test_execute_plan_no_files_returns_zero(tmp_path: Path, capsys):
             return None
 
     tool = PlanTool()
-    args = SimpleNamespace(strategy="newest", output=str(tmp_path / "out.json"), container=C())
+    args = SimpleNamespace(
+        strategy="newest", output=str(tmp_path / "out.json"), container=C()
+    )
 
     rc = tool.execute_plan(args)
     captured = capsys.readouterr()
@@ -54,7 +56,10 @@ def test_execute_plan_groups_and_output_and_db_updates(tmp_path: Path):
         {"path": "/tmp/c.txt", "size": 12, "modified_time": 75, "hash": "h"},
     ]
 
-    ids = [repo.add_file(f["path"], f["size"], f["modified_time"], f["hash"]) for f in content]
+    ids = [
+        repo.add_file(f["path"], f["size"], f["modified_time"], f["hash"])
+        for f in content
+    ]
 
     class C:
         def get_service(self, name):
@@ -64,7 +69,9 @@ def test_execute_plan_groups_and_output_and_db_updates(tmp_path: Path):
 
     out_file = tmp_path / "plan.json"
     tool = PlanTool()
-    args = SimpleNamespace(strategy="newest", output=str(out_file), container=C())
+    args = SimpleNamespace(
+        strategy="newest", output=str(out_file), container=C()
+    )
 
     rc = tool.execute_plan(args)
     assert rc == 0
@@ -90,7 +97,9 @@ def test_execute_plan_groups_and_output_and_db_updates(tmp_path: Path):
         assert rec["duplicate_of"] == keeper["id"]
 
 
-def test_execute_plan_oldest_strategy_and_reassign_keeper_when_marked_duplicate(tmp_path: Path, monkeypatch):
+def test_execute_plan_oldest_strategy_and_reassign_keeper_when_marked_duplicate(
+    tmp_path: Path, monkeypatch
+):
     db_conn, repo = _make_db_and_repo(tmp_path)
 
     # create two files that will form a duplicate group
@@ -104,7 +113,9 @@ def test_execute_plan_oldest_strategy_and_reassign_keeper_when_marked_duplicate(
     def _mark_as_original(self, file_id):
         return self.update_file(file_id, is_duplicate=False)
 
-    monkeypatch.setattr(FileRepository, "mark_as_original", _mark_as_original, raising=False)
+    monkeypatch.setattr(
+        FileRepository, "mark_as_original", _mark_as_original, raising=False
+    )
 
     class C:
         def get_service(self, name):
@@ -114,7 +125,9 @@ def test_execute_plan_oldest_strategy_and_reassign_keeper_when_marked_duplicate(
 
     out_file = tmp_path / "plan2.json"
     tool = PlanTool()
-    args = SimpleNamespace(strategy="oldest", output=str(out_file), container=C())
+    args = SimpleNamespace(
+        strategy="oldest", output=str(out_file), container=C()
+    )
 
     rc = tool.execute_plan(args)
     assert rc == 0
@@ -144,7 +157,9 @@ def test_execute_plan_ignores_files_without_hash(tmp_path: Path):
             return None
 
     tool = PlanTool()
-    args = SimpleNamespace(strategy="newest", output=str(tmp_path / "out3.json"), container=C())
+    args = SimpleNamespace(
+        strategy="newest", output=str(tmp_path / "out3.json"), container=C()
+    )
 
     rc = tool.execute_plan(args)
     assert rc == 0

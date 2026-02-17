@@ -10,7 +10,9 @@ class TestEmbeddingCache:
 
     def test_embedding_cache_initialization(self):
         """Test embedding cache initialization."""
-        cache = EmbeddingCache(max_size=100, ttl_seconds=1800, max_dimensions=512)
+        cache = EmbeddingCache(
+            max_size=100, ttl_seconds=1800, max_dimensions=512
+        )
         assert cache.max_size == 100
         assert cache.ttl_seconds == 1800
         assert cache.max_dimensions == 512
@@ -75,7 +77,10 @@ class TestEmbeddingCache:
 
         # Verify the first embedding was evicted and others remain
         assert cache.get_embedding("key1") is None  # Should be evicted
-        assert cache.get_embedding("key2") == [0.3, 0.4]  # Should still be there
+        assert cache.get_embedding("key2") == [
+            0.3,
+            0.4,
+        ]  # Should still be there
         assert cache.get_embedding("key3") == [0.5, 0.6]  # Should be added
 
     def test_dimension_validation(self):
@@ -103,7 +108,9 @@ class TestEmbeddingCache:
 
         # Should have perfect similarity
         similarity = cache.calculate_similarity("emb1", "emb2")
-        assert abs(similarity - 1.0) < 0.001  # Allow for floating point precision
+        assert (
+            abs(similarity - 1.0) < 0.001
+        )  # Allow for floating point precision
 
         # Set orthogonal embeddings
         cache.set_embedding("emb3", [0.0, 1.0, 0.0])
@@ -277,9 +284,19 @@ class TestEmbeddingCache:
         cache.set_embedding("key1", [0.1, 0.2, 0.3])  # Changed embedding
 
         # Verify all three can now be cached
-        assert cache.get_embedding("key1") == [0.1, 0.2, 0.3]  # Should have new embedding
-        assert cache.get_embedding("key2") == [0.3, 0.4]  # Should still be there
-        assert cache.get_embedding("key3") == [0.5, 0.6]  # Should still be there
+        assert cache.get_embedding("key1") == [
+            0.1,
+            0.2,
+            0.3,
+        ]  # Should have new embedding
+        assert cache.get_embedding("key2") == [
+            0.3,
+            0.4,
+        ]  # Should still be there
+        assert cache.get_embedding("key3") == [
+            0.5,
+            0.6,
+        ]  # Should still be there
 
     def test_cleanup_expired_method(self):
         """Test cleanup_expired method."""
@@ -311,7 +328,9 @@ class TestEmbeddingCache:
 
         # Add some entries
         for i in range(5):
-            cache.set_embedding(f"key_{i}", [float(j) for j in range(i + 1, i + 4)])
+            cache.set_embedding(
+                f"key_{i}", [float(j) for j in range(i + 1, i + 4)]
+            )
 
         # Usage should be greater after adding entries
         new_usage = cache.get_memory_usage()
@@ -370,7 +389,11 @@ class TestEmbeddingCache:
 
         # Get average of all three
         avg = cache.get_average_embedding(["emb1", "emb2", "emb3"])
-        expected_avg = [(1.0 + 3.0 + 5.0) / 3, (2.0 + 4.0 + 6.0) / 3, (3.0 + 5.0 + 7.0) / 3]
+        expected_avg = [
+            (1.0 + 3.0 + 5.0) / 3,
+            (2.0 + 4.0 + 6.0) / 3,
+            (3.0 + 5.0 + 7.0) / 3,
+        ]
 
         assert avg is not None
         assert len(avg) == 3
@@ -439,4 +462,3 @@ class TestEmbeddingCache:
         assert "key1" in keys
         assert "key2" in keys
         assert "key3" in keys
-

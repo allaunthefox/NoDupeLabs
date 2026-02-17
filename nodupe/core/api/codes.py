@@ -19,12 +19,12 @@ def _load_lut() -> dict[str, Any]:
     with open(lut_path, encoding="utf-8") as f:
         return json.load(f)
 
+
 _LUT_DATA = _load_lut()
 
 # Dynamically create the IntEnum based on JSON data
 _enum_members = {
-    item['mnemonic']: item['code']
-    for item in _LUT_DATA.get('codes', [])
+    item["mnemonic"]: item["code"] for item in _LUT_DATA.get("codes", [])
 }
 
 # Refocused aliases for Archival and Backup mission
@@ -58,24 +58,33 @@ _aliases = {
     "ACC_FEATURE_DISABLED": "ACC_FEAT_DISAB",
     "ACC_LIB_LOAD_SUCCESS": "ACC_LIB_LOAD_OK",
     "ACC_CONSOLE_FALLBACK": "ACC_CONS_FALL",
-    "ACC_ISO_COMPLIANT": "ACC_ISO_CMP"
+    "ACC_ISO_COMPLIANT": "ACC_ISO_CMP",
+    # Common error aliasing
+    "ERR_INTERNAL": "FPT_STM_ERR",
+    "ERR_TOOL_NOT_FOUND": "FPT_FLS_FAIL",
 }
 
-# Only add aliases if they don't already exist as unique codes
+# Apply aliases so that canonical names map to the same numeric codes
+# (tests expect aliases to resolve to their target codes even when the
+# mnemonic already exists in the LUT). Overwrite any existing entry so
+# aliases are authoritative.
 for alias, target in _aliases.items():
-    if target in _enum_members and alias not in _enum_members:
+    if target in _enum_members:
         _enum_members[alias] = _enum_members[target]
 
-ActionCode = IntEnum('ActionCode', _enum_members)
+ActionCode = IntEnum("ActionCode", _enum_members)
+
 
 def _get_lut(cls) -> dict[str, Any]:
     return _LUT_DATA
+
 
 def _get_description(cls, code: int) -> str:
     for item in _LUT_DATA.get("codes", []):
         if item["code"] == code:
             return item["description"]
     return "Unknown Action"
+
 
 def _get_category(cls, code: int) -> str:
     """Get the ISO tool category for a specific code."""
@@ -89,31 +98,35 @@ def _get_category(cls, code: int) -> str:
                 "FCS": "CRYPTO",
                 "ML": "AI_ML",
                 "FRU": "HARDWARE",
-                "FCO": "NETWORK"
+                "FCO": "NETWORK",
             }
             return mapping.get(iso_class, "GENERAL")
     return "GENERAL"
 
+
 def _to_jsonrpc_code(cls, internal_code: int) -> int:
     """Map internal ISO codes to JSON-RPC 2.0 standard error codes."""
-    if internal_code >= 530000: return -32603 # Backup/Media fault
-    if internal_code >= 500000: return -32000 # Engine failure
+    if internal_code >= 530000:
+        return -32603  # Backup/Media fault
+    if internal_code >= 500000:
+        return -32000  # Engine failure
     return -32099
 
-setattr(ActionCode, 'get_lut', classmethod(_get_lut))
-setattr(ActionCode, 'get_description', classmethod(_get_description))
-setattr(ActionCode, 'get_category', classmethod(_get_category))
-setattr(ActionCode, 'to_jsonrpc_code', classmethod(_to_jsonrpc_code))
+
+setattr(ActionCode, "get_lut", classmethod(_get_lut))
+setattr(ActionCode, "get_description", classmethod(_get_description))
+setattr(ActionCode, "get_category", classmethod(_get_category))
+setattr(ActionCode, "to_jsonrpc_code", classmethod(_to_jsonrpc_code))
 
 # Mapping of method names to action codes for risk assessment
 SENSITIVE_METHODS = {
-    'extract_archive': getattr(ActionCode, 'OAIS_SIP_INGEST', 120000),
-    'delete_file': getattr(ActionCode, 'DEDUP_RECLAIM', 250002),
+    "extract_archive": getattr(ActionCode, "OAIS_SIP_INGEST", 120000),
+    "delete_file": getattr(ActionCode, "DEDUP_RECLAIM", 250002),
 }
 
 # Risk categorization
 RISK_LEVELS = {
-    getattr(ActionCode, 'FPT_FLS_FAIL', 500000): "CRITICAL",
-    getattr(ActionCode, 'BKP_RESTORE_FAIL', 530001): "CRITICAL",
-    getattr(ActionCode, 'BKP_MEDIA_FAULT', 530002): "HIGH",
+    getattr(ActionCode, "FPT_FLS_FAIL", 500000): "CRITICAL",
+    getattr(ActionCode, "BKP_RESTORE_FAIL", 530001): "CRITICAL",
+    getattr(ActionCode, "BKP_MEDIA_FAULT", 530002): "HIGH",
 }

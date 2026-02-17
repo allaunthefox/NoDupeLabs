@@ -44,7 +44,9 @@ class DatabaseRepository:
         """Read a record by ID from the specified table."""
         raise NotImplementedError("read must be implemented by subclasses")
 
-    def read_all(self, table: str, where: Optional[dict[str, Any]] = None) -> list[dict[str, Any]]:
+    def read_all(
+        self, table: str, where: Optional[dict[str, Any]] = None
+    ) -> list[dict[str, Any]]:
         """Read all records from the specified table.
 
         Args:
@@ -62,7 +64,7 @@ class DatabaseRepository:
 
             if where:
                 # Build WHERE clause
-                where_clause = ' AND '.join([f"{k} = ?" for k in where])
+                where_clause = " AND ".join([f"{k} = ?" for k in where])
                 query = f"SELECT * FROM {table} WHERE {where_clause}"
                 cursor.execute(query, list(where.values()))
             else:
@@ -79,7 +81,9 @@ class DatabaseRepository:
             return [dict(zip(columns, row)) for row in rows]
 
         except sqlite3.Error as e:
-            raise RepositoryError(f"Failed to read records from {table}: {e}") from e
+            raise RepositoryError(
+                f"Failed to read records from {table}: {e}"
+            ) from e
 
     def update(self, table: str, record_id: int, data: dict[str, Any]) -> bool:
         """Update a record in the specified table."""
@@ -107,7 +111,7 @@ class DatabaseRepository:
 
             if where:
                 # Build WHERE clause
-                where_clause = ' AND '.join([f"{k} = ?" for k in where])
+                where_clause = " AND ".join([f"{k} = ?" for k in where])
                 query = f"SELECT COUNT(*) FROM {table} WHERE {where_clause}"
                 cursor.execute(query, list(where.values()))
             else:
@@ -117,7 +121,9 @@ class DatabaseRepository:
             return result[0] if result else 0
 
         except sqlite3.Error as e:
-            raise RepositoryError(f"Failed to count records in {table}: {e}") from e
+            raise RepositoryError(
+                f"Failed to count records in {table}: {e}"
+            ) from e
 
     def exists(self, table: str, record_id: int) -> bool:
         """Check if a record exists in the specified table.
@@ -134,12 +140,16 @@ class DatabaseRepository:
         """
         try:
             cursor = self.connection.cursor()
-            cursor.execute(f"SELECT 1 FROM {table} WHERE id = ? LIMIT 1", (record_id,))
+            cursor.execute(
+                f"SELECT 1 FROM {table} WHERE id = ? LIMIT 1", (record_id,)
+            )
 
             return cursor.fetchone() is not None
 
         except sqlite3.Error as e:
-            raise RepositoryError(f"Failed to check existence in {table}: {e}") from e
+            raise RepositoryError(
+                f"Failed to check existence in {table}: {e}"
+            ) from e
 
 
 def create_repository(connection: sqlite3.Connection) -> DatabaseRepository:

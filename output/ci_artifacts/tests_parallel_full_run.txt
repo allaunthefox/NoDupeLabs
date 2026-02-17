@@ -17,21 +17,21 @@ tests/core/test_parallel.py::TestParallelOptimalWorkers::test_get_optimal_worker
 tests/core/test_parallel.py::TestParallelOptimalWorkers::test_get_optimal_workers_io_free_threaded [32mPASSED[0m
 tests/core/test_parallel.py::TestParallelOptimalWorkers::test_get_optimal_workers_cpu_gil_locked [32mPASSED[0m
 tests/core/test_parallel.py::TestParallelOptimalWorkers::test_get_optimal_workers_io_gil_locked [32mPASSED[0m
-tests/core/test_parallel.py::TestParallelProcessInParallel::test_process_in_parallel_with_interpreters_supported 
+tests/core/test_parallel.py::TestParallelProcessInParallel::test_process_in_parallel_with_interpreters_supported
 [1m-------------------------------- live log call ---------------------------------[0m
 [35mDEBUG   [0m nodupe.core.parallel:parallel.py:130 Submitted 3 tasks in 0.000s
 [35mDEBUG   [0m nodupe.core.parallel:parallel.py:141 Task 0 completed in 0.000s
 [35mDEBUG   [0m nodupe.core.parallel:parallel.py:141 Task 1 completed in 0.000s
 [35mDEBUG   [0m nodupe.core.parallel:parallel.py:141 Task 2 completed in 0.000s
 [32mPASSED[0m
-tests/core/test_parallel.py::TestParallelProcessInParallel::test_process_in_parallel_with_processes 
+tests/core/test_parallel.py::TestParallelProcessInParallel::test_process_in_parallel_with_processes
 [1m-------------------------------- live log call ---------------------------------[0m
 [35mDEBUG   [0m nodupe.core.parallel:parallel.py:130 Submitted 3 tasks in 0.001s
 [35mDEBUG   [0m nodupe.core.parallel:parallel.py:141 Task 0 completed in 0.000s
 [35mDEBUG   [0m nodupe.core.parallel:parallel.py:141 Task 1 completed in 0.000s
 [35mDEBUG   [0m nodupe.core.parallel:parallel.py:141 Task 2 completed in 0.000s
 [32mPASSED[0m
-tests/core/test_parallel.py::TestParallelProcessInParallel::test_process_in_parallel_with_threads 
+tests/core/test_parallel.py::TestParallelProcessInParallel::test_process_in_parallel_with_threads
 [1m-------------------------------- live log call ---------------------------------[0m
 [35mDEBUG   [0m nodupe.core.parallel:parallel.py:130 Submitted 3 tasks in 0.000s
 [35mDEBUG   [0m nodupe.core.parallel:parallel.py:141 Task 0 completed in 0.000s
@@ -61,4 +61,4 @@ tests/core/test_parallel.py::TestReduceParallel::test_reduce_parallel_basic [32
 tests/core/test_parallel.py::TestReduceParallel::test_reduce_parallel_with_initial [32mPASSED[0m
 tests/core/test_parallel.py::TestReduceParallel::test_reduce_parallel_empty_list_no_initial [32mPASSED[0m
 tests/core/test_parallel.py::TestReduceParallel::test_reduce_parallel_with_processes_and_interpreters [32mPASSED[0m
-tests/core/test_parallel.py::TestParallelUnorderedMap::test_map_parallel_unordered_with_processes_and_interpreters 
+tests/core/test_parallel.py::TestParallelUnorderedMap::test_map_parallel_unordered_with_processes_and_interpreters

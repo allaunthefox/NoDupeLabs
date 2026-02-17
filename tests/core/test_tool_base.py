@@ -61,7 +61,7 @@ class TestToolMetadata:
             author="Test Author",
             license="MIT",
             dependencies=["dep1", "dep2"],
-            tags=["test", "tool"]
+            tags=["test", "tool"],
         )
 
         assert metadata.name == "TestTool"
@@ -83,7 +83,7 @@ class TestToolMetadata:
             author="Test Author",
             license="MIT",
             dependencies=[],
-            tags=[]
+            tags=[],
         )
 
         # Should not be able to modify
@@ -135,9 +135,7 @@ class TestToolBase:
         """Test Tool instantiation with various parameters."""
         # Test with custom parameters
         tool = ConcreteTool(
-            name="CustomTool",
-            version="2.0.0",
-            dependencies=["custom_dep"]
+            name="CustomTool", version="2.0.0", dependencies=["custom_dep"]
         )
 
         assert tool.name == "CustomTool"
@@ -151,13 +149,15 @@ class TestAccessibleToolBase:
     def test_accessible_tool_inheritance(self):
         """Test that AccessibleTool inherits from Tool."""
         # AccessibleTool is now an interface in base.py, so we'll test its methods
-        from nodupe.core.tool_system.accessible_base import AccessibleTool as RealAccessibleTool
+        from nodupe.core.tool_system.accessible_base import (
+            AccessibleTool as RealAccessibleTool,
+        )
 
         tool = RealAccessibleTool()
 
         # Test that it has the expected methods
-        assert hasattr(tool, 'announce_to_assistive_tech')
-        assert hasattr(tool, 'format_for_accessibility')
-        assert hasattr(tool, 'get_ipc_socket_documentation')
-        assert hasattr(tool, 'get_accessible_status')
-        assert hasattr(tool, 'log_accessible_message')
+        assert hasattr(tool, "announce_to_assistive_tech")
+        assert hasattr(tool, "format_for_accessibility")
+        assert hasattr(tool, "get_ipc_socket_documentation")
+        assert hasattr(tool, "get_accessible_status")
+        assert hasattr(tool, "log_accessible_message")

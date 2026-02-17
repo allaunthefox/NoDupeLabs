@@ -85,7 +85,7 @@ class DatabaseLogging:
             )
             conn.execute(
                 "INSERT INTO db_logs (level, message) VALUES (?, ?)",
-                (level, message)
+                (level, message),
             )
             conn.commit()
         except Exception:

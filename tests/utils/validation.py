@@ -10,10 +10,7 @@ from typing import Any, Callable, Dict, List, Optional, Union
 from unittest.mock import MagicMock
 
 
-def validate_test_data_structure(
-    data: Any,
-    schema: dict[str, Any]
-) -> bool:
+def validate_test_data_structure(data: Any, schema: dict[str, Any]) -> bool:
     """
     Validate test data structure against a schema.
 
@@ -24,13 +21,23 @@ def validate_test_data_structure(
     Returns:
         True if data matches schema, False otherwise
     """
+
     def _validate(item, schema_part):
         if "type" in schema_part:
             expected_type = schema_part["type"]
-            if (expected_type == "dict" and not isinstance(item, dict)) or (expected_type == "list" and not isinstance(item, list)) or (expected_type == "str" and not isinstance(item, str)) or (expected_type == "int" and not isinstance(item, int)) or (expected_type == "float" and not isinstance(item, float)) or (expected_type == "bool" and not isinstance(item, bool)):
+            if (
+                (expected_type == "dict" and not isinstance(item, dict))
+                or (expected_type == "list" and not isinstance(item, list))
+                or (expected_type == "str" and not isinstance(item, str))
+                or (expected_type == "int" and not isinstance(item, int))
+                or (expected_type == "float" and not isinstance(item, float))
+                or (expected_type == "bool" and not isinstance(item, bool))
+            ):
                 return False
 
-        if "required" in schema_part and not all(key in item for key in schema_part["required"]):
+        if "required" in schema_part and not all(
+            key in item for key in schema_part["required"]
+        ):
             return False
 
         if "properties" in schema_part:
@@ -59,6 +66,7 @@ def validate_test_data_structure(
 
     return _validate(data, schema)
 
+
 def create_data_validation_test_cases() -> list[dict[str, Any]]:
     """
     Create data validation test cases.
@@ -74,37 +82,42 @@ def create_data_validation_test_cases() -> list[dict[str, Any]]:
                     "host": "localhost",
                     "port": 5432,
                     "username": "admin",
-                    "PASSWORD_REMOVED": "SECRET_REMOVED"
+                    "PASSWORD_REMOVED": "SECRET_REMOVED",
                 },
-                "logging": {
-                    "level": "INFO",
-                    "file": "/var/log/app.log"
-                }
+                "logging": {"level": "INFO", "file": "/var/log/app.log"},
             },
             "schema": {
                 "type": "dict",
                 "properties": {
                     "database": {
                         "type": "dict",
-                        "required": ["host", "port", "username", "PASSWORD_REMOVED"],
+                        "required": [
+                            "host",
+                            "port",
+                            "username",
+                            "PASSWORD_REMOVED",
+                        ],
                         "properties": {
                             "host": {"type": "str"},
                             "port": {"type": "int", "min": 1, "max": 65535},
                             "username": {"type": "str"},
-                            "PASSWORD_REMOVED": {"type": "str"}
-                        }
+                            "PASSWORD_REMOVED": {"type": "str"},
+                        },
                     },
                     "logging": {
                         "type": "dict",
                         "required": ["level", "file"],
                         "properties": {
-                            "level": {"type": "str", "pattern": "^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"},
-                            "file": {"type": "str"}
-                        }
-                    }
-                }
+                            "level": {
+                                "type": "str",
+                                "pattern": "^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",
+                            },
+                            "file": {"type": "str"},
+                        },
+                    },
+                },
             },
-            "expected_result": True
+            "expected_result": True,
         },
         {
             "name": "invalid_config_data",
@@ -112,7 +125,7 @@ def create_data_validation_test_cases() -> list[dict[str, Any]]:
                 "database": {
                     "host": "localhost",
                     "port": 70000,  # Invalid port
-                    "username": "admin"
+                    "username": "admin",
                     # Missing PASSWORD_REMOVED
                 }
             },
@@ -121,24 +134,28 @@ def create_data_validation_test_cases() -> list[dict[str, Any]]:
                 "properties": {
                     "database": {
                         "type": "dict",
-                        "required": ["host", "port", "username", "PASSWORD_REMOVED"],
+                        "required": [
+                            "host",
+                            "port",
+                            "username",
+                            "PASSWORD_REMOVED",
+                        ],
                         "properties": {
                             "host": {"type": "str"},
                             "port": {"type": "int", "min": 1, "max": 65535},
                             "username": {"type": "str"},
-                            "PASSWORD_REMOVED": {"type": "str"}
-                        }
+                            "PASSWORD_REMOVED": {"type": "str"},
+                        },
                     }
-                }
+                },
             },
-            "expected_result": False
-        }
+            "expected_result": False,
+        },
     ]
 
+
 def validate_file_integrity(
-    file_path: Path,
-    expected_hash: str,
-    algorithm: str = "sha256"
+    file_path: Path, expected_hash: str, algorithm: str = "sha256"
 ) -> bool:
     """
     Validate file integrity using hash comparison.
@@ -160,6 +177,7 @@ def validate_file_integrity(
     actual_hash = hash_func.hexdigest()
     return actual_hash == expected_hash
 
+
 def create_file_validation_test_scenarios() -> list[dict[str, Any]]:
     """
     Create file validation test scenarios.
@@ -172,25 +190,25 @@ def create_file_validation_test_scenarios() -> list[dict[str, Any]]:
             "name": "valid_file_integrity",
             "file_content": "test content for integrity check",
             "expected_hash": "a1b2c3d4e5f6",  # Placeholder - would be actual hash in real test
-            "expected_result": True
+            "expected_result": True,
         },
         {
             "name": "corrupted_file",
             "file_content": "corrupted content",
             "expected_hash": "a1b2c3d4e5f6",  # Different from actual hash
-            "expected_result": False
+            "expected_result": False,
         },
         {
             "name": "missing_file",
             "file_content": None,
             "expected_hash": "a1b2c3d4e5f6",
-            "expected_result": False
-        }
+            "expected_result": False,
+        },
     ]
 
+
 def validate_json_schema(
-    json_data: Union[str, dict],
-    schema: dict[str, Any]
+    json_data: Union[str, dict], schema: dict[str, Any]
 ) -> bool:
     """
     Validate JSON data against a schema.
@@ -211,6 +229,7 @@ def validate_json_schema(
         data = json_data
 
     return validate_test_data_structure(data, schema)
+
 
 def create_json_validation_test_cases() -> list[dict[str, Any]]:
     """
@@ -238,7 +257,10 @@ def create_json_validation_test_cases() -> list[dict[str, Any]]:
                 "type": "dict",
                 "required": ["status", "data", "timestamp"],
                 "properties": {
-                    "status": {"type": "str", "pattern": "^(success|error|warning)$"},
+                    "status": {
+                        "type": "str",
+                        "pattern": "^(success|error|warning)$",
+                    },
                     "data": {
                         "type": "dict",
                         "required": ["users"],
@@ -250,16 +272,19 @@ def create_json_validation_test_cases() -> list[dict[str, Any]]:
                                     "required": ["id", "name"],
                                     "properties": {
                                         "id": {"type": "int", "min": 1},
-                                        "name": {"type": "str"}
-                                    }
-                                }
+                                        "name": {"type": "str"},
+                                    },
+                                },
                             }
-                        }
+                        },
                     },
-                    "timestamp": {"type": "str", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"}
-                }
+                    "timestamp": {
+                        "type": "str",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+                    },
+                },
             },
-            "expected_result": True
+            "expected_result": True,
         },
         {
             "name": "invalid_json_api_response",
@@ -277,7 +302,10 @@ def create_json_validation_test_cases() -> list[dict[str, Any]]:
                 "type": "dict",
                 "required": ["status", "data", "timestamp"],
                 "properties": {
-                    "status": {"type": "str", "pattern": "^(success|error|warning)$"},
+                    "status": {
+                        "type": "str",
+                        "pattern": "^(success|error|warning)$",
+                    },
                     "data": {
                         "type": "dict",
                         "required": ["users"],
@@ -289,22 +317,25 @@ def create_json_validation_test_cases() -> list[dict[str, Any]]:
                                     "required": ["id", "name"],
                                     "properties": {
                                         "id": {"type": "int", "min": 1},
-                                        "name": {"type": "str"}
-                                    }
-                                }
+                                        "name": {"type": "str"},
+                                    },
+                                },
                             }
-                        }
+                        },
                     },
-                    "timestamp": {"type": "str", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"}
-                }
+                    "timestamp": {
+                        "type": "str",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+                    },
+                },
             },
-            "expected_result": False
-        }
+            "expected_result": False,
+        },
     ]
 
+
 def validate_database_schema(
-    database_schema: dict[str, Any],
-    expected_schema: dict[str, Any]
+    database_schema: dict[str, Any], expected_schema: dict[str, Any]
 ) -> bool:
     """
     Validate database schema structure.
@@ -328,7 +359,9 @@ def validate_database_schema(
         actual_table = database_schema[table_name]
 
         # Compare columns
-        if set(table_def["columns"].keys()) != set(actual_table["columns"].keys()):
+        if set(table_def["columns"].keys()) != set(
+            actual_table["columns"].keys()
+        ):
             return False
 
         # Compare column definitions
@@ -341,10 +374,13 @@ def validate_database_schema(
             if col_def["type"] != actual_col["type"]:
                 return False
 
-            if "constraints" in col_def and col_def["constraints"] != actual_col.get("constraints", []):
+            if "constraints" in col_def and col_def[
+                "constraints"
+            ] != actual_col.get("constraints", []):
                 return False
 
     return True
+
 
 def create_database_validation_test_scenarios() -> list[dict[str, Any]]:
     """
@@ -359,46 +395,67 @@ def create_database_validation_test_scenarios() -> list[dict[str, Any]]:
             "database_schema": {
                 "users": {
                     "columns": {
-                        "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY"]},
+                        "id": {
+                            "type": "INTEGER",
+                            "constraints": ["PRIMARY KEY"],
+                        },
                         "name": {"type": "TEXT", "constraints": ["NOT NULL"]},
-                        "email": {"type": "TEXT", "constraints": ["UNIQUE"]}
+                        "email": {"type": "TEXT", "constraints": ["UNIQUE"]},
                     }
                 },
                 "posts": {
                     "columns": {
-                        "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY"]},
-                        "user_id": {"type": "INTEGER", "constraints": ["FOREIGN KEY"]},
+                        "id": {
+                            "type": "INTEGER",
+                            "constraints": ["PRIMARY KEY"],
+                        },
+                        "user_id": {
+                            "type": "INTEGER",
+                            "constraints": ["FOREIGN KEY"],
+                        },
                         "title": {"type": "TEXT"},
-                        "content": {"type": "TEXT"}
+                        "content": {"type": "TEXT"},
                     }
-                }
+                },
             },
             "expected_schema": {
                 "users": {
                     "columns": {
-                        "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY"]},
+                        "id": {
+                            "type": "INTEGER",
+                            "constraints": ["PRIMARY KEY"],
+                        },
                         "name": {"type": "TEXT", "constraints": ["NOT NULL"]},
-                        "email": {"type": "TEXT", "constraints": ["UNIQUE"]}
+                        "email": {"type": "TEXT", "constraints": ["UNIQUE"]},
                     }
                 },
                 "posts": {
                     "columns": {
-                        "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY"]},
-                        "user_id": {"type": "INTEGER", "constraints": ["FOREIGN KEY"]},
+                        "id": {
+                            "type": "INTEGER",
+                            "constraints": ["PRIMARY KEY"],
+                        },
+                        "user_id": {
+                            "type": "INTEGER",
+                            "constraints": ["FOREIGN KEY"],
+                        },
                         "title": {"type": "TEXT"},
-                        "content": {"type": "TEXT"}
+                        "content": {"type": "TEXT"},
                     }
-                }
+                },
             },
-            "expected_result": True
+            "expected_result": True,
         },
         {
             "name": "invalid_database_schema",
             "database_schema": {
                 "users": {
                     "columns": {
-                        "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY"]},
-                        "name": {"type": "TEXT"}
+                        "id": {
+                            "type": "INTEGER",
+                            "constraints": ["PRIMARY KEY"],
+                        },
+                        "name": {"type": "TEXT"},
                         # Missing email column
                     }
                 }
@@ -406,19 +463,22 @@ def create_database_validation_test_scenarios() -> list[dict[str, Any]]:
             "expected_schema": {
                 "users": {
                     "columns": {
-                        "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY"]},
+                        "id": {
+                            "type": "INTEGER",
+                            "constraints": ["PRIMARY KEY"],
+                        },
                         "name": {"type": "TEXT", "constraints": ["NOT NULL"]},
-                        "email": {"type": "TEXT", "constraints": ["UNIQUE"]}
+                        "email": {"type": "TEXT", "constraints": ["UNIQUE"]},
                     }
                 }
             },
-            "expected_result": False
-        }
+            "expected_result": False,
+        },
     ]
 
+
 def validate_tool_structure(
-    tool_definition: dict[str, Any],
-    expected_structure: dict[str, Any]
+    tool_definition: dict[str, Any], expected_structure: dict[str, Any]
 ) -> bool:
     """
     Validate tool structure and metadata.
@@ -438,7 +498,9 @@ def validate_tool_structure(
     # Check metadata structure
     if "metadata" in expected_structure:
         metadata_schema = expected_structure["metadata"]
-        if not validate_test_data_structure(tool_definition.get("metadata", {}), metadata_schema):
+        if not validate_test_data_structure(
+            tool_definition.get("metadata", {}), metadata_schema
+        ):
             return False
 
     # Check function signatures
@@ -455,6 +517,7 @@ def validate_tool_structure(
             if "parameters" in func_schema:
                 try:
                     import inspect
+
                     sig = inspect.signature(actual_func)
                     if len(sig.parameters) != len(expected_params):
                         return False
@@ -462,6 +525,7 @@ def validate_tool_structure(
                     pass
 
     return True
+
 
 def create_tool_validation_test_cases() -> list[dict[str, Any]]:
     """
@@ -480,13 +544,13 @@ def create_tool_validation_test_cases() -> list[dict[str, Any]]:
                 "description": "Test tool",
                 "metadata": {
                     "category": "utility",
-                    "compatibility": ["1.0", "2.0"]
+                    "compatibility": ["1.0", "2.0"],
                 },
                 "functions": {
                     "initialize": lambda: True,
                     "execute": lambda x: x * 2,
-                    "cleanup": lambda: None
-                }
+                    "cleanup": lambda: None,
+                },
             },
             "expected_structure": {
                 "required_fields": ["name", "version", "author", "description"],
@@ -495,16 +559,19 @@ def create_tool_validation_test_cases() -> list[dict[str, Any]]:
                     "required": ["category", "compatibility"],
                     "properties": {
                         "category": {"type": "str"},
-                        "compatibility": {"type": "list", "items": {"type": "str"}}
-                    }
+                        "compatibility": {
+                            "type": "list",
+                            "items": {"type": "str"},
+                        },
+                    },
                 },
                 "functions": {
                     "initialize": {"parameters": []},
                     "execute": {"parameters": ["x"]},
-                    "cleanup": {"parameters": []}
-                }
+                    "cleanup": {"parameters": []},
+                },
             },
-            "expected_result": True
+            "expected_result": True,
         },
         {
             "name": "invalid_tool_structure",
@@ -514,23 +581,23 @@ def create_tool_validation_test_cases() -> list[dict[str, Any]]:
                 "functions": {
                     "initialize": lambda: True
                     # Missing required functions
-                }
+                },
             },
             "expected_structure": {
                 "required_fields": ["name", "version", "author", "description"],
                 "functions": {
                     "initialize": {"parameters": []},
                     "execute": {"parameters": ["x"]},
-                    "cleanup": {"parameters": []}
-                }
+                    "cleanup": {"parameters": []},
+                },
             },
-            "expected_result": False
-        }
+            "expected_result": False,
+        },
     ]
 
+
 def validate_api_response(
-    response: dict[str, Any],
-    expected_schema: dict[str, Any]
+    response: dict[str, Any], expected_schema: dict[str, Any]
 ) -> bool:
     """
     Validate API response structure.
@@ -543,6 +610,7 @@ def validate_api_response(
         True if response is valid, False otherwise
     """
     return validate_test_data_structure(response, expected_schema)
+
 
 def create_api_validation_test_scenarios() -> list[dict[str, Any]]:
     """
@@ -560,21 +628,20 @@ def create_api_validation_test_scenarios() -> list[dict[str, Any]]:
                 "data": {
                     "items": [
                         {"id": 1, "name": "Item 1"},
-                        {"id": 2, "name": "Item 2"}
+                        {"id": 2, "name": "Item 2"},
                     ],
-                    "pagination": {
-                        "page": 1,
-                        "page_size": 10,
-                        "total": 2
-                    }
+                    "pagination": {"page": 1, "page_size": 10, "total": 2},
                 },
-                "timestamp": "2023-01-01T00:00:00Z"
+                "timestamp": "2023-01-01T00:00:00Z",
             },
             "expected_schema": {
                 "type": "dict",
                 "required": ["status", "code", "data", "timestamp"],
                 "properties": {
-                    "status": {"type": "str", "pattern": "^(success|error|warning)$"},
+                    "status": {
+                        "type": "str",
+                        "pattern": "^(success|error|warning)$",
+                    },
                     "code": {"type": "int", "min": 200, "max": 599},
                     "data": {
                         "type": "dict",
@@ -587,25 +654,32 @@ def create_api_validation_test_scenarios() -> list[dict[str, Any]]:
                                     "required": ["id", "name"],
                                     "properties": {
                                         "id": {"type": "int", "min": 1},
-                                        "name": {"type": "str"}
-                                    }
-                                }
+                                        "name": {"type": "str"},
+                                    },
+                                },
                             },
                             "pagination": {
                                 "type": "dict",
                                 "required": ["page", "page_size", "total"],
                                 "properties": {
                                     "page": {"type": "int", "min": 1},
-                                    "page_size": {"type": "int", "min": 1, "max": 100},
-                                    "total": {"type": "int", "min": 0}
-                                }
-                            }
-                        }
+                                    "page_size": {
+                                        "type": "int",
+                                        "min": 1,
+                                        "max": 100,
+                                    },
+                                    "total": {"type": "int", "min": 0},
+                                },
+                            },
+                        },
                     },
-                    "timestamp": {"type": "str", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"}
-                }
+                    "timestamp": {
+                        "type": "str",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+                    },
+                },
             },
-            "expected_result": True
+            "expected_result": True,
         },
         {
             "name": "invalid_api_response",
@@ -614,15 +688,21 @@ def create_api_validation_test_scenarios() -> list[dict[str, Any]]:
                 "code": 999,  # Invalid code
                 "data": {
                     "items": [
-                        {"id": "not_an_int", "name": "Item 1"}  # Invalid ID type
+                        {
+                            "id": "not_an_int",
+                            "name": "Item 1",
+                        }  # Invalid ID type
                     ]
-                }
+                },
             },
             "expected_schema": {
                 "type": "dict",
                 "required": ["status", "code", "data", "timestamp"],
                 "properties": {
-                    "status": {"type": "str", "pattern": "^(success|error|warning)$"},
+                    "status": {
+                        "type": "str",
+                        "pattern": "^(success|error|warning)$",
+                    },
                     "code": {"type": "int", "min": 200, "max": 599},
                     "data": {
                         "type": "dict",
@@ -635,21 +715,21 @@ def create_api_validation_test_scenarios() -> list[dict[str, Any]]:
                                     "required": ["id", "name"],
                                     "properties": {
                                         "id": {"type": "int", "min": 1},
-                                        "name": {"type": "str"}
-                                    }
-                                }
+                                        "name": {"type": "str"},
+                                    },
+                                },
                             }
-                        }
-                    }
-                }
+                        },
+                    },
+                },
             },
-            "expected_result": False
-        }
+            "expected_result": False,
+        },
     ]
 
+
 def validate_configuration_files(
-    config_files: list[Path],
-    expected_structure: dict[str, Any]
+    config_files: list[Path], expected_structure: dict[str, Any]
 ) -> dict[str, bool]:
     """
     Validate multiple configuration files.
@@ -668,11 +748,14 @@ def validate_configuration_files(
             with open(config_file) as f:
                 config_data = json.load(f)
 
-            results[str(config_file)] = validate_test_data_structure(config_data, expected_structure)
+            results[str(config_file)] = validate_test_data_structure(
+                config_data, expected_structure
+            )
         except (OSError, json.JSONDecodeError):
             results[str(config_file)] = False
 
     return results
+
 
 def create_configuration_validation_test_cases() -> list[dict[str, Any]]:
     """
@@ -700,7 +783,7 @@ def create_configuration_validation_test_cases() -> list[dict[str, Any]]:
                         }
                     }
                     """,
-                    "expected_result": True
+                    "expected_result": True,
                 },
                 {
                     "content": """
@@ -713,31 +796,39 @@ def create_configuration_validation_test_cases() -> list[dict[str, Any]]:
                         }
                     }
                     """,
-                    "expected_result": True
-                }
+                    "expected_result": True,
+                },
             ],
             "expected_structure": {
                 "type": "dict",
                 "properties": {
                     "database": {
                         "type": "dict",
-                        "required": ["host", "port", "username", "PASSWORD_REMOVED"],
+                        "required": [
+                            "host",
+                            "port",
+                            "username",
+                            "PASSWORD_REMOVED",
+                        ],
                         "properties": {
                             "host": {"type": "str"},
                             "port": {"type": "int", "min": 1, "max": 65535},
                             "username": {"type": "str"},
-                            "PASSWORD_REMOVED": {"type": "str"}
-                        }
+                            "PASSWORD_REMOVED": {"type": "str"},
+                        },
                     },
                     "logging": {
                         "type": "dict",
                         "properties": {
-                            "level": {"type": "str", "pattern": "^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"},
-                            "file": {"type": "str"}
-                        }
-                    }
-                }
-            }
+                            "level": {
+                                "type": "str",
+                                "pattern": "^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",
+                            },
+                            "file": {"type": "str"},
+                        },
+                    },
+                },
+            },
         },
         {
             "name": "invalid_configuration_files",
@@ -752,34 +843,36 @@ def create_configuration_validation_test_cases() -> list[dict[str, Any]]:
                         }
                     }
                     """,
-                    "expected_result": False
+                    "expected_result": False,
                 },
-                {
-                    "content": "invalid json content",
-                    "expected_result": False
-                }
+                {"content": "invalid json content", "expected_result": False},
             ],
             "expected_structure": {
                 "type": "dict",
                 "properties": {
                     "database": {
                         "type": "dict",
-                        "required": ["host", "port", "username", "PASSWORD_REMOVED"],
+                        "required": [
+                            "host",
+                            "port",
+                            "username",
+                            "PASSWORD_REMOVED",
+                        ],
                         "properties": {
                             "host": {"type": "str"},
                             "port": {"type": "int", "min": 1, "max": 65535},
                             "username": {"type": "str"},
-                            "PASSWORD_REMOVED": {"type": "str"}
-                        }
+                            "PASSWORD_REMOVED": {"type": "str"},
+                        },
                     }
-                }
-            }
-        }
+                },
+            },
+        },
     ]
 
+
 def validate_data_consistency(
-    data_source: Any,
-    validation_rules: list[dict[str, Any]]
+    data_source: Any, validation_rules: list[dict[str, Any]]
 ) -> bool:
     """
     Validate data consistency against validation rules.
@@ -791,6 +884,7 @@ def validate_data_consistency(
     Returns:
         True if data is consistent, False otherwise
     """
+
     def get_nested_value(data, field_path):
         """Get value from nested data structure using dot notation or direct field name"""
         if not isinstance(data, dict):
@@ -801,8 +895,8 @@ def validate_data_consistency(
             return data[field_path]
 
         # Try nested access using dot notation
-        if '.' in field_path:
-            parts = field_path.split('.')
+        if "." in field_path:
+            parts = field_path.split(".")
             current = data
             for part in parts:
                 if isinstance(current, dict) and part in current:
@@ -847,6 +941,7 @@ def validate_data_consistency(
 
     return True
 
+
 def create_data_consistency_test_scenarios() -> list[dict[str, Any]]:
     """
     Create data consistency test scenarios.
@@ -863,17 +958,38 @@ def create_data_consistency_test_scenarios() -> list[dict[str, Any]]:
                     "username": "test_user",
                     "email": "test@example.com",
                     "status": "active",
-                    "age": 25
+                    "age": 25,
                 }
             },
             "validation_rules": [
-                {"field": "id", "type": "range", "min": 1, "max": 1000, "required": True},
-                {"field": "username", "type": "pattern", "pattern": "^[a-z_]+$", "required": True},
-                {"field": "email", "type": "pattern", "pattern": "^[^@]+@[^@]+\\.[^@]+$", "required": True},
-                {"field": "status", "type": "enum", "values": ["active", "inactive", "suspended"], "required": True},
-                {"field": "age", "type": "range", "min": 18, "max": 120}
+                {
+                    "field": "id",
+                    "type": "range",
+                    "min": 1,
+                    "max": 1000,
+                    "required": True,
+                },
+                {
+                    "field": "username",
+                    "type": "pattern",
+                    "pattern": "^[a-z_]+$",
+                    "required": True,
+                },
+                {
+                    "field": "email",
+                    "type": "pattern",
+                    "pattern": "^[^@]+@[^@]+\\.[^@]+$",
+                    "required": True,
+                },
+                {
+                    "field": "status",
+                    "type": "enum",
+                    "values": ["active", "inactive", "suspended"],
+                    "required": True,
+                },
+                {"field": "age", "type": "range", "min": 18, "max": 120},
             ],
-            "expected_result": True
+            "expected_result": True,
         },
         {
             "name": "invalid_data_consistency",
@@ -883,16 +999,37 @@ def create_data_consistency_test_scenarios() -> list[dict[str, Any]]:
                     "username": "Invalid User",  # Invalid username
                     "email": "not-an-email",  # Invalid email
                     "status": "unknown",  # Invalid status
-                    "age": 15  # Invalid age
+                    "age": 15,  # Invalid age
                 }
             },
             "validation_rules": [
-                {"field": "id", "type": "range", "min": 1, "max": 1000, "required": True},
-                {"field": "username", "type": "pattern", "pattern": "^[a-z_]+$", "required": True},
-                {"field": "email", "type": "pattern", "pattern": "^[^@]+@[^@]+\\.[^@]+$", "required": True},
-                {"field": "status", "type": "enum", "values": ["active", "inactive", "suspended"], "required": True},
-                {"field": "age", "type": "range", "min": 18, "max": 120}
+                {
+                    "field": "id",
+                    "type": "range",
+                    "min": 1,
+                    "max": 1000,
+                    "required": True,
+                },
+                {
+                    "field": "username",
+                    "type": "pattern",
+                    "pattern": "^[a-z_]+$",
+                    "required": True,
+                },
+                {
+                    "field": "email",
+                    "type": "pattern",
+                    "pattern": "^[^@]+@[^@]+\\.[^@]+$",
+                    "required": True,
+                },
+                {
+                    "field": "status",
+                    "type": "enum",
+                    "values": ["active", "inactive", "suspended"],
+                    "required": True,
+                },
+                {"field": "age", "type": "range", "min": 18, "max": 120},
             ],
-            "expected_result": False
-        }
+            "expected_result": False,
+        },
     ]

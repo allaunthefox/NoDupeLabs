@@ -53,7 +53,6 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any, Optional
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -66,7 +65,9 @@ DEFAULT_SMOOTHING_ALPHA = 0.3
 
 # Precompiled struct formats for performance
 NTP_PACKET_STRUCT = struct.Struct("!12I")  # Precompiled "!12I" format
-NTP_TIMESTAMP_STRUCT = struct.Struct("!II")  # Precompiled "!II" format for timestamps
+NTP_TIMESTAMP_STRUCT = struct.Struct(
+    "!II"
+)  # Precompiled "!II" format for timestamps
 
 # FastDate64 constants
 FASTDATE_SECONDS_BITS = 34
@@ -94,6 +95,7 @@ class NTPResponse:
         attempt: Attempt number.
         timestamp: Response timestamp.
     """
+
     server_time: float
     offset: float
     delay: float
@@ -113,6 +115,7 @@ class ParallelQueryResult:
         all_responses: All responses received.
         errors: List of errors encountered.
     """
+
     success: bool
     best_response: Optional[NTPResponse]
     all_responses: list[NTPResponse]
@@ -145,7 +148,9 @@ class DNSCache:
         """
         self._ttl = ttl
         self._max_size = max_size
-        self._cache: OrderedDict[str, tuple[list[AddressTuple], float]] = OrderedDict()
+        self._cache: OrderedDict[str, tuple[list[AddressTuple], float]] = (
+            OrderedDict()
+        )
         self._lock = threading.RLock()
 
     def get(self, host: str, port: int = 123) -> Optional[list[AddressTuple]]:
@@ -274,9 +279,13 @@ class MonotonicTimeCalculator:
         return self._wall_start + mono_elapsed
 
     @staticmethod
-    def calculate_ntp_rtt(t1_wall: float, t2_wall: float,
-                         t3_wall: float, t4_mono: float,
-                         mono_start: float) -> tuple[float, float]:
+    def calculate_ntp_rtt(
+        t1_wall: float,
+        t2_wall: float,
+        t3_wall: float,
+        t4_mono: float,
+        mono_start: float,
+    ) -> tuple[float, float]:
         """Calculate NTP round-trip delay and offset using monotonic timing.
 
         Args:
@@ -331,7 +340,9 @@ class TargetedFileScanner:
             "/tmp",
         ]
 
-    def get_recent_file_time(self, additional_paths: Optional[list[str]] = None) -> Optional[float]:
+    def get_recent_file_time(
+        self, additional_paths: Optional[list[str]] = None
+    ) -> Optional[float]:
         """Get timestamp from most recently modified file.
 
         Args:
@@ -354,7 +365,9 @@ class TargetedFileScanner:
             try:
                 path_time = self._scan_path(path, file_count)
                 latest_time = max(latest_time, path_time)
-                file_count = min(file_count + 100, self._max_files)  # Estimate files per path
+                file_count = min(
+                    file_count + 100, self._max_files
+                )  # Estimate files per path
             except OSError:
                 continue
 
@@ -378,7 +391,9 @@ class TargetedFileScanner:
         if os.path.isfile(path):
             try:
                 mtime = os.path.getmtime(path)
-                if mtime > latest_time and mtime > 1000000000:  # After year 2002
+                if (
+                    mtime > latest_time and mtime > 1000000000
+                ):  # After year 2002
                     latest_time = mtime
             except OSError:
                 pass
@@ -388,7 +403,7 @@ class TargetedFileScanner:
         for root, dirs, files in os.walk(path):
             # Limit depth
             if root != path:
-                depth = root[len(path):].count(os.sep)
+                depth = root[len(path) :].count(os.sep)
                 if depth >= self._max_depth:
                     dirs[:] = []  # Don't recurse deeper
                     continue
@@ -401,7 +416,9 @@ class TargetedFileScanner:
                 try:
                     file_path = os.path.join(root, file)
                     mtime = os.path.getmtime(file_path)
-                    if mtime > latest_time and mtime > 1000000000:  # After year 2002
+                    if (
+                        mtime > latest_time and mtime > 1000000000
+                    ):  # After year 2002
                         latest_time = mtime
                     file_count += 1
                 except OSError:
@@ -427,10 +444,12 @@ class ParallelNTPClient:
         >>> print(f"Success: {result.success}")
     """
 
-    def __init__(self,
-                 timeout: float = DEFAULT_TIMEOUT,
-                 max_workers: Optional[int] = None,
-                 dns_cache: Optional[DNSCache] = None) -> None:
+    def __init__(
+        self,
+        timeout: float = DEFAULT_TIMEOUT,
+        max_workers: Optional[int] = None,
+        dns_cache: Optional[DNSCache] = None,
+    ) -> None:
         """Initialize parallel NTP client.
 
         Args:
@@ -449,20 +468,21 @@ class ParallelNTPClient:
         """Get or create thread pool executor."""
         if self._executor is None or self._executor._broken:
             self._executor = ThreadPoolExecutor(
-                max_workers=self._max_workers,
-                thread_name_prefix="NTPWorker"
+                max_workers=self._max_workers, thread_name_prefix="NTPWorker"
             )
             # Keep weak reference to detect external shutdown
             self._executor_ref = weakref.ref(self._executor)
         assert self._executor is not None
         return self._executor
 
-    def query_hosts_parallel(self,
-                           hosts: Iterable[str],
-                           attempts_per_host: int = DEFAULT_ATTEMPTS,
-                           max_acceptable_delay: float = DEFAULT_MAX_ACCEPTABLE_DELAY,
-                           stop_on_good_result: bool = True,
-                           good_delay_threshold: float = 0.1) -> ParallelQueryResult:
+    def query_hosts_parallel(
+        self,
+        hosts: Iterable[str],
+        attempts_per_host: int = DEFAULT_ATTEMPTS,
+        max_acceptable_delay: float = DEFAULT_MAX_ACCEPTABLE_DELAY,
+        stop_on_good_result: bool = True,
+        good_delay_threshold: float = 0.1,
+    ) -> ParallelQueryResult:
         """Query multiple NTP hosts in parallel.
 
         Args:
@@ -483,7 +503,12 @@ class ParallelNTPClient:
                 host_addresses[host] = addresses
 
         if not host_addresses:
-            return ParallelQueryResult(False, None, [], [("No hosts resolved", Exception("DNS resolution failed"))])
+            return ParallelQueryResult(
+                False,
+                None,
+                [],
+                [("No hosts resolved", Exception("DNS resolution failed"))],
+            )
 
         # Submit all queries
         futures_to_query: dict[Future, tuple[str, AddressTuple, int]] = {}
@@ -497,7 +522,7 @@ class ParallelNTPClient:
                         query_id,
                         host,
                         addr_info,
-                        attempt
+                        attempt,
                     )
                     futures_to_query[future] = (host, addr_info, attempt)
                     query_id += 1
@@ -516,14 +541,18 @@ class ParallelNTPClient:
                 responses.append(response)
 
                 # Update best response
-                if (best_response is None or
-                    response.delay < best_response.delay):
+                if (
+                    best_response is None
+                    or response.delay < best_response.delay
+                ):
                     best_response = response
 
                 # Check for early termination
-                if (stop_on_good_result and
-                    response.delay <= good_delay_threshold and
-                    abs(response.offset) < 1.0):
+                if (
+                    stop_on_good_result
+                    and response.delay <= good_delay_threshold
+                    and abs(response.offset) < 1.0
+                ):
                     good_result_found = True
                     break
 
@@ -537,8 +566,10 @@ class ParallelNTPClient:
                     future.cancel()
 
         # Validate best response
-        success = (best_response is not None and
-                  best_response.delay <= max_acceptable_delay)
+        success = (
+            best_response is not None
+            and best_response.delay <= max_acceptable_delay
+        )
 
         return ParallelQueryResult(success, best_response, responses, errors)
 
@@ -565,11 +596,9 @@ class ParallelNTPClient:
             self._dns_cache.set(host, 123, [])  # Cache failure
             return []
 
-    def _query_single_address(self,
-                            query_id: int,
-                            host: str,
-                            addr_info: AddressTuple,
-                            attempt: int) -> NTPResponse:
+    def _query_single_address(
+        self, query_id: int, host: str, addr_info: AddressTuple, attempt: int
+    ) -> NTPResponse:
         """Query a single address and return response.
 
         Args:
@@ -613,7 +642,9 @@ class ParallelNTPClient:
         t3 = self._from_ntp(unpacked[10], unpacked[11])
 
         # Calculate delay and offset using monotonic timing
-        delay, offset = timer.calculate_ntp_rtt(t1_wall, t2, t3, t4_mono, t1_mono)
+        delay, offset = timer.calculate_ntp_rtt(
+            t1_wall, t2, t3, t4_mono, t1_mono
+        )
 
         return NTPResponse(
             server_time=t3,
@@ -622,7 +653,7 @@ class ParallelNTPClient:
             host=host,
             address=sockaddr,
             attempt=attempt,
-            timestamp=time.time()
+            timestamp=time.time(),
         )
 
     def _to_ntp(self, ts: float) -> tuple[int, int]:
@@ -695,7 +726,9 @@ class FastDate64Encoder:
         frac = int((ts - sec) * FASTDATE_FRAC_SCALE)
 
         if sec > FASTDATE_SECONDS_MAX:
-            raise OverflowError(f"Timestamp seconds {sec} too large for {FASTDATE_SECONDS_BITS}-bit field")
+            raise OverflowError(
+                f"Timestamp seconds {sec} too large for {FASTDATE_SECONDS_BITS}-bit field"
+            )
 
         return (sec << FASTDATE_FRAC_BITS) | (frac & (FASTDATE_FRAC_SCALE - 1))
 
@@ -763,16 +796,18 @@ class PerformanceMetrics:
     def __init__(self) -> None:
         """Initialize performance metrics collector."""
         self._metrics: dict[str, Any] = {
-            'ntp_queries': [],
-            'dns_cache_hits': 0,
-            'dns_cache_misses': 0,
-            'parallel_queries': [],
-            'fallback_usage': [],
-            'errors': []
+            "ntp_queries": [],
+            "dns_cache_hits": 0,
+            "dns_cache_misses": 0,
+            "parallel_queries": [],
+            "fallback_usage": [],
+            "errors": [],
         }
         self._lock = threading.Lock()
 
-    def record_ntp_query(self, host: str, delay: float, success: bool, duration: float) -> None:
+    def record_ntp_query(
+        self, host: str, delay: float, success: bool, duration: float
+    ) -> None:
         """Record NTP query metrics.
 
         Args:
@@ -782,26 +817,34 @@ class PerformanceMetrics:
             duration: Query duration in seconds.
         """
         with self._lock:
-            self._metrics['ntp_queries'].append({
-                'host': host,
-                'delay': delay,
-                'success': success,
-                'duration': duration,
-                'timestamp': time.time()
-            })
+            self._metrics["ntp_queries"].append(
+                {
+                    "host": host,
+                    "delay": delay,
+                    "success": success,
+                    "duration": duration,
+                    "timestamp": time.time(),
+                }
+            )
 
     def record_dns_cache_hit(self) -> None:
         """Record DNS cache hit."""
         with self._lock:
-            self._metrics['dns_cache_hits'] += 1
+            self._metrics["dns_cache_hits"] += 1
 
     def record_dns_cache_miss(self) -> None:
         """Record DNS cache miss."""
         with self._lock:
-            self._metrics['dns_cache_misses'] += 1
+            self._metrics["dns_cache_misses"] += 1
 
-    def record_parallel_query(self, num_hosts: int, num_addresses: int,
-                            success: bool, duration: float, best_delay: float) -> None:
+    def record_parallel_query(
+        self,
+        num_hosts: int,
+        num_addresses: int,
+        success: bool,
+        duration: float,
+        best_delay: float,
+    ) -> None:
         """Record parallel query metrics.
 
         Args:
@@ -812,14 +855,16 @@ class PerformanceMetrics:
             best_delay: Best delay achieved.
         """
         with self._lock:
-            self._metrics['parallel_queries'].append({
-                'hosts': num_hosts,
-                'addresses': num_addresses,
-                'success': success,
-                'duration': duration,
-                'best_delay': best_delay,
-                'timestamp': time.time()
-            })
+            self._metrics["parallel_queries"].append(
+                {
+                    "hosts": num_hosts,
+                    "addresses": num_addresses,
+                    "success": success,
+                    "duration": duration,
+                    "best_delay": best_delay,
+                    "timestamp": time.time(),
+                }
+            )
 
     def record_fallback_usage(self, method: str, duration: float) -> None:
         """Record fallback method usage.
@@ -829,11 +874,13 @@ class PerformanceMetrics:
             duration: Duration in seconds.
         """
         with self._lock:
-            self._metrics['fallback_usage'].append({
-                'method': method,
-                'duration': duration,
-                'timestamp': time.time()
-            })
+            self._metrics["fallback_usage"].append(
+                {
+                    "method": method,
+                    "duration": duration,
+                    "timestamp": time.time(),
+                }
+            )
 
     def record_error(self, error_type: str, message: str) -> None:
         """Record error occurrence.
@@ -843,11 +890,13 @@ class PerformanceMetrics:
             message: Error message.
         """
         with self._lock:
-            self._metrics['errors'].append({
-                'type': error_type,
-                'message': message,
-                'timestamp': time.time()
-            })
+            self._metrics["errors"].append(
+                {
+                    "type": error_type,
+                    "message": message,
+                    "timestamp": time.time(),
+                }
+            )
 
     def get_summary(self) -> dict[str, Any]:
         """Get performance metrics summary.
@@ -860,25 +909,35 @@ class PerformanceMetrics:
 
         # Calculate summary statistics
         summary: dict[str, Any] = {
-            'total_queries': len(metrics['ntp_queries']),
-            'success_rate': 0.0,
-            'avg_delay': 0.0,
-            'avg_duration': 0.0,
-            'dns_cache_hit_rate': 0.0,
-            'total_parallel_queries': len(metrics['parallel_queries']),
-            'fallback_count': len(metrics['fallback_usage']),
-            'error_count': len(metrics['errors'])
+            "total_queries": len(metrics["ntp_queries"]),
+            "success_rate": 0.0,
+            "avg_delay": 0.0,
+            "avg_duration": 0.0,
+            "dns_cache_hit_rate": 0.0,
+            "total_parallel_queries": len(metrics["parallel_queries"]),
+            "fallback_count": len(metrics["fallback_usage"]),
+            "error_count": len(metrics["errors"]),
         }
 
-        if metrics['ntp_queries']:
-            successful = [q for q in metrics['ntp_queries'] if q['success']]
-            summary['success_rate'] = len(successful) / len(metrics['ntp_queries'])
-            summary['avg_delay'] = sum(q['delay'] for q in successful) / len(successful) if successful else 0.0
-            summary['avg_duration'] = sum(q['duration'] for q in metrics['ntp_queries']) / len(metrics['ntp_queries'])
+        if metrics["ntp_queries"]:
+            successful = [q for q in metrics["ntp_queries"] if q["success"]]
+            summary["success_rate"] = len(successful) / len(
+                metrics["ntp_queries"]
+            )
+            summary["avg_delay"] = (
+                sum(q["delay"] for q in successful) / len(successful)
+                if successful
+                else 0.0
+            )
+            summary["avg_duration"] = sum(
+                q["duration"] for q in metrics["ntp_queries"]
+            ) / len(metrics["ntp_queries"])
 
-        total_dns = metrics['dns_cache_hits'] + metrics['dns_cache_misses']
+        total_dns = metrics["dns_cache_hits"] + metrics["dns_cache_misses"]
         if total_dns > 0:
-            summary['dns_cache_hit_rate'] = metrics['dns_cache_hits'] / total_dns
+            summary["dns_cache_hit_rate"] = (
+                metrics["dns_cache_hits"] / total_dns
+            )
 
         return summary
 
@@ -931,4 +990,6 @@ def performance_timer(operation_name: str):
     finally:
         duration = time.perf_counter() - start_time
         logger.debug(f"{operation_name} completed in {duration:.3f}s")
-        get_global_metrics().record_error("performance", f"{operation_name}: {duration:.3f}s")
+        get_global_metrics().record_error(
+            "performance", f"{operation_name}: {duration:.3f}s"
+        )

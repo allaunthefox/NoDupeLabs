@@ -31,15 +31,16 @@ class LUTTool(Tool):
     @property
     def api_methods(self) -> dict[str, Callable[..., Any]]:
         from nodupe.core.container import container
+
         return {
-            'get_codes': ActionCode.get_lut,
-            'describe_code': ActionCode.get_description,
-            'check_iso_compliance': container.check_compliance
+            "get_codes": ActionCode.get_lut,
+            "describe_code": ActionCode.get_description,
+            "check_iso_compliance": container.check_compliance,
         }
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool and register services."""
-        container.register_service('lut_service', self)
+        container.register_service("lut_service", self)
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
@@ -54,8 +55,11 @@ class LUTTool(Tool):
     def run_standalone(self, args: list[str]) -> int:
         """Execute in stand-alone mode."""
         import argparse
+
         parser = argparse.ArgumentParser(description=self.describe_usage())
-        parser.add_argument("--code", type=int, help="The code number you want to look up")
+        parser.add_argument(
+            "--code", type=int, help="The code number you want to look up"
+        )
 
         if not args:
             parser.print_help()
@@ -70,9 +74,10 @@ class LUTTool(Tool):
     def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
-            'specification': 'ISO-8000-110:2021',
-            'features': ['code_lookup', 'description_retrieval']
+            "specification": "ISO-8000-110:2021",
+            "features": ["code_lookup", "description_retrieval"],
         }
+
 
 def register_tool():
     """Register the LUT tool."""

@@ -4,7 +4,9 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from nodupe.core.tool_system.example_accessible_tool import ExampleAccessibleTool
+from nodupe.core.tool_system.example_accessible_tool import (
+    ExampleAccessibleTool,
+)
 
 
 class TestExampleAccessibleToolInitialization:
@@ -33,7 +35,7 @@ class TestExampleAccessibleToolInitialization:
         tool = ExampleAccessibleTool()
         container = Mock()
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             tool.initialize(container)
 
             assert tool._initialized is True
@@ -49,7 +51,7 @@ class TestExampleAccessibleToolInitialization:
         tool.initialize(container)
         assert tool._initialized is True
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             tool.shutdown()
 
             assert tool._initialized is False
@@ -92,7 +94,9 @@ class TestExampleAccessibleToolCapabilities:
         assert doc["accessibility_features"]["structured_output"] is True
         assert doc["accessibility_features"]["progress_reporting"] is True
         assert doc["accessibility_features"]["error_explanation"] is True
-        assert doc["accessibility_features"]["screen_reader_integration"] is True
+        assert (
+            doc["accessibility_features"]["screen_reader_integration"] is True
+        )
         assert doc["accessibility_features"]["braille_api_support"] is True
 
     def test_api_methods(self):
@@ -118,7 +122,7 @@ class TestExampleAccessibleToolOperations:
 
         test_data = {"key1": "value1", "key2": "value2"}
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             result = tool.process_accessible_data(test_data)
 
             # Should return processed result
@@ -132,7 +136,7 @@ class TestExampleAccessibleToolOperations:
 
         test_data = ["item1", "item2", "item3"]
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             result = tool.process_accessible_data(test_data)
 
             # Should return processed result
@@ -146,7 +150,7 @@ class TestExampleAccessibleToolOperations:
 
         test_data = "Hello, World!"
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             result = tool.process_accessible_data(test_data)
 
             # Should return processed result
@@ -160,7 +164,7 @@ class TestExampleAccessibleToolOperations:
 
         test_data = {"key": "value"}
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             result = tool.process_accessible_data(test_data, format="json")
 
             # Should return processed result
@@ -172,7 +176,7 @@ class TestExampleAccessibleToolOperations:
         """Test getting accessible help."""
         tool = ExampleAccessibleTool()
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             result = tool.get_accessible_help()
 
             # Should return help text
@@ -200,7 +204,7 @@ class TestExampleAccessibleToolAccessibility:
         """Test announcing to assistive technology."""
         tool = ExampleAccessibleTool()
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             tool.announce_to_assistive_tech("Test message")
 
             # Should print the message
@@ -214,7 +218,7 @@ class TestExampleAccessibleToolAccessibility:
             "status": "running",
             "count": 42,
             "active": True,
-            "nested": {"inner": "value"}
+            "nested": {"inner": "value"},
         }
 
         result = tool.format_for_accessibility(test_data)
@@ -287,7 +291,7 @@ class TestExampleAccessibleToolLifecycle:
 
         test_args = ["arg1", "arg2"]
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             result = tool.run_standalone(test_args)
 
             # Should return 0 for success
@@ -319,9 +323,15 @@ class TestExampleAccessibleToolLifecycle:
         assert "stakeholder_impact" in rationale
 
         assert "accessible" in rationale["design_decision"].lower()
-        assert "accessibility-first" in rationale["alternatives_considered"].lower()
+        assert (
+            "accessibility-first"
+            in rationale["alternatives_considered"].lower()
+        )
         assert "accessibility" in rationale["tradeoffs"].lower()
-        assert "users with visual impairments" in rationale["stakeholder_impact"].lower()
+        assert (
+            "users with visual impairments"
+            in rationale["stakeholder_impact"].lower()
+        )
 
 
 class TestExampleAccessibleToolErrorHandling:
@@ -334,7 +344,7 @@ class TestExampleAccessibleToolErrorHandling:
         # Test with problematic data
         test_data = object()  # Generic object
 
-        with patch('builtins.print') as mock_print:
+        with patch("builtins.print") as mock_print:
             result = tool.process_accessible_data(test_data)
 
             # Should handle the error gracefully and return a result
@@ -348,7 +358,11 @@ class TestExampleAccessibleToolErrorHandling:
         container = Mock()
 
         # Mock the announce method to raise an error
-        with patch.object(tool, 'announce_to_assistive_tech', side_effect=Exception("Announce failed")):
+        with patch.object(
+            tool,
+            "announce_to_assistive_tech",
+            side_effect=Exception("Announce failed"),
+        ):
             # Should handle the error gracefully
             tool.initialize(container)
 
@@ -365,7 +379,11 @@ class TestExampleAccessibleToolErrorHandling:
         assert tool._initialized is True
 
         # Mock the announce method to raise an error
-        with patch.object(tool, 'announce_to_assistive_tech', side_effect=Exception("Announce failed")):
+        with patch.object(
+            tool,
+            "announce_to_assistive_tech",
+            side_effect=Exception("Announce failed"),
+        ):
             # Should handle the error gracefully
             tool.shutdown()
 
