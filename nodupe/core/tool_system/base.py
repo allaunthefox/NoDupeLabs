@@ -31,45 +31,108 @@ class Tool(ABC):
     """Abstract base class for all NoDupeLabs tools"""
 
     @property
-    @abstractmethod
     def name(self) -> str:
-        """Tool name"""
+        """Tool name.
+
+        Default implementation reads instance attribute `name` when present so
+        legacy test/tool subclasses that set `self.name` in __init__ continue
+        to work. Subclasses SHOULD override this to provide a static property.
+        """
+        # Allow instance attribute fallback for backwards compatibility
+        name_attr = self.__dict__.get("name")
+        if isinstance(name_attr, str) and name_attr:
+            return name_attr
+        raise NotImplementedError("Tool subclasses must provide a `name`")
+
+    @name.setter
+    def name(self, value: str) -> None:
+        """Allow tests and legacy code to set `self.name` in __init__."""
+        if not isinstance(value, str):
+            raise TypeError("Tool.name must be a string")
+        self.__dict__["name"] = value
 
     @property
-    @abstractmethod
     def version(self) -> str:
-        """Tool version"""
+        """Tool version.
+
+        Default implementation reads instance attribute `version` when present.
+        """
+        version_attr = self.__dict__.get("version")
+        if isinstance(version_attr, str) and version_attr:
+            return version_attr
+        raise NotImplementedError("Tool subclasses must provide a `version`")
+
+    @version.setter
+    def version(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError("Tool.version must be a string")
+        self.__dict__["version"] = value
 
     @property
-    @abstractmethod
     def dependencies(self) -> list[str]:
-        """List of tool dependencies"""
+        """List of tool dependencies.
 
-    @abstractmethod
-    def initialize(self, container: Any) -> None:
-        """Initialize the tool"""
+        Default implementation reads instance attribute `dependencies` if set,
+        otherwise returns an empty list.
+        """
+        deps = self.__dict__.get("dependencies")
+        if isinstance(deps, list):
+            return deps
+        return []
 
-    @abstractmethod
-    def shutdown(self) -> None:
-        """Shutdown the tool"""
+    @dependencies.setter
+    def dependencies(self, value: list[str]) -> None:
+        if not isinstance(value, list):
+            raise TypeError("Tool.dependencies must be a list")
+        self.__dict__["dependencies"] = value
 
-    @abstractmethod
+    def initialize(self, container: Any = None) -> None:
+        """Initialize the tool.
+
+        Default no-op implementation is provided for backwards compatibility so
+        test stubs that don't implement `initialize` can still be instantiated.
+        Subclasses SHOULD override this to perform real initialization.
+        """
+        return None
+
+    def shutdown(self, container: Any = None) -> None:
+        """Shutdown the tool.
+
+        Default no-op implementation; subclasses SHOULD override to cleanup
+        resources when necessary.
+        """
+        return None
+
     def get_capabilities(self) -> dict[str, Any]:
-        """Get tool capabilities"""
+        """Get tool capabilities.
+
+        Default implementation returns an empty capabilities mapping.
+        """
+        return {}
 
     @property
-    @abstractmethod
     def api_methods(self) -> dict[str, Callable[..., Any]]:
-        """Dictionary of methods exposed via programmatic API (Socket/IPC)"""
+        """Dictionary of methods exposed via programmatic API (Socket/IPC).
 
-    @abstractmethod
+        Default implementation returns an empty mapping so legacy Tool
+        subclasses that don't expose programmatic methods continue to work.
+        """
+        return {}
+
     def run_standalone(self, args: list[str]) -> int:
-        """Execute the tool in stand-alone mode without the core engine."""
+        """Execute the tool in stand-alone mode without the core engine.
 
-    @abstractmethod
+        Default implementation returns 0 to allow simple tools to be
+        instantiated in tests without providing a CLI entrypoint.
+        """
+        return 0
+
     def describe_usage(self) -> str:
-        """Return human-readable, jargon-free instructions for this component."""
+        """Return human-readable, jargon-free instructions for this component.
 
+        Default implementation returns an empty string.
+        """
+        return ""
 
 # Note: The full AccessibleTool implementation is in accessible_base.py
 # This is just the interface definition

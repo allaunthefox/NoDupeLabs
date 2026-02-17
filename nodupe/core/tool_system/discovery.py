@@ -354,19 +354,17 @@ class ToolDiscovery:
     def _parse_metadata(self, content: str) -> dict[str, Any]:
         """Parse metadata from Python file content.
 
-        Args:
-            content: Python file content
-
-        Returns:
-            Dictionary of parsed metadata
+        Handles single-line and simple multi-line literal assignments for
+        lists/dicts so the test-suite can embed rich metadata blocks.
         """
         metadata = {}
 
         # Look for common metadata patterns
         lines = content.split("\n")
-
-        for line in lines:
-            line = line.strip()
+        i = 0
+        while i < len(lines):
+            raw_line = lines[i]
+            line = raw_line.strip()
 
             # Look for assignment patterns
             if "=" in line and not line.startswith("#"):
@@ -375,7 +373,50 @@ class ToolDiscovery:
                     key = parts[0].strip()
                     value = parts[1].strip()
 
-                    # Map common metadata keys
+                    # If the value looks like the start of a multi-line
+                    # literal (list/dict), collect following lines until the
+                    # structure is balanced and then evaluate as a literal.
+                    if value.startswith("[") and not value.endswith("]"):
+                        # collect list block
+                        block_lines = [value]
+                        j = i + 1
+                        open_sq = value.count("[") - value.count("]")
+                        while j < len(lines) and open_sq > 0:
+                            next_line = lines[j]
+                            block_lines.append(next_line)
+                            open_sq += next_line.count("[") - next_line.count("]")
+                            j += 1
+                        full_value = "\n".join(block_lines)
+                        try:
+                            parsed_value = ast.literal_eval(full_value)
+                            if isinstance(parsed_value, list):
+                                metadata["dependencies"] = parsed_value
+                        except Exception:
+                            metadata["dependencies"] = []
+                        i = j
+                        continue
+
+                    if value.startswith("{") and not value.endswith("}"):
+                        # collect dict block
+                        block_lines = [value]
+                        j = i + 1
+                        open_br = value.count("{") - value.count("}")
+                        while j < len(lines) and open_br > 0:
+                            next_line = lines[j]
+                            block_lines.append(next_line)
+                            open_br += next_line.count("{") - next_line.count("}")
+                            j += 1
+                        full_value = "\n".join(block_lines)
+                        try:
+                            parsed_value = ast.literal_eval(full_value)
+                            if isinstance(parsed_value, dict):
+                                metadata["capabilities"] = parsed_value
+                        except Exception:
+                            metadata["capabilities"] = {}
+                        i = j
+                        continue
+
+                    # Map common single-line metadata keys
                     if key in ["__version__", "VERSION", "version"]:
                         # Try to parse as Python literal first
                         try:
@@ -403,13 +444,13 @@ class ToolDiscovery:
                     elif key in ["TYPE", "type"]:
                         metadata["type"] = value.strip("\"'")
                     elif key in ["dependencies", "DEPENDENCIES"]:
-                        # Parse dependencies list using ast.literal_eval
+                        # Try to parse single-line list first
                         try:
                             parsed_value = ast.literal_eval(value)
                             if isinstance(parsed_value, list):
                                 metadata["dependencies"] = parsed_value
                         except (ValueError, SyntaxError):
-                            # If literal_eval fails, try simple parsing
+                            # Simple comma-split fallback
                             if value.startswith("[") and value.endswith("]"):
                                 deps = value[1:-1].split(",")
                                 metadata["dependencies"] = [
@@ -418,14 +459,15 @@ class ToolDiscovery:
                                     if dep.strip()
                                 ]
                     elif key in ["capabilities", "CAPABILITIES"]:
-                        # Parse capabilities dictionary using ast.literal_eval
+                        # Single-line dict fallback
                         try:
                             parsed_value = ast.literal_eval(value)
                             if isinstance(parsed_value, dict):
                                 metadata["capabilities"] = parsed_value
                         except (ValueError, SyntaxError):
-                            # If literal_eval fails, return empty dict
                             metadata["capabilities"] = {}
+
+            i += 1
 
         return metadata
 

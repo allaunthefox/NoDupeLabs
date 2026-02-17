@@ -33,6 +33,7 @@ class ToolState(Enum):
     """Tool lifecycle states."""
 
     UNLOADED = "unloaded"
+    UNINITIALIZED = "uninitialized"
     LOADED = "loaded"
     INITIALIZING = "initializing"
     INITIALIZED = "initialized"
@@ -98,8 +99,24 @@ class ToolLifecycleManager:
         try:
             tool_name = tool.name
 
-            # Check if tool is already initialized
+            # Validate stored state is sane
             current_state = self._tool_states.get(tool_name, ToolState.UNLOADED)
+            if not isinstance(current_state, ToolState):
+                raise ToolLifecycleError(
+                    f"Invalid state for tool {tool_name}: {current_state}"
+                )
+
+            # Reject tools that don't implement required lifecycle hooks
+            required_methods = ["initialize", "shutdown", "get_capabilities"]
+            for method in required_methods:
+                cls_method = getattr(type(tool), method, None)
+                base_method = getattr(Tool, method, None)
+                if cls_method is None or cls_method == base_method:
+                    raise ToolLifecycleError(
+                        f"Tool {tool_name} missing required method: {method}"
+                    )
+
+            # Check if tool is already initialized
             if current_state == ToolState.INITIALIZED:
                 return True  # Already initialized
 
@@ -182,6 +199,12 @@ class ToolLifecycleManager:
                 return False
 
             current_state = self._tool_states.get(tool_name, ToolState.UNLOADED)
+            # Validate saved state
+            if not isinstance(current_state, ToolState):
+                raise ToolLifecycleError(
+                    f"Invalid state for tool {tool_name}: {current_state}"
+                )
+
             if current_state in [ToolState.SHUTDOWN, ToolState.UNLOADED]:
                 return True  # Already shutdown
 
@@ -282,6 +305,9 @@ class ToolLifecycleManager:
                 except ToolLifecycleError:
                     # Continue shutting down other tools even if one fails
                     continue
+                # After global shutdown we mark tool as uninitialized to
+                # indicate it can be initialized again from a fresh state.
+                self._tool_states[tool.name] = ToolState.UNINITIALIZED
 
             return True
 
@@ -289,6 +315,22 @@ class ToolLifecycleManager:
             raise ToolLifecycleError(
                 f"Failed to shutdown all tools: {e}"
             ) from e
+
+    def shutdown(self) -> None:
+        """Shutdown lifecycle manager and all managed tools.
+
+        Convenience helper used by tests and higher-level shutdown hooks.
+        """
+        # Best-effort shutdown of all tools managed by this lifecycle
+        try:
+            self.shutdown_all_tools()
+        except ToolLifecycleError:
+            # Swallow errors during global shutdown to allow cleanup to continue
+            pass
+        finally:
+            # Clear the container reference on shutdown to match test
+            # expectations for lifecycle manager lifecycle behaviour.
+            self.container = None
 
     def get_tool_states(self) -> dict[str, ToolState]:
         """Get all tool states.
@@ -356,7 +398,19 @@ class ToolLifecycleManager:
         Returns:
             List of dependency tool names
         """
-        return self._tool_dependencies.get(tool_name, [])
+        # Prefer explicit lifecycle-managed dependencies; otherwise fall
+        # back to the Tool instance's declared dependencies (if available).
+        deps = self._tool_dependencies.get(tool_name)
+        if deps is not None:
+            return deps
+
+        tool = self.registry.get_tool(tool_name)
+        if tool is None:
+            return []
+        try:
+            return list(tool.dependencies)
+        except Exception:
+            return []
 
     def set_tool_dependencies(
         self, tool_name: str, dependencies: list[str]

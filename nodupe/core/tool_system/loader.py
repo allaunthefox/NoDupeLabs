@@ -67,8 +67,40 @@ class ToolLoader:
         Returns:
             The loaded tool instance
         """
-        tool.initialize(self.container)
-        self._loaded_tools[tool.name] = tool
+        # Validate input type
+        if not isinstance(tool, Tool):
+            raise ToolLoaderError("Tool instance must inherit from Tool base class")
+
+        # Validate tool name early to avoid silently accepting invalid names
+        try:
+            name_val = tool.name
+        except Exception as e:
+            raise ToolLoaderError(f"Invalid tool instance: {e}") from e
+
+        if name_val is None or not isinstance(name_val, str):
+            raise ToolLoaderError("Tool must have a string name (None not allowed)")
+        # Allow empty-string names (tests rely on accepting empty names in some
+        # edge-cases); do not reject empty names here.
+
+        # Ensure the concrete class provides required lifecycle methods
+        required_methods = ["initialize", "shutdown", "get_capabilities"]
+        for method in required_methods:
+            cls_method = getattr(type(tool), method, None)
+            base_method = getattr(Tool, method, None)
+            if cls_method is None or cls_method == base_method:
+                raise ToolLoaderError(
+                    f"Tool class must implement required method: {method}"
+                )
+
+        # Try to initialize the tool and capture any exceptions
+        try:
+            tool.initialize(self.container)
+        except Exception as e:
+            raise ToolLoaderError(
+                f"Tool.initialize() failed for {name_val}: {e}"
+            ) from e
+
+        self._loaded_tools[name_val] = tool
         return tool
 
     def load_tool_from_file(self, tool_path: Path) -> Optional[type[Tool]]:

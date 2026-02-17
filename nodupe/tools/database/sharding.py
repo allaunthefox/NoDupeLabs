@@ -56,6 +56,7 @@ class DatabaseShardingTool(Tool):
         return ToolMetadata(
             name=self.name,
             version=self.version,
+            software_id=f"org.nodupe.tool.{self.name.lower()}",
             description="Database sharding functionality for horizontal data partitioning",
             author="NoDupeLabs",
             license="Apache-2.0",

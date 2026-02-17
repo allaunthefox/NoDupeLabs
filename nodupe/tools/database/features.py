@@ -56,6 +56,7 @@ class DatabaseShardingTool(Tool):
         return ToolMetadata(
             name=self.name,
             version=self.version,
+            software_id=f"org.nodupe.tool.{self.name.lower()}",
             description="Database sharding functionality for horizontal data partitioning",
             author="NoDupeLabs",
             license="Apache-2.0",
@@ -166,6 +167,7 @@ class DatabaseReplicationTool(Tool):
         return ToolMetadata(
             name=self.name,
             version=self.version,
+            software_id=f"org.nodupe.tool.{self.name.lower()}",
             description="Database replication functionality for data redundancy and high availability",
             author="NoDupeLabs",
             license="Apache-2.0",
@@ -222,6 +224,7 @@ class DatabaseExportTool(Tool):
         return ToolMetadata(
             name=self.name,
             version=self.version,
+            software_id=f"org.nodupe.tool.{self.name.lower()}",
             description="Database export functionality for data migration",
             author="NoDupeLabs",
             license="Apache-2.0",
@@ -278,6 +281,7 @@ class DatabaseImportTool(Tool):
         return ToolMetadata(
             name=self.name,
             version=self.version,
+            software_id=f"org.nodupe.tool.{self.name.lower()}",
             description="Database import functionality for data migration",
             author="NoDupeLabs",
             license="Apache-2.0",

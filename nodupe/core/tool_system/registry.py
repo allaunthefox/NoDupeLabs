@@ -9,7 +9,12 @@ Singleton registry for managing system tools (formerly tools).
 
 from typing import Any, Optional
 
-from .base import Tool
+import logging
+
+from ..api.codes import ActionCode
+from .base import Tool, AccessibleTool
+
+_logger = logging.getLogger(__name__)
 
 
 class ToolRegistry:
@@ -33,23 +38,22 @@ class ToolRegistry:
             raise ValueError(f"Tool {tool.name} already registered")
 
         # Check for accessibility compliance before registering
-        import logging
-
-        from ..api.codes import ActionCode
-
-        logger = logging.getLogger(__name__)
-
-        # Check if the tool implements accessibility features
-        from .base import AccessibleTool
-
+        # Guard logging calls to avoid expensive string formatting when
+        # INFO level is disabled (micro-optimization for high-frequency ops).
         if isinstance(tool, AccessibleTool):
-            logger.info(
-                f"[{ActionCode.ACC_ISO_CMP}] Registering ISO accessibility compliant tool: {tool.name}"
-            )
+            if _logger.isEnabledFor(logging.INFO):
+                _logger.info(
+                    "[%s] Registering ISO accessibility compliant tool: %s",
+                    ActionCode.ACC_ISO_CMP,
+                    tool.name,
+                )
         else:
-            logger.info(
-                f"[{ActionCode.ACC_FEATURE_DISABLED}] Registering tool without accessibility features: {tool.name}"
-            )
+            if _logger.isEnabledFor(logging.INFO):
+                _logger.info(
+                    "[%s] Registering tool without accessibility features: %s",
+                    ActionCode.ACC_FEATURE_DISABLED,
+                    tool.name,
+                )
 
         self._tools[tool.name] = tool
         if hasattr(self, "_container") and self._container:

@@ -91,6 +91,16 @@ class TestToolCompatibilityOperations:
             def get_capabilities(self):
                 return {"test": True}
 
+            @property
+            def api_methods(self) -> dict[str, callable]:
+                return {}
+
+            def run_standalone(self, args: list[str]) -> int:  # pragma: no cover - trivial
+                return 0
+
+            def describe_usage(self) -> str:  # pragma: no cover - trivial
+                return "Test tool"
+
         test_tool = TestTool()
 
         # Check compatibility

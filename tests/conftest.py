@@ -202,7 +202,9 @@ def loaded_config(
 
 @pytest.fixture(scope="function")
 def mock_tool_registry() -> Generator[ToolRegistry, None, None]:
-    """Create a mock tool registry for testing."""
+    """Create a fresh ToolRegistry singleton for testing."""
+    # Ensure singleton state is reset between tests
+    ToolRegistry._reset_instance()
     registry = ToolRegistry()
     yield registry
 
@@ -417,6 +419,60 @@ def pytest_configure(config):
         "markers", "performance: mark test as performance test"
     )
     config.addinivalue_line("markers", "stress: mark test as stress test")
+
+
+@pytest.fixture(autouse=True)
+def _teardown_background_services():
+    """Global teardown for flaky background state.
+
+    Ensures any background servers or hot-reload threads are stopped and
+    shared singletons are reset between tests so test-order does not leak
+    state into subsequent tests.
+    """
+    yield
+
+    # Best-effort stop of IPC server / hot-reload and clear DI container
+    try:
+        ipc = container_module.container.get_service("ipc_server")
+        if ipc and hasattr(ipc, "stop"):
+            try:
+                ipc.stop()
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    try:
+        hot = container_module.container.get_service("hot_reload")
+        if hot and hasattr(hot, "stop"):
+            try:
+                hot.stop()
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    # Clear global service container so future tests start clean
+    try:
+        container_module.container.clear()
+    except Exception:
+        pass
+
+    # Clear DB connection singletons used across tests
+    try:
+        from nodupe.core.database.connection import DatabaseConnection
+
+        DatabaseConnection._instances.clear()
+    except Exception:
+        pass
+
+    # Reset global singletons used across the tool system (ToolRegistry)
+    try:
+        from nodupe.core.tool_system.registry import ToolRegistry
+
+        ToolRegistry._reset_instance()
+    except Exception:
+        pass
 
 
 def pytest_collection_modifyitems(items):

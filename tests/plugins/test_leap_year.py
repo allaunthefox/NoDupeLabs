@@ -442,9 +442,13 @@ class TestLeapYearTool:
         start, end = 1000, 3000
         count = tool.count_leap_years(start, end)
 
-        # Should be approximately 1/4 of the years, minus century exceptions
-        expected_approx = (end - start + 1) // 4
-        assert abs(count - expected_approx) < 10  # Allow some variation
+        # Exact expected value using Gregorian rules (handles century exceptions)
+        expected_exact = sum(
+            1
+            for y in range(start, end + 1)
+            if (y % 4 == 0 and (y % 100 != 0 or y % 400 == 0))
+        )
+        assert count == expected_exact
 
     def test_tool_lifecycle(self):
         """Test tool initialization and shutdown."""
