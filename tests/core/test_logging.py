@@ -7,7 +7,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from nodupe.core.logging_system import Logging, LoggingError, get_logger, setup_logging
+from nodupe.core.logging_system import (
+    Logging,
+    LoggingError,
+    get_logger,
+    setup_logging,
+)
 
 
 class TestLoggingError:
@@ -49,9 +54,7 @@ class TestLoggingSetup:
 
             # Setup with file
             Logging.setup_logging(
-                log_file=log_file,
-                log_level="DEBUG",
-                console_output=True
+                log_file=log_file, log_level="DEBUG", console_output=True
             )
 
             # Verify configuration
@@ -137,10 +140,11 @@ class TestLoggingMethods:
         Logging.setup_logging()
 
         logger = Logging.get_logger("test")
-        raise ValueError("Test exception")
-
-        # This should not raise
-        Logging.log_exception(logger, "Test error", exc_info=True)
+        try:
+            raise ValueError("Test exception")
+        except Exception:
+            # This should not raise
+            Logging.log_exception(logger, "Test error", exc_info=True)
 
     def test_log_with_context(self):
         """Test log_with_context method."""
@@ -151,11 +155,7 @@ class TestLoggingMethods:
 
         # This should not raise
         Logging.log_with_context(
-            logger,
-            "info",
-            "Test message",
-            user_id=123,
-            action="test"
+            logger, "info", "Test message", user_id=123, action="test"
         )
 
     def test_configure_module_logger(self):
@@ -202,7 +202,7 @@ class TestLoggingMethods:
                 log_file,
                 log_level="DEBUG",
                 max_file_size=1024,
-                backup_count=2
+                backup_count=2,
             )
 
             # Verify handler was added
@@ -239,9 +239,7 @@ class TestLoggingConvenienceFunctions:
             log_file = Path(temp_dir) / "convenience.log"
 
             setup_logging(
-                log_file=log_file,
-                log_level="DEBUG",
-                console_output=False
+                log_file=log_file, log_level="DEBUG", console_output=False
             )
 
             assert Logging._configured is True
@@ -300,7 +298,7 @@ class TestLoggingIntegration:
                 log_level="DEBUG",
                 console_output=True,
                 max_file_size=1024,
-                backup_count=3
+                backup_count=3,
             )
 
             # Get logger
@@ -326,12 +324,13 @@ class TestLoggingIntegration:
                 "User action",
                 user_id=123,
                 action="login",
-                status="success"
+                status="success",
             )
 
             # Test module-specific logger
             module_logger = Logging.configure_module_logger(
-                "special_module", "WARNING")
+                "special_module", "WARNING"
+            )
             module_logger.warning("Module warning")
 
             # Verify file was created and has content
@@ -358,7 +357,7 @@ class TestLoggingIntegration:
                 log_level="INFO",
                 console_output=False,
                 max_file_size=100,  # Very small to trigger rotation
-                backup_count=2
+                backup_count=2,
             )
 
             logger = Logging.get_logger("rotation_test")
