@@ -107,6 +107,14 @@ class TestCoreLoaderConfiguration:
             assert "ram_gb" in config
             assert "drive_type" in config
 
+    def test_platform_autoconfig_without_psutil_does_not_include_ram(self):
+        """When psutil is not available, ram_gb should not be present."""
+        loader = CoreLoader()
+
+        with patch("nodupe.core.loader.psutil", None):
+            cfg = loader._apply_platform_autoconfig()
+            assert "ram_gb" not in cfg
+
     def test_config_merging(self):
         """Test configuration merging logic."""
         loader = CoreLoader()
@@ -280,6 +288,81 @@ class TestCoreLoaderToolSystem:
             mock_discovery.return_value.discover_tools_in_directory.assert_not_called()
 
 
+    def test_discover_and_load_tools_falls_back_to_standard_paths(self):
+        """If configured tool directories don't exist, the loader should
+        fall back to standard locations (e.g. `nodupe/tools`, `tools`).
+        """
+        loader = CoreLoader()
+
+        with (
+            patch("nodupe.core.loader.load_config") as mock_load_config,
+            patch("nodupe.core.loader.Path") as mock_path,
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
+            # Config points to a non-existent directory
+            mock_config = Mock()
+            mock_config.config = {
+                "tools": {"directories": ["nonexistent_dir"], "auto_load": True}
+            }
+            mock_load_config.return_value = mock_config
+
+            # Path(...) should indicate the provided directory does not exist
+            # but the standard paths do exist.  Return objects whose resolve()
+            # returns themselves so the loader can call .exists() later.
+            def path_side_effect(arg):
+                m = Mock()
+                m.resolve.return_value = m
+                if arg == "nonexistent_dir":
+                    m.exists.return_value = False
+                elif arg in ("nodupe/tools", "tools"):
+                    m.exists.return_value = True
+                else:
+                    m.exists.return_value = False
+                return m
+
+            mock_path.side_effect = path_side_effect
+
+            # Attach a mock discovery implementation so we can assert it was used
+            loader.tool_discovery = Mock()
+            loader.tool_discovery.discover_tools_in_directory.return_value = []
+
+            # Call the discovery helper directly
+            loader._discover_and_load_tools()
+
+            # Should have attempted discovery against at least one standard path
+            loader.tool_discovery.discover_tools_in_directory.assert_called()
+
+
+    def test_load_single_tool_no_class_is_handled_gracefully(self):
+        """If the loader cannot find a class in a tool file it should not
+        attempt to instantiate or watch the tool and must not raise.
+        """
+        loader = CoreLoader()
+
+        # Provide a mocked tool_loader that returns `None` for the class
+        loader.tool_loader = Mock()
+        loader.tool_loader.load_tool_from_file.return_value = None
+        loader.tool_loader.instantiate_tool = Mock()
+
+        # hot_reload should not be asked to watch anything
+        loader.hot_reload = Mock()
+        loader.hot_reload.watch_tool = Mock()
+
+        # Ensure logger.exception is observable
+        loader.logger = Mock()
+
+        # Call with a synthetic tool_info
+        tool_info = Mock(name="nope", path="/path/to/nope.py")
+        loader._load_single_tool(tool_info)
+
+        loader.tool_loader.load_tool_from_file.assert_called_once_with(
+            "/path/to/nope.py"
+        )
+        loader.tool_loader.instantiate_tool.assert_not_called()
+        loader.hot_reload.watch_tool.assert_not_called()
+        loader.logger.exception.assert_not_called()
+
+
 class TestCoreLoaderDatabase:
     """Test CoreLoader database functionality."""
 
@@ -424,6 +507,40 @@ class TestCoreLoaderHashAutotuning:
             )
             assert loader.container.get_service("hasher") is not None
 
+    def test_hash_autotuning_results_applied_to_existing_hasher(self):
+        """When `autotune_hash_algorithm` returns results and no creator
+        is available, the loader should store results and configure an
+        existing hasher service (call set_algorithm).
+        """
+        loader = CoreLoader()
+
+        # Use a fresh container so the test is isolated
+        loader.container = ServiceContainer()
+
+        # Register a mock hasher that exposes `set_algorithm`
+        hasher_mock = Mock()
+        hasher_mock.set_algorithm = Mock()
+        loader.container.register_service("hasher", hasher_mock)
+
+        # Patch autotune results and ensure `create_autotuned_hasher` is
+        # absent so the `results` branch is exercised.
+        with (
+            patch("nodupe.core.loader.autotune_hash_algorithm") as mock_autotune,
+            patch("nodupe.core.loader.create_autotuned_hasher", new=None),
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
+
+            mock_autotune.return_value = {"optimal_algorithm": "sha256"}
+
+            # Invoke autotuning helper directly
+            loader._perform_hash_autotuning()
+
+            # Results should be registered and applied to the existing hasher
+            assert loader.container.get_service("hash_autotune_results") == {
+                "optimal_algorithm": "sha256"
+            }
+            hasher_mock.set_algorithm.assert_called_once_with("sha256")
+
 
 class TestCoreLoaderShutdown:
     """Test CoreLoader shutdown functionality."""
@@ -485,6 +602,25 @@ class TestCoreLoaderShutdown:
 
             # Should not raise error
             assert loader.initialized is False
+
+    def test_shutdown_stops_ipc_server(self):
+        """Shutdown must stop the IPC server when present."""
+        loader = CoreLoader()
+        loader.initialized = True
+
+        # Small set of components we care about for this test
+        loader.ipc_server = Mock()
+        loader.ipc_server.stop = Mock()
+        loader.tool_lifecycle = None
+        loader.hot_reload = None
+        loader.tool_registry = None
+        loader.database = None
+
+        # Perform shutdown
+        loader.shutdown()
+
+        loader.ipc_server.stop.assert_called_once()
+        assert loader.initialized is False
 
 
 class TestCoreLoaderSystemDetection:
