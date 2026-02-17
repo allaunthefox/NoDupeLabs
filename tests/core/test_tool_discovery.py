@@ -1,11 +1,15 @@
 """Test tool discovery functionality."""
 
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, Mock, patch, mock_open
 
 import pytest
 
-from nodupe.core.tool_system.discovery import ToolDiscovery, ToolDiscoveryError, ToolInfo
+from nodupe.core.tool_system.discovery import (
+    ToolDiscovery,
+    ToolDiscoveryError,
+    ToolInfo,
+)
 
 
 class TestToolInfo:
@@ -18,7 +22,7 @@ class TestToolInfo:
             file_path=Path("/path/to/tool.py"),
             version="1.0.0",
             dependencies=["dep1", "dep2"],
-            capabilities={"feature1": "value1"}
+            capabilities={"feature1": "value1"},
         )
 
         assert tool_info.name == "TestTool"
@@ -29,7 +33,9 @@ class TestToolInfo:
 
     def test_tool_info_default_values(self):
         """Test ToolInfo with default values."""
-        tool_info = ToolInfo(name="TestTool", file_path=Path("/path/to/tool.py"))
+        tool_info = ToolInfo(
+            name="TestTool", file_path=Path("/path/to/tool.py")
+        )
 
         assert tool_info.name == "TestTool"
         assert tool_info.path == Path("/path/to/tool.py")
@@ -39,7 +45,9 @@ class TestToolInfo:
 
     def test_tool_info_repr(self):
         """Test ToolInfo string representation."""
-        tool_info = ToolInfo(name="TestTool", file_path=Path("/path/to/tool.py"))
+        tool_info = ToolInfo(
+            name="TestTool", file_path=Path("/path/to/tool.py")
+        )
 
         repr_str = repr(tool_info)
         assert "ToolInfo" in repr_str
@@ -87,10 +95,15 @@ class TestToolDiscoveryFileValidation:
         discovery = ToolDiscovery()
 
         # Create a temporary file with valid Python content
-        with patch('pathlib.Path.exists', return_value=True), \
-             patch('pathlib.Path.is_file', return_value=True), \
-             patch('pathlib.Path.stat') as mock_stat, \
-             patch('builtins.open', mock_open(read_data='class TestTool:\n    pass')):
+        with (
+            patch("pathlib.Path.exists", return_value=True),
+            patch("pathlib.Path.is_file", return_value=True),
+            patch("pathlib.Path.stat") as mock_stat,
+            patch(
+                "builtins.open",
+                mock_open(read_data="class TestTool:\n    pass"),
+            ),
+        ):
 
             mock_stat.return_value.st_size = 100  # Non-zero size
 
@@ -108,7 +121,7 @@ class TestToolDiscoveryFileValidation:
         """Test validating a nonexistent file."""
         discovery = ToolDiscovery()
 
-        with patch('pathlib.Path.exists', return_value=False):
+        with patch("pathlib.Path.exists", return_value=False):
             result = discovery.validate_tool_file(Path("/fake/tool.py"))
             assert result is False
 
@@ -116,8 +129,10 @@ class TestToolDiscoveryFileValidation:
         """Test validating a path that is not a file."""
         discovery = ToolDiscovery()
 
-        with patch('pathlib.Path.exists', return_value=True), \
-             patch('pathlib.Path.is_file', return_value=False):
+        with (
+            patch("pathlib.Path.exists", return_value=True),
+            patch("pathlib.Path.is_file", return_value=False),
+        ):
 
             result = discovery.validate_tool_file(Path("/fake/tool.py"))
             assert result is False
@@ -126,9 +141,11 @@ class TestToolDiscoveryFileValidation:
         """Test validating a file with zero size."""
         discovery = ToolDiscovery()
 
-        with patch('pathlib.Path.exists', return_value=True), \
-             patch('pathlib.Path.is_file', return_value=True), \
-             patch('pathlib.Path.stat') as mock_stat:
+        with (
+            patch("pathlib.Path.exists", return_value=True),
+            patch("pathlib.Path.is_file", return_value=True),
+            patch("pathlib.Path.stat") as mock_stat,
+        ):
 
             mock_stat.return_value.st_size = 0  # Zero size
 
@@ -139,10 +156,14 @@ class TestToolDiscoveryFileValidation:
         """Test validating a file with syntax errors."""
         discovery = ToolDiscovery()
 
-        with patch('pathlib.Path.exists', return_value=True), \
-             patch('pathlib.Path.is_file', return_value=True), \
-             patch('pathlib.Path.stat') as mock_stat, \
-             patch('builtins.open', mock_open(read_data='invalid python syntax')):
+        with (
+            patch("pathlib.Path.exists", return_value=True),
+            patch("pathlib.Path.is_file", return_value=True),
+            patch("pathlib.Path.stat") as mock_stat,
+            patch(
+                "builtins.open", mock_open(read_data="invalid python syntax")
+            ),
+        ):
 
             mock_stat.return_value.st_size = 100  # Non-zero size
 
@@ -157,75 +178,78 @@ class TestToolDiscoveryContentParsing:
         """Test parsing simple metadata."""
         discovery = ToolDiscovery()
 
-        content = '''
+        content = """
 __version__ = "2.0.0"
 __author__ = "Test Author"
 __description__ = "A test tool"
-'''
+"""
 
         metadata = discovery._parse_metadata(content)
 
-        assert metadata.get('version') == "2.0.0"
-        assert metadata.get('author') == "Test Author"
-        assert metadata.get('description') == "A test tool"
+        assert metadata.get("version") == "2.0.0"
+        assert metadata.get("author") == "Test Author"
+        assert metadata.get("description") == "A test tool"
 
     def test_parse_metadata_with_quotes(self):
         """Test parsing metadata with different quote styles."""
         discovery = ToolDiscovery()
 
-        content = '''
+        content = """
 version = "1.5.0"
 author = 'Another Author'
 description = "Another description"
-'''
+"""
 
         metadata = discovery._parse_metadata(content)
 
-        assert metadata.get('version') == "1.5.0"
-        assert metadata.get('author') == "Another Author"
-        assert metadata.get('description') == "Another description"
+        assert metadata.get("version") == "1.5.0"
+        assert metadata.get("author") == "Another Author"
+        assert metadata.get("description") == "Another description"
 
     def test_parse_metadata_dependencies(self):
         """Test parsing dependencies metadata."""
         discovery = ToolDiscovery()
 
-        content = '''
+        content = """
 dependencies = ["dep1", "dep2", "dep3"]
-'''
+"""
 
         metadata = discovery._parse_metadata(content)
 
-        assert metadata.get('dependencies') == ["dep1", "dep2", "dep3"]
+        assert metadata.get("dependencies") == ["dep1", "dep2", "dep3"]
 
     def test_parse_metadata_capabilities(self):
         """Test parsing capabilities metadata."""
         discovery = ToolDiscovery()
 
-        content = '''
+        content = """
 capabilities = {"feature1": "value1", "feature2": "value2"}
-'''
+"""
 
         metadata = discovery._parse_metadata(content)
 
-        assert metadata.get('capabilities') == {"feature1": "value1", "feature2": "value2"}
+        assert metadata.get("capabilities") == {
+            "feature1": "value1",
+            "feature2": "value2",
+        }
 
     def test_parse_metadata_complex(self):
         """Test parsing complex metadata."""
         discovery = ToolDiscovery()
 
-        content = '''
+        content = """
 name = "ComplexTool"
 version = "3.0.0"
 dependencies = ["req1", "req2"]
 capabilities = {"feature": "value"}
-'''
+"""
 
         metadata = discovery._parse_metadata(content)
 
-        assert metadata.get('name') == "ComplexTool"
-        assert metadata.get('version') == "3.0.0"
-        assert metadata.get('dependencies') == ["req1", "req2"]
-        assert metadata.get('capabilities') == {"feature": "value"}
+        assert metadata.get("name") == "ComplexTool"
+        assert metadata.get("version") == "3.0.0"
+        assert metadata.get("dependencies") == ["req1", "req2"]
+        assert metadata.get("capabilities") == {"feature": "value"}
 
 
 class TestToolDiscoveryContentAnalysis:
@@ -235,7 +259,7 @@ class TestToolDiscoveryContentAnalysis:
         """Test detecting tool-like content with imports, classes, and functions."""
         discovery = ToolDiscovery()
 
-        content = '''
+        content = """
 import os
 import sys
 
@@ -248,7 +272,7 @@ class TestTool:
 
 def helper_function():
     pass
-'''
+"""
 
         result = discovery._looks_like_tool(content)
         assert result is True
@@ -257,10 +281,10 @@ def helper_function():
         """Test detecting minimal tool-like content."""
         discovery = ToolDiscovery()
 
-        content = '''
+        content = """
 class MinimalTool:
     pass
-'''
+"""
 
         result = discovery._looks_like_tool(content)
         assert result is True
@@ -269,11 +293,19 @@ class MinimalTool:
         """Test successful tool info extraction."""
         discovery = ToolDiscovery()
 
-        with patch('builtins.open', mock_open(read_data='''
+        with (
+            patch(
+                "builtins.open",
+                mock_open(
+                    read_data="""
 name = "ExtractedTool"
 version = "1.0.0"
 dependencies = ["req1"]
-''')), patch('pathlib.Path.exists', return_value=True):
+"""
+                ),
+            ),
+            patch("pathlib.Path.exists", return_value=True),
+        ):
 
             tool_path = Path("/fake/tool.py")
             result = discovery._extract_tool_info(tool_path)
@@ -287,15 +319,40 @@ dependencies = ["req1"]
         """Test tool info extraction for non-tool content."""
         discovery = ToolDiscovery()
 
-        with patch('builtins.open', mock_open(read_data='''
+        with (
+            patch(
+                "builtins.open",
+                mock_open(
+                    read_data="""
 # This is just a comment file
 # No actual tool code here
-''')), patch('pathlib.Path.exists', return_value=True):
+"""
+                ),
+            ),
+            patch("pathlib.Path.exists", return_value=True),
+        ):
 
             tool_path = Path("/fake/tool.py")
             result = discovery._extract_tool_info(tool_path)
 
             assert result is None
+
+    def test_extract_tool_info_detects_accessibility_feature(self):
+        """_extract_tool_info should detect accessibility-related keywords
+        in the file content and include the tool in discovered results."""
+        discovery = ToolDiscovery()
+
+        content = 'name = "AccessibleTool"\n# mentions AccessibleTool and screen_reader in docs\n'
+
+        with (
+            patch("builtins.open", mock_open(read_data=content)),
+            patch("pathlib.Path.exists", return_value=True),
+        ):
+            tool_path = Path("/fake/accessible_tool.py")
+            info = discovery._extract_tool_info(tool_path)
+
+            assert info is not None
+            assert info.name == "AccessibleTool"
 
 
 class TestToolDiscoveryDirectoryScanning:
@@ -305,9 +362,11 @@ class TestToolDiscoveryDirectoryScanning:
         """Test discovering tools in an empty directory."""
         discovery = ToolDiscovery()
 
-        with patch('pathlib.Path.iterdir', return_value=[]), \
-             patch('pathlib.Path.is_file', return_value=False), \
-             patch('pathlib.Path.is_dir', return_value=False):
+        with (
+            patch("pathlib.Path.iterdir", return_value=[]),
+            patch("pathlib.Path.is_file", return_value=False),
+            patch("pathlib.Path.is_dir", return_value=False),
+        ):
 
             result = discovery.discover_tools_in_directory(Path("/empty/dir"))
             assert result == []
@@ -335,10 +394,20 @@ class TestToolDiscoveryDirectoryScanning:
         mock_txt_file.is_file.return_value = True
         mock_txt_file.is_dir.return_value = False
 
-        with patch('pathlib.Path.iterdir', return_value=[mock_py_file, mock_init_file, mock_txt_file]), \
-             patch('builtins.open', mock_open(read_data='name = "TestTool"\nclass TestTool:\n    pass')), \
-             patch('pathlib.Path.exists', return_value=True), \
-             patch('pathlib.Path.stat') as mock_stat:
+        with (
+            patch(
+                "pathlib.Path.iterdir",
+                return_value=[mock_py_file, mock_init_file, mock_txt_file],
+            ),
+            patch(
+                "builtins.open",
+                mock_open(
+                    read_data='name = "TestTool"\nclass TestTool:\n    pass'
+                ),
+            ),
+            patch("pathlib.Path.exists", return_value=True),
+            patch("pathlib.Path.stat") as mock_stat,
+        ):
 
             mock_stat.return_value.st_size = 100
 
@@ -346,7 +415,28 @@ class TestToolDiscoveryDirectoryScanning:
 
             # Should find 1 tool (tool1.py), ignoring __init__.py and .txt files
             assert len(result) == 1
-            assert result[0].name == "TestTool"
+
+    def test_discover_tools_in_directory_real_files(self, tmp_path):
+        """Integration-style test: discovery should find real .py files in a dir.
+
+        This exercise uses actual files on disk (not mocks) to cover the file
+        I/O branches of discovery._extract_tool_info and _parse_metadata.
+        """
+        discovery = ToolDiscovery()
+
+        # Create a temporary directory with a simple tool-like Python file
+        d = tmp_path / "toolsdir"
+        d.mkdir()
+
+        tool_file = d / "real_tool.py"
+        tool_file.write_text(
+            'name = "RealTool"\nversion = "1.2.3"\n\nimport os\nclass X:\n    pass\n'
+        )
+
+        tools = discovery.discover_tools_in_directory(d)
+        assert len(tools) == 1
+        assert tools[0].name == "RealTool"
+        assert tools[0].version == "1.2.3"
 
     def test_discover_tools_in_directory_recursive(self):
         """Test discovering tools in a directory recursively."""
@@ -371,7 +461,7 @@ class TestToolDiscoveryDirectoryScanning:
         mock_sub_py_file.is_file.return_value = True
         mock_sub_py_file.is_dir.return_value = False
 
-        with patch('pathlib.Path.iterdir') as mock_iterdir:
+        with patch("pathlib.Path.iterdir") as mock_iterdir:
             # First call (main dir) returns file and subdir
             mock_iterdir.return_value = [mock_py_file, mock_subdir]
 
@@ -382,14 +472,25 @@ class TestToolDiscoveryDirectoryScanning:
                 return [mock_py_file, mock_subdir]
 
             # Patch the subdirectory's iterdir separately
-            with patch.object(mock_subdir, 'iterdir', return_value=[mock_sub_py_file]):
-                with patch('builtins.open', mock_open(read_data='name = "TestTool"\nclass TestTool:\n    pass')), \
-                     patch('pathlib.Path.exists', return_value=True), \
-                     patch('pathlib.Path.stat') as mock_stat:
+            with patch.object(
+                mock_subdir, "iterdir", return_value=[mock_sub_py_file]
+            ):
+                with (
+                    patch(
+                        "builtins.open",
+                        mock_open(
+                            read_data='name = "TestTool"\nclass TestTool:\n    pass'
+                        ),
+                    ),
+                    patch("pathlib.Path.exists", return_value=True),
+                    patch("pathlib.Path.stat") as mock_stat,
+                ):
 
                     mock_stat.return_value.st_size = 100
 
-                    result = discovery.discover_tools_in_directory(Path("/test/dir"), recursive=True)
+                    result = discovery.discover_tools_in_directory(
+                        Path("/test/dir"), recursive=True
+                    )
 
                     # Should find 2 tools (one from main dir, one from subdir)
                     assert len(result) == 2
@@ -398,8 +499,10 @@ class TestToolDiscoveryDirectoryScanning:
         """Test discovering tools in a nonexistent directory."""
         discovery = ToolDiscovery()
 
-        with patch('pathlib.Path.iterdir', side_effect=FileNotFoundError()):
-            result = discovery.discover_tools_in_directory(Path("/nonexistent/dir"))
+        with patch("pathlib.Path.iterdir", side_effect=FileNotFoundError()):
+            result = discovery.discover_tools_in_directory(
+                Path("/nonexistent/dir")
+            )
             assert result == []
 
 
@@ -411,12 +514,17 @@ class TestToolDiscoveryMainMethods:
         discovery = ToolDiscovery()
 
         # Mock the discovery in each directory
-        with patch.object(discovery, 'discover_tools_in_directory') as mock_discover_dir:
+        with patch.object(
+            discovery, "discover_tools_in_directory"
+        ) as mock_discover_dir:
             # Return different tools for each directory
+            t1 = Mock(); t1.name = "Tool1"
+            t2 = Mock(); t2.name = "Tool2"
+            t3 = Mock(); t3.name = "Tool1"
             mock_discover_dir.side_effect = [
-                [Mock(name="Tool1")],  # First directory
-                [Mock(name="Tool2")],  # Second directory
-                [Mock(name="Tool1")]   # Third directory (duplicate name)
+                [t1],  # First directory
+                [t2],  # Second directory
+                [t3],  # Third directory (duplicate name)
             ]
 
             directories = [Path("/dir1"), Path("/dir2"), Path("/dir3")]
@@ -430,13 +538,17 @@ class TestToolDiscoveryMainMethods:
         """Test discovering tools with directories parameter."""
         discovery = ToolDiscovery()
 
-        with patch.object(discovery, 'discover_tools_in_directories') as mock_discover_dirs:
+        with patch.object(
+            discovery, "discover_tools_in_directories"
+        ) as mock_discover_dirs:
             mock_discover_dirs.return_value = [Mock(name="TestTool")]
 
             directories = [Path("/dir1"), Path("/dir2")]
             result = discovery.discover_tools(directories)
 
-            mock_discover_dirs.assert_called_once_with(directories, True, "*.py")
+            mock_discover_dirs.assert_called_once_with(
+                directories, True, "*.py"
+            )
             assert len(result) == 1
 
     def test_discover_tools_without_directories_param(self):
@@ -485,10 +597,14 @@ class TestToolDiscoveryMainMethods:
         mock_found_tool = Mock()
         mock_found_tool.name = "TargetTool"
 
-        with patch.object(discovery, 'discover_tools_in_directory') as mock_discover:
+        with patch.object(
+            discovery, "discover_tools_in_directory"
+        ) as mock_discover:
             mock_discover.return_value = [mock_found_tool]
 
-            result = discovery.find_tool_by_name("TargetTool", [Path("/search/dir")])
+            result = discovery.find_tool_by_name(
+                "TargetTool", [Path("/search/dir")]
+            )
 
             assert result is mock_found_tool
 
