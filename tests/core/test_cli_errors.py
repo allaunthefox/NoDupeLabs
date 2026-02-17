@@ -11,14 +11,17 @@ This module tests CLI error handling including:
 - Command validation
 """
 
-import pytest
-import sys
 import os
-from unittest.mock import patch, MagicMock
+import sys
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.main import CLIHandler
-from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+
 
 class TestCLIArgumentValidation:
     """Test CLI argument validation errors."""

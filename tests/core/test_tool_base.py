@@ -1,13 +1,15 @@
 """Test base tool functionality."""
 
-import pytest
 from unittest.mock import Mock
-from nodupe.core.tool_system.base import Tool, ToolMetadata, AccessibleTool
+
+import pytest
+
+from nodupe.core.tool_system.base import AccessibleTool, Tool, ToolMetadata
 
 
 class ConcreteTool(Tool):
     """Concrete implementation of Tool for testing."""
-    
+
     def __init__(self, name="TestTool", version="1.0.0", dependencies=None):
         self._name = name
         self._version = version
@@ -61,7 +63,7 @@ class TestToolMetadata:
             dependencies=["dep1", "dep2"],
             tags=["test", "tool"]
         )
-        
+
         assert metadata.name == "TestTool"
         assert metadata.version == "1.0.0"
         assert metadata.software_id == "org.test.tool"
@@ -83,7 +85,7 @@ class TestToolMetadata:
             dependencies=[],
             tags=[]
         )
-        
+
         # Should not be able to modify
         with pytest.raises(AttributeError):
             metadata.name = "NewName"
@@ -95,7 +97,7 @@ class TestToolBase:
     def test_tool_abstract_properties(self):
         """Test that Tool has required abstract properties."""
         tool = ConcreteTool()
-        
+
         assert tool.name == "TestTool"
         assert tool.version == "1.0.0"
         assert tool.dependencies == []
@@ -104,27 +106,27 @@ class TestToolBase:
         """Test that Tool has required abstract methods."""
         tool = ConcreteTool()
         container = Mock()
-        
+
         # Test initialization
         tool.initialize(container)
         assert tool._initialized is True
-        
+
         # Test shutdown
         tool.shutdown()
         assert tool._initialized is False
-        
+
         # Test capabilities
         caps = tool.get_capabilities()
         assert caps == {"test": "capability"}
-        
+
         # Test API methods
         api_methods = tool.api_methods
         assert api_methods == {}
-        
+
         # Test standalone execution
         result = tool.run_standalone([])
         assert result == 0
-        
+
         # Test usage description
         usage = tool.describe_usage()
         assert usage == "Test tool usage description"
@@ -137,7 +139,7 @@ class TestToolBase:
             version="2.0.0",
             dependencies=["custom_dep"]
         )
-        
+
         assert tool.name == "CustomTool"
         assert tool.version == "2.0.0"
         assert tool.dependencies == ["custom_dep"]
@@ -150,9 +152,9 @@ class TestAccessibleToolBase:
         """Test that AccessibleTool inherits from Tool."""
         # AccessibleTool is now an interface in base.py, so we'll test its methods
         from nodupe.core.tool_system.accessible_base import AccessibleTool as RealAccessibleTool
-        
+
         tool = RealAccessibleTool()
-        
+
         # Test that it has the expected methods
         assert hasattr(tool, 'announce_to_assistive_tech')
         assert hasattr(tool, 'format_for_accessibility')

@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
@@ -6,17 +7,18 @@
 Provides functionality to compress old log files using the built-in ZIP support.
 """
 
-import os
 import glob
-import json
 import hashlib
-import time
+import json
+import logging
+import os
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import Any
+
 from .api.codes import ActionCode
 from .container import container as global_container
-import logging
+
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +34,7 @@ If the original software (NoDupeLabs) is unavailable, follow these steps:
    - [METADATA.json]: Standardized metadata (ISO 15836 / Dublin Core).
 
 2. VERIFICATION:
-   Open METADATA.json and locate the "fixity" section. 
+   Open METADATA.json and locate the "fixity" section.
    To verify data integrity, run:
    sha256sum [Original Log File]
    Compare the result with the "value" in the fixity section.
@@ -44,14 +46,14 @@ If the original software (NoDupeLabs) is unavailable, follow these steps:
 """
 
     @staticmethod
-    def _generate_metadata(file_path: Path) -> Dict[str, Any]:
+    def _generate_metadata(file_path: Path) -> dict[str, Any]:
         """Generate ISO 15836 (Dublin Core) compliant metadata."""
-        stat = file_path.stat()
+        file_path.stat()
         sha256_hash = hashlib.sha256()
         with open(file_path, "rb") as f:
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
-        
+
         # ISO 15836 (Dublin Core) + ISO 14721 (OAIS)
         return {
             "dc:identifier": f"AIP_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}",
@@ -69,7 +71,7 @@ If the original software (NoDupeLabs) is unavailable, follow these steps:
         }
 
     @staticmethod
-    def compress_old_logs(log_dir: str = "logs", pattern: str = "*.log.*") -> List[Path]:
+    def compress_old_logs(log_dir: str = "logs", pattern: str = "*.log.*") -> list[Path]:
         """Find and compress logs into software-independent ISO AIPs."""
         compressed_files = []
         log_path = Path(log_dir)
@@ -82,35 +84,35 @@ If the original software (NoDupeLabs) is unavailable, follow these steps:
         for file_path in files:
             p = Path(file_path)
             if p.suffix == '.zip' or not p.exists(): continue
-                
+
             try:
                 timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
                 clean_name = p.name.replace(".", "_")
                 zip_name = f"AIP_{timestamp}_{clean_name}.zip"
                 zip_path = p.parent / zip_name
-                
+
                 # 1. Generate Dublin Core Metadata
                 metadata = LogCompressor._generate_metadata(p)
                 metadata_path = p.parent / "METADATA.json"
                 metadata_path.write_text(json.dumps(metadata, indent=2))
-                
+
                 # 2. Generate Recovery Manual
                 manual_path = p.parent / "RECOVERY_INSTRUCTIONS.txt"
                 manual_path.write_text(LogCompressor.RECOVERY_MANUAL)
-                
+
                 # 3. Create AIP (Includes data + metadata + manual)
                 archive_handler.create_archive(
-                    str(zip_path), 
-                    [str(p), str(metadata_path), str(manual_path)], 
+                    str(zip_path),
+                    [str(p), str(metadata_path), str(manual_path)],
                     format='zip'
                 )
-                
+
                 logger.info(f"[{ActionCode.ARCHIVE_AIP}] Created self-describing AIP: {zip_name}")
-                
+
                 p.unlink()
                 metadata_path.unlink()
                 manual_path.unlink()
                 compressed_files.append(zip_path)
-                
+
             except Exception as e:
-                logger.error(f"[{ActionCode.ERR_EXEC_FAILED}] Archive creation failed: {e}")
+                logger.exception(f"[{ActionCode.ERR_EXEC_FAILED}] Archive creation failed: {e}")

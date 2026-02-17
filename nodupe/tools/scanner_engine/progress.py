@@ -19,9 +19,9 @@ Dependencies:
     - threading (standard library)
 """
 
-import time
-from typing import Dict, Any, Optional, Callable
 import threading
+import time
+from typing import Any, Callable, Optional
 
 
 class ProgressTracker:
@@ -88,7 +88,7 @@ class ProgressTracker:
             self._error_count += 1
             self._last_update_time = time.monotonic()
 
-    def get_progress(self) -> Dict[str, Any]:
+    def get_progress(self) -> dict[str, Any]:
         """Get current progress information.
 
         Returns:
@@ -134,7 +134,7 @@ class ProgressTracker:
                 'error_count': self._error_count
             }
 
-    def report_progress(self, on_progress: Optional[Callable[[Dict[str, Any]], None]] = None) -> None:
+    def report_progress(self, on_progress: Optional[Callable[[dict[str, Any]], None]] = None) -> None:
         """Report progress via callback.
 
         Args:
@@ -192,7 +192,7 @@ class ProgressTracker:
         with self._lock:
             return self._error_count
 
-    def format_progress(self, progress: Optional[Dict[str, Any]] = None) -> str:
+    def format_progress(self, progress: Optional[dict[str, Any]] = None) -> str:
         """Format progress information as string.
 
         Args:

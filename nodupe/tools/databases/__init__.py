@@ -18,23 +18,29 @@ Dependencies:
 """
 
 from .connection import DatabaseConnection, get_connection
-from .files import FileRepository
 from .embeddings import EmbeddingRepository
-from .wrapper import Database, DatabaseError  # Updated: uses refactored wrapper.py
-from .transactions import DatabaseTransaction, DatabaseTransactions, TransactionError, IsolationLevel
+from .files import FileRepository
 from .schema import DatabaseSchema, SchemaError
+from .transactions import (
+    DatabaseTransaction,
+    DatabaseTransactions,
+    IsolationLevel,
+    TransactionError,
+)
+from .wrapper import Database, DatabaseError  # Updated: uses refactored wrapper.py
+
 
 __all__ = [
     'Database',
-    'DatabaseError',
     'DatabaseConnection',
-    'get_connection',
-    'FileRepository',
-    'EmbeddingRepository',
+    'DatabaseError',
+    'DatabaseSchema',
     'DatabaseTransaction',
     'DatabaseTransactions',
-    'TransactionError',
+    'EmbeddingRepository',
+    'FileRepository',
     'IsolationLevel',
-    'DatabaseSchema',
-    'SchemaError'
+    'SchemaError',
+    'TransactionError',
+    'get_connection'
 ]

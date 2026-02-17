@@ -19,11 +19,11 @@ Dependencies:
 
 import os
 import sys
-import time
-from pathlib import Path
-from typing import Optional, Callable, Any, Union
-from contextlib import contextmanager
 import threading
+import time
+from contextlib import contextmanager
+from pathlib import Path
+from typing import Any, Callable, Optional, Union
 
 
 class LimitsError(Exception):

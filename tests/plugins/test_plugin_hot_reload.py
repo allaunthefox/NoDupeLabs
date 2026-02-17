@@ -1,8 +1,10 @@
 """Test tool hot reload functionality."""
 
-import pytest
-from unittest.mock import MagicMock, patch
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.tool_system.hot_reload import ToolHotReload
 from nodupe.core.tool_system.registry import ToolRegistry
 
@@ -104,7 +106,7 @@ class TestToolHotReloadOperations:
         hot_reload = ToolHotReload()
 
         # Start hot reload
-        with patch.object(hot_reload, '_poll_loop') as mock_poll_loop:
+        with patch.object(hot_reload, '_poll_loop'):
             hot_reload.start()
 
             # Stop hot reload
@@ -118,7 +120,7 @@ class TestToolHotReloadOperations:
         hot_reload = ToolHotReload()
 
         # Start hot reload
-        with patch.object(hot_reload, '_poll_loop') as mock_poll_loop:
+        with patch.object(hot_reload, '_poll_loop'):
             hot_reload.start()
             assert hot_reload._running is True
 
@@ -226,7 +228,7 @@ class TestToolHotReloadIntegration:
     def test_hot_reload_with_registry(self):
         """Test hot reload integration with registry."""
         hot_reload = ToolHotReload()
-        registry = ToolRegistry()
+        ToolRegistry()
 
         # Watch a tool
         hot_reload.watch_tool("test_tool", Path("/test/tool.py"))
@@ -240,7 +242,7 @@ class TestToolHotReloadIntegration:
 
         hot_reload = ToolHotReload()
         registry = ToolRegistry()
-        loader = ToolLoader(registry)
+        ToolLoader(registry)
 
         # Watch a tool
         hot_reload.watch_tool("test_tool", Path("/test/tool.py"))

@@ -8,18 +8,21 @@ data flow through all system components and integration between CLI, tools,
 and core services.
 """
 
-import pytest
-import sys
-import os
-import tempfile
 import json
+import os
+import sys
+import tempfile
 import time
-from unittest.mock import patch, MagicMock
-from nodupe.core.main import main
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.loader import bootstrap
-from nodupe.tools.commands.scan import ScanTool
+from nodupe.core.main import main
 from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+
 
 class TestCompleteScanApplyWorkflow:
     """Test complete scan and apply workflow integration."""
@@ -510,7 +513,7 @@ class TestErrorHandlingIntegration:
 
     def test_workflow_with_missing_files(self):
         """Test workflow error handling with missing files."""
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with tempfile.TemporaryDirectory():
             # Test apply with missing input file
             apply_tool = ApplyTool()
             apply_args = MagicMock()

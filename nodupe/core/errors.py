@@ -20,5 +20,9 @@ class PluginError(NoDupeError):
     """Plugin-related exceptions"""
 
 
+class ToolError(NoDupeError):
+    """Tool-related exceptions (compatibility alias for PluginError)."""
+
+
 class DatabaseError(NoDupeError):
     """Database-related exceptions"""

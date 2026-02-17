@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 """
 Tool Loading Order Management
 
@@ -8,10 +9,11 @@ to prevent cascading failures and ensure proper initialization sequence.
 from __future__ import annotations
 
 import logging
-from enum import Enum
-from typing import Dict, List, Set, Optional, Tuple, Any, Callable
-from dataclasses import dataclass
 from collections import defaultdict
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Callable, Optional
+
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +45,8 @@ class ToolLoadInfo:
     """Information about tool loading requirements."""
     name: str
     load_order: ToolLoadOrder
-    required_dependencies: List[str]
-    optional_dependencies: List[str]
+    required_dependencies: list[str]
+    optional_dependencies: list[str]
     critical: bool = False  # If True, failure prevents loading other tools
     description: str = ""
     load_priority: int = 0  # Higher priority loads first within same order level
@@ -65,13 +67,13 @@ class ToolLoadingOrder:
 
     def __init__(self):
         """Initialize the tool loading order manager."""
-        self._tool_info: Dict[str, ToolLoadInfo] = {}
-        self._load_order_groups: Dict[ToolLoadOrder, List[str]] = {
+        self._tool_info: dict[str, ToolLoadInfo] = {}
+        self._load_order_groups: dict[ToolLoadOrder, list[str]] = {
             order: [] for order in ToolLoadOrder
         }
-        self._dependency_graph: Dict[str, Set[str]] = {}
-        self._reverse_dependencies: Dict[str, Set[str]] = {}
-        self._load_callbacks: Dict[str, List[Callable]] = defaultdict(list)
+        self._dependency_graph: dict[str, set[str]] = {}
+        self._reverse_dependencies: dict[str, set[str]] = {}
+        self._load_callbacks: dict[str, list[Callable]] = defaultdict(list)
 
         # Initialize known tool order
         self._initialize_known_tools()
@@ -363,7 +365,7 @@ class ToolLoadingOrder:
                 self._reverse_dependencies[dep] = set()
             self._reverse_dependencies[dep].add(tool_info.name)
 
-    def get_load_order(self) -> List[ToolLoadOrder]:
+    def get_load_order(self) -> list[ToolLoadOrder]:
         """Get the tool loading order levels.
 
         Returns:
@@ -371,7 +373,7 @@ class ToolLoadingOrder:
         """
         return list(ToolLoadOrder)
 
-    def get_tools_for_order(self, order: ToolLoadOrder) -> List[str]:
+    def get_tools_for_order(self, order: ToolLoadOrder) -> list[str]:
         """Get tools that should be loaded at a specific order level.
 
         Args:
@@ -382,7 +384,7 @@ class ToolLoadingOrder:
         """
         return self._load_order_groups.get(order, [])
 
-    def get_required_dependencies(self, tool_name: str) -> List[str]:
+    def get_required_dependencies(self, tool_name: str) -> list[str]:
         """Get required dependencies for a tool.
 
         Args:
@@ -395,7 +397,7 @@ class ToolLoadingOrder:
             return []
         return self._tool_info[tool_name].required_dependencies
 
-    def get_optional_dependencies(self, tool_name: str) -> List[str]:
+    def get_optional_dependencies(self, tool_name: str) -> list[str]:
         """Get optional dependencies for a tool.
 
         Args:
@@ -432,7 +434,7 @@ class ToolLoadingOrder:
         """
         return self._tool_info.get(tool_name)
 
-    def validate_dependencies(self, tool_name: str, available_tools: Set[str]) -> Tuple[bool, List[str]]:
+    def validate_dependencies(self, tool_name: str, available_tools: set[str]) -> tuple[bool, list[str]]:
         """Validate that all required dependencies are available.
 
         Args:
@@ -450,7 +452,7 @@ class ToolLoadingOrder:
 
         return len(missing) == 0, list(missing)
 
-    def get_load_sequence(self, tool_names: List[str]) -> List[str]:
+    def get_load_sequence(self, tool_names: list[str]) -> list[str]:
         """Get the optimal loading sequence for a set of tools.
 
         Args:
@@ -509,7 +511,7 @@ class ToolLoadingOrder:
 
         return load_sequence
 
-    def get_critical_tools(self) -> List[str]:
+    def get_critical_tools(self) -> list[str]:
         """Get all critical tools that must load successfully.
 
         Returns:
@@ -530,7 +532,7 @@ class ToolLoadingOrder:
             return self._tool_info[tool_name].description
         return "Unknown tool"
 
-    def get_dependency_chain(self, tool_name: str) -> List[str]:
+    def get_dependency_chain(self, tool_name: str) -> list[str]:
         """Get the full dependency chain for a tool.
 
         Args:
@@ -558,7 +560,7 @@ class ToolLoadingOrder:
         add_deps(tool_name)
         return chain[:-1]  # Remove the tool itself, return only dependencies
 
-    def validate_load_sequence(self, tool_names: List[str]) -> Tuple[bool, List[str], List[str]]:
+    def validate_load_sequence(self, tool_names: list[str]) -> tuple[bool, list[str], list[str]]:
         """Validate a complete tool load sequence for dependencies and conflicts.
 
         Args:
@@ -587,7 +589,7 @@ class ToolLoadingOrder:
 
         return len(missing_deps) == 0 and len(circular_deps) == 0, missing_deps, circular_deps
 
-    def get_safe_load_sequence(self, tool_names: List[str]) -> Tuple[List[str], List[str]]:
+    def get_safe_load_sequence(self, tool_names: list[str]) -> tuple[list[str], list[str]]:
         """Get a safe loading sequence that handles failures gracefully.
 
         Args:
@@ -631,7 +633,7 @@ class ToolLoadingOrder:
 
         return safe_sequence, excluded
 
-    def _fallback_load_sequence(self, tool_names: List[str]) -> List[str]:
+    def _fallback_load_sequence(self, tool_names: list[str]) -> list[str]:
         """Fallback sequence generator when optimal fails."""
         # Sort by load order, then by name for deterministic ordering
         sorted_tools = sorted(
@@ -643,7 +645,7 @@ class ToolLoadingOrder:
         )
         return sorted_tools
 
-    def get_failure_impact_analysis(self, failed_tool: str, loaded_tools: List[str]) -> Dict[str, List[str]]:
+    def get_failure_impact_analysis(self, failed_tool: str, loaded_tools: list[str]) -> dict[str, list[str]]:
         """Analyze the impact of a tool failure on other tools.
 
         Args:
@@ -669,7 +671,7 @@ class ToolLoadingOrder:
 
         return impact
 
-    def should_continue_loading(self, failed_tool: str, loaded_tools: List[str]) -> Tuple[bool, str]:
+    def should_continue_loading(self, failed_tool: str, loaded_tools: list[str]) -> tuple[bool, str]:
         """Determine if loading should continue after a tool failure.
 
         Args:
@@ -685,7 +687,7 @@ class ToolLoadingOrder:
         # Critical tool failed - always stop loading
         return False, f"Critical tool {failed_tool} failed, stopping loading sequence"
 
-    def get_load_priorities(self, tool_names: List[str]) -> List[Tuple[str, int]]:
+    def get_load_priorities(self, tool_names: list[str]) -> list[tuple[str, int]]:
         """Get loading priorities for tools based on dependencies and criticality.
 
         Args:
@@ -740,9 +742,9 @@ class ToolLoadingOrder:
             try:
                 callback(tool_name)
             except Exception as e:
-                logger.error(f"Error in load callback for {tool_name}: {e}")
+                logger.exception(f"Error in load callback for {tool_name}: {e}")
 
-    def get_tool_statistics(self) -> Dict[str, Any]:
+    def get_tool_statistics(self) -> dict[str, Any]:
         """Get statistics about the tool loading order configuration.
 
         Returns:

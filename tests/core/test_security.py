@@ -1,7 +1,9 @@
 """Tests for security module."""
 
-import pytest
 from pathlib import Path
+
+import pytest
+
 from nodupe.core.security import Security, SecurityError
 
 

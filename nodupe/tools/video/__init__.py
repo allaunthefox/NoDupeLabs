@@ -1,16 +1,19 @@
+# pylint: disable=logging-fstring-interpolation
 """NoDupeLabs Video Tools - Video Processing Backends
 
 This module provides video processing backends with 5-tier graceful degradation
 for frame extraction, metadata analysis, and perceptual hashing.
 """
 
-from typing import List, Optional, Dict, Any
+import hashlib
 import logging
 import subprocess
-import hashlib
-import numpy as np
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -24,11 +27,11 @@ class VideoBackend(ABC):
         """Check if this backend is available"""
 
     @abstractmethod
-    def extract_frames(self, video_path: str, max_frames: int = 10) -> List[np.ndarray]:
+    def extract_frames(self, video_path: str, max_frames: int = 10) -> list[np.ndarray]:
         """Extract key frames from video"""
 
     @abstractmethod
-    def get_video_metadata(self, video_path: str) -> Dict[str, Any]:
+    def get_video_metadata(self, video_path: str) -> dict[str, Any]:
         """Get video metadata (duration, resolution, fps, etc.)"""
 
     @abstractmethod
@@ -52,8 +55,7 @@ class FFmpegSubprocessBackend(VideoBackend):
         """Check if ffmpeg binary is available in PATH"""
         try:
             subprocess.run(['ffmpeg', '-version'],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
+                                    capture_output=True,
                                     check=True)
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
@@ -64,7 +66,7 @@ class FFmpegSubprocessBackend(VideoBackend):
         """Check if FFmpeg backend is available"""
         return self._available
 
-    def extract_frames(self, video_path: str, max_frames: int = 10) -> List[np.ndarray]:
+    def extract_frames(self, video_path: str, max_frames: int = 10) -> list[np.ndarray]:
         """Extract frames using FFmpeg CLI"""
         if not self.is_available():
             logger.error("FFmpeg not available")
@@ -86,8 +88,7 @@ class FFmpegSubprocessBackend(VideoBackend):
             ]
 
             subprocess.run(cmd,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
+                                    capture_output=True,
                                     check=True)
 
             # Load extracted frames
@@ -117,10 +118,10 @@ class FFmpegSubprocessBackend(VideoBackend):
             return frames
 
         except Exception as e:
-            logger.error(f"Error extracting frames with FFmpeg: {e}")
+            logger.exception(f"Error extracting frames with FFmpeg: {e}")
             return []
 
-    def get_video_metadata(self, video_path: str) -> Dict[str, Any]:
+    def get_video_metadata(self, video_path: str) -> dict[str, Any]:
         """Get video metadata using FFmpeg"""
         if not self.is_available():
             return {}
@@ -132,8 +133,7 @@ class FFmpegSubprocessBackend(VideoBackend):
             ]
 
             subprocess.run(cmd,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
+                                    capture_output=True,
                                     check=False)
 
             metadata = {}
@@ -158,17 +158,14 @@ class FFmpegSubprocessBackend(VideoBackend):
             return metadata
 
         except Exception as e:
-            logger.error(f"Error getting video metadata: {e}")
+            logger.exception(f"Error getting video metadata: {e}")
             return {}
 
     def compute_perceptual_hash(self, frame: np.ndarray) -> str:
         """Compute simple perceptual hash (average hash)"""
         try:
             # Convert to grayscale if needed
-            if len(frame.shape) == 3:
-                gray = np.mean(frame, axis=2).astype(np.uint8)
-            else:
-                gray = frame
+            gray = np.mean(frame, axis=2).astype(np.uint8) if len(frame.shape) == 3 else frame
 
             # Resize to small fixed size
             resized = cv2.resize(gray, (8, 8)) if 'cv2' in locals() else gray[:8, :8]
@@ -179,7 +176,7 @@ class FFmpegSubprocessBackend(VideoBackend):
             return hashlib.md5(bits.encode()).hexdigest()
 
         except Exception as e:
-            logger.error(f"Error computing perceptual hash: {e}")
+            logger.exception(f"Error computing perceptual hash: {e}")
             return ""
 
     def get_priority(self) -> int:
@@ -207,7 +204,7 @@ class OpenCVBackend(VideoBackend):
         """Check if OpenCV backend is available"""
         return self._available
 
-    def extract_frames(self, video_path: str, max_frames: int = 10) -> List[np.ndarray]:
+    def extract_frames(self, video_path: str, max_frames: int = 10) -> list[np.ndarray]:
         """Extract frames using OpenCV"""
         if not self.is_available():
             logger.error("OpenCV not available")
@@ -237,10 +234,10 @@ class OpenCVBackend(VideoBackend):
             return frames
 
         except Exception as e:
-            logger.error(f"Error extracting frames with OpenCV: {e}")
+            logger.exception(f"Error extracting frames with OpenCV: {e}")
             return []
 
-    def get_video_metadata(self, video_path: str) -> Dict[str, Any]:
+    def get_video_metadata(self, video_path: str) -> dict[str, Any]:
         """Get video metadata using OpenCV"""
         if not self.is_available():
             return {}
@@ -264,7 +261,7 @@ class OpenCVBackend(VideoBackend):
             return metadata
 
         except Exception as e:
-            logger.error(f"Error getting video metadata: {e}")
+            logger.exception(f"Error getting video metadata: {e}")
             return {}
 
     def compute_perceptual_hash(self, frame: np.ndarray) -> str:
@@ -282,7 +279,7 @@ class OpenCVBackend(VideoBackend):
             return hashlib.md5(bits.encode()).hexdigest()
 
         except Exception as e:
-            logger.error(f"Error computing perceptual hash: {e}")
+            logger.exception(f"Error computing perceptual hash: {e}")
             return ""
 
     def get_priority(self) -> int:
@@ -321,7 +318,7 @@ class VideoBackendManager:
         if not self.backends:
             logger.warning("No video backends available")
 
-    def extract_frames(self, video_path: str, max_frames: int = 10) -> List[np.ndarray]:
+    def extract_frames(self, video_path: str, max_frames: int = 10) -> list[np.ndarray]:
         """Extract frames using the best available backend"""
         for backend in self.backends:
             try:
@@ -337,7 +334,7 @@ class VideoBackendManager:
         logger.error("All video backends failed to extract frames")
         return []
 
-    def get_video_metadata(self, video_path: str) -> Dict[str, Any]:
+    def get_video_metadata(self, video_path: str) -> dict[str, Any]:
         """Get video metadata using the best available backend"""
         for backend in self.backends:
             try:
@@ -383,7 +380,11 @@ def get_video_backend_manager() -> VideoBackendManager:
 get_video_backend_manager()
 
 __all__ = [
-    'VideoBackend', 'FFmpegSubprocessBackend', 'OpenCVBackend',
-    'VideoBackendManager', 'get_video_backend_manager', 'register_tool'
+    'FFmpegSubprocessBackend',
+    'OpenCVBackend',
+    'VideoBackend',
+    'VideoBackendManager',
+    'get_video_backend_manager',
+    'register_tool'
 ]
 from .video_tool import register_tool

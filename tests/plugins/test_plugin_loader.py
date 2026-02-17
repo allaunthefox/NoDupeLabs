@@ -1,10 +1,12 @@
 """Test tool loader functionality."""
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+
+from nodupe.core.tool_system.base import Tool
 from nodupe.core.tool_system.loader import ToolLoader, ToolLoaderError
 from nodupe.core.tool_system.registry import ToolRegistry
-from nodupe.core.tool_system.base import Tool
 
 
 class TestToolLoader:
@@ -155,7 +157,7 @@ class TestToolLoading:
         test_tool = TestTool()
 
         # Load tool
-        loaded_tool = loader.load_tool(test_tool)
+        loader.load_tool(test_tool)
         assert test_tool.initialized is True
 
         # Unload tool
@@ -505,7 +507,7 @@ class TestToolLoaderIntegration:
         test_tool = TestTool()
 
         # Load tool
-        loaded_tool = loader.load_tool(test_tool)
+        loader.load_tool(test_tool)
 
         # Initialize through lifecycle manager
         lifecycle_manager.initialize_tool("lifecycle_tool")

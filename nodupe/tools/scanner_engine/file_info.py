@@ -4,7 +4,7 @@ Get basic file information using only standard library
 """
 
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
 
 class FileInfo:
@@ -14,7 +14,7 @@ class FileInfo:
         """TODO: Document __init__."""
         self.file_path = file_path
 
-    def get_info(self) -> Dict[str, Any]:
+    def get_info(self) -> dict[str, Any]:
         """Get file information"""
         if not self.file_path.exists():
             raise FileNotFoundError(f"File {self.file_path} does not exist")

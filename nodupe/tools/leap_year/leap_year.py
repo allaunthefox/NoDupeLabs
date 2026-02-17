@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 """
 LeapYear Tool Implementation
 
@@ -21,13 +22,15 @@ Features:
 
 from __future__ import annotations
 
-import time
-import threading
-from typing import List, Tuple, Optional, Iterator
 import logging
+import threading
+import time
+from collections.abc import Iterator
 from functools import lru_cache
+from typing import Optional
 
 from nodupe.core.tool_system import Tool, ToolMetadata
+
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +98,7 @@ class LeapYearTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         """List of tool dependencies."""
         return []
 
@@ -111,12 +114,12 @@ class LeapYearTool(Tool):
             'get_calendar_info': self.get_calendar_info
         }
 
-    def run_standalone(self, args: List[str]) -> int:
+    def run_standalone(self, args: list[str]) -> int:
         """Execute leap year calculations in stand-alone mode."""
         import argparse
         parser = argparse.ArgumentParser(description=self.describe_usage())
         parser.add_argument("year", type=int, help="The calendar year you want to check")
-        
+
         if not args:
             parser.print_help()
             return 0
@@ -229,7 +232,7 @@ class LeapYearTool(Tool):
             raise ValueError(f"Year {year} out of range [{self.min_year}, {self.max_year}]")
 
     # ---- Batch operations ----
-    def find_leap_years(self, start_year: int, end_year: int) -> List[int]:
+    def find_leap_years(self, start_year: int, end_year: int) -> list[int]:
         """
         Find all leap years in a range.
 
@@ -279,7 +282,7 @@ class LeapYearTool(Tool):
 
         return count
 
-    def is_leap_year_batch(self, years: List[int]) -> List[bool]:
+    def is_leap_year_batch(self, years: list[int]) -> list[bool]:
         """
         Check leap year status for multiple years.
 
@@ -403,7 +406,7 @@ class LeapYearTool(Tool):
         days_in_year = self.get_days_in_year(year)
         return (days_in_year // 7) * 2 + min(days_in_year % 7, 2)
 
-    def get_easter_date(self, year: int) -> Tuple[int, int]:
+    def get_easter_date(self, year: int) -> tuple[int, int]:
         """
         Calculate Easter date for a given year using the computus algorithm.
 
@@ -424,7 +427,7 @@ class LeapYearTool(Tool):
         else:
             return self._easter_gregorian(year)
 
-    def _easter_gregorian(self, year: int) -> Tuple[int, int]:
+    def _easter_gregorian(self, year: int) -> tuple[int, int]:
         """Calculate Easter date using Gregorian computus."""
         # Meeus/Jones/Butcher algorithm
         a = year % 19
@@ -444,7 +447,7 @@ class LeapYearTool(Tool):
 
         return (month, day)
 
-    def _easter_julian(self, year: int) -> Tuple[int, int]:
+    def _easter_julian(self, year: int) -> tuple[int, int]:
         """Calculate Easter date using Julian computus."""
         # Simplified Julian computus
         a = year % 19
@@ -482,7 +485,7 @@ class LeapYearTool(Tool):
             self._cache_misses = 0
         logger.info("Cache statistics reset")
 
-    def benchmark_algorithm(self, years: List[int], iterations: int = 1000) -> dict:
+    def benchmark_algorithm(self, years: list[int], iterations: int = 1000) -> dict:
         """
         Benchmark the leap year algorithm performance.
 
@@ -586,7 +589,7 @@ class LeapYearTool(Tool):
 
         return prev_year
 
-    def get_leap_year_cycle(self, year: int) -> Tuple[int, int, int, int]:
+    def get_leap_year_cycle(self, year: int) -> tuple[int, int, int, int]:
         """
         Get the 4-year leap year cycle containing the given year.
 

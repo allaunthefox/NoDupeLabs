@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 # pylint: disable=broad-exception-caught,unused-argument
@@ -14,10 +15,10 @@ Key Features:
     - Graceful error handling
 """
 
-import sys
 import argparse
 import logging
-from typing import Optional, List, Any
+import sys
+from typing import Any, Optional
 
 # Import the enhanced core loader bootstrap
 from nodupe.core.loader import bootstrap
@@ -90,7 +91,7 @@ class CLIHandler:
                     except Exception as e:
                         logging.warning(f"Failed to register commands for {tool.name}: {e}")
 
-    def run(self, args: Optional[List[str]] = None) -> int:
+    def run(self, args: Optional[list[str]] = None) -> int:
         """Run the CLI.
 
         Args:
@@ -114,7 +115,7 @@ class CLIHandler:
                 # Inject services into args namespace if needed by commands
                 parsed_args.container = self.loader.container
                 result = parsed_args.func(parsed_args)
-                
+
                 # Log accessibility compliance
                 print(f"[{ActionCode.ACC_ISO_CMP}] CLI command executed with accessibility compliance")
                 return result
@@ -140,7 +141,7 @@ class CLIHandler:
             print(f"Platform: {cfg.get('drive_type', 'unknown')} | "
                   f"Cores: {cfg.get('cpu_cores', '?')} | "
                   f"RAM: {cfg.get('ram_gb', '?')}GB")
-        
+
         # Report accessibility compliance
         print(f"[{ActionCode.ACC_ISO_CMP}] ISO Accessibility Compliant")
         return 0
@@ -187,7 +188,7 @@ class CLIHandler:
             logging.info(f"Overridden batch size: {args.batch_size}")
 
 
-def main(args: Optional[List[str]] = None) -> int:
+def main(args: Optional[list[str]] = None) -> int:
     """Main entry point."""
     loader = None
     try:

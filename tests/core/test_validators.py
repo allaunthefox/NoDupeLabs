@@ -1,8 +1,10 @@
 """Tests for validators module."""
 
-import pytest
 from pathlib import Path
-from nodupe.core.validators import Validators, ValidationError
+
+import pytest
+
+from nodupe.tools.security_audit.validator_logic import ValidationError, Validators
 
 
 class TestValidators:

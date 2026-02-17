@@ -17,8 +17,9 @@ Dependencies:
     - typing (standard library only)
 """
 
-from typing import Optional, List, Dict, Any
 import pickle
+from typing import Any, Optional
+
 from .connection import DatabaseConnection
 
 
@@ -68,7 +69,7 @@ class EmbeddingRepository:
             print(f"[ERROR] Failed to add embedding: {e}")
             raise
 
-    def get_embedding(self, embedding_id: int) -> Optional[Dict[str, Any]]:
+    def get_embedding(self, embedding_id: int) -> Optional[dict[str, Any]]:
         """Get embedding by ID.
 
         Args:
@@ -96,7 +97,7 @@ class EmbeddingRepository:
             print(f"[ERROR] Failed to get embedding: {e}")
             raise
 
-    def get_embedding_by_file(self, file_id: int, model_version: str) -> Optional[Dict[str, Any]]:
+    def get_embedding_by_file(self, file_id: int, model_version: str) -> Optional[dict[str, Any]]:
         """Get embedding by file ID and model version.
 
         Args:
@@ -125,7 +126,7 @@ class EmbeddingRepository:
             print(f"[ERROR] Failed to get embedding by file: {e}")
             raise
 
-    def get_embeddings_by_file(self, file_id: int) -> List[Dict[str, Any]]:
+    def get_embeddings_by_file(self, file_id: int) -> list[dict[str, Any]]:
         """Get all embeddings for a file.
 
         Args:
@@ -153,7 +154,7 @@ class EmbeddingRepository:
             print(f"[ERROR] Failed to get embeddings by file: {e}")
             raise
 
-    def get_embeddings_by_model(self, model_version: str) -> List[Dict[str, Any]]:
+    def get_embeddings_by_model(self, model_version: str) -> list[dict[str, Any]]:
         """Get all embeddings for a model version.
 
         Args:
@@ -261,7 +262,7 @@ class EmbeddingRepository:
             print(f"[ERROR] Failed to delete embeddings by model: {e}")
             raise
 
-    def get_all_embeddings(self) -> List[Dict[str, Any]]:
+    def get_all_embeddings(self) -> list[dict[str, Any]]:
         """Get all embeddings from database.
 
         Returns:
@@ -315,7 +316,7 @@ class EmbeddingRepository:
             print(f"[ERROR] Failed to count embeddings by model: {e}")
             raise
 
-    def batch_add_embeddings(self, embeddings: List[Dict[str, Any]]) -> int:
+    def batch_add_embeddings(self, embeddings: list[dict[str, Any]]) -> int:
         """Add multiple embeddings in batch.
 
         Args:

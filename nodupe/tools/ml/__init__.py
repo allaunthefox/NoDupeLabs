@@ -6,9 +6,10 @@ and other machine learning tasks with graceful degradation.
 
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Optional, Any
+from typing import Any, Optional
 
 import numpy as np
+
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ class MLBackend(ABC):
         """Check if this backend is available"""
 
     @abstractmethod
-    def generate_embeddings(self, data: List[Any]) -> List[List[float]]:
+    def generate_embeddings(self, data: list[Any]) -> list[list[float]]:
         """Generate embeddings for input data"""
 
     @abstractmethod
@@ -41,7 +42,7 @@ class CPUBackend(MLBackend):
         """This backend is always available"""
         return True
 
-    def generate_embeddings(self, data: List[Any]) -> List[List[float]]:
+    def generate_embeddings(self, data: list[Any]) -> list[list[float]]:
         """
         Generate simple embeddings using NumPy
         This is a placeholder implementation that creates random embeddings
@@ -49,7 +50,7 @@ class CPUBackend(MLBackend):
         try:
             # Create random embeddings for demonstration
             embeddings = []
-            for _ in data:
+            for item in data:
                 # Simple hash-based embedding for demonstration
                 if isinstance(item, str):
                     # Convert string to numerical representation
@@ -62,8 +63,8 @@ class CPUBackend(MLBackend):
                     embedding = np.random.randn(self.dimensions).tolist()
                 embeddings.append(embedding)
             return embeddings
-        except Exception as e:
-            logger.error(f"Error generating embeddings with CPU backend: {e}")
+        except Exception:
+            logger.exception("Error generating embeddings with CPU backend")
             # Return empty embeddings on error
             return [[] for _ in data]
 
@@ -95,14 +96,14 @@ class ONNXBackend(MLBackend):
                 logger.warning("ONNX backend: no model path provided")
         except ImportError:
             logger.warning("ONNX runtime not available, falling back to CPU backend")
-        except Exception as e:
-            logger.error(f"Failed to load ONNX model: {e}")
+        except Exception:
+            logger.exception("Failed to load ONNX model")
 
     def is_available(self) -> bool:
         """Check if ONNX backend is available"""
         return self._available
 
-    def generate_embeddings(self, data: List[Any]) -> List[List[float]]:
+    def generate_embeddings(self, data: list[Any]) -> list[list[float]]:
         """Generate embeddings using ONNX model"""
         if not self.is_available():
             logger.warning("ONNX backend not available, using CPU fallback")
@@ -112,14 +113,14 @@ class ONNXBackend(MLBackend):
         try:
             # Placeholder: actual implementation would use ONNX model
             embeddings = []
-            for _ in data:
+            for item in data:
                 # Convert data to format expected by ONNX model
                 # This is a placeholder - actual implementation would preprocess data
                 embedding = np.random.randn(self.dimensions).tolist()
                 embeddings.append(embedding)
             return embeddings
-        except Exception as e:
-            logger.error(f"Error generating embeddings with ONNX backend: {e}")
+        except Exception:
+            logger.exception("Error generating embeddings with ONNX backend")
             # Fallback to CPU backend
             cpu_backend = CPUBackend()
             return cpu_backend.generate_embeddings(data)
@@ -170,9 +171,11 @@ def create_ml_backend(backend_type: str = "auto", **kwargs) -> MLBackend:
 ML_BACKEND: Optional[MLBackend] = None
 
 
+# pylint: disable=global-statement
 def get_ml_backend() -> MLBackend:
     """Get the global ML backend instance"""
-    global ML_BACKEND
+    # pylint: disable=global-statement
+    global ML_BACKEND  # noqa: PLW0603
     if ML_BACKEND is None:
         ML_BACKEND = create_ml_backend()
     return ML_BACKEND
@@ -181,4 +184,4 @@ def get_ml_backend() -> MLBackend:
 # Initialize backend on import
 get_ml_backend()
 
-__all__ = ['MLBackend', 'CPUBackend', 'ONNXBackend', 'create_ml_backend', 'get_ml_backend']
+__all__ = ['CPUBackend', 'MLBackend', 'ONNXBackend', 'create_ml_backend', 'get_ml_backend']

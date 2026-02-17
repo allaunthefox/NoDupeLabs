@@ -1,14 +1,15 @@
 # Performance Test Utilities
 # Helper functions for performance benchmarking and testing
 
-import time
-import tempfile
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Union, Callable
 import contextlib
 import os
 import sys
+import tempfile
+import time
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Union
 from unittest.mock import MagicMock, patch
+
 
 # Platform-specific imports with fallback
 try:
@@ -29,7 +30,7 @@ def benchmark_function_performance(
     warmup_iterations: int = 10,
     *args,
     **kwargs
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Benchmark a function's performance.
 
@@ -71,7 +72,7 @@ def measure_memory_usage(
     iterations: int = 10,
     *args,
     **kwargs
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Measure memory usage of a function.
 
@@ -122,7 +123,7 @@ def measure_memory_usage(
         "iterations": iterations
     }
 
-def create_performance_test_scenarios() -> List[Dict[str, Any]]:
+def create_performance_test_scenarios() -> list[dict[str, Any]]:
     """
     Create performance test scenarios.
 
@@ -193,7 +194,7 @@ def simulate_resource_constraints(
 
     return resource_context
 
-def create_load_test_scenarios() -> List[Dict[str, Any]]:
+def create_load_test_scenarios() -> list[dict[str, Any]]:
     """
     Create load test scenarios.
 
@@ -226,9 +227,9 @@ def create_load_test_scenarios() -> List[Dict[str, Any]]:
 
 def benchmark_file_operations(
     file_size: int = 1024 * 1024,  # 1MB
-    operations: List[str] = None,
+    operations: Optional[list[str]] = None,
     iterations: int = 100
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Benchmark file operations performance.
 
@@ -329,15 +330,15 @@ def create_performance_monitor() -> Callable:
 
         elapsed_time = end_time - start_time
 
-        print(f"Performance Monitor Results:")
+        print("Performance Monitor Results:")
         print(f"  Execution Time: {elapsed_time:.4f} seconds")
 
         if PSUTIL_AVAILABLE:
             print(f"  Memory Used: {memory_used / 1024 / 1024:.2f} MB")
             print(f"  CPU Usage: {cpu_usage}%")
         else:
-            print(f"  Memory Used: N/A (psutil not available)")
-            print(f"  CPU Usage: N/A (psutil not available)")
+            print("  Memory Used: N/A (psutil not available)")
+            print("  CPU Usage: N/A (psutil not available)")
 
     return monitor_context
 
@@ -374,7 +375,7 @@ def simulate_slow_operations(
 
     return slow_context
 
-def create_stress_test_scenarios() -> List[Dict[str, Any]]:
+def create_stress_test_scenarios() -> list[dict[str, Any]]:
     """
     Create stress test scenarios.
 
@@ -407,9 +408,9 @@ def create_stress_test_scenarios() -> List[Dict[str, Any]]:
 
 def benchmark_database_operations(
     db_connection: Any,
-    queries: List[str],
+    queries: list[str],
     iterations: int = 100
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Benchmark database operations performance.
 
@@ -438,7 +439,7 @@ def benchmark_database_operations(
 
     return results
 
-def create_network_performance_test_scenarios() -> List[Dict[str, Any]]:
+def create_network_performance_test_scenarios() -> list[dict[str, Any]]:
     """
     Create network performance test scenarios.
 
@@ -468,11 +469,11 @@ def create_network_performance_test_scenarios() -> List[Dict[str, Any]]:
 
 def measure_concurrency_performance(
     func: Callable,
-    worker_counts: List[int] = [1, 2, 4, 8, 16],
+    worker_counts: list[int] = [1, 2, 4, 8, 16],
     iterations: int = 100,
     *args,
     **kwargs
-) -> Dict[int, float]:
+) -> dict[int, float]:
     """
     Measure performance with different levels of concurrency.
 
@@ -507,7 +508,7 @@ def measure_concurrency_performance(
 
     return results
 
-def create_performance_regression_test_scenarios() -> List[Dict[str, Any]]:
+def create_performance_regression_test_scenarios() -> list[dict[str, Any]]:
     """
     Create performance regression test scenarios.
 
@@ -578,7 +579,7 @@ def simulate_performance_degradation(
 
     return degradation_context
 
-def create_resource_monitoring_scenarios() -> List[Dict[str, Any]]:
+def create_resource_monitoring_scenarios() -> list[dict[str, Any]]:
     """
     Create resource monitoring test scenarios.
 

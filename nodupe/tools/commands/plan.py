@@ -7,10 +7,12 @@ This tool bridges the gap between 'scan' and 'apply' by creating
 an execution plan based on duplicate detection results.
 """
 
-from nodupe.core.tool_system.base import Tool
-from typing import Any, Dict
 import argparse
 import json
+from typing import Any
+
+from nodupe.core.tool_system.base import Tool
+
 
 # Tool manager is injected by the core system
 PM = None
@@ -43,7 +45,7 @@ class PlanTool(Tool):
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {'commands': ['plan'], 'strategies': ['newest', 'oldest', 'interactive']}
 

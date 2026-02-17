@@ -1,6 +1,9 @@
+# pylint: disable=logging-fstring-interpolation
 """Parallel Module.
 
 Parallel processing utilities using standard library only.
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 
 Key Features:
     - Process pool for CPU-bound tasks
@@ -19,14 +22,16 @@ Dependencies:
 """
 
 import concurrent.futures
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-from multiprocessing import cpu_count
-from typing import Callable, List, Any, Optional, Iterator, Tuple
-import threading
-import sys
-import time
+import contextlib
 import logging
 import os
+import sys
+import threading
+import time
+from collections.abc import Iterator
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from multiprocessing import cpu_count
+from typing import Any, Callable, Optional
 
 
 def _process_batch_worker(func_and_batch):
@@ -72,7 +77,7 @@ class Parallel:
         return hasattr(sys, 'flags') and getattr(sys.flags, 'gil', 1) == 0
 
     @staticmethod
-    def get_python_version_info() -> Tuple[int, int]:
+    def get_python_version_info() -> tuple[int, int]:
         """Get current Python version as (major, minor) tuple.
 
         Returns:
@@ -93,12 +98,12 @@ class Parallel:
     @staticmethod
     def process_in_parallel(
         func: Callable,
-        items: List[Any],
+        items: list[Any],
         workers: Optional[int] = None,
         use_processes: bool = False,
         use_interpreters: bool = False,
         timeout: Optional[float] = None
-    ) -> List[Any]:
+    ) -> list[Any]:
         """Process items in parallel.
 
         Args:
@@ -167,12 +172,12 @@ class Parallel:
     @staticmethod
     def map_parallel(
         func: Callable,
-        items: List[Any],
+        items: list[Any],
         workers: Optional[int] = None,
         use_processes: bool = False,
         use_interpreters: bool = False,
         chunk_size: int = 1
-    ) -> List[Any]:
+    ) -> list[Any]:
         """Map function over items in parallel.
 
         Args:
@@ -222,7 +227,7 @@ class Parallel:
     @staticmethod
     def map_parallel_unordered(
         func: Callable,
-        items: List[Any],
+        items: list[Any],
         workers: Optional[int] = None,
         use_processes: bool = False,
         use_interpreters: bool = False,
@@ -312,13 +317,11 @@ class Parallel:
                             duration = now - prev
                             prev = now
                             if batch_logging:
-                                try:
+                                with contextlib.suppress(Exception):
                                     logging.getLogger(__name__).debug(
                                         "batch size=%d processed in %.3fs", len(
                                             batch_result), duration
                                     )
-                                except Exception:
-                                    pass
                             yield from batch_result
                 elif use_processes and prefer_map:
                     # Auto-balance chunksize: smaller chunks reduce per-task overhead but increase scheduling;
@@ -350,10 +353,8 @@ class Parallel:
                                 raise ParallelError(f"Task failed: {e}") from e
                             finally:
                                 # Remove completed future and submit next item if available
-                                try:
+                                with contextlib.suppress(KeyError):
                                     futures.remove(future)
-                                except KeyError:
-                                    pass
 
                                 try:
                                     nxt = next(it)
@@ -369,11 +370,11 @@ class Parallel:
     @staticmethod
     def smart_map(
         func: Callable,
-        items: List[Any],
+        items: list[Any],
         task_type: str = 'auto',
         workers: Optional[int] = None,
         timeout: Optional[float] = None
-    ) -> List[Any]:
+    ) -> list[Any]:
         """Smart map that automatically chooses the best executor based on Python version and task type.
 
         Args:
@@ -457,22 +458,21 @@ class Parallel:
         elif Parallel.supports_interpreter_pool():
             # For interpreter pools, use CPU count as baseline
             return cpu_count
+        # Traditional GIL mode - be more conservative
+        elif task_type == 'cpu':
+            return min(32, cpu_count)  # Avoid GIL contention with too many processes
         else:
-            # Traditional GIL mode - be more conservative
-            if task_type == 'cpu':
-                return min(32, cpu_count)  # Avoid GIL contention with too many processes
-            else:
-                return min(32, cpu_count * 2)  # More I/O workers allowed
+            return min(32, cpu_count * 2)  # More I/O workers allowed
 
     @staticmethod
     def process_batches(
         func: Callable,
-        items: List[Any],
+        items: list[Any],
         batch_size: int,
         workers: Optional[int] = None,
         use_processes: bool = False,
         use_interpreters: bool = False
-    ) -> List[Any]:
+    ) -> list[Any]:
         """Process items in batches in parallel.
 
         Args:
@@ -512,7 +512,7 @@ class Parallel:
     def reduce_parallel(
         map_func: Callable,
         reduce_func: Callable,
-        items: List[Any],
+        items: list[Any],
         initial: Any = None,
         workers: Optional[int] = None,
         use_processes: bool = False,
@@ -591,7 +591,7 @@ class ParallelProgress:
             else:
                 self.failed += 1
 
-    def get_progress(self) -> Tuple[int, int, float]:
+    def get_progress(self) -> tuple[int, int, float]:
         """Get current progress.
 
         Returns:
@@ -615,11 +615,11 @@ class ParallelProgress:
 
 def parallel_map(
     func: Callable,
-    items: List[Any],
+    items: list[Any],
     workers: Optional[int] = None,
     use_processes: bool = False,
     use_interpreters: bool = False
-) -> List[Any]:
+) -> list[Any]:
     """Convenience function for parallel map.
 
     Args:
@@ -637,11 +637,11 @@ def parallel_map(
 
 def parallel_filter(
     predicate: Callable[[Any], bool],
-    items: List[Any],
+    items: list[Any],
     workers: Optional[int] = None,
     use_processes: bool = False,
     use_interpreters: bool = False
-) -> List[Any]:
+) -> list[Any]:
     """Parallel filter operation.
 
     Args:
@@ -667,11 +667,11 @@ def parallel_filter(
 
 def parallel_partition(
     predicate: Callable[[Any], bool],
-    items: List[Any],
+    items: list[Any],
     workers: Optional[int] = None,
     use_processes: bool = False,
     use_interpreters: bool = False
-) -> Tuple[List[Any], List[Any]]:
+) -> tuple[list[Any], list[Any]]:
     """Partition items based on predicate in parallel.
 
     Args:
@@ -700,11 +700,11 @@ def parallel_partition(
 
 def parallel_starmap(
     func: Callable,
-    args_list: List[Tuple],
+    args_list: list[tuple],
     workers: Optional[int] = None,
     use_processes: bool = False,
     use_interpreters: bool = False
-) -> List[Any]:
+) -> list[Any]:
     """Parallel starmap operation (func with multiple arguments).
 
     Args:

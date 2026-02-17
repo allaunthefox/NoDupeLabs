@@ -6,10 +6,12 @@
 Provides archive detection and extraction capabilities as a tool.
 """
 
-from typing import List, Dict, Any, Optional
-from pathlib import Path
+from typing import Any
+
 from nodupe.core.tool_system.base import Tool
-from .archive_logic import ArchiveHandler, ArchiveHandlerError
+
+from .archive_logic import ArchiveHandler
+
 
 class StandardArchiveTool(Tool):
     """Standard archive handling tool."""
@@ -23,11 +25,11 @@ class StandardArchiveTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         return []
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
             'extract_archive': self.handler.extract_archive,
             'create_archive': self.handler.create_archive,
@@ -47,13 +49,13 @@ class StandardArchiveTool(Tool):
         """Shutdown the tool and cleanup."""
         self.handler.cleanup()
 
-    def run_standalone(self, args: List[str]) -> int:
+    def run_standalone(self, args: list[str]) -> int:
         """Execute archive operations in stand-alone mode."""
         import argparse
         parser = argparse.ArgumentParser(description=self.describe_usage())
         parser.add_argument("archive", help="The compressed collection (zip/tar)")
         parser.add_argument("--extract", help="The folder where you want the files to go")
-        
+
         if not args:
             parser.print_help()
             return 0
@@ -79,7 +81,7 @@ class StandardArchiveTool(Tool):
             "those collections so you can see the individual files inside."
         )
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
             'formats': ['zip', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz', 'tar.lzma'],

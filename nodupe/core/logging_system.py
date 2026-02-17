@@ -16,9 +16,9 @@ Dependencies:
 
 import logging
 import logging.handlers
-from pathlib import Path
-from typing import Optional, Dict, Any
 import sys
+from pathlib import Path
+from typing import Any, Optional
 
 
 class LoggingError(Exception):
@@ -32,7 +32,7 @@ class Logging:
     configurable log levels, and both file and console output.
     """
 
-    _loggers: Dict[str, logging.Logger] = {}
+    _loggers: dict[str, logging.Logger] = {}
     _configured: bool = False
 
     @classmethod

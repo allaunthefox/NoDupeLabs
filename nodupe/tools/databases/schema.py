@@ -16,9 +16,9 @@ Dependencies:
 """
 
 import sqlite3
-from typing import Dict, List, Tuple, Optional
-from pathlib import Path
 import time
+from pathlib import Path
+from typing import Optional
 
 
 class SchemaError(Exception):
@@ -295,7 +295,7 @@ class DatabaseSchema:
             f"Migration from {from_version} to {to_version} not implemented"
         )
 
-    def validate_schema(self) -> Tuple[bool, List[str]]:
+    def validate_schema(self) -> tuple[bool, list[str]]:
         """Validate database schema against specification.
 
         Returns:
@@ -309,7 +309,7 @@ class DatabaseSchema:
             errors = []
 
             # Check all tables exist
-            for table_name in self.TABLES.keys():
+            for table_name in self.TABLES:
                 cursor.execute(
                     "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
                     (table_name,)
@@ -331,7 +331,7 @@ class DatabaseSchema:
             cursor.execute(
                 "SELECT name FROM sqlite_master WHERE type='index'"
             )
-            existing_indexes = set(row[0] for row in cursor.fetchall())
+            existing_indexes = {row[0] for row in cursor.fetchall()}
 
             missing_indexes = expected_indexes - existing_indexes
             for index_name in missing_indexes:
@@ -367,7 +367,7 @@ class DatabaseSchema:
             self.connection.rollback()
             raise SchemaError(f"Failed to drop schema: {e}") from e
 
-    def get_table_info(self, table_name: str) -> List[Dict]:
+    def get_table_info(self, table_name: str) -> list[dict]:
         """Get table column information.
 
         Args:
@@ -399,7 +399,7 @@ class DatabaseSchema:
         except sqlite3.Error as e:
             raise SchemaError(f"Failed to get table info for {table_name}: {e}") from e
 
-    def get_indexes(self, table_name: str) -> List[str]:
+    def get_indexes(self, table_name: str) -> list[str]:
         """Get indexes for a table.
 
         Args:

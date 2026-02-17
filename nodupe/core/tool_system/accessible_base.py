@@ -1,13 +1,15 @@
+# pylint: disable=logging-fstring-interpolation
 """Accessible Tool Base Class.
 
 Abstract base class for all system tools with built-in accessibility support.
 Extends the standard Tool base class with accessibility features.
 """
 
-from abc import abstractmethod
-from typing import List, Dict, Any, Callable
-from .base import Tool, ToolMetadata
 import logging
+from abc import abstractmethod
+from typing import Any
+
+from .base import Tool
 
 
 class AccessibleTool(Tool):
@@ -21,19 +23,19 @@ class AccessibleTool(Tool):
 
     def _initialize_accessibility_features(self):
         """Initialize accessibility libraries with fallbacks.
-        
+
         Accessibility is a core requirement, not optional. Even if external
         libraries fail, basic accessibility through console output must remain.
         """
         from .api.codes import ActionCode
-        
+
         class AccessibleOutput:
             def __init__(self):
                 self.screen_reader_available = False
                 self.braille_available = False
                 self.outputter = None
                 self.braille_client = None
-                
+
                 # Try to initialize screen reader support
                 try:
                     from accessible_output2.outputs.auto import Auto
@@ -44,7 +46,7 @@ class AccessibleTool(Tool):
                     # Even if external library not available, we still have basic accessibility
                     self.screen_reader_available = False
                     print(f"[{ActionCode.ACC_SCREEN_READER_UNAVAIL}] Screen reader support unavailable, using console fallback")
-                
+
                 # Try to initialize braille support
                 try:
                     import brlapi
@@ -55,16 +57,16 @@ class AccessibleTool(Tool):
                     # Even if braille not available, we still have basic accessibility
                     self.braille_available = False
                     print(f"[{ActionCode.ACC_BRAILLE_UNAVAIL}] Braille display support unavailable, using console fallback")
-            
+
             def output(self, text: str, interrupt: bool = True):
                 """Output text to all available accessibility channels.
-                
+
                 Core accessibility requirement: Always output to console as minimum viable option.
                 Additional accessibility channels are enhancements.
                 """
                 # CORE REQUIREMENT: Always output to console as minimum accessibility
                 print(text)
-                
+
                 # ENHANCEMENT: Screen reader output if available
                 if self.screen_reader_available and self.outputter:
                     try:
@@ -73,7 +75,7 @@ class AccessibleTool(Tool):
                     except Exception as e:
                         # Log the error but don't fail the core accessibility
                         print(f"[{ActionCode.ACC_OUTPUT_FAILED}] Screen reader output failed: {e}")
-                
+
                 # ENHANCEMENT: Braille output if available
                 if self.braille_available and self.braille_client:
                     try:
@@ -82,7 +84,7 @@ class AccessibleTool(Tool):
                     except Exception as e:
                         # Log the error but don't fail the core accessibility
                         print(f"[{ActionCode.ACC_OUTPUT_FAILED}] Braille output failed: {e}")
-        
+
         return AccessibleOutput()
 
     def announce_to_assistive_tech(self, message: str, interrupt: bool = True):
@@ -95,10 +97,10 @@ class AccessibleTool(Tool):
     def format_for_accessibility(self, data: Any) -> str:
         """
         Format data for accessibility with screen readers and braille displays.
-        
+
         Args:
             data: Data to format for accessibility
-            
+
         Returns:
             String formatted for accessibility
         """
@@ -137,10 +139,10 @@ class AccessibleTool(Tool):
             return f"{type(value).__name__} object"
 
     @abstractmethod
-    def get_ipc_socket_documentation(self) -> Dict[str, Any]:
+    def get_ipc_socket_documentation(self) -> dict[str, Any]:
         """
         Document IPC socket interfaces for assistive technology integration.
-        
+
         Returns:
             Dictionary describing available IPC endpoints and their accessibility features
         """
@@ -159,7 +161,7 @@ class AccessibleTool(Tool):
     def get_accessible_status(self) -> str:
         """
         Get tool status in an accessible format.
-        
+
         Returns:
             Human-readable status information suitable for screen readers
         """
@@ -171,19 +173,19 @@ class AccessibleTool(Tool):
             "capabilities": capabilities.get('capabilities', []),
             "description": capabilities.get('description', 'No description available')
         }
-        
+
         return self.format_for_accessibility(status_info)
 
     def log_accessible_message(self, message: str, level: str = "info"):
         """
         Log a message with accessibility consideration.
-        
+
         Args:
             message: The message to log
             level: The logging level ('info', 'warning', 'error', 'debug')
         """
         from .api.codes import ActionCode
-        
+
         # Determine the appropriate action code based on level
         if level.lower() == 'error':
             code = ActionCode.ERR_INTERNAL
@@ -193,11 +195,11 @@ class AccessibleTool(Tool):
             code = ActionCode.FIA_UAU_INIT  # Generic info code
         else:
             code = ActionCode.FIA_UAU_INIT  # Generic info code
-        
+
         # Log to standard logger with action code
         log_method = getattr(self.logger, level.lower(), self.logger.info)
         log_method(f"[{code}] {message}")
-        
+
         # Optionally announce to assistive tech if it's an important message
         if level.lower() in ['warning', 'error']:
             self.announce_to_assistive_tech(f"Alert: {message}")

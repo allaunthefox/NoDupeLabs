@@ -18,12 +18,12 @@ Dependencies:
     - json (standard library)
 """
 
-import threading
-import time
-from typing import Optional, Dict, Any, Tuple, List
-from collections import OrderedDict
 import hashlib
 import json
+import threading
+import time
+from collections import OrderedDict
+from typing import Any, Optional
 
 
 class QueryCacheError(Exception):
@@ -52,7 +52,7 @@ class QueryCache:
         self.ttl_seconds = ttl_seconds
 
         # Cache storage: query_key -> (result, timestamp)
-        self._cache: OrderedDict[str, Tuple[Any, float]] = OrderedDict()
+        self._cache: OrderedDict[str, tuple[Any, float]] = OrderedDict()
         self._lock = threading.RLock()
         self._stats = {
             'hits': 0,
@@ -61,7 +61,7 @@ class QueryCache:
             'insertions': 0
         }
 
-    def get_result(self, query: str, params: Optional[Dict[str, Any]] = None) -> Optional[Any]:
+    def get_result(self, query: str, params: Optional[dict[str, Any]] = None) -> Optional[Any]:
         """Get cached result for a query.
 
         Args:
@@ -89,7 +89,7 @@ class QueryCache:
             self._stats['hits'] += 1
             return result
 
-    def set_result(self, query: str, params: Optional[Dict[str, Any]] = None, result: Any = None) -> None:
+    def set_result(self, query: str, params: Optional[dict[str, Any]] = None, result: Any = None) -> None:
         """Set result for a query in cache.
 
         Args:
@@ -114,7 +114,7 @@ class QueryCache:
 
             self._stats['insertions'] += 1
 
-    def invalidate(self, query: str, params: Optional[Dict[str, Any]] = None) -> bool:
+    def invalidate(self, query: str, params: Optional[dict[str, Any]] = None) -> bool:
         """Invalidate cache entry for a query.
 
         Args:
@@ -151,7 +151,7 @@ class QueryCache:
         """
         with self._lock:
             keys_to_remove = []
-            for key in self._cache.keys():
+            for key in self._cache:
                 if key.startswith(prefix):
                     keys_to_remove.append(key)
 
@@ -185,7 +185,7 @@ class QueryCache:
 
             return removed_count
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics.
 
         Returns:
@@ -211,7 +211,7 @@ class QueryCache:
         with self._lock:
             return len(self._cache)
 
-    def is_cached(self, query: str, params: Optional[Dict[str, Any]] = None) -> bool:
+    def is_cached(self, query: str, params: Optional[dict[str, Any]] = None) -> bool:
         """Check if a query result is cached and valid.
 
         Args:
@@ -260,14 +260,14 @@ class QueryCache:
                 try:
                     result_str = str(result)
                     usage += len(result_str.encode('utf-8'))
-                except:
+                except (UnicodeEncodeError, TypeError):
                     usage += 100  # Default estimate if conversion fails
                 usage += 8  # Timestamp (float)
                 usage += 50  # Overhead per entry
 
             return usage
 
-    def _generate_key(self, query: str, params: Optional[Dict[str, Any]] = None) -> str:
+    def _generate_key(self, query: str, params: Optional[dict[str, Any]] = None) -> str:
         """Generate a unique cache key for a query and parameters.
 
         Args:
@@ -302,7 +302,7 @@ class QueryCache:
         """
         with self._lock:
             keys_to_remove = []
-            for key in self._cache.keys():
+            for key in self._cache:
                 # Extract query part from key (before the last colon)
                 query_part = key.rsplit(':', 1)[0] if ':' in key else key
                 if pattern.lower() in query_part.lower():
@@ -314,7 +314,7 @@ class QueryCache:
 
             return len(keys_to_remove)
 
-    def get_cached_queries(self) -> List[str]:
+    def get_cached_queries(self) -> list[str]:
         """Get list of cached query patterns.
 
         Returns:
@@ -322,7 +322,7 @@ class QueryCache:
         """
         with self._lock:
             queries = []
-            for key in self._cache.keys():
+            for key in self._cache:
                 query_part = key.rsplit(':', 1)[0] if ':' in key else key
                 if query_part not in queries:
                     queries.append(query_part)

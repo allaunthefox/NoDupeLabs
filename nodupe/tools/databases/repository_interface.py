@@ -15,7 +15,7 @@ Dependencies:
 """
 
 import sqlite3
-from typing import Dict, Any, Optional, List
+from typing import Any, Optional
 
 
 class RepositoryError(Exception):
@@ -36,15 +36,15 @@ class DatabaseRepository:
         """
         self.connection = connection
 
-    def create(self, table: str, data: Dict[str, Any]) -> int:
+    def create(self, table: str, data: dict[str, Any]) -> int:
         """Create a new record in the specified table."""
         raise NotImplementedError("create must be implemented by subclasses")
 
-    def read(self, table: str, record_id: int) -> Optional[Dict[str, Any]]:
+    def read(self, table: str, record_id: int) -> Optional[dict[str, Any]]:
         """Read a record by ID from the specified table."""
         raise NotImplementedError("read must be implemented by subclasses")
 
-    def read_all(self, table: str, where: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    def read_all(self, table: str, where: Optional[dict[str, Any]] = None) -> list[dict[str, Any]]:
         """Read all records from the specified table.
 
         Args:
@@ -62,7 +62,7 @@ class DatabaseRepository:
 
             if where:
                 # Build WHERE clause
-                where_clause = ' AND '.join([f"{k} = ?" for k in where.keys()])
+                where_clause = ' AND '.join([f"{k} = ?" for k in where])
                 query = f"SELECT * FROM {table} WHERE {where_clause}"
                 cursor.execute(query, list(where.values()))
             else:
@@ -81,7 +81,7 @@ class DatabaseRepository:
         except sqlite3.Error as e:
             raise RepositoryError(f"Failed to read records from {table}: {e}") from e
 
-    def update(self, table: str, record_id: int, data: Dict[str, Any]) -> bool:
+    def update(self, table: str, record_id: int, data: dict[str, Any]) -> bool:
         """Update a record in the specified table."""
         raise NotImplementedError("update must be implemented by subclasses")
 
@@ -89,7 +89,7 @@ class DatabaseRepository:
         """Delete a record from the specified table."""
         raise NotImplementedError("delete must be implemented by subclasses")
 
-    def count(self, table: str, where: Optional[Dict[str, Any]] = None) -> int:
+    def count(self, table: str, where: Optional[dict[str, Any]] = None) -> int:
         """Count records in the specified table.
 
         Args:
@@ -107,7 +107,7 @@ class DatabaseRepository:
 
             if where:
                 # Build WHERE clause
-                where_clause = ' AND '.join([f"{k} = ?" for k in where.keys()])
+                where_clause = ' AND '.join([f"{k} = ?" for k in where])
                 query = f"SELECT COUNT(*) FROM {table} WHERE {where_clause}"
                 cursor.execute(query, list(where.values()))
             else:

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="1.208" timestamp="2026-02-16T21:06:26.287258+01:00" hostname="vmi2997710"><testcase classname="" name="tests.core.test_compression_properties" time="0.000"><error message="collection failure">ImportError while importing test module '/home/prod/Workspaces/repos/github/NoDupeLabs/tests/core/test_compression_properties.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/core/test_compression_properties.py:5: in &lt;module&gt;
+    from nodupe.core.compression import Compression, CompressionError
+E   ModuleNotFoundError: No module named 'nodupe.core.compression'</error></testcase></testsuite></testsuites>

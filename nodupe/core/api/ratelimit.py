@@ -11,7 +11,7 @@ from __future__ import annotations
 import functools
 import time
 from collections import deque
-from typing import Any, Callable, Deque, Dict, Optional
+from typing import Any, Callable, Optional
 
 
 class RateLimiter:
@@ -25,7 +25,7 @@ class RateLimiter:
         """Initialize rate limiter."""
         self.requests_per_minute = requests_per_minute
         self.window_size: float = 60.0
-        self._requests: Dict[str, Deque[float]] = {}
+        self._requests: dict[str, deque[float]] = {}
 
     def check_rate_limit(self, client_id: Optional[str] = None) -> bool:
         """Check if request is within rate limit."""

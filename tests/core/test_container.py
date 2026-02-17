@@ -1,6 +1,7 @@
 """Test container module functionality."""
 
 import pytest
+
 from nodupe.core.container import ServiceContainer, container
 
 

@@ -5,6 +5,8 @@
 
 Archive file detection and extraction using standard library only.
 
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
+
 Key Features:
     - Archive file detection (ZIP, TAR, etc.)
     - Archive content extraction
@@ -20,18 +22,20 @@ Dependencies:
     - nodupe.core.mime_detection
 """
 
-import tempfile
 import shutil
-import zipfile
 import tarfile
+import tempfile
+import zipfile
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-from nodupe.tools.compression_standard.engine_logic import Compression
-from nodupe.tools.mime.mime_logic import MIMEDetection
+from typing import Any, Optional
+
 from nodupe.core.archive_interface import ArchiveHandlerInterface
 from nodupe.core.container import container as global_container
+from nodupe.tools.compression_standard.engine_logic import Compression
+from nodupe.tools.mime.mime_logic import MIMEDetection
 
-class ArchiveHandlerError(Exception):
+
+class ArchiveHandlerError(Exception):  # pylint: disable=redefined-outer-name
     """Archive handling error"""
 
 class ArchiveHandler(ArchiveHandlerInterface):
@@ -46,11 +50,11 @@ class ArchiveHandler(ArchiveHandlerInterface):
 
     def __init__(self):
         """Initialize archive handler."""
-        self._temp_dirs = []
+        self._temp_dirs: list[str] = []
         # Prefer tool-provided detector
-        self._mime_detector = global_container.get_service('mime_tool')
-        if not self._mime_detector:
-            self._mime_detector = MIMEDetection()
+        mime_tool = global_container.get_service('mime_tool')
+        # Use type: ignore to suppress Pylance warnings since we check for None
+        self._mime_detector = mime_tool if mime_tool is not None else MIMEDetection()  # type: ignore[assignment]
 
     def is_archive_file(self, file_path: str) -> bool:
         """Check if file is an archive.
@@ -63,8 +67,12 @@ class ArchiveHandler(ArchiveHandlerInterface):
         """
         try:
             mime_type = self._mime_detector.detect_mime_type(file_path)
-            return self._mime_detector.is_archive(mime_type)
-        except Exception:
+            if mime_type is None:
+                return False
+            # Handle case where is_archive might return None
+            is_archive_result = self._mime_detector.is_archive(mime_type)
+            return is_archive_result if is_archive_result is not None else False
+        except Exception:  # pylint: disable=broad-except
             return False
 
     def detect_archive_format(self, file_path: str) -> Optional[str]:
@@ -80,6 +88,9 @@ class ArchiveHandler(ArchiveHandlerInterface):
             return None
 
         mime_type = self._mime_detector.detect_mime_type(file_path)
+        if mime_type is None:
+            mime_type = MIMEDetection.detect_mime_type(file_path)
+
         format_map = {
             'application/zip': 'zip',
             'application/x-tar': 'tar',
@@ -105,16 +116,21 @@ class ArchiveHandler(ArchiveHandlerInterface):
                 archive_format = 'tar.xz'
             elif path_lower.endswith('.tar.lzma'):
                 archive_format = 'tar.lzma'
-        
+
         return archive_format
 
-    def extract_archive(self, archive_path: str, extract_to: Optional[str] = None, PASSWORD_REMOVED: Optional[bytes] = None) -> Dict[str, str]:
+    def extract_archive(
+        self,
+        archive_path: str,
+        extract_to: Optional[str] = None,
+        PASSWORD_REMOVED: Optional[bytes] = None
+    ) -> dict[str, str]:
         """Extract archive contents to directory.
 
         Args:
             archive_path: Path to archive file
             extract_to: Directory to extract to (None = create temp directory)
-            PASSWORD_REMOVED: Optional PASSWORD_REMOVED for encrypted archives
+            PASSWORD_REMOVED: Optional password for encrypted archives
 
         Returns:
             Dictionary mapping relative paths within archive to absolute paths on disk
@@ -148,7 +164,7 @@ class ArchiveHandler(ArchiveHandlerInterface):
                 archive_path_obj,
                 extract_dir,
                 archive_format,
-                PASSWORD_REMOVED=PASSWORD_REMOVED
+                PASSWORD_REMOVED
             )
 
             # Convert to dictionary of relative paths to absolute strings
@@ -168,62 +184,70 @@ class ArchiveHandler(ArchiveHandlerInterface):
             raise
         except Exception as e:
             # Check if the cause is one of the types we should re-raise
-            if hasattr(e, '__cause__') and isinstance(e.__cause__, (zipfile.BadZipFile, tarfile.TarError, PermissionError, OSError)):
-                raise e.__cause__
-            raise ArchiveHandlerError(f"Failed to extract archive {archive_path}: {e}") from e
+            if hasattr(e, '__cause__') and isinstance(
+                e.__cause__,
+                (zipfile.BadZipFile, tarfile.TarError, PermissionError, OSError)
+            ):
+                cause = e.__cause__
+                if isinstance(cause, BaseException):
+                    raise cause from e  # pylint: disable=raising-non-exception
+            raise ArchiveHandlerError(
+                f"Failed to extract archive {archive_path}: {e}"
+            ) from e
 
-    def create_archive(self, output_path: str, files: List[str], format: Optional[str] = None) -> str:
+    def create_archive(
+        self,
+        output_path: str,
+        files: list[str],
+        archive_format: Optional[str] = None
+    ) -> str:
         """Create an archive from a list of files.
 
         Args:
             output_path: Path where archive will be created
             files: List of file paths to include
-            format: Archive format (default: detect from output_path)
+            archive_format: Archive format (default: detect from output_path)
 
         Returns:
             Path to created archive
         """
         try:
-            output_path_obj = Path(output_path)
-            
-            # Simple implementation wrapping compression utility for single/multi files
-            # Since Compression.compress_file is for single files, we iterate or use a dedicated method.
-            # Assuming Compression has create_archive or similar.
-            # Checking existing code... Compression has compress_file (single) and create_archive (which calls tar/zip open 'w')?
-            # Actually Compression.create_archive isn't shown in snippets but implied.
-            # Let's implement it robustly using zipfile/tarfile directly here or via Compression if available.
-            # To stick to "Standard Library Only" mandate and reuse Compression class logic if possible.
-            
-            # For this remediation, I will use Compression.compress_file if list has 1 file, 
-            # or implement multi-file zip here if Compression lacks it.
-            # Given previous LogCompressor implementation used zipfile directly, let's move that logic here.
-            
             # Detect format
-            if not format:
-                format = self.detect_archive_format(output_path) or 'zip'
-                
-            if format == 'zip':
+            if not archive_format:
+                archive_format = self.detect_archive_format(output_path) or 'zip'
+
+            if archive_format == 'zip':
                 with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zf:
                     for f in files:
                         p = Path(f)
                         if p.exists():
                             zf.write(p, arcname=p.name)
-            elif format.startswith('tar'):
-                mode = 'w:gz' if 'gz' in format else 'w'
+            elif archive_format.startswith('tar'):
+                mode = 'w:gz' if 'gz' in archive_format else 'w'
                 with tarfile.open(output_path, mode) as tf:
                     for f in files:
                         p = Path(f)
                         if p.exists():
                             tf.add(p, arcname=p.name)
             else:
-                raise ArchiveHandlerError(f"Unsupported creation format: {format}")
-                
+                raise ArchiveHandlerError(
+                    f"Unsupported creation format: {archive_format}"
+                )
+
             return output_path
 
+        except ArchiveHandlerError:
+            raise
         except Exception as e:
-            raise ArchiveHandlerError(f"Failed to create archive {output_path}: {e}") from e
+            raise ArchiveHandlerError(
+                f"Failed to create archive {output_path}: {e}"
+            ) from e
 
-    def get_archive_contents_info(self, archive_path: str, base_path: str) -> List[Dict[str, Any]]:
+    def get_archive_contents_info(
+        self,
+        archive_path: str,
+        base_path: str
+    ) -> list[dict[str, Any]]:
         """Get file information for archive contents.
 
         Args:
@@ -238,37 +262,46 @@ class ArchiveHandler(ArchiveHandlerInterface):
             extracted_files = self.extract_archive(archive_path)
 
             file_infos = []
-            for extracted_file in extracted_files:
-                if extracted_file.is_file():
+            for relative_path, absolute_path in extracted_files.items():
+                file_path = Path(absolute_path)
+                if file_path.is_file():
                     try:
-                        stat = extracted_file.stat()
-                        relative_path = str(Path(archive_path).name) + '/' + str(extracted_file.relative_to(extracted_file.parent))
+                        stat = file_path.stat()
+                        archive_rel_path = (
+                            str(Path(archive_path).name) + '/' + relative_path
+                        )
 
                         file_info = {
-                            'path': str(extracted_file),
-                            'relative_path': relative_path,
-                            'name': extracted_file.name,
-                            'extension': extracted_file.suffix.lower(),
+                            'path': str(file_path),
+                            'relative_path': archive_rel_path,
+                            'name': file_path.name,
+                            'suffix': file_path.suffix.lower(),
                             'size': stat.st_size,
                             'modified_time': int(stat.st_mtime),
                             'created_time': int(stat.st_ctime),
                             'is_directory': False,
                             'is_file': True,
-                            'is_symlink': extracted_file.is_symlink(),
+                            'is_symlink': file_path.is_symlink(),
                             'is_archive_content': True,
                             'archive_source': archive_path,
-                            'archive_path': relative_path
+                            'archive_path': archive_rel_path
                         }
                         file_infos.append(file_info)
 
-                    except Exception as e:
-                        print(f"[WARNING] Error processing extracted file {extracted_file}: {e}")
+                    except Exception as e:  # pylint: disable=broad-except
+                        print(
+                            f"[WARNING] Error processing extracted "
+                            f"file {file_path}: {e}"
+                        )
                         continue
 
             return file_infos
 
-        except Exception as e:
-            print(f"[WARNING] Error getting archive contents for {archive_path}: {e}")
+        except Exception as e:  # pylint: disable=broad-except
+            print(
+                f"[WARNING] Error getting archive contents "
+                f"for {archive_path}: {e}"
+            )
             return []
 
     def cleanup(self) -> None:
@@ -279,8 +312,11 @@ class ArchiveHandler(ArchiveHandlerInterface):
         for temp_dir in self._temp_dirs:
             try:
                 shutil.rmtree(temp_dir, ignore_errors=True)
-            except Exception as e:
-                print(f"[WARNING] Error cleaning up temporary directory {temp_dir}: {e}")
+            except Exception as e:  # pylint: disable=broad-except
+                print(
+                    f"[WARNING] Error cleaning up temporary "
+                    f"directory {temp_dir}: {e}"
+                )
 
         self._temp_dirs = []
 

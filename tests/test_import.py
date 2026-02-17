@@ -3,6 +3,7 @@
 import sys
 import traceback
 
+
 try:
     print("Attempting to import ToolCompatibility...")
     from nodupe.core.tool_system.compatibility import ToolCompatibility, ToolCompatibilityError

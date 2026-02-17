@@ -20,9 +20,9 @@ Dependencies:
 
 import threading
 import time
-from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
 from collections import OrderedDict
+from pathlib import Path
+from typing import Any, Optional
 
 
 class HashCacheError(Exception):
@@ -54,7 +54,7 @@ class HashCache:
         self.enable_persistence = enable_persistence
 
         # Cache storage: path -> (hash_value, mtime, timestamp)
-        self._cache: OrderedDict[str, Tuple[str, float, float]] = OrderedDict()
+        self._cache: OrderedDict[str, tuple[str, float, float]] = OrderedDict()
         self._lock = threading.RLock()
         self._stats = {
             'hits': 0,
@@ -193,7 +193,7 @@ class HashCache:
 
             return removed_count
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics.
 
         Returns:

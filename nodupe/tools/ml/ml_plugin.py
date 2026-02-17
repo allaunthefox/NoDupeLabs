@@ -6,9 +6,12 @@
 Provides ML capabilities as a tool.
 """
 
-from typing import List, Dict, Any, Optional, Callable
+from typing import Any, Callable
+
 from nodupe.core.tool_system.base import Tool
+
 from . import get_ml_backend
+
 
 class MLTool(Tool):
     """Machine learning capabilities tool."""
@@ -22,11 +25,11 @@ class MLTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         return []
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
             'generate_embeddings': self.backend.generate_embeddings,
             'get_dimensions': self.backend.get_embedding_dimensions,
@@ -44,7 +47,7 @@ class MLTool(Tool):
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
             'dimensions': self.backend.get_embedding_dimensions(),

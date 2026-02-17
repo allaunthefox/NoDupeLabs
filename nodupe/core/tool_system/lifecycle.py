@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 """Tool Lifecycle Module.
 
 Tool lifecycle management using standard library only.
@@ -15,10 +16,12 @@ Dependencies:
 
 import logging
 from enum import Enum
-from typing import Dict, List, Optional, Any
+from typing import Any, Optional
+
+from ..api.codes import ActionCode
 from .base import Tool
 from .registry import ToolRegistry
-from ..api.codes import ActionCode
+
 
 logger = logging.getLogger(__name__)
 
@@ -51,9 +54,9 @@ class ToolLifecycleManager:
             registry: Tool registry instance
         """
         self.registry = registry or ToolRegistry()
-        self._tool_states: Dict[str, ToolState] = {}
-        self._tool_dependencies: Dict[str, List[str]] = {}
-        self._tool_containers: Dict[str, Any] = {}
+        self._tool_states: dict[str, ToolState] = {}
+        self._tool_dependencies: dict[str, list[str]] = {}
+        self._tool_containers: dict[str, Any] = {}
         self.container = None
 
     def initialize(self, container: Any) -> None:
@@ -64,7 +67,7 @@ class ToolLifecycleManager:
         """
         self.container = container
 
-    def initialize_tools(self, tools: List[Tool]) -> None:
+    def initialize_tools(self, tools: list[Tool]) -> None:
         """Initialize multiple tools.
 
         Args:
@@ -77,7 +80,7 @@ class ToolLifecycleManager:
         self,
         tool: Tool,
         container: Any,
-        dependencies: Optional[List[str]] = None
+        dependencies: Optional[list[str]] = None
     ) -> bool:
         """Initialize a tool with dependency resolution.
 
@@ -136,12 +139,12 @@ class ToolLifecycleManager:
 
         except Exception as e:
             self._tool_states[tool_name] = ToolState.ERROR
-            logger.error(f"[{ActionCode.FPT_STM_ERR}] Failed to initialize tool {tool_name}: {e}")
+            logger.exception(f"[{ActionCode.FPT_STM_ERR}] Failed to initialize tool {tool_name}: {e}")
             if isinstance(e, ToolLifecycleError):
                 raise
             raise ToolLifecycleError(f"Failed to initialize tool {tool_name}: {e}") from e
 
-    def shutdown_tools(self, tools: List[Tool]) -> None:
+    def shutdown_tools(self, tools: list[Tool]) -> None:
         """Shutdown multiple tools.
 
         Args:
@@ -196,7 +199,7 @@ class ToolLifecycleManager:
 
         except Exception as e:
             self._tool_states[tool_name] = ToolState.ERROR
-            logger.error(f"[{ActionCode.FPT_STM_ERR}] Failed to shutdown tool {tool_name}: {e}")
+            logger.exception(f"[{ActionCode.FPT_STM_ERR}] Failed to shutdown tool {tool_name}: {e}")
             raise ToolLifecycleError(f"Failed to shutdown tool {tool_name}: {e}") from e
 
     def initialize_all_tools(self, container: Any) -> bool:
@@ -253,7 +256,7 @@ class ToolLifecycleManager:
         except Exception as e:
             raise ToolLifecycleError(f"Failed to shutdown all tools: {e}") from e
 
-    def get_tool_states(self) -> Dict[str, ToolState]:
+    def get_tool_states(self) -> dict[str, ToolState]:
         """Get all tool states.
 
         Returns:
@@ -295,7 +298,7 @@ class ToolLifecycleManager:
         state = self._tool_states.get(tool_name, ToolState.UNLOADED)
         return state in [ToolState.INITIALIZED, ToolState.INITIALIZING]
 
-    def get_active_tools(self) -> List[str]:
+    def get_active_tools(self) -> list[str]:
         """Get list of active tool names.
 
         Returns:
@@ -306,7 +309,7 @@ class ToolLifecycleManager:
             if state in [ToolState.INITIALIZED, ToolState.INITIALIZING]
         ]
 
-    def get_tool_dependencies(self, tool_name: str) -> List[str]:
+    def get_tool_dependencies(self, tool_name: str) -> list[str]:
         """Get dependencies for a tool.
 
         Args:
@@ -317,7 +320,7 @@ class ToolLifecycleManager:
         """
         return self._tool_dependencies.get(tool_name, [])
 
-    def set_tool_dependencies(self, tool_name: str, dependencies: List[str]) -> None:
+    def set_tool_dependencies(self, tool_name: str, dependencies: list[str]) -> None:
         """Set dependencies for a tool.
 
         Args:
@@ -344,7 +347,7 @@ class ToolLifecycleManager:
 
         return True
 
-    def _sort_tools_by_dependencies(self, tools: List[Tool]) -> List[Tool]:
+    def _sort_tools_by_dependencies(self, tools: list[Tool]) -> list[Tool]:
         """Sort tools by dependency order (topological sort).
 
         Args:

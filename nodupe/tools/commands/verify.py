@@ -23,10 +23,11 @@ Dependencies:
 import argparse
 import hashlib
 from pathlib import Path
-from typing import Any, Dict, List
-from nodupe.core.tool_system.base import Tool
-from nodupe.core.database.files import FileRepository
+from typing import Any
+
 from nodupe.core.database.connection import DatabaseConnection
+from nodupe.core.database.files import FileRepository
+from nodupe.core.tool_system.base import Tool
 
 
 class VerifyTool(Tool):
@@ -66,7 +67,7 @@ class VerifyTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         """List of tool dependencies."""
         return ["database"]
 
@@ -76,7 +77,7 @@ class VerifyTool(Tool):
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {'commands': ['verify']}
 
@@ -138,7 +139,7 @@ class VerifyTool(Tool):
             checks: int
             errors: int
             warnings: int
-            error_details: List[Any]
+            error_details: list[Any]
 
         try:
             print(f"[TOOL] Executing verify command: {args.mode} mode")
@@ -159,12 +160,9 @@ class VerifyTool(Tool):
 
             # 2. Determine verification mode
             modes = []
-            if args.mode == 'all':
-                modes = ['integrity', 'consistency', 'checksums']
-            else:
-                modes = [args.mode]
+            modes = ['integrity', 'consistency', 'checksums'] if args.mode == 'all' else [args.mode]
 
-            results: Dict[str, VerificationResult] = {
+            results: dict[str, VerificationResult] = {
                 'integrity': {'checks': 0, 'errors': 0, 'warnings': 0, 'error_details': []},
                 'consistency': {'checks': 0, 'errors': 0, 'warnings': 0, 'error_details': []},
                 'checksums': {'checks': 0, 'errors': 0, 'warnings': 0, 'error_details': []}
@@ -247,7 +245,7 @@ class VerifyTool(Tool):
                 traceback.print_exc()
             return 1
 
-    def _output_findings_to_file(self, results: Dict[str, Any], output_file: str, args: argparse.Namespace) -> None:
+    def _output_findings_to_file(self, results: dict[str, Any], output_file: str, args: argparse.Namespace) -> None:
         """Output detailed verification findings to a file.
 
         Args:
@@ -258,7 +256,7 @@ class VerifyTool(Tool):
         import json
         from datetime import datetime
 
-        findings: Dict[str, Any] = {
+        findings: dict[str, Any] = {
             'timestamp': datetime.now().isoformat(),
             'command_args': {
                 'mode': args.mode,
@@ -285,7 +283,7 @@ class VerifyTool(Tool):
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(findings, f, indent=2, ensure_ascii=False)
 
-    def _verify_integrity(self, file_repo: FileRepository, args: argparse.Namespace) -> Dict[str, int]:
+    def _verify_integrity(self, file_repo: FileRepository, args: argparse.Namespace) -> dict[str, int]:
         """Verify file integrity by checking file existence and basic properties."""
         results = {'checks': 0, 'errors': 0, 'warnings': 0}
 
@@ -336,7 +334,7 @@ class VerifyTool(Tool):
 
         return results
 
-    def _verify_consistency(self, file_repo: FileRepository, args: argparse.Namespace) -> Dict[str, int]:
+    def _verify_consistency(self, file_repo: FileRepository, args: argparse.Namespace) -> dict[str, int]:
         """Verify database consistency and relationships."""
         results = {'checks': 0, 'errors': 0, 'warnings': 0}
 
@@ -389,7 +387,7 @@ class VerifyTool(Tool):
 
         return results
 
-    def _verify_checksums(self, file_repo: FileRepository, args: argparse.Namespace) -> Dict[str, int]:
+    def _verify_checksums(self, file_repo: FileRepository, args: argparse.Namespace) -> dict[str, int]:
         """Verify file checksums by recalculating hashes."""
         results = {'checks': 0, 'errors': 0, 'warnings': 0}
 
@@ -454,4 +452,4 @@ def register_tool() -> VerifyTool:
 
 
 # Export tool interface
-__all__ = ['verify_tool', 'register_tool']
+__all__ = ['register_tool', 'verify_tool']

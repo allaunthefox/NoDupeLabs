@@ -24,4 +24,5 @@ Example usage:
 
 from .leap_year import LeapYearTool
 
+
 __all__ = ["LeapYearTool"]

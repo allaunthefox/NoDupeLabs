@@ -2,6 +2,8 @@
 
 Safe filesystem operations using standard library only.
 
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
+
 Key Features:
     - Safe file reading with error handling
     - Safe file writing with atomic operations
@@ -14,11 +16,12 @@ Dependencies:
     - os (standard library)
 """
 
-from pathlib import Path
-from typing import Optional, List
+import contextlib
 import os
-import tempfile
 import shutil
+import tempfile
+from pathlib import Path
+from typing import Optional
 
 
 class FilesystemError(Exception):
@@ -109,10 +112,8 @@ class Filesystem:
                     shutil.move(temp_path, file_path)
                 except Exception:
                     # Clean up temp file on error
-                    try:
+                    with contextlib.suppress(OSError):
                         os.unlink(temp_path)
-                    except OSError:
-                        pass
                     raise
             else:
                 # Direct write
@@ -175,7 +176,7 @@ class Filesystem:
             raise FilesystemError(f"Failed to get file size {file_path}: {e}") from e
 
     @staticmethod
-    def list_directory(dir_path: Path, pattern: str = "*") -> List[Path]:
+    def list_directory(dir_path: Path, pattern: str = "*") -> list[Path]:
         """List files in directory matching pattern.
 
         Args:

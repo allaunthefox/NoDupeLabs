@@ -1,13 +1,18 @@
+# pylint: disable=logging-fstring-interpolation
 """NoDupeLabs GPU Tools - Hardware Acceleration Backends
 
 This module provides GPU acceleration backends for various compute-intensive
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 operations with graceful degradation to CPU implementations.
 """
 
-from typing import List, Optional, Any, Dict
-import numpy as np
 import logging
 from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -21,15 +26,15 @@ class GPUBackend(ABC):
         """Check if this backend is available"""
 
     @abstractmethod
-    def compute_embeddings(self, data: List[Any]) -> List[List[float]]:
+    def compute_embeddings(self, data: list[Any]) -> list[list[float]]:
         """Compute embeddings using GPU acceleration"""
 
     @abstractmethod
-    def matrix_multiply(self, a: List[List[float]], b: List[List[float]]) -> List[List[float]]:
+    def matrix_multiply(self, a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
         """Perform matrix multiplication using GPU"""
 
     @abstractmethod
-    def get_device_info(self) -> Dict[str, Any]:
+    def get_device_info(self) -> dict[str, Any]:
         """Get information about the GPU device"""
 
 
@@ -49,7 +54,7 @@ class CPUFallbackBackend(GPUBackend):
         """CPU backend is always available"""
         return True
 
-    def compute_embeddings(self, data: List[Any]) -> List[List[float]]:
+    def compute_embeddings(self, data: list[Any]) -> list[list[float]]:
         """Compute embeddings using CPU"""
         try:
             embeddings = []
@@ -65,10 +70,10 @@ class CPUFallbackBackend(GPUBackend):
                 embeddings.append(embedding)
             return embeddings
         except Exception as e:
-            logger.error(f"Error in CPU embedding computation: {e}")
+            logger.exception(f"Error in CPU embedding computation: {e}")
             return [[] for _ in data]
 
-    def matrix_multiply(self, a: List[List[float]], b: List[List[float]]) -> List[List[float]]:
+    def matrix_multiply(self, a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
         """Matrix multiplication using NumPy"""
         try:
             a_arr = np.array(a, dtype=np.float32)
@@ -76,10 +81,10 @@ class CPUFallbackBackend(GPUBackend):
             result = np.matmul(a_arr, b_arr)
             return result.tolist()
         except Exception as e:
-            logger.error(f"Error in CPU matrix multiplication: {e}")
+            logger.exception(f"Error in CPU matrix multiplication: {e}")
             return []
 
-    def get_device_info(self) -> Dict[str, Any]:
+    def get_device_info(self) -> dict[str, Any]:
         """Get CPU device information"""
         return self.device_info
 
@@ -113,13 +118,13 @@ class CUDABackend(GPUBackend):
         except ImportError:
             logger.warning("PyTorch not available for CUDA backend")
         except Exception as e:
-            logger.error(f"Failed to initialize CUDA backend: {e}")
+            logger.exception(f"Failed to initialize CUDA backend: {e}")
 
     def is_available(self) -> bool:
         """Check if CUDA backend is available"""
         return self._available
 
-    def compute_embeddings(self, data: List[Any]) -> List[List[float]]:
+    def compute_embeddings(self, data: list[Any]) -> list[list[float]]:
         """Compute embeddings using CUDA"""
         if not self.is_available():
             logger.warning("CUDA backend not available, using CPU fallback")
@@ -143,11 +148,11 @@ class CUDABackend(GPUBackend):
                     embeddings.append(embedding)
             return embeddings
         except Exception as e:
-            logger.error(f"Error in CUDA embedding computation: {e}")
+            logger.exception(f"Error in CUDA embedding computation: {e}")
             fallback = CPUFallbackBackend()
             return fallback.compute_embeddings(data)
 
-    def matrix_multiply(self, a: List[List[float]], b: List[List[float]]) -> List[List[float]]:
+    def matrix_multiply(self, a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
         """Matrix multiplication using CUDA"""
         if not self.is_available():
             logger.warning("CUDA backend not available, using CPU fallback")
@@ -162,11 +167,11 @@ class CUDABackend(GPUBackend):
             result = torch.matmul(a_tensor, b_tensor)
             return result.cpu().numpy().tolist()
         except Exception as e:
-            logger.error(f"Error in CUDA matrix multiplication: {e}")
+            logger.exception(f"Error in CUDA matrix multiplication: {e}")
             fallback = CPUFallbackBackend()
             return fallback.matrix_multiply(a, b)
 
-    def get_device_info(self) -> Dict[str, Any]:
+    def get_device_info(self) -> dict[str, Any]:
         """Get CUDA device information"""
         return self.device_info
 
@@ -198,13 +203,13 @@ class MetalBackend(GPUBackend):
         except ImportError:
             logger.warning("PyTorch not available for Metal backend")
         except Exception as e:
-            logger.error(f"Failed to initialize Metal backend: {e}")
+            logger.exception(f"Failed to initialize Metal backend: {e}")
 
     def is_available(self) -> bool:
         """Check if Metal backend is available"""
         return self._available
 
-    def compute_embeddings(self, data: List[Any]) -> List[List[float]]:
+    def compute_embeddings(self, data: list[Any]) -> list[list[float]]:
         """Compute embeddings using Metal"""
         if not self.is_available():
             logger.warning("Metal backend not available, using CPU fallback")
@@ -225,11 +230,11 @@ class MetalBackend(GPUBackend):
                     embeddings.append(embedding)
             return embeddings
         except Exception as e:
-            logger.error(f"Error in Metal embedding computation: {e}")
+            logger.exception(f"Error in Metal embedding computation: {e}")
             fallback = CPUFallbackBackend()
             return fallback.compute_embeddings(data)
 
-    def matrix_multiply(self, a: List[List[float]], b: List[List[float]]) -> List[List[float]]:
+    def matrix_multiply(self, a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
         """Matrix multiplication using Metal"""
         if not self.is_available():
             logger.warning("Metal backend not available, using CPU fallback")
@@ -244,11 +249,11 @@ class MetalBackend(GPUBackend):
             result = torch.matmul(a_tensor, b_tensor)
             return result.cpu().numpy().tolist()
         except Exception as e:
-            logger.error(f"Error in Metal matrix multiplication: {e}")
+            logger.exception(f"Error in Metal matrix multiplication: {e}")
             fallback = CPUFallbackBackend()
             return fallback.matrix_multiply(a, b)
 
-    def get_device_info(self) -> Dict[str, Any]:
+    def get_device_info(self) -> dict[str, Any]:
         """Get Metal device information"""
         return self.device_info
 
@@ -320,7 +325,12 @@ def get_gpu_backend() -> GPUBackend:
 get_gpu_backend()
 
 __all__ = [
-    'GPUBackend', 'CPUFallbackBackend', 'CUDABackend', 'MetalBackend',
-    'create_gpu_backend', 'get_gpu_backend', 'register_tool'
+    'CPUFallbackBackend',
+    'CUDABackend',
+    'GPUBackend',
+    'MetalBackend',
+    'create_gpu_backend',
+    'get_gpu_backend',
+    'register_tool'
 ]
 from .gpu_tool import register_tool

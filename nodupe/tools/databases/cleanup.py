@@ -16,7 +16,7 @@ Example:
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 
 class DatabaseCleanup:
@@ -38,7 +38,7 @@ class DatabaseCleanup:
         """
         self.connection = connection
 
-    def vacuum(self) -> Dict[str, Any]:
+    def vacuum(self) -> dict[str, Any]:
         """Vacuum the database to reclaim space.
 
         Returns:
@@ -56,7 +56,7 @@ class DatabaseCleanup:
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    def analyze(self) -> Dict[str, Any]:
+    def analyze(self) -> dict[str, Any]:
         """Analyze database for query optimization.
 
         Returns:
@@ -74,7 +74,7 @@ class DatabaseCleanup:
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    def integrity_check(self) -> Dict[str, Any]:
+    def integrity_check(self) -> dict[str, Any]:
         """Run integrity check on the database.
 
         Returns:
@@ -96,7 +96,7 @@ class DatabaseCleanup:
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    def clear_temp_tables(self) -> Dict[str, Any]:
+    def clear_temp_tables(self) -> dict[str, Any]:
         """Clear temporary tables from database.
 
         Returns:

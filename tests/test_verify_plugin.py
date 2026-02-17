@@ -2,16 +2,19 @@
 
 """Test script to debug the verify tool loading issue."""
 
-import sys
 import os
+import sys
+
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 
 from nodupe.tools.commands.verify import VerifyTool
 
+
 def test_tool_creation():
     """Test creating the verify tool directly."""
     print("Testing direct tool creation...")
-    
+
     try:
         tool = VerifyTool()
         print("Tool created successfully")
@@ -29,18 +32,18 @@ def test_tool_creation():
 def test_subclass():
     """Test if VerifyTool is a proper subclass of Tool."""
     print("\nTesting subclass relationship...")
-    
+
     is_sub = True  # VerifyTool is defined as a subclass of Tool
     print("VerifyTool is subclass of Tool:", is_sub)
-    
+
     # Check if it has the abstract methods implemented
     import inspect
     tool_methods = [name for name, _ in inspect.getmembers(VerifyTool, predicate=inspect.isfunction)]
     tool_properties = [name for name, _ in inspect.getmembers(VerifyTool, lambda x: isinstance(x, property))]
-    
+
     print(f"Tool methods: {tool_methods}")
     print(f"Tool properties: {tool_properties}")
-    
+
     # Check if the required abstract properties exist
     required_attrs = ['name', 'version', 'dependencies']
     for attr in required_attrs:
@@ -53,7 +56,7 @@ if __name__ == "__main__":
     print("Testing VerifyTool implementation...")
     SUCCESS = test_tool_creation()
     test_subclass()
-    
+
     if SUCCESS:
         print("\n✅ Tool implementation looks correct!")
     else:

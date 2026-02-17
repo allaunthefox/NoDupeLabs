@@ -4,6 +4,8 @@
 """Database Logging Module.
 
 This module provides database logging functionality for tracking operations,
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 queries, and events within the database layer.
 
 Classes:

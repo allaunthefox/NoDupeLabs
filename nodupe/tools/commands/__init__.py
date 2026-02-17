@@ -1,17 +1,19 @@
+# pylint: disable=logging-fstring-interpolation
 """NoDupeLabs Commands Tools - CLI Command Implementations
 
 This module provides command implementations for the NoDupeLabs CLI
 with proper argument validation, error handling, and result formatting.
 """
 
-from typing import List, Optional, Dict, Any, Tuple
 import argparse
-import logging
-import json
 import csv
+import json
+import logging
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple
+
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -116,8 +118,8 @@ class ScanCommand(Command):
     def execute(self, args: argparse.Namespace) -> CommandResult:
         """Execute scan command"""
         try:
-            from nodupe.scan.walker import FileWalker
             from nodupe.scan.processor import FileProcessor
+            from nodupe.scan.walker import FileWalker
 
             # Initialize scanner components
             walker = FileWalker()
@@ -170,7 +172,7 @@ class ScanCommand(Command):
                 error=e
             )
 
-    def _duplicates_to_csv(self, duplicates: List[Dict], fieldnames: List[str]) -> str:
+    def _duplicates_to_csv(self, duplicates: list[dict], fieldnames: list[str]) -> str:
         """Convert duplicates to CSV format"""
         output = []
         writer = csv.DictWriter(output, fieldnames=fieldnames)
@@ -178,7 +180,7 @@ class ScanCommand(Command):
         writer.writerows(duplicates)
         return ''.join(output)
 
-    def _format_text_output(self, duplicates: List[Dict]) -> str:
+    def _format_text_output(self, duplicates: list[dict]) -> str:
         """Format duplicates as text output"""
         if not duplicates:
             return "No duplicates found"
@@ -287,24 +289,24 @@ class ApplyCommand(Command):
                 error=e
             )
 
-    def _load_duplicates(self, input_file: str) -> List[Dict]:
+    def _load_duplicates(self, input_file: str) -> list[dict]:
         """Load duplicates from input file"""
         try:
             if input_file.endswith('.json'):
-                with open(input_file, 'r') as f:
+                with open(input_file) as f:
                     return json.load(f)
             elif input_file.endswith('.csv'):
-                with open(input_file, 'r') as f:
+                with open(input_file) as f:
                     reader = csv.DictReader(f)
                     return list(reader)
             else:
                 logger.warning(f"Unknown file format: {input_file}")
                 return []
         except Exception as e:
-            logger.error(f"Error loading duplicates: {e}")
+            logger.exception(f"Error loading duplicates: {e}")
             return []
 
-    def _apply_action_to_group(self, dup_group: Dict, args: argparse.Namespace) -> List[Dict]:
+    def _apply_action_to_group(self, dup_group: dict, args: argparse.Namespace) -> list[dict]:
         """Apply action to a duplicate group"""
         results = []
         files = dup_group.get('files', [])
@@ -364,7 +366,7 @@ class ApplyCommand(Command):
 
         return results
 
-    def _format_apply_results(self, results: List[Dict], args: argparse.Namespace) -> str:
+    def _format_apply_results(self, results: list[dict], args: argparse.Namespace) -> str:
         """Format apply results"""
         output = []
         success_count = sum(1 for r in results if r['success'])
@@ -494,7 +496,7 @@ class SimilarityCommand(Command):
                 error=e
             )
 
-    def _generate_query_vector(self, file_path: str) -> List[float]:
+    def _generate_query_vector(self, file_path: str) -> list[float]:
         """Generate a query vector for the given file (placeholder)"""
         # In a real implementation, this would use ML to generate embeddings
         # For now, we'll generate a random vector based on file properties
@@ -518,7 +520,7 @@ class SimilarityCommand(Command):
         # Pad or truncate to 128 dimensions
         return vector[:128] + [0.0] * max(0, 128 - len(vector))
 
-    def _format_similarity_results(self, results: List[Tuple[Dict, float]], args: argparse.Namespace) -> str:
+    def _format_similarity_results(self, results: list[tuple[dict, float]], args: argparse.Namespace) -> str:
         """Format similarity results"""
         if args.output == 'json':
             formatted = []
@@ -582,7 +584,7 @@ class CommandManager:
         """Get command by name"""
         return self.commands.get(name)
 
-    def list_commands(self) -> List[str]:
+    def list_commands(self) -> list[str]:
         """List all available commands"""
         return list(self.commands.keys())
 
@@ -620,6 +622,11 @@ def get_command_manager() -> CommandManager:
 get_command_manager()
 
 __all__ = [
-    'Command', 'CommandResult', 'ScanCommand', 'ApplyCommand',
-    'SimilarityCommand', 'CommandManager', 'get_command_manager'
+    'ApplyCommand',
+    'Command',
+    'CommandManager',
+    'CommandResult',
+    'ScanCommand',
+    'SimilarityCommand',
+    'get_command_manager'
 ]

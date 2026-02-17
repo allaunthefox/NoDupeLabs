@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
@@ -7,28 +8,26 @@ Handles bootstrap and initialization of the NoDupeLabs framework.
 Strictly decoupled: Does not import functional tools directly.
 """
 
-import sys
 import logging
-import platform
-import os
 import multiprocessing
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any
+
 
 try:
     import psutil
 except ImportError:
     psutil = None  # type: ignore[assignment]
 
+from .api.codes import ActionCode
+from .api.ipc import ToolIPCServer
 from .config import load_config
 from .container import container as global_container
-from .tool_system.registry import ToolRegistry
-from .tool_system.loader import create_tool_loader
 from .tool_system.discovery import create_tool_discovery
-from .tool_system.lifecycle import create_lifecycle_manager
 from .tool_system.hot_reload import ToolHotReload
-from .api.ipc import ToolIPCServer
-from .api.codes import ActionCode
+from .tool_system.lifecycle import create_lifecycle_manager
+from .tool_system.loader import create_tool_loader
+from .tool_system.registry import ToolRegistry
 
 
 class CoreLoader:
@@ -109,7 +108,7 @@ class CoreLoader:
             self.logger.info(f"[{ActionCode.ACC_ISO_CMP}] Core engine is ISO accessibility compliant")
 
         except Exception as e:
-            self.logger.error(f"[{ActionCode.FPT_STM_ERR}] Framework startup failed: {e}")
+            self.logger.exception(f"[{ActionCode.FPT_STM_ERR}] Framework startup failed: {e}")
             raise
 
     def _discover_and_load_tools(self) -> None:
@@ -145,13 +144,13 @@ class CoreLoader:
                     self.hot_reload.watch_tool(tool_instance.name, tool_info.path)
 
                 self.logger.info(f"[{ActionCode.FIA_UAU_LOAD}] Loaded tool: {tool_info.name}")
-                
+
                 # Check if the tool is accessibility-compliant
                 if hasattr(tool_instance, 'get_ipc_socket_documentation'):
                     self.logger.info(f"[{ActionCode.ACC_ISO_CMP}] Tool {tool_info.name} is ISO accessibility compliant")
-                
+
         except Exception as e:
-            self.logger.error(f"[{ActionCode.FPT_FLS_FAIL}] Failed to load tool {tool_info.name}: {e}")
+            self.logger.exception(f"[{ActionCode.FPT_FLS_FAIL}] Failed to load tool {tool_info.name}: {e}")
 
     def _perform_hash_autotuning(self) -> None:
         """Perform hash algorithm autotuning if the hashing tool is present."""
@@ -167,13 +166,13 @@ class CoreLoader:
                 results = autotune_hash_algorithm()
                 algo = results['optimal_algorithm']
                 self.logger.info(f"[{ActionCode.FDP_DAU_HASH}] Optimal algorithm identified: {algo}")
-                
+
                 if hasattr(hasher, 'set_algorithm'):
                     hasher.set_algorithm(algo)
             except ImportError:
                 self.logger.debug("Hashing autotune logic not available in toolpath")
         except Exception as e:
-            self.logger.error(f"[{ActionCode.FPT_STM_ERR}] Autotune failed: {e}")
+            self.logger.exception(f"[{ActionCode.FPT_STM_ERR}] Autotune failed: {e}")
 
     def shutdown(self) -> None:
         """Gracefully shutdown the framework and all loaded tools."""
@@ -181,7 +180,7 @@ class CoreLoader:
 
         try:
             self.logger.info(f"[{ActionCode.FIA_UAU_SHUTDOWN}] Starting framework shutdown")
-            
+
             if self.tool_lifecycle:
                 self.logger.info(f"[{ActionCode.FIA_UAU_SHUTDOWN}] Shutting down all tools")
                 self.tool_lifecycle.shutdown_all_tools()
@@ -208,18 +207,18 @@ class CoreLoader:
                 pass
 
         except Exception as e:
-            self.logger.error(f"[{ActionCode.FPT_STM_ERR}] Shutdown error: {e}")
+            self.logger.exception(f"[{ActionCode.FPT_STM_ERR}] Shutdown error: {e}")
 
-    def _apply_platform_autoconfig(self) -> Dict[str, Any]:
+    def _apply_platform_autoconfig(self) -> dict[str, Any]:
         """Apply system resource-based autoconfiguration."""
-        config: Dict[str, Any] = {
+        config: dict[str, Any] = {
             'db_path': 'output/index.db',
             'log_dir': 'logs'
         }
         # Simplified for Core
         return config
 
-    def _detect_system_resources(self) -> Dict[str, Any]:
+    def _detect_system_resources(self) -> dict[str, Any]:
         """Detect system resources (CPU, RAM)."""
         return {'cpu_cores': multiprocessing.cpu_count()}
 
