@@ -57,6 +57,8 @@ def test_create_autotuned_hasher_returns_hasher_and_results():
 
     # FileHasher exposes algorithm via get_algorithm()
     assert hasattr(hasher, "get_algorithm")
+    assert isinstance(hasher.get_algorithm(), strthm")
+    assert isinstance(hasher.get_algorithm(), strthm")
     assert isinstance(hasher.get_algorithm(), str)
     assert "optimal_algorithm" in results
     assert isinstance(results["benchmark_results"], dict)

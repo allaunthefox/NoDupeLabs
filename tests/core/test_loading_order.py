@@ -88,6 +88,36 @@ def test_validate_load_sequence_and_safe_sequence_exclusion():
     bad = ToolLoadInfo(name="bad_tool", load_order=ToolLoadOrder.SYSTEM_UTILITIES, required_dependencies=["no_such_dep"], optional_dependencies=[])
     ordering.register_tool(bad)
     safe_sequence2, excluded2 = ordering.get_safe_load_sequence(["bad_tool", "core"])
+    assert any("bad_tool" in e for e in excluded2
+
+    # registering a tool with an unknown dependency causes it to be excluded
+    bad = ToolLoadInfo(name="bad_tool", load_order=ToolLoadOrder.SYSTEM_UTILITIES, required_dependencies=["no_such_dep"], optional_dependencies=[])
+    ordering.register_tool(bad)
+    safe_sequence2, excluded2 = ordering.get_safe_load_sequence(["bad_tool", "core"])
+    assert any("bad_tool" in e for e in excluded2
+
+    # if we register a tool that requires an unknown dependency it should be excluded
+    bad = ToolLoadInfo(name="bad_tool", load_order=ToolLoadOrder.SYSTEM_UTILITIES, required_dependencies=["no_such_dep"], optional_dependencies=[])
+    ordering.register_tool(bad)
+    safe_sequence, excluded = ordering.get_safe_load_sequence(["bad_tool", "core"])
+    assert any("bad_tool
+
+    # if we register a tool that requires an unknown dependency it should be excluded
+    bad = ToolLoadInfo(name="bad_tool", load_order=ToolLoadOrder.SYSTEM_UTILITIES, required_dependencies=["no_such_dep"], optional_dependencies=[])
+    ordering.register_tool(bad)
+    safe_sequence, excluded = ordering.get_safe_load_sequence(["bad_tool", "core"])
+    assert any("bad_tool
+
+    # if we register a tool that requires an unknown dependency it should be excluded
+    bad = ToolLoadInfo(name="bad_tool", load_order=ToolLoadOrder.SYSTEM_UTILITIES, required_dependencies=["no_such_dep"], optional_dependencies=[])
+    ordering.register_tool(bad)
+    safe_sequence, excluded = ordering.get_safe_load_sequence(["bad_tool", "core"])
+    assert any("bad_tool" in e for e in excluded)
+
+    # registering a tool with an unknown dependency causes it to be excluded
+    bad = ToolLoadInfo(name="bad_tool", load_order=ToolLoadOrder.SYSTEM_UTILITIES, required_dependencies=["no_such_dep"], optional_dependencies=[])
+    ordering.register_tool(bad)
+    safe_sequence2, excluded2 = ordering.get_safe_load_sequence(["bad_tool", "core"])
     assert any("bad_tool" in e for e in excluded2)
 
 
