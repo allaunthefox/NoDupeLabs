@@ -95,10 +95,38 @@ def fix_file(path: Path) -> tuple[int, list[str]]:
 
 
 def main():
-    """Main entry point."""
-    root = Path("/home/prod/Workspaces/repos/github/NoDupeLabs")
+    """Main entry point.
+
+    Usage:
+      python fix_lint_issues.py [--root PATH]
+
+    The script accepts an optional `--root` argument. When omitted, the
+    repository root is resolved relative to this script's location which
+    makes the script portable across developer machines and CI.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Fix common lint/style issues across the repository"
+    )
+    parser.add_argument(
+        "--root",
+        type=str,
+        default=None,
+        help="Path to repository root (defaults to script's parent directory)",
+    )
+    args = parser.parse_args()
+
+    # Prefer user-specified root; otherwise use the script's directory
+    if args.root:
+        root = Path(args.root).expanduser().resolve()
+    else:
+        root = Path(__file__).resolve().parent
+
     total_fixes = 0
     files_fixed = 0
+
+    print(f"Scanning repository root: {root}")
 
     for scan_dir in SCAN_DIRS:
         dir_path = root / scan_dir
