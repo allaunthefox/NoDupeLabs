@@ -1,9 +1,8 @@
 """Property-based tests for compression module using Hypothesis."""
 import pytest
-from hypothesis import given, settings, assume, Verbosity, HealthCheck
-from hypothesis import strategies as st
+from hypothesis import HealthCheck, Verbosity, assume, given, settings, strategies as st
 
-from nodupe.core.compression import Compression, CompressionError
+from nodupe.tools.compression_standard.engine_logic import Compression, CompressionError
 
 
 binary_data = st.binary(min_size=0, max_size=10_000)

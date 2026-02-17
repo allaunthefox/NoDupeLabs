@@ -1,8 +1,10 @@
 """Test tool discovery functionality."""
 
-import pytest
-from unittest.mock import MagicMock, patch
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.tool_system.discovery import ToolDiscovery, ToolDiscoveryError, ToolInfo
 from nodupe.core.tool_system.registry import ToolRegistry
 
@@ -105,7 +107,7 @@ class TestToolDiscoveryOperations:
         # Create proper mock directory structure
         mock_dir = MagicMock()
         mock_dir.exists.return_value = True
-        
+
         # Create mock tool file
         mock_file = MagicMock()
         mock_file.is_file.return_value = True
@@ -113,7 +115,7 @@ class TestToolDiscoveryOperations:
         mock_file.stem = 'tool'
         mock_file.exists.return_value = True
         mock_file.stat.return_value.st_size = 100
-        
+
         # Set up directory to return the mock file
         mock_dir.iterdir.return_value = [mock_file]
 
@@ -365,7 +367,7 @@ class TestToolDiscoveryPerformance:
         # Create proper mock directory with many files
         mock_dir = MagicMock()
         mock_dir.exists.return_value = True
-        
+
         # Create 100 mock tool files
         mock_files = []
         for i in range(100):
@@ -376,7 +378,7 @@ class TestToolDiscoveryPerformance:
             mock_file.exists.return_value = True
             mock_file.stat.return_value.st_size = 100
             mock_files.append(mock_file)
-        
+
         mock_dir.iterdir.return_value = mock_files
 
         # Mock the discovery process
@@ -403,7 +405,7 @@ class TestToolDiscoveryPerformance:
         # Create proper mock directory with many files
         mock_dir = MagicMock()
         mock_dir.exists.return_value = True
-        
+
         # Create 1000 mock tool files
         mock_files = []
         for i in range(1000):
@@ -414,7 +416,7 @@ class TestToolDiscoveryPerformance:
             mock_file.exists.return_value = True
             mock_file.stat.return_value.st_size = 100
             mock_files.append(mock_file)
-        
+
         mock_dir.iterdir.return_value = mock_files
 
         # Mock the discovery process
@@ -443,7 +445,7 @@ class TestToolDiscoveryIntegration:
     def test_tool_discovery_with_registry(self):
         """Test tool discovery integration with registry."""
         discovery = ToolDiscovery()
-        registry = ToolRegistry()
+        ToolRegistry()
 
         # Mock discovery of tools
         with patch.object(discovery, 'discover_tools_in_directory') as mock_discover:
@@ -470,7 +472,7 @@ class TestToolDiscoveryIntegration:
 
         discovery = ToolDiscovery()
         registry = ToolRegistry()
-        loader = ToolLoader(registry)
+        ToolLoader(registry)
 
         # Mock discovery of tools
         with patch.object(discovery, 'discover_tools_in_directory') as mock_discover:
@@ -561,7 +563,7 @@ class TestToolDiscoveryAdvanced:
         # Create proper mock directory structure
         mock_dir = MagicMock()
         mock_dir.exists.return_value = True
-        
+
         # Create mock tool file that looks like a real tool
         mock_file = MagicMock()
         mock_file.is_file.return_value = True
@@ -570,7 +572,7 @@ class TestToolDiscoveryAdvanced:
         mock_file.exists.return_value = True
         mock_file.stat.return_value.st_size = 100
         mock_file.__str__ = lambda: "/test/complex_tool.py"
-        
+
         # Set up directory to return the mock file
         mock_dir.iterdir.return_value = [mock_file]
 
@@ -650,7 +652,7 @@ class TestToolDiscoveryAdvanced:
         # Create proper mock directory structure
         mock_dir = MagicMock()
         mock_dir.exists.return_value = True
-        
+
         # Create two mock tool files with same name but different paths
         mock_file1 = MagicMock()
         mock_file1.is_file.return_value = True
@@ -659,7 +661,7 @@ class TestToolDiscoveryAdvanced:
         mock_file1.exists.return_value = True
         mock_file1.stat.return_value.st_size = 100
         mock_file1.__str__ = lambda: "/test1/tool.py"
-        
+
         mock_file2 = MagicMock()
         mock_file2.is_file.return_value = True
         mock_file2.suffix = '.py'
@@ -667,7 +669,7 @@ class TestToolDiscoveryAdvanced:
         mock_file2.exists.return_value = True
         mock_file2.stat.return_value.st_size = 100
         mock_file2.__str__ = lambda: "/test2/tool.py"
-        
+
         # Set up directory to return both mock files
         mock_dir.iterdir.return_value = [mock_file1, mock_file2]
 

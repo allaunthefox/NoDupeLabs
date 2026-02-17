@@ -18,7 +18,7 @@ Dependencies:
 """
 
 import importlib.util
-from typing import Dict, Any, Optional, Callable
+from typing import Any, Callable, Optional
 
 
 class DependencyManager:
@@ -33,7 +33,7 @@ class DependencyManager:
 
     def __init__(self):
         """Initialize dependency manager."""
-        self.dependencies: Dict[str, bool] = {}
+        self.dependencies: dict[str, bool] = {}
 
     def check_dependency(self, module_name: str) -> bool:
         """Check if a dependency is available.

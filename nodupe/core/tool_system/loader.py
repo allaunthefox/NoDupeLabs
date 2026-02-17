@@ -1,6 +1,9 @@
+# pylint: disable=logging-fstring-interpolation
 """Tool Loader Module.
 
 Dynamic tool loading and management using standard library only.
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 
 Key Features:
     - Safe tool loading with validation
@@ -19,7 +22,8 @@ import importlib
 import importlib.util
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Type, Any
+from typing import Any, Optional
+
 from .base import Tool
 from .registry import ToolRegistry
 
@@ -42,8 +46,8 @@ class ToolLoader:
             registry: Tool registry instance
         """
         self.registry = registry or ToolRegistry()
-        self._loaded_tools: Dict[str, Tool] = {}
-        self._tool_modules: Dict[str, Any] = {}
+        self._loaded_tools: dict[str, Tool] = {}
+        self._tool_modules: dict[str, Any] = {}
         self.container = None
 
     def initialize(self, container: Any) -> None:
@@ -70,7 +74,7 @@ class ToolLoader:
     def load_tool_from_file(
         self,
         tool_path: Path
-    ) -> Optional[Type[Tool]]:
+    ) -> Optional[type[Tool]]:
         """Load a tool from a Python file.
 
         Args:
@@ -109,10 +113,11 @@ class ToolLoader:
                 raise ToolLoaderError(f"Invalid tool class: {tool_class}")
 
             # Check for accessibility compliance
-            from ..api.codes import ActionCode
             import logging
+
+            from ..api.codes import ActionCode
             logger = logging.getLogger(__name__)
-            
+
             # Check if the tool inherits from AccessibleTool
             from .base import AccessibleTool
             if issubclass(tool_class, AccessibleTool):
@@ -134,7 +139,7 @@ class ToolLoader:
         self,
         tool_dir: Path,
         recursive: bool = False
-    ) -> List[Type[Tool]]:
+    ) -> list[type[Tool]]:
         """Load all tools from a directory.
 
         Args:
@@ -161,7 +166,7 @@ class ToolLoader:
             # Filter out __init__.py files as they're not tools
             python_files = [f for f in python_files if f.name != '__init__.py']
 
-            loaded_tools: List[Type[Tool]] = []
+            loaded_tools: list[type[Tool]] = []
             for file_path in python_files:
                 try:
                     tool_class = self.load_tool_from_file(file_path)
@@ -181,8 +186,8 @@ class ToolLoader:
     def load_tool_by_name(
         self,
         tool_name: str,
-        tool_dirs: List[Path]
-    ) -> Optional[Type[Tool]]:
+        tool_dirs: list[Path]
+    ) -> Optional[type[Tool]]:
         """Load a tool by name from specified directories.
 
         Args:
@@ -209,7 +214,7 @@ class ToolLoader:
 
     def instantiate_tool(
         self,
-        tool_class: Type[Tool],
+        tool_class: type[Tool],
         *args: Any,
         **kwargs: Any
     ) -> Tool:
@@ -303,7 +308,7 @@ class ToolLoader:
         """
         return self._loaded_tools.get(tool_name)
 
-    def get_all_loaded_tools(self) -> Dict[str, Tool]:
+    def get_all_loaded_tools(self) -> dict[str, Tool]:
         """Get all loaded tool instances.
 
         Returns:
@@ -311,7 +316,7 @@ class ToolLoader:
         """
         return self._loaded_tools.copy()
 
-    def _find_tool_class(self, module: Any) -> Optional[Type[Tool]]:
+    def _find_tool_class(self, module: Any) -> Optional[type[Tool]]:
         """Find Tool subclass in module.
 
         Args:
@@ -328,7 +333,7 @@ class ToolLoader:
                 return attr
         return None
 
-    def _validate_tool_class(self, tool_class: Type[Tool]) -> bool:
+    def _validate_tool_class(self, tool_class: type[Tool]) -> bool:
         """Validate tool class.
 
         Args:
@@ -360,10 +365,7 @@ class ToolLoader:
                 # It's a class attribute
                 name = name_attr
 
-            if not name or not isinstance(name, str) or not name.strip():
-                return False
-
-            return True
+            return not (not name or not isinstance(name, str) or not name.strip())
 
         except Exception:
             return False

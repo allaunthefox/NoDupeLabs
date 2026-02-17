@@ -20,8 +20,8 @@ Dependencies:
 
 import threading
 import time
-from typing import Optional, Dict, Any, Tuple, List
 from collections import OrderedDict
+from typing import Any, Optional
 
 
 class EmbeddingCacheError(Exception):
@@ -53,7 +53,7 @@ class EmbeddingCache:
         self.max_dimensions = max_dimensions
 
         # Cache storage: key -> (embedding_vector, timestamp)
-        self._cache: OrderedDict[str, Tuple[List[float], float]] = OrderedDict()
+        self._cache: OrderedDict[str, tuple[list[float], float]] = OrderedDict()
         self._lock = threading.RLock()
         self._stats = {
             'hits': 0,
@@ -62,7 +62,7 @@ class EmbeddingCache:
             'insertions': 0
         }
 
-    def get_embedding(self, key: str) -> Optional[List[float]]:
+    def get_embedding(self, key: str) -> Optional[list[float]]:
         """Get cached embedding vector.
 
         Args:
@@ -87,7 +87,7 @@ class EmbeddingCache:
             self._stats['hits'] += 1
             return embedding
 
-    def set_embedding(self, key: str, embedding: List[float]) -> None:
+    def set_embedding(self, key: str, embedding: list[float]) -> None:
         """Set embedding vector in cache.
 
         Args:
@@ -181,7 +181,7 @@ class EmbeddingCache:
 
             return removed_count
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics.
 
         Returns:
@@ -257,7 +257,7 @@ class EmbeddingCache:
 
             return usage
 
-    def _cosine_similarity(self, vec1: List[float], vec2: List[float]) -> float:
+    def _cosine_similarity(self, vec1: list[float], vec2: list[float]) -> float:
         """Calculate cosine similarity between two vectors.
 
         Args:
@@ -291,7 +291,7 @@ class EmbeddingCache:
         key: str,
         threshold: float = 0.8,
         max_results: int = 10
-    ) -> List[Tuple[str, float]]:
+    ) -> list[tuple[str, float]]:
         """Find similar embeddings to a cached embedding.
 
         Args:
@@ -320,7 +320,7 @@ class EmbeddingCache:
         similarities.sort(key=lambda x: x[1], reverse=True)
         return similarities[:max_results]
 
-    def get_average_embedding(self, keys: List[str]) -> Optional[List[float]]:
+    def get_average_embedding(self, keys: list[str]) -> Optional[list[float]]:
         """Get average embedding from multiple cached embeddings.
 
         Args:
@@ -365,7 +365,7 @@ class EmbeddingCache:
         """
         with self._lock:
             keys_to_remove = []
-            for key in self._cache.keys():
+            for key in self._cache:
                 if pattern.lower() in key.lower():
                     keys_to_remove.append(key)
 
@@ -375,7 +375,7 @@ class EmbeddingCache:
 
             return len(keys_to_remove)
 
-    def get_cached_keys(self) -> List[str]:
+    def get_cached_keys(self) -> list[str]:
         """Get list of all cached keys.
 
         Returns:

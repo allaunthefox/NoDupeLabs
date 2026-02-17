@@ -16,24 +16,38 @@ Dependencies:
     - select (Linux only for inotify)
 """
 
-import time
-import threading
 import logging
-import sys
 import os
 import struct
+import sys
+import threading
+import time
 from pathlib import Path
-from typing import Set, Dict, Optional, Any
+from typing import Any, Optional
+
 
 try:
     import fcntl
 except ImportError:
-    fcntl = None  # type: ignore
+    fcntl = None  # type: ignore[PGH003]
 
-from .loader import ToolLoader
-from .lifecycle import ToolLifecycleManager
-from .registry import ToolRegistry
 from ..api.codes import ActionCode
+from .lifecycle import ToolLifecycleManager
+from .loader import ToolLoader
+from .registry import ToolRegistry
+
+
+# Pylance can't see dynamically-created enum members from JSON-loaded IntEnum
+# Use module-level getattr accessors for type compatibility
+_WATCH_ERROR = getattr(ActionCode, "WATCH_ERROR")
+_HOT_RELOAD_START = getattr(ActionCode, "HOT_RELOAD_START")
+_HOT_RELOAD_STOP = getattr(ActionCode, "HOT_RELOAD_STOP")
+_HOT_RELOAD_DETECT = getattr(ActionCode, "HOT_RELOAD_DETECT")
+_HOT_RELOAD_FAIL = getattr(ActionCode, "HOT_RELOAD_FAIL")
+_HOT_RELOAD_SUCCESS = getattr(ActionCode, "HOT_RELOAD_SUCCESS")
+_TOOL_SHUTDOWN = getattr(ActionCode, "TOOL_SHUTDOWN")
+_TOOL_LOAD = getattr(ActionCode, "TOOL_LOAD")
+_TOOL_INIT = getattr(ActionCode, "TOOL_INIT")
 
 # Linux inotify constants
 IN_MODIFY = 0x00000002
@@ -74,7 +88,7 @@ class ToolHotReload:
         self.container = container or ToolRegistry().container
         self.poll_interval = poll_interval
 
-        self._watched_tools: Dict[str, Dict[str, Any]] = {}
+        self._watched_tools: dict[str, dict[str, Any]] = {}
         self._stop_event = threading.Event()
         self._thread: Optional[threading.Thread] = None
         self.logger = logging.getLogger(__name__)
@@ -82,7 +96,7 @@ class ToolHotReload:
 
         # Inotify support (Linux only)
         self._inotify_fd: Optional[int] = None
-        self._watch_descriptors: Dict[int, Dict[str, Any]] = {}
+        self._watch_descriptors: dict[int, dict[str, Any]] = {}
         self._use_inotify = self._init_inotify()
 
     def initialize(self, container: Any) -> None:
@@ -195,7 +209,7 @@ class ToolHotReload:
                 self.logger.debug(f"Added inotify watch for {tool_name}")
 
         except Exception as e:
-            self.logger.warning(f"[{ActionCode.WATCH_ERROR}] Failed to add inotify watch for {tool_name}: {e}")
+            self.logger.warning(f"[{_WATCH_ERROR}] Failed to add inotify watch for {tool_name}: {e}")
 
     def _remove_inotify_watch(self, tool_name: str) -> None:
         """Remove inotify watch for a tool.
@@ -223,7 +237,7 @@ class ToolHotReload:
                 self.logger.debug(f"Removed inotify watch for {tool_name}")
 
         except Exception as e:
-            self.logger.warning(f"[{ActionCode.WATCH_ERROR}] Failed to remove inotify watch for {tool_name}: {e}")
+            self.logger.warning(f"[{_WATCH_ERROR}] Failed to remove inotify watch for {tool_name}: {e}")
 
     def _check_inotify_events(self) -> None:
         """Check for inotify events and handle file changes."""
@@ -231,7 +245,6 @@ class ToolHotReload:
             return
 
         try:
-            import ctypes
             # struct removed
 
             # Read events (non-blocking)
@@ -247,7 +260,7 @@ class ToolHotReload:
             offset = 0
             while offset < len(bytes_read):
                 # Parse inotify_event structure
-                wd, mask, cookie, name_len = struct.unpack_from('iIII', bytes_read, offset)
+                wd, mask, _cookie, name_len = struct.unpack_from('iIII', bytes_read, offset)
                 offset += event_size
 
                 # Get filename if present
@@ -263,7 +276,7 @@ class ToolHotReload:
                     # Only reload if the specific file was modified
                     if filename == info['filename'] and mask & (IN_MODIFY | IN_MOVED_TO | IN_CREATE):
                         tool_name = info['tool_name']
-                        self.logger.info(f"[{ActionCode.HOT_RELOAD_DETECT}] Detected change in tool {tool_name} via inotify, reloading...")
+                        self.logger.info(f"[{_HOT_RELOAD_DETECT}] Detected change in tool {tool_name} via inotify, reloading...")
 
                         # Perform reload
                         self._reload_tool(tool_name, info['path'])
@@ -273,7 +286,7 @@ class ToolHotReload:
                             with self._lock:
                                 if tool_name in self._watched_tools:
                                     self._watched_tools[tool_name]['mtime'] = info['path'].stat().st_mtime
-                        except:
+                        except Exception:
                             pass
 
         except (OSError, UnicodeDecodeError):
@@ -298,7 +311,7 @@ class ToolHotReload:
                 }
                 self.logger.debug(f"Watching tool {tool_name} at {tool_path}")
             except OSError as e:
-                self.logger.warning(f"[{ActionCode.WATCH_ERROR}] Could not watch tool {tool_name}: {e}")
+                self.logger.warning(f"[{_WATCH_ERROR}] Could not watch tool {tool_name}: {e}")
 
     def start(self) -> None:
         """Start the hot reload polling thread."""
@@ -312,7 +325,7 @@ class ToolHotReload:
             daemon=True
         )
         self._thread.start()
-        self.logger.info(f"[{ActionCode.HOT_RELOAD_START}] Tool hot reload started")
+        self.logger.info(f"[{_HOT_RELOAD_START}] Tool hot reload started")
 
     def stop(self) -> None:
         """Stop the hot reload polling thread."""
@@ -322,7 +335,7 @@ class ToolHotReload:
         self._stop_event.set()
         self._thread.join(timeout=2.0)
         self._thread = None
-        self.logger.info(f"[{ActionCode.HOT_RELOAD_STOP}] Tool hot reload stopped")
+        self.logger.info(f"[{_HOT_RELOAD_STOP}] Tool hot reload stopped")
 
     def _poll_loop(self) -> None:
         """Main polling loop running in background thread."""
@@ -353,7 +366,7 @@ class ToolHotReload:
 
                     # If modified more recently than last check
                     if current_mtime > last_mtime:
-                        self.logger.info(f"[{ActionCode.HOT_RELOAD_DETECT}] Detected change in tool {name}, reloading...")
+                        self.logger.info(f"[{_HOT_RELOAD_DETECT}] Detected change in tool {name}, reloading...")
 
                         # Perform reload
                         self._reload_tool(name, path)
@@ -364,11 +377,11 @@ class ToolHotReload:
                                 self._watched_tools[name]['mtime'] = current_mtime
 
                 except FileNotFoundError:
-                    self.logger.warning(f"[{ActionCode.WATCH_ERROR}] Tool file {path} disappeared, stopping watch")
+                    self.logger.warning(f"[{_WATCH_ERROR}] Tool file {path} disappeared, stopping watch")
                     with self._lock:
                         self._watched_tools.pop(name, None)
-                except Exception as e:
-                    self.logger.error(f"[{ActionCode.WATCH_ERROR}] Error watching tool {name}: {e}")
+                except Exception:
+                    self.logger.exception(f"[{_WATCH_ERROR}] Error watching tool {name}")
 
     def _reload_tool(self, name: str, path: Path) -> None:
         """Reload a specific tool.
@@ -379,19 +392,19 @@ class ToolHotReload:
         """
         try:
             # 1. Shutdown existing tool
-            self.logger.info(f"[{ActionCode.TOOL_SHUTDOWN}] Shutting down tool {name}...")
+            self.logger.info(f"[{_TOOL_SHUTDOWN}] Shutting down tool {name}...")
             shutdown_success = self.lifecycle.shutdown_tool(name)
             if not shutdown_success:
-                self.logger.warning(f"[{ActionCode.TOOL_SHUTDOWN}] Tool {name} was not running or failed to shutdown")
+                self.logger.warning(f"[{_TOOL_SHUTDOWN}] Tool {name} was not running or failed to shutdown")
 
             # 2. Unload from loader (clears sys.modules cache)
             self.loader.unload_tool(name)
 
             # 3. Re-load from file
-            self.logger.info(f"[{ActionCode.TOOL_LOAD}] Reloading tool {name} from {path}...")
+            self.logger.info(f"[{_TOOL_LOAD}] Reloading tool {name} from {path}...")
             tool_class = self.loader.load_tool_from_file(path)
             if not tool_class:
-                self.logger.error(f"[{ActionCode.HOT_RELOAD_FAIL}] Failed to load tool class for {name} during reload")
+                self.logger.error(f"[{_HOT_RELOAD_FAIL}] Failed to load tool class for {name} during reload")
                 return
 
             # 4. Instantiate
@@ -401,16 +414,16 @@ class ToolHotReload:
             self.loader.register_loaded_tool(tool_instance, path)
 
             # 6. Initialize
-            self.logger.info(f"[{ActionCode.TOOL_INIT}] Initializing tool {name}...")
-            # Note: We re-use the original container.
-            # Dependencies are assumed to be satisfied as we don't unload valid dependencies.
+            self.logger.info(f"[{_TOOL_INIT}] Initializing tool {name}...")
+            # Note: We re-use the original container. Dependencies are assumed to be
+            # satisfied as we don't unload valid dependencies.
             success = self.lifecycle.initialize_tool(tool_instance, self.container)
 
             if success:
-                self.logger.info(f"[{ActionCode.HOT_RELOAD_SUCCESS}] Tool {name} hot reloaded successfully")
+                self.logger.info(f"[{_HOT_RELOAD_SUCCESS}] Tool {name} hot reloaded successfully")
             else:
-                self.logger.error(f"[{ActionCode.HOT_RELOAD_FAIL}] Tool {name} failed initialization after reload")
+                self.logger.error(f"[{_HOT_RELOAD_FAIL}] Tool {name} failed initialization after reload")
 
-        except Exception as e:
-            self.logger.error(f"[{ActionCode.HOT_RELOAD_FAIL}] Failed to hot reload tool {name}: {e}")
+        except Exception:
+            self.logger.exception(f"[{_HOT_RELOAD_FAIL}] Failed to hot reload tool {name}")
             # Try to restore state? For now, just log.

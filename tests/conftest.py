@@ -2,17 +2,21 @@
 # Comprehensive test fixtures for database operations, file system operations, tool system mocking, etc.
 
 import os
-import tempfile
 import shutil
+import tempfile
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator, Dict, Any, Optional, Callable
-import pytest  # type: ignore
+from typing import Any, Callable, Dict, Optional
 from unittest.mock import MagicMock, patch
+
+import pytest  # type: ignore
+
 import nodupe.core.container as container_module
+from nodupe.core import config
 from nodupe.core.container import ServiceContainer
-import nodupe.core.config as config
-from nodupe.core.tool_system.registry import ToolRegistry
 from nodupe.core.tool_system.loader import ToolLoader
+from nodupe.core.tool_system.registry import ToolRegistry
+
 
 ## Mock Database Connection for Testing
 
@@ -72,7 +76,7 @@ def temp_file(temp_dir: Path) -> Generator[Path, None, None]:
     yield temp_file
 
 @pytest.fixture(scope="function")
-def sample_files(temp_dir: Path) -> Generator[Dict[str, Path], None, None]:
+def sample_files(temp_dir: Path) -> Generator[dict[str, Path], None, None]:
     """Create a set of sample files for duplicate detection testing."""
     files = {
         "small.txt": temp_dir / "small.txt",
@@ -92,7 +96,7 @@ def sample_files(temp_dir: Path) -> Generator[Dict[str, Path], None, None]:
     yield files
 
 @pytest.fixture(scope="function")
-def file_system_with_duplicates(temp_dir: Path) -> Generator[Dict[str, Path], None, None]:
+def file_system_with_duplicates(temp_dir: Path) -> Generator[dict[str, Path], None, None]:
     """Create a file system structure with duplicates for testing."""
     # Create directory structure
     dirs = {
@@ -127,7 +131,7 @@ def file_system_with_duplicates(temp_dir: Path) -> Generator[Dict[str, Path], No
 ## Configuration Fixtures
 
 @pytest.fixture(scope="function")
-def mock_config() -> Generator[Dict[str, Any], None, None]:
+def mock_config() -> Generator[dict[str, Any], None, None]:
     """Provide a mock configuration dictionary for testing."""
     yield {
         "database": {
@@ -155,7 +159,7 @@ def mock_config() -> Generator[Dict[str, Any], None, None]:
     }
 
 @pytest.fixture(scope="function")
-def temp_config_file(temp_dir: Path, mock_config: Dict[str, Any]) -> Generator[Path, None, None]:
+def temp_config_file(temp_dir: Path, mock_config: dict[str, Any]) -> Generator[Path, None, None]:
     """Create a temporary configuration file."""
     config_file = temp_dir / "config.toml"
     import tomlkit as toml
@@ -288,7 +292,7 @@ def performance_monitor() -> Generator[Callable, None, None]:
     """Fixture for monitoring test performance."""
     import time
 
-    def monitor(func: Callable, *args, **kwargs) -> Dict[str, float]:
+    def monitor(func: Callable, *args, **kwargs) -> dict[str, float]:
         start_time = time.time()
         start_mem = get_memory_usage()
 
@@ -304,8 +308,9 @@ def performance_monitor() -> Generator[Callable, None, None]:
         }
 
     def get_memory_usage() -> float:
-        import psutil
         import os
+
+        import psutil
         process = psutil.Process(os.getpid())
         return process.memory_info().rss / 1024 / 1024  # MB
 
@@ -313,14 +318,14 @@ def performance_monitor() -> Generator[Callable, None, None]:
 
 ## Helper Functions
 
-def create_test_file(path: Path, size: int = 1024, content: str = None) -> Path:
+def create_test_file(path: Path, size: int = 1024, content: Optional[str] = None) -> Path:
     """Helper function to create test files."""
     if content is None:
         content = "A" * size
     path.write_text(content)
     return path
 
-def create_file_structure(base_dir: Path, structure: Dict[str, Any]) -> Dict[str, Path]:
+def create_file_structure(base_dir: Path, structure: dict[str, Any]) -> dict[str, Path]:
     """Helper function to create complex file structures."""
     created_files = {}
 

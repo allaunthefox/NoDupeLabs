@@ -19,9 +19,11 @@ Dependencies:
     - typing (standard library)
 """
 
-import os
 import hashlib
-from typing import Dict, Any, Optional, List, Callable
+import os
+from typing import Any, Callable, Optional
+
+
 try:
     from ..hasher_interface import HasherInterface
 except (ImportError, ValueError):
@@ -49,7 +51,7 @@ class FileHasher(HasherInterface):
         self.set_algorithm(algorithm)
         self.set_buffer_size(buffer_size)
 
-    def hash_file(self, file_path: str, on_progress: Optional[Callable[[Dict[str, Any]], None]] = None) -> str:
+    def hash_file(self, file_path: str, on_progress: Optional[Callable[[dict[str, Any]], None]] = None) -> str:
         """Calculate hash of a file.
 
         Args:
@@ -92,8 +94,8 @@ class FileHasher(HasherInterface):
             print(f"[ERROR] Failed to hash file {file_path}: {e}")
             raise
 
-    def hash_files(self, file_paths: List[str],
-                   on_progress: Optional[Callable[[Dict[str, Any]], None]] = None) -> Dict[str, str]:
+    def hash_files(self, file_paths: list[str],
+                   on_progress: Optional[Callable[[dict[str, Any]], None]] = None) -> dict[str, str]:
         """Calculate hashes for multiple files.
 
         Args:
@@ -225,7 +227,7 @@ class FileHasher(HasherInterface):
         """
         return self._buffer_size
 
-    def get_available_algorithms(self) -> List[str]:
+    def get_available_algorithms(self) -> list[str]:
         """Get list of available hash algorithms.
 
         Returns:

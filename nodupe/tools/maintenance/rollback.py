@@ -1,8 +1,10 @@
 """Rollback CLI commands for NoDupeLabs."""
-import click
 import sys
 from pathlib import Path
-from nodupe.core.rollback import SnapshotManager, TransactionLog, RollbackManager
+
+import click
+
+from nodupe.core.rollback import RollbackManager, SnapshotManager, TransactionLog
 
 
 @click.group()

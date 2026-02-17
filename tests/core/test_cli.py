@@ -11,12 +11,15 @@ This module tests the core CLI functionality including:
 - Error handling
 """
 
-import pytest
-import sys
-from unittest.mock import patch, MagicMock
-from nodupe.core.main import CLIHandler, main
-from nodupe.core.loader import bootstrap
 import argparse
+import sys
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from nodupe.core.loader import bootstrap
+from nodupe.core.main import CLIHandler, main
+
 
 class TestCLIArgumentParsing:
     """Test CLI argument parsing functionality."""
@@ -71,21 +74,18 @@ class TestCLIHelpSystem:
 
     def test_help_output_contains_commands(self):
         """Test that help output contains expected commands."""
-        with patch('sys.argv', ['nodupe', '--help']):
-            with pytest.raises(SystemExit):
-                main()
+        with patch('sys.argv', ['nodupe', '--help']), pytest.raises(SystemExit):
+            main()
 
     def test_version_help(self):
         """Test version command help."""
-        with patch('sys.argv', ['nodupe', 'version', '--help']):
-            with pytest.raises(SystemExit):
-                main()
+        with patch('sys.argv', ['nodupe', 'version', '--help']), pytest.raises(SystemExit):
+            main()
 
     def test_tool_help(self):
         """Test tool command help."""
-        with patch('sys.argv', ['nodupe', 'tool', '--help']):
-            with pytest.raises(SystemExit):
-                main()
+        with patch('sys.argv', ['nodupe', 'tool', '--help']), pytest.raises(SystemExit):
+            main()
 
 class TestCLIErrorHandling:
     """Test CLI error handling."""
@@ -140,7 +140,7 @@ class TestCLICommandRegistration:
         mock_loader.tool_registry = MagicMock()
         mock_loader.tool_registry.get_tools.return_value = [mock_tool]
 
-        cli = CLIHandler(mock_loader)
+        CLIHandler(mock_loader)
 
         # This should call the tool's register_commands method
         assert mock_tool.register_commands.called

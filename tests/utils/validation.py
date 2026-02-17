@@ -1,17 +1,18 @@
 # Validation Test Utilities
 # Helper functions for data validation and testing
 
-from typing import Dict, Any, List, Optional, Union, Callable
-from pathlib import Path
-import re
 import hashlib
 import json
+import re
 import tempfile
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Union
 from unittest.mock import MagicMock
+
 
 def validate_test_data_structure(
     data: Any,
-    schema: Dict[str, Any]
+    schema: dict[str, Any]
 ) -> bool:
     """
     Validate test data structure against a schema.
@@ -26,17 +27,7 @@ def validate_test_data_structure(
     def _validate(item, schema_part):
         if "type" in schema_part:
             expected_type = schema_part["type"]
-            if expected_type == "dict" and not isinstance(item, dict):
-                return False
-            elif expected_type == "list" and not isinstance(item, list):
-                return False
-            elif expected_type == "str" and not isinstance(item, str):
-                return False
-            elif expected_type == "int" and not isinstance(item, int):
-                return False
-            elif expected_type == "float" and not isinstance(item, float):
-                return False
-            elif expected_type == "bool" and not isinstance(item, bool):
+            if (expected_type == "dict" and not isinstance(item, dict)) or (expected_type == "list" and not isinstance(item, list)) or (expected_type == "str" and not isinstance(item, str)) or (expected_type == "int" and not isinstance(item, int)) or (expected_type == "float" and not isinstance(item, float)) or (expected_type == "bool" and not isinstance(item, bool)):
                 return False
 
         if "required" in schema_part and not all(key in item for key in schema_part["required"]):
@@ -44,9 +35,8 @@ def validate_test_data_structure(
 
         if "properties" in schema_part:
             for key, prop_schema in schema_part["properties"].items():
-                if key in item:
-                    if not _validate(item[key], prop_schema):
-                        return False
+                if key in item and not _validate(item[key], prop_schema):
+                    return False
 
         if "items" in schema_part and isinstance(item, list):
             for list_item in item:
@@ -69,7 +59,7 @@ def validate_test_data_structure(
 
     return _validate(data, schema)
 
-def create_data_validation_test_cases() -> List[Dict[str, Any]]:
+def create_data_validation_test_cases() -> list[dict[str, Any]]:
     """
     Create data validation test cases.
 
@@ -170,7 +160,7 @@ def validate_file_integrity(
     actual_hash = hash_func.hexdigest()
     return actual_hash == expected_hash
 
-def create_file_validation_test_scenarios() -> List[Dict[str, Any]]:
+def create_file_validation_test_scenarios() -> list[dict[str, Any]]:
     """
     Create file validation test scenarios.
 
@@ -199,8 +189,8 @@ def create_file_validation_test_scenarios() -> List[Dict[str, Any]]:
     ]
 
 def validate_json_schema(
-    json_data: Union[str, Dict],
-    schema: Dict[str, Any]
+    json_data: Union[str, dict],
+    schema: dict[str, Any]
 ) -> bool:
     """
     Validate JSON data against a schema.
@@ -222,7 +212,7 @@ def validate_json_schema(
 
     return validate_test_data_structure(data, schema)
 
-def create_json_validation_test_cases() -> List[Dict[str, Any]]:
+def create_json_validation_test_cases() -> list[dict[str, Any]]:
     """
     Create JSON validation test cases.
 
@@ -313,8 +303,8 @@ def create_json_validation_test_cases() -> List[Dict[str, Any]]:
     ]
 
 def validate_database_schema(
-    database_schema: Dict[str, Any],
-    expected_schema: Dict[str, Any]
+    database_schema: dict[str, Any],
+    expected_schema: dict[str, Any]
 ) -> bool:
     """
     Validate database schema structure.
@@ -356,7 +346,7 @@ def validate_database_schema(
 
     return True
 
-def create_database_validation_test_scenarios() -> List[Dict[str, Any]]:
+def create_database_validation_test_scenarios() -> list[dict[str, Any]]:
     """
     Create database validation test scenarios.
 
@@ -427,8 +417,8 @@ def create_database_validation_test_scenarios() -> List[Dict[str, Any]]:
     ]
 
 def validate_tool_structure(
-    tool_definition: Dict[str, Any],
-    expected_structure: Dict[str, Any]
+    tool_definition: dict[str, Any],
+    expected_structure: dict[str, Any]
 ) -> bool:
     """
     Validate tool structure and metadata.
@@ -473,7 +463,7 @@ def validate_tool_structure(
 
     return True
 
-def create_tool_validation_test_cases() -> List[Dict[str, Any]]:
+def create_tool_validation_test_cases() -> list[dict[str, Any]]:
     """
     Create tool validation test cases.
 
@@ -539,8 +529,8 @@ def create_tool_validation_test_cases() -> List[Dict[str, Any]]:
     ]
 
 def validate_api_response(
-    response: Dict[str, Any],
-    expected_schema: Dict[str, Any]
+    response: dict[str, Any],
+    expected_schema: dict[str, Any]
 ) -> bool:
     """
     Validate API response structure.
@@ -554,7 +544,7 @@ def validate_api_response(
     """
     return validate_test_data_structure(response, expected_schema)
 
-def create_api_validation_test_scenarios() -> List[Dict[str, Any]]:
+def create_api_validation_test_scenarios() -> list[dict[str, Any]]:
     """
     Create API validation test scenarios.
 
@@ -658,9 +648,9 @@ def create_api_validation_test_scenarios() -> List[Dict[str, Any]]:
     ]
 
 def validate_configuration_files(
-    config_files: List[Path],
-    expected_structure: Dict[str, Any]
-) -> Dict[str, bool]:
+    config_files: list[Path],
+    expected_structure: dict[str, Any]
+) -> dict[str, bool]:
     """
     Validate multiple configuration files.
 
@@ -675,16 +665,16 @@ def validate_configuration_files(
 
     for config_file in config_files:
         try:
-            with open(config_file, "r") as f:
+            with open(config_file) as f:
                 config_data = json.load(f)
 
             results[str(config_file)] = validate_test_data_structure(config_data, expected_structure)
-        except (json.JSONDecodeError, IOError):
+        except (OSError, json.JSONDecodeError):
             results[str(config_file)] = False
 
     return results
 
-def create_configuration_validation_test_cases() -> List[Dict[str, Any]]:
+def create_configuration_validation_test_cases() -> list[dict[str, Any]]:
     """
     Create configuration validation test cases.
 
@@ -789,7 +779,7 @@ def create_configuration_validation_test_cases() -> List[Dict[str, Any]]:
 
 def validate_data_consistency(
     data_source: Any,
-    validation_rules: List[Dict[str, Any]]
+    validation_rules: list[dict[str, Any]]
 ) -> bool:
     """
     Validate data consistency against validation rules.
@@ -857,7 +847,7 @@ def validate_data_consistency(
 
     return True
 
-def create_data_consistency_test_scenarios() -> List[Dict[str, Any]]:
+def create_data_consistency_test_scenarios() -> list[dict[str, Any]]:
     """
     Create data consistency test scenarios.
 

@@ -1,11 +1,12 @@
 """Test tool compatibility functionality."""
 
-import pytest
-from unittest.mock import MagicMock
 from typing import List
-from nodupe.core.tool_system.compatibility import ToolCompatibility
-from nodupe.core.tool_system.compatibility import ToolCompatibilityError
+from unittest.mock import MagicMock
+
+import pytest
+
 from nodupe.core.tool_system.base import Tool
+from nodupe.core.tool_system.compatibility import ToolCompatibility, ToolCompatibilityError
 
 
 class TestToolCompatibility:
@@ -72,7 +73,7 @@ class TestToolCompatibilityOperations:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return ["core>=1.0.0"]
 
             def __init__(self):
@@ -114,7 +115,7 @@ class TestToolCompatibilityOperations:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return ["core>=1.0.0"]
 
             def __init__(self):
@@ -158,7 +159,7 @@ class TestToolCompatibilityOperations:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return ["core>=1.0.0"]
 
             def __init__(self):
@@ -195,7 +196,7 @@ class TestToolCompatibilityOperations:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return ["nonexistent>=1.0.0"]
 
             def __init__(self):
@@ -236,7 +237,7 @@ class TestToolCompatibilityEdgeCases:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return []
 
             def __init__(self):
@@ -273,7 +274,7 @@ class TestToolCompatibilityEdgeCases:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return []
 
             def __init__(self):
@@ -311,7 +312,7 @@ class TestToolCompatibilityEdgeCases:
                 return "invalid_version"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return []
 
             def __init__(self):
@@ -349,7 +350,7 @@ class TestToolCompatibilityEdgeCases:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return []
 
             def __init__(self):
@@ -385,7 +386,7 @@ class TestToolCompatibilityPerformance:
                     return "1.0.0"
 
                 @property
-                def dependencies(self) -> List[str]:
+                def dependencies(self) -> list[str]:
                     return ["core>=1.0.0"]
 
                 def __init__(self, tool_id):
@@ -428,7 +429,7 @@ class TestToolCompatibilityPerformance:
                     return "1.0.0"
 
                 @property
-                def dependencies(self) -> List[str]:
+                def dependencies(self) -> list[str]:
                     return ["core>=1.0.0"]
 
                 def __init__(self, tool_id):
@@ -477,7 +478,7 @@ class TestToolCompatibilityIntegration:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return ["core>=1.0.0"]
 
             def __init__(self):
@@ -520,7 +521,7 @@ class TestToolCompatibilityIntegration:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return ["core>=1.0.0"]
 
             def __init__(self):
@@ -618,7 +619,7 @@ class TestToolCompatibilityAdvanced:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return [
                     "core>=1.0.0",
                     "utils>=2.0.0",
@@ -663,7 +664,7 @@ class TestToolCompatibilityAdvanced:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return [
                     "core>=1.0.0,<2.0.0",
                     "utils>=2.0.0,<=3.0.0"
@@ -706,7 +707,7 @@ class TestToolCompatibilityAdvanced:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return ["core>=1.0.0"]
 
             def __init__(self):
@@ -732,7 +733,7 @@ class TestToolCompatibilityAdvanced:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return ["nonexistent>=1.0.0"]
 
             def __init__(self):
@@ -775,7 +776,7 @@ class TestToolCompatibilityAdvanced:
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return ["core>=1.0.0"]
 
             def __init__(self):

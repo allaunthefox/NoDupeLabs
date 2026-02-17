@@ -1,8 +1,10 @@
 """Tests for progress tracker module."""
 
-import pytest
 import time
 from pathlib import Path
+
+import pytest
+
 from nodupe.tools.scanner_engine.progress import ProgressTracker
 
 
@@ -23,12 +25,12 @@ class TestProgressTracker:
         """Test updating progress."""
         tracker = ProgressTracker()
         tracker.start(total_items=100)
-        
+
         # Update progress
         tracker.update(items_completed=10)
         progress_info = tracker.get_progress()
         assert progress_info['completed_items'] == 10
-        
+
         # Update again
         tracker.update(items_completed=20)
         progress_info = tracker.get_progress()
@@ -38,14 +40,14 @@ class TestProgressTracker:
         """Test getting progress percentage."""
         tracker = ProgressTracker()
         tracker.start(total_items=100)
-        
+
         progress_info = tracker.get_progress()
         assert progress_info['percent_complete'] == 0.0
-        
+
         tracker.update(items_completed=25)
         progress_info = tracker.get_progress()
         assert abs(progress_info['percent_complete'] - 25.0) < 0.1  # Allow for floating point precision
-        
+
         # Complete the rest
         tracker.update(items_completed=75)
         progress_info = tracker.get_progress()
@@ -55,11 +57,11 @@ class TestProgressTracker:
         """Test getting elapsed time."""
         tracker = ProgressTracker()
         tracker.start(total_items=100)
-        
+
         # Should be 0 initially
         elapsed = tracker.get_elapsed_time()
         assert elapsed >= 0
-        
+
         # Wait a bit and check again
         time.sleep(0.01)  # Small sleep to ensure time difference
         elapsed2 = tracker.get_elapsed_time()
@@ -69,11 +71,11 @@ class TestProgressTracker:
         """Test getting estimated time of arrival."""
         tracker = ProgressTracker()
         tracker.start(total_items=100)
-        
+
         # Make some progress
         tracker.update(items_completed=10)
         time.sleep(0.01)  # Small sleep to allow for rate calculation
-        
+
         # Should have an ETA based on current rate
         progress_info = tracker.get_progress()
         eta = progress_info['time_remaining']
@@ -84,30 +86,30 @@ class TestProgressTracker:
         """Test getting processing rate."""
         tracker = ProgressTracker()
         tracker.start(total_items=100)
-        
+
         # Initially no rate since no time has passed
         progress_info = tracker.get_progress()
-        rate = progress_info['items_per_second']
+        progress_info['items_per_second']
         # Rate could be 0 if no time has passed
-        
+
         # Make some progress
         tracker.update(items_completed=10)
         time.sleep(0.01)  # Small sleep to allow for rate calculation
-        
+
         # Should have a rate
         progress_info = tracker.get_progress()
-        rate = progress_info['items_per_second']
+        progress_info['items_per_second']
         # Rate could still be low due to small time interval
 
     def test_progress_complete(self):
         """Test when progress is complete."""
         tracker = ProgressTracker()
         tracker.start(total_items=100)
-        
+
         tracker.update(items_completed=100)
         progress_info = tracker.get_progress()
         assert abs(progress_info['percent_complete'] - 100.0) < 0.1
-        
+
         # Should not go over 100%
         tracker.update(items_completed=10)
         progress_info = tracker.get_progress()
@@ -118,11 +120,11 @@ class TestProgressTracker:
         """Test resetting progress."""
         tracker = ProgressTracker()
         tracker.start(total_items=100)
-        
+
         tracker.update(items_completed=50)
         progress_info = tracker.get_progress()
         assert progress_info['completed_items'] == 50
-        
+
         tracker.reset()
         progress_info = tracker.get_progress()
         assert progress_info['completed_items'] == 0

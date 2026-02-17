@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import sys
 import os
+import sys
 import traceback
 from typing import List
+
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -34,7 +35,7 @@ def test_tool_compatibility_import():
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return ["core>=1.0.0"]
 
             def __init__(self):

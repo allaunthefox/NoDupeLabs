@@ -2,13 +2,14 @@
 # Copyright (c) 2025 Allaun
 
 from __future__ import annotations
-import gzip
+
 import bz2
+import gzip
 import lzma
 import tarfile
 import zipfile
 from pathlib import Path
-from typing import Optional, List, Union
+from typing import Optional, Union
 
 
 PathLike = Union[str, Path]
@@ -153,7 +154,7 @@ class Compression:
 
     @staticmethod
     def create_archive(
-        files: List[PathLike],
+        files: list[PathLike],
         output_path: PathLike,
         format: str = 'zip'
     ) -> Path:
@@ -259,7 +260,7 @@ class Compression:
         output_dir: PathLike,
         format: Optional[str] = None,
         PASSWORD_REMOVED: Optional[bytes] = None
-    ) -> List[Path]:
+    ) -> list[Path]:
         """Extract archive (zip, tar, tar.gz, tar.bz2, tar.xz) to output directory.
 
         Args:
@@ -298,7 +299,7 @@ class Compression:
                 raise CompressionError(f"Cannot auto-detect format for: {archive_path}")
 
         output_dir.mkdir(parents=True, exist_ok=True)
-        extracted_files: List[Path] = []
+        extracted_files: list[Path] = []
 
         try:
             if detected == 'zip':
@@ -342,9 +343,6 @@ class Compression:
 
         format_key = format.replace('tar.', '')
         ratios = Compression.COMPRESSION_RATIOS.get(format_key)
-        if ratios:
-            ratio = ratios.get(data_type, 0.5)
-        else:
-            ratio = 0.5
+        ratio = ratios.get(data_type, 0.5) if ratios else 0.5
 
         return int(size * ratio)

@@ -15,7 +15,8 @@ Dependencies:
 """
 
 from enum import Enum
-from typing import Dict, List, Set, Any, Tuple, Optional
+from typing import Any, Optional
+
 from .base import Tool
 
 
@@ -41,12 +42,12 @@ class DependencyResolver:
 
     def __init__(self):
         """Initialize dependency resolver."""
-        self._dependencies: Dict[str, List[str]] = {}
-        self._dependents: Dict[str, List[str]] = {}
-        self._resolutions: Dict[str, ResolutionStatus] = {}
-        self._resolved_order: List[str] = []
+        self._dependencies: dict[str, list[str]] = {}
+        self._dependents: dict[str, list[str]] = {}
+        self._resolutions: dict[str, ResolutionStatus] = {}
+        self._resolved_order: list[str] = []
 
-    def check_dependency_graph(self, tools: List[str]) -> bool:
+    def check_dependency_graph(self, tools: list[str]) -> bool:
         """Check if the dependency graph is valid (no circular dependencies).
 
         Args:
@@ -105,7 +106,7 @@ class DependencyResolver:
 
         return False
 
-    def get_dependencies(self, tool_name: str) -> List[str]:
+    def get_dependencies(self, tool_name: str) -> list[str]:
         """Get dependencies for a tool.
 
         Args:
@@ -116,7 +117,7 @@ class DependencyResolver:
         """
         return self._dependencies.get(tool_name, [])
 
-    def get_dependents(self, tool_name: str) -> List[str]:
+    def get_dependents(self, tool_name: str) -> list[str]:
         """Get tools that depend on this tool.
 
         Args:
@@ -127,7 +128,7 @@ class DependencyResolver:
         """
         return self._dependents.get(tool_name, [])
 
-    def resolve_dependencies(self, tools: List[str]) -> Tuple[ResolutionStatus, List[str]]:
+    def resolve_dependencies(self, tools: list[str]) -> tuple[ResolutionStatus, list[str]]:
         """Resolve dependencies for a list of tools.
 
         Args:
@@ -162,7 +163,7 @@ class DependencyResolver:
         except Exception as e:
             raise DependencyError(f"Dependency resolution failed: {e}") from e
 
-    def _has_circular_dependency(self, tools: List[str]) -> bool:
+    def _has_circular_dependency(self, tools: list[str]) -> bool:
         """Check if there are circular dependencies among tools.
 
         Args:
@@ -198,13 +199,9 @@ class DependencyResolver:
             visited.add(node)
             return False
 
-        for tool in tools:
-            if dfs(tool):
-                return True
+        return any(dfs(tool) for tool in tools)
 
-        return False
-
-    def _topological_sort(self, tools: List[str]) -> List[str]:
+    def _topological_sort(self, tools: list[str]) -> list[str]:
         """Perform topological sort to get dependency order.
 
         Args:
@@ -246,13 +243,12 @@ class DependencyResolver:
             return True
 
         for tool in tools:
-            if tool not in visited:
-                if not visit(tool):
-                    return []  # Cycle detected
+            if tool not in visited and not visit(tool):
+                return []  # Cycle detected
 
         return result
 
-    def get_initialization_order(self, tools: List[str]) -> List[str]:
+    def get_initialization_order(self, tools: list[str]) -> list[str]:
         """Get the correct initialization order for tools.
 
         Args:
@@ -266,7 +262,7 @@ class DependencyResolver:
             return order
         return []
 
-    def get_shutdown_order(self, tools: List[str]) -> List[str]:
+    def get_shutdown_order(self, tools: list[str]) -> list[str]:
         """Get the correct shutdown order for tools (reverse of initialization).
 
         Args:
@@ -281,8 +277,8 @@ class DependencyResolver:
     def validate_tool_compatibility(
         self,
         tool: Tool,
-        available_tools: List[str]
-    ) -> Tuple[bool, List[str]]:
+        available_tools: list[str]
+    ) -> tuple[bool, list[str]]:
         """Validate that a tool is compatible with available tools.
 
         Args:
@@ -297,7 +293,7 @@ class DependencyResolver:
 
         return len(missing_deps) == 0, missing_deps
 
-    def get_dependency_tree(self, tool_name: str) -> Dict[str, Any]:
+    def get_dependency_tree(self, tool_name: str) -> dict[str, Any]:
         """Get the dependency tree for a tool.
 
         Args:
@@ -306,7 +302,7 @@ class DependencyResolver:
         Returns:
             Dictionary representing dependency tree
         """
-        def build_tree(name: str, visited: Optional[Set[str]] = None) -> Dict[str, Any]:
+        def build_tree(name: str, visited: Optional[set[str]] = None) -> dict[str, Any]:
             """TODO: Document build_tree."""
             if visited is None:
                 visited = set()
@@ -329,7 +325,7 @@ class DependencyResolver:
 
         return build_tree(tool_name)
 
-    def get_all_dependencies(self, tool_name: str) -> Set[str]:
+    def get_all_dependencies(self, tool_name: str) -> set[str]:
         """Get all transitive dependencies for a tool.
 
         Args:

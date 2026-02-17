@@ -6,13 +6,13 @@ These tests validate:
 - Archive security (path traversal protection)
 """
 import concurrent.futures
-import tarfile
 import io
-import pytest
-from hypothesis import given, settings, Verbosity, HealthCheck
-from hypothesis import strategies as st
+import tarfile
 
-from nodupe.core.compression import Compression, CompressionError
+import pytest
+from hypothesis import HealthCheck, Verbosity, given, settings, strategies as st
+
+from nodupe.tools.compression_standard.engine_logic import Compression, CompressionError
 
 
 # =============================================================================
@@ -28,7 +28,7 @@ compression_formats = st.sampled_from(["gzip", "bz2", "lzma"])
 def test_large_roundtrip(data_fmt):
     data, fmt = data_fmt
     """Verify roundtrip for large payloads (1KB - 2MB).
-    
+
     This validates:
     - Reversibility invariant
     - Stability under large input
@@ -53,7 +53,7 @@ def roundtrip(data, fmt):
 @given(st.tuples(st.binary(min_size=10, max_size=50_000), compression_formats))
 def test_thread_safety(data_fmt):
     """Verify thread safety and absence of shared state issues.
-    
+
     This validates:
     - No race conditions
     - No shared-state corruption
@@ -77,12 +77,12 @@ file_names = st.text(min_size=1, max_size=30).filter(
 )
 
 
-@settings(max_examples=30, deadline=None, verbosity=Verbosity.quiet, 
+@settings(max_examples=30, deadline=None, verbosity=Verbosity.quiet,
           suppress_health_check=[HealthCheck.function_scoped_fixture])
 @given(file_names)
 def test_tar_traversal_blocked(tmp_path, name):
     """Verify path traversal attacks are blocked in tar archives.
-    
+
     This validates:
     - Path traversal is rejected
     - Fuzzed filenames do not bypass validation
@@ -106,7 +106,7 @@ def test_tar_traversal_blocked(tmp_path, name):
 @given(file_names)
 def test_tar_valid_extraction(tmp_path, name):
     """Verify valid tar archives extract correctly.
-    
+
     This validates:
     - Valid archives extract correctly
     - Fuzzed filenames work properly

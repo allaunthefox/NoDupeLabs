@@ -7,17 +7,20 @@ This module tests system stability under continuous operation, error recovery
 mechanisms, resource management, and graceful degradation under stress.
 """
 
-import pytest
-import sys
+import json
 import os
+import sys
 import tempfile
 import time
-import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.main import main
-from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+
 
 class TestContinuousOperation:
     """Test system stability under continuous operation."""

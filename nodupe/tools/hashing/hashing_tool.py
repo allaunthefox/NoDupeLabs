@@ -6,13 +6,15 @@
 Provides cryptographic hashing capabilities as a tool.
 """
 
-import sys
 import os
-from typing import List, Dict, Any, Optional, Callable
+import sys
+from typing import Any, Callable
+
 
 # Standard High-Assurance Import Pattern for standalone tools
 try:
     from nodupe.core.tool_system.base import Tool, ToolMetadata
+
     from .hasher_logic import FileHasher
 except (ImportError, ValueError):
     # Stand-alone mode: resolve parent paths manually
@@ -20,7 +22,7 @@ except (ImportError, ValueError):
     project_root = os.path.abspath(os.path.join(current_dir, "../../../"))
     if project_root not in sys.path:
         sys.path.insert(0, project_root)
-    
+
     from nodupe.core.tool_system.base import Tool, ToolMetadata
     from nodupe.tools.hashing.hasher_logic import FileHasher
 
@@ -36,7 +38,7 @@ class StandardHashingTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         """Tool dependencies."""
         return []
 
@@ -55,7 +57,7 @@ class StandardHashingTool(Tool):
         )
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
             'hash_file': self.hasher.hash_file,
             'hash_string': self.hasher.hash_string,
@@ -68,7 +70,7 @@ class StandardHashingTool(Tool):
         """Initialize the tool."""
         self.hasher = FileHasher()
 
-    def check_iso_compliance(self, algorithm: str) -> Dict[str, Any]:
+    def check_iso_compliance(self, algorithm: str) -> dict[str, Any]:
         """Verify if an algorithm is standardized under ISO/IEC 10118-3."""
         iso_algorithms = {
             "sha224", "sha256", "sha384", "sha512",
@@ -92,13 +94,13 @@ class StandardHashingTool(Tool):
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def run_standalone(self, args: List[str]) -> int:
+    def run_standalone(self, args: list[str]) -> int:
         """Execute hashing in stand-alone mode."""
         import argparse
         parser = argparse.ArgumentParser(description=self.describe_usage())
         parser.add_argument("file", help="The file you want to verify")
         parser.add_argument("--algo", default="sha256", help="The math rule to use (default: sha256)")
-        
+
         if not args:
             parser.print_help()
             return 0
@@ -121,7 +123,7 @@ class StandardHashingTool(Tool):
             "It is used to prove that a backup is an exact copy of the original."
         )
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
             'algorithms': self.hasher.get_available_algorithms(),

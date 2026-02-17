@@ -2,6 +2,8 @@
 
 Tool security and validation using standard library only.
 
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
+
 Key Features:
     - Tool file validation and security checking
     - Safe execution environment setup
@@ -17,7 +19,7 @@ Dependencies:
 
 import ast
 from pathlib import Path
-from typing import List, Set, Optional, Dict, Any
+from typing import Any, Optional
 
 
 class ToolSecurityError(Exception):
@@ -68,9 +70,9 @@ class ToolSecurity:
 
     def __init__(self):
         """Initialize tool security."""
-        self._whitelisted_modules: Set[str] = set()
-        self._blacklisted_modules: Set[str] = self.DANGEROUS_MODULES.copy()
-        self._security_policies: Dict[str, Any] = {}
+        self._whitelisted_modules: set[str] = set()
+        self._blacklisted_modules: set[str] = self.DANGEROUS_MODULES.copy()
+        self._security_policies: dict[str, Any] = {}
 
     def check_tool_permissions(self, tool: Any) -> bool:
         """Check if tool has required permissions.
@@ -115,7 +117,7 @@ class ToolSecurity:
                 raise ToolSecurityError(f"Tool file must be Python: {file_path}")
 
             # Read and parse the file
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding='utf-8') as f:
                 content = f.read()
 
             # Parse AST
@@ -179,10 +181,7 @@ class ToolSecurity:
             return False
 
         # Check whitelist
-        if self._whitelisted_modules and module_name not in self._whitelisted_modules:
-            return False
-
-        return True
+        return not (self._whitelisted_modules and module_name not in self._whitelisted_modules)
 
     def set_security_policy(self, policy_name: str, policy_value: Any) -> None:
         """Set a security policy.
@@ -313,7 +312,7 @@ class SecurityASTVisitor(ast.NodeVisitor):
 
     def __init__(self):
         """Initialize the visitor."""
-        self.dangerous_nodes: List[str] = []
+        self.dangerous_nodes: list[str] = []
 
     def visit_exec(self, node: ast.AST) -> None:
         """Visit exec statement (Python 2, if somehow present)."""

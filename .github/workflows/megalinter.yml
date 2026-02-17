@@ -21,9 +21,10 @@ jobs:
           fetch-depth: 0
 
       - name: MegaLinter
-        uses: oxsecurity/megalinter/v8@latest
+        uses: oxsecurity/megalinter@v9
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MEGALINTER_CONFIG_IS_CONTAINER_RUNTIME: none
+          MEGALINTER_CONFIG: .mega-linter.yml

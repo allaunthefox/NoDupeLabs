@@ -3,7 +3,10 @@
 
 """Database query functionality."""
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
+
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 
 
 class DatabaseQuery:
@@ -13,12 +16,9 @@ class DatabaseQuery:
         """Initialize query."""
         self.db = db
 
-    def execute(self, query: str, params: Optional[Tuple] = None) -> List[Dict[str, Any]]:
+    def execute(self, query: str, params: Optional[tuple] = None) -> list[dict[str, Any]]:
         """Execute query and return results."""
-        if hasattr(self.db, 'get_connection'):
-            conn = self.db.get_connection()
-        else:
-            conn = self.db.connect()
+        conn = self.db.get_connection() if hasattr(self.db, 'get_connection') else self.db.connect()
         cursor = conn.cursor()
         cursor.execute(query, params or ())
         results = []
@@ -36,12 +36,9 @@ class DatabaseBatch:
         """Initialize batch operations."""
         self.db = db
 
-    def execute_batch(self, operations: List[Tuple[str, Tuple]]) -> None:
+    def execute_batch(self, operations: list[tuple[str, tuple]]) -> None:
         """Execute batch operations."""
-        if hasattr(self.db, 'get_connection'):
-            conn = self.db.get_connection()
-        else:
-            conn = self.db.connect()
+        conn = self.db.get_connection() if hasattr(self.db, 'get_connection') else self.db.connect()
         cursor = conn.cursor()
 
         for query, params in operations:
@@ -49,12 +46,9 @@ class DatabaseBatch:
 
         conn.commit()
 
-    def execute_transaction_batch(self, operations: List[Tuple[str, Tuple]]) -> None:
+    def execute_transaction_batch(self, operations: list[tuple[str, tuple]]) -> None:
         """Execute batch operations within a transaction."""
-        if hasattr(self.db, 'get_connection'):
-            conn = self.db.get_connection()
-        else:
-            conn = self.db.connect()
+        conn = self.db.get_connection() if hasattr(self.db, 'get_connection') else self.db.connect()
         cursor = conn.cursor()
 
         try:
@@ -79,7 +73,7 @@ class DatabasePerformance:
             'avg_time': 0.0,
         }
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Get performance metrics."""
         # Return in expected format with 'metrics' or 'error' key
         return {'metrics': self._metrics.copy()}
@@ -107,11 +101,11 @@ class DatabaseIntegrity:
         """Initialize integrity checking."""
         self.db = db
 
-    def validate(self) -> Dict[str, Any]:
+    def validate(self) -> dict[str, Any]:
         """Validate database integrity."""
         return {'valid': True, 'errors': [], 'tables': []}
 
-    def check_integrity(self) -> Dict[str, Any]:
+    def check_integrity(self) -> dict[str, Any]:
         """Check database integrity."""
         # Return in expected format with 'tables' and 'indexes' keys
         return {'valid': True, 'errors': [], 'tables': [], 'indexes': []}
@@ -142,11 +136,11 @@ class DatabaseMigration:
         """Initialize migration."""
         self.db = db
 
-    def migrate_schema(self, migrations: Dict[str, Dict[str, List[str]]]) -> None:
+    def migrate_schema(self, migrations: dict[str, dict[str, list[str]]]) -> None:
         """Migrate database schema."""
         pass  # Implementation would apply migrations
 
-    def migrate_data(self, table_name: str, transformations: Dict[str, str], new_columns: Optional[List[str]] = None) -> None:
+    def migrate_data(self, table_name: str, transformations: dict[str, str], new_columns: Optional[list[str]] = None) -> None:
         """Migrate data in the specified table."""
         pass  # Implementation would transform data
 

@@ -9,10 +9,10 @@ Provides common API decorators for NoDupeLabs.
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Optional
 
 
-def api_endpoint(methods: Optional[List[str]] = None) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def api_endpoint(methods: Optional[list[str]] = None) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to mark a function as an API endpoint."""
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
@@ -22,7 +22,7 @@ def api_endpoint(methods: Optional[List[str]] = None) -> Callable[[Callable[...,
     return decorator
 
 
-def cors(origins: Optional[List[str]] = None) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def cors(origins: Optional[list[str]] = None) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to add CORS headers to a response."""
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
@@ -50,7 +50,7 @@ def require_auth(func: Callable[..., Any]) -> Callable[..., Any]:
 
 def cache_response(ttl: int = 300) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to cache API responses."""
-    _cache: Dict[str, tuple[Any, float]] = {}
+    _cache: dict[str, tuple[Any, float]] = {}
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)

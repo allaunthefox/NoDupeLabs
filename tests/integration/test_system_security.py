@@ -7,16 +7,19 @@ This module tests authentication and authorization, data protection mechanisms,
 secure file handling, and tool security boundaries.
 """
 
-import pytest
-import sys
-import os
-import tempfile
 import json
-from unittest.mock import patch, MagicMock
+import os
+import sys
+import tempfile
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.main import main
-from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+
 
 class TestAuthenticationAuthorization:
     """Test authentication and authorization mechanisms."""

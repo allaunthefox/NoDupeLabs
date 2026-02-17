@@ -29,30 +29,30 @@ Example:
 from __future__ import annotations
 
 import sqlite3
-from typing import Any, Dict, List, Optional, Tuple
 from contextlib import contextmanager
+from typing import Any, Optional
 
+from .cache import DatabaseCache
+from .cleanup import DatabaseCleanup
+from .compression import DatabaseCompression
 from .connection import DatabaseConnection
-from .schema import DatabaseSchema
 from .indexing import DatabaseIndexing
-from .transactions import DatabaseTransaction
+from .locking import DatabaseLocking
+from .logging_ import DatabaseLogging
 from .query import (
-    DatabaseQuery,
-    DatabaseBatch,
-    DatabasePerformance,
-    DatabaseIntegrity,
     DatabaseBackup,
+    DatabaseBatch,
+    DatabaseIntegrity,
     DatabaseMigration,
+    DatabasePerformance,
+    DatabaseQuery,
     DatabaseRecovery,
 )
+from .schema import DatabaseSchema
 from .security import DatabaseSecurity
-from .logging_ import DatabaseLogging
-from .cache import DatabaseCache
-from .locking import DatabaseLocking
-from .session import DatabaseSession
-from .compression import DatabaseCompression
 from .serialization import DatabaseSerialization
-from .cleanup import DatabaseCleanup
+from .session import DatabaseSession
+from .transactions import DatabaseTransaction
 
 
 class DatabaseError(Exception):
@@ -231,7 +231,7 @@ class Database:
         except sqlite3.Error as e:
             raise DatabaseError(f"Failed to create table {table_name}: {self.security.sanitize_error_message(str(e))}")
 
-    def create(self, table_name: str, data: Dict[str, Any]) -> Optional[int]:
+    def create(self, table_name: str, data: dict[str, Any]) -> Optional[int]:
         """Create a record and return the inserted ID.
 
         Inserts a new record into the specified table with the given data.
@@ -260,7 +260,7 @@ class Database:
         conn.commit()
         return cursor.lastrowid
 
-    def read(self, query: str, params: Optional[Tuple] = None) -> List[Dict[str, Any]]:
+    def read(self, query: str, params: Optional[tuple] = None) -> list[dict[str, Any]]:
         """Read records from the database.
 
         Executes a SELECT query and returns the results as a list of dictionaries.
@@ -281,7 +281,7 @@ class Database:
         """
         return self.query.execute(query, params or ())
 
-    def update(self, query: str, params: Optional[Tuple] = None) -> int:
+    def update(self, query: str, params: Optional[tuple] = None) -> int:
         """Update records in the database.
 
         Executes an UPDATE query and returns the number of affected rows.
@@ -306,7 +306,7 @@ class Database:
         conn.commit()
         return cursor.rowcount
 
-    def delete(self, query: str, params: Optional[Tuple] = None) -> int:
+    def delete(self, query: str, params: Optional[tuple] = None) -> int:
         """Delete records from the database.
 
         Executes a DELETE query and returns the number of affected rows.
@@ -331,7 +331,7 @@ class Database:
         conn.commit()
         return cursor.rowcount
 
-    def execute_batch(self, operations: List[Tuple[str, Tuple]]) -> None:
+    def execute_batch(self, operations: list[tuple[str, tuple]]) -> None:
         """Execute multiple operations as a batch.
 
         Executes multiple SQL operations in sequence without transaction wrapping.
@@ -351,7 +351,7 @@ class Database:
         """
         self.batch.execute_batch(operations)
 
-    def execute_transaction_batch(self, operations: List[Tuple[str, Tuple]]) -> None:
+    def execute_transaction_batch(self, operations: list[tuple[str, tuple]]) -> None:
         """Execute multiple operations within a transaction.
 
         Executes multiple SQL operations atomically within a single transaction.
@@ -397,7 +397,7 @@ class Database:
         with self.transaction_manager.transaction():
             yield
 
-    def __enter__(self) -> "Database":
+    def __enter__(self) -> Database:
         """Enter the context manager protocol.
 
         Returns:

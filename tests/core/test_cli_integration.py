@@ -10,17 +10,20 @@ This module tests CLI integration scenarios including:
 - System integration
 """
 
-import pytest
-import sys
-import os
-import tempfile
 import json
-from unittest.mock import patch, MagicMock
-from nodupe.core.main import main, CLIHandler
+import os
+import sys
+import tempfile
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.loader import bootstrap
-from nodupe.tools.commands.scan import ScanTool
+from nodupe.core.main import CLIHandler, main
 from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+
 
 class TestCLIEndToEndWorkflows:
     """Test end-to-end CLI workflows."""
@@ -246,7 +249,7 @@ class TestCLIToolIntegration:
         mock_loader.tool_registry = mock_tool_registry
 
         # Create CLI handler
-        cli = CLIHandler(mock_loader)
+        CLIHandler(mock_loader)
 
         # Verify tools were asked to register commands
         assert mock_tool1.register_commands.called
@@ -265,7 +268,7 @@ class TestCLIToolIntegration:
         mock_loader.tool_registry = mock_tool_registry
 
         # Create CLI handler
-        cli = CLIHandler(mock_loader)
+        CLIHandler(mock_loader)
 
         # Verify the tool registered commands
         assert scan_tool.register_commands.called
@@ -287,7 +290,7 @@ class TestCLIToolIntegration:
         mock_loader.tool_registry = mock_tool_registry
 
         # Create CLI handler
-        cli = CLIHandler(mock_loader)
+        CLIHandler(mock_loader)
 
         # Verify all tools registered commands
         assert scan_tool.register_commands.called

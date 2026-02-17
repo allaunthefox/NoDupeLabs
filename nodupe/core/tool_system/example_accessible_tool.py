@@ -4,13 +4,14 @@ This is an example of how to implement an accessible tool that follows
 the accessibility standards and supports users with visual impairments.
 """
 
-from typing import List, Dict, Any, Callable
+from typing import Any, Callable
+
 from nodupe.core.tool_system.accessible_base import AccessibleTool
 
 
 class ExampleAccessibleTool(AccessibleTool):
     """Example accessible tool demonstrating accessibility features."""
-    
+
     def __init__(self):
         super().__init__()  # Initialize accessibility features
         self._name = "ExampleAccessibleTool"
@@ -27,7 +28,7 @@ class ExampleAccessibleTool(AccessibleTool):
         return self._version
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         return self._dependencies
 
     def initialize(self, container: Any) -> None:
@@ -45,7 +46,7 @@ class ExampleAccessibleTool(AccessibleTool):
         self._initialized = False
         self.log_accessible_message(f"{self.name} shutdown complete", "info")
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
             "name": self.name,
@@ -60,7 +61,7 @@ class ExampleAccessibleTool(AccessibleTool):
             "iso_concerns": ["functionality", "usability", "accessibility"]
         }
 
-    def get_ipc_socket_documentation(self) -> Dict[str, Any]:
+    def get_ipc_socket_documentation(self) -> dict[str, Any]:
         """Document IPC socket interfaces for assistive technology integration."""
         return {
             "socket_endpoints": {
@@ -98,7 +99,7 @@ class ExampleAccessibleTool(AccessibleTool):
         }
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         """Dictionary of methods exposed via programmatic API (Socket/IPC)."""
         return {
             'get_status': self.get_accessible_status,
@@ -106,14 +107,14 @@ class ExampleAccessibleTool(AccessibleTool):
             'get_help': self.get_accessible_help
         }
 
-    def run_standalone(self, args: List[str]) -> int:
+    def run_standalone(self, args: list[str]) -> int:
         """Execute the tool in stand-alone mode without the core engine."""
         self.announce_to_assistive_tech(f"Running {self.name} in standalone mode")
-        
+
         # Process arguments if provided
         if args:
             self.announce_to_assistive_tech(f"Arguments received: {', '.join(args)}")
-        
+
         self.announce_to_assistive_tech(f"{self.name} standalone execution completed")
         return 0
 
@@ -128,11 +129,11 @@ class ExampleAccessibleTool(AccessibleTool):
     def process_accessible_data(self, data: Any, format: str = "auto") -> str:
         """Process data with accessibility considerations."""
         self.announce_to_assistive_tech(f"Starting to process data of type: {type(data).__name__}")
-        
+
         # Format the data for accessibility
         accessible_data = self.format_for_accessibility(data)
         self.announce_to_assistive_tech(f"Formatted data for accessibility: {accessible_data[:100]}...")
-        
+
         # Simulate processing
         if isinstance(data, dict):
             result = f"Processed dictionary with {len(data)} keys"
@@ -140,7 +141,7 @@ class ExampleAccessibleTool(AccessibleTool):
             result = f"Processed list with {len(data)} items"
         else:
             result = f"Processed {len(str(data))} characters of data"
-        
+
         self.announce_to_assistive_tech(f"Processing complete: {result}")
         return result
 
@@ -156,7 +157,7 @@ class ExampleAccessibleTool(AccessibleTool):
         self.announce_to_assistive_tech(help_text)
         return help_text
 
-    def get_architecture_rationale(self) -> Dict[str, str]:
+    def get_architecture_rationale(self) -> dict[str, str]:
         """Get architectural rationale following ISO/IEC/IEEE 42010."""
         return {
             "design_decision": "Created as an accessible tool to demonstrate accessibility-first design",

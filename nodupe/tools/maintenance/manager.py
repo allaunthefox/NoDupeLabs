@@ -1,6 +1,6 @@
 """Rollback manager for NoDupeLabs."""
 
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable
 
 from .transaction import TransactionLog
 
@@ -18,7 +18,7 @@ class RollbackManager:
         self.snapshots = snapshot_manager
         self.transactions = transaction_log
 
-    def execute_with_protection(self, paths: List[str], operation: Callable) -> Any:
+    def execute_with_protection(self, paths: list[str], operation: Callable) -> Any:
         """Execute an operation with rollback protection.
 
         Creates snapshot before, logs operations, rollback on failure.
@@ -44,12 +44,12 @@ class RollbackManager:
             # Commit transaction on success
             self.transactions.commit_transaction()
             return result
-        except Exception as e:
+        except Exception:
             # Rollback on failure
             self.transactions.rollback_transaction(tx_id)
             # Try to restore from snapshot
             self.snapshots.restore_snapshot(snapshot.snapshot_id)
-            raise e
+            raise
 
     def restore_to_snapshot(self, snapshot_id: str) -> bool:
         """Restore entire state to a snapshot.
@@ -79,7 +79,7 @@ class RollbackManager:
 
         return False
 
-    def list_snapshots(self) -> List[dict]:
+    def list_snapshots(self) -> list[dict]:
         """List all available snapshots.
 
         Returns:
@@ -87,7 +87,7 @@ class RollbackManager:
         """
         return self.snapshots.list_snapshots()
 
-    def list_transactions(self) -> List[dict]:
+    def list_transactions(self) -> list[dict]:
         """List all transactions.
 
         Returns:

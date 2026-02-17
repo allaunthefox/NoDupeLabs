@@ -10,8 +10,8 @@ and version-aware request handling.
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable, Dict, Optional, Set
 from dataclasses import dataclass
+from typing import Any, Callable, Optional
 
 
 @dataclass
@@ -33,9 +33,9 @@ class APIVersion:
     def __init__(self, default_version: str = "v1") -> None:
         """Initialize API version manager."""
         self.current_version: str = default_version
-        self.supported_versions: Set[str] = {default_version}
-        self.versioned_functions: Dict[str, Dict[str, VersionedFunction]] = {}
-        self._deprecated_versions: Dict[str, str] = {}
+        self.supported_versions: set[str] = {default_version}
+        self.versioned_functions: dict[str, dict[str, VersionedFunction]] = {}
+        self._deprecated_versions: dict[str, str] = {}
 
     def register_version(self, version: str) -> None:
         """Register a new API version."""

@@ -1,9 +1,11 @@
 """Test tool registry functionality."""
 
-import pytest
 from unittest.mock import MagicMock
-from nodupe.core.tool_system.registry import ToolRegistry
+
+import pytest
+
 from nodupe.core.tool_system.base import Tool
+from nodupe.core.tool_system.registry import ToolRegistry
 
 
 class TestToolRegistry:

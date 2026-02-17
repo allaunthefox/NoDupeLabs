@@ -1,17 +1,18 @@
 # Database Test Utilities
 # Helper functions for database operations testing
 
+import contextlib
 import sqlite3
 import tempfile
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Union, Callable
-from unittest.mock import MagicMock, patch
-import contextlib
 import time
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Union
+from unittest.mock import MagicMock, patch
+
 
 def create_test_database(
     schema: Optional[str] = None,
-    data: Optional[List[Dict[str, Any]]] = None,
+    data: Optional[list[dict[str, Any]]] = None,
     db_name: str = "test_db",
     use_memory: bool = True
 ) -> Union[str, Path]:
@@ -54,7 +55,7 @@ def setup_test_database_schema(
 def insert_test_data(
     conn: sqlite3.Connection,
     table: str,
-    data: List[Dict[str, Any]]
+    data: list[dict[str, Any]]
 ) -> None:
     """
     Insert test data into a database table.
@@ -86,7 +87,7 @@ def insert_test_data(
 
 def verify_database_state(
     conn: sqlite3.Connection,
-    expected_state: Dict[str, Any],
+    expected_state: dict[str, Any],
     tolerance: float = 0.0
 ) -> bool:
     """
@@ -131,9 +132,8 @@ def verify_database_state(
                 elif isinstance(expected_value, float):
                     if abs(actual_value - expected_value) > tolerance:
                         return False
-                else:
-                    if actual_value != expected_value:
-                        return False
+                elif actual_value != expected_value:
+                    return False
 
     return True
 
@@ -157,7 +157,7 @@ def create_database_mock() -> MagicMock:
 
 def create_database_fixture(
     schema: str,
-    initial_data: Optional[List[Dict[str, Any]]] = None
+    initial_data: Optional[list[dict[str, Any]]] = None
 ) -> Callable:
     """
     Create a pytest fixture for database testing.
@@ -179,7 +179,7 @@ def create_database_fixture(
         # Insert initial data if provided
         if initial_data:
             for table_data in initial_data:
-                table_name = list(table_data.keys())[0]
+                table_name = next(iter(table_data.keys()))
                 insert_test_data(conn, table_name, table_data[table_name])
 
         yield conn
@@ -234,9 +234,9 @@ def simulate_database_errors(
 
 def benchmark_database_operations(
     conn: sqlite3.Connection,
-    operations: List[Callable],
+    operations: list[Callable],
     iterations: int = 100
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Benchmark database operations performance.
 
@@ -263,7 +263,7 @@ def benchmark_database_operations(
 
     return results
 
-def create_transaction_test_scenarios() -> List[Dict[str, Any]]:
+def create_transaction_test_scenarios() -> list[dict[str, Any]]:
     """
     Create test scenarios for transaction testing.
 
@@ -336,7 +336,7 @@ def verify_database_performance(
 
 def create_database_snapshot(
     conn: sqlite3.Connection
-) -> Dict[str, List[Dict[str, Any]]]:
+) -> dict[str, list[dict[str, Any]]]:
     """
     Create a snapshot of current database state.
 
@@ -374,7 +374,7 @@ def create_database_snapshot(
 
 def restore_database_snapshot(
     conn: sqlite3.Connection,
-    snapshot: Dict[str, List[Dict[str, Any]]]
+    snapshot: dict[str, list[dict[str, Any]]]
 ) -> None:
     """
     Restore database to a previous snapshot state.

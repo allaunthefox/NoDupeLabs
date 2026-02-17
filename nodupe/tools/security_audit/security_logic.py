@@ -18,7 +18,7 @@ Dependencies:
 import os
 import re
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional
 
 
 class SecurityError(Exception):
@@ -81,9 +81,8 @@ class Security:
                 raise SecurityError("Path contains null bytes")
 
             # Check for dangerous patterns
-            if not allow_parent:
-                if '..' in path:
-                    raise SecurityError("Path contains parent directory reference (..)")
+            if not allow_parent and '..' in path:
+                raise SecurityError("Path contains parent directory reference (..)")
 
             # Normalize path separators
             path = path.replace('\\', '/')
@@ -138,10 +137,7 @@ class Security:
         """
         try:
             # Convert to Path object
-            if isinstance(path, str):
-                path_obj = Path(path)
-            else:
-                path_obj = path
+            path_obj = Path(path) if isinstance(path, str) else path
 
             # Resolve to absolute path
             try:
@@ -300,10 +296,7 @@ class Security:
         """
         try:
             # Convert to Path object
-            if isinstance(path, str):
-                path_obj = Path(path)
-            else:
-                path_obj = path
+            path_obj = Path(path) if isinstance(path, str) else path
 
             # Check existence
             if not path_obj.exists():
@@ -363,10 +356,7 @@ class Security:
             if isinstance(path, str):
                 path = Path(path)
 
-            if follow_symlinks:
-                resolved = path.resolve()
-            else:
-                resolved = path
+            resolved = path.resolve() if follow_symlinks else path
 
             return str(resolved)
 
@@ -376,7 +366,7 @@ class Security:
     @staticmethod
     def validate_extension(
         filename: str,
-        allowed_extensions: List[str]
+        allowed_extensions: list[str]
     ) -> bool:
         """Validate file extension against allowed list.
 

@@ -7,8 +7,8 @@ Abstract base class for all system tools (formerly tools).
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Callable, Optional
 from dataclasses import dataclass
+from typing import Any, Callable, Optional
 
 
 @dataclass(frozen=True)
@@ -20,8 +20,8 @@ class ToolMetadata:
     description: str
     author: str
     license: str      # SPDX License Identifier (RFC standard)
-    dependencies: List[str]
-    tags: List[str]
+    dependencies: list[str]
+    tags: list[str]
     persistent_id: Optional[str] = None
     entitlement_key: Optional[str] = None
 
@@ -41,7 +41,7 @@ class Tool(ABC):
 
     @property
     @abstractmethod
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         """List of tool dependencies"""
 
     @abstractmethod
@@ -53,16 +53,16 @@ class Tool(ABC):
         """Shutdown the tool"""
 
     @abstractmethod
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities"""
 
     @property
     @abstractmethod
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         """Dictionary of methods exposed via programmatic API (Socket/IPC)"""
 
     @abstractmethod
-    def run_standalone(self, args: List[str]) -> int:
+    def run_standalone(self, args: list[str]) -> int:
         """Execute the tool in stand-alone mode without the core engine."""
 
     @abstractmethod
@@ -76,19 +76,19 @@ class Tool(ABC):
 class AccessibleTool(Tool):
     """
     Abstract base class for accessible tools that support users with visual impairments.
-    
+
     This class extends the basic Tool interface with accessibility features that
     support assistive technologies like screen readers and braille displays.
-    
+
     **CRITICAL REQUIREMENT**: Accessibility is a core requirement, not optional.
     All implementations MUST provide basic accessibility through console output
     even if external accessibility libraries are not available.
     """
-    
+
     def announce_to_assistive_tech(self, message: str, interrupt: bool = True):
         """
         Announce a message to assistive technologies when available.
-        
+
         Args:
             message: The message to announce
             interrupt: Whether to interrupt current speech (default True)
@@ -98,19 +98,19 @@ class AccessibleTool(Tool):
     def format_for_accessibility(self, data: Any) -> str:
         """
         Format data for accessibility with screen readers and braille displays.
-        
+
         Args:
             data: Data to format for accessibility
-            
+
         Returns:
             String formatted for accessibility
         """
         pass
 
-    def get_ipc_socket_documentation(self) -> Dict[str, Any]:
+    def get_ipc_socket_documentation(self) -> dict[str, Any]:
         """
         Document IPC socket interfaces for assistive technology integration.
-        
+
         Returns:
             Dictionary describing available IPC endpoints and their accessibility features
         """
@@ -119,7 +119,7 @@ class AccessibleTool(Tool):
     def get_accessible_status(self) -> str:
         """
         Get tool status in an accessible format.
-        
+
         Returns:
             Human-readable status information suitable for screen readers
         """
@@ -128,7 +128,7 @@ class AccessibleTool(Tool):
     def log_accessible_message(self, message: str, level: str = "info"):
         """
         Log a message with accessibility consideration.
-        
+
         Args:
             message: The message to log
             level: The logging level ('info', 'warning', 'error', 'debug')

@@ -10,16 +10,19 @@ This module tests the specific CLI commands including:
 - Tool commands
 """
 
-import pytest
-import sys
-import os
-import tempfile
 import json
-from unittest.mock import patch, MagicMock
+import os
+import sys
+import tempfile
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.main import CLIHandler
-from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.apply import ApplyTool
+from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+
 
 class TestScanCommand:
     """Test scan command functionality."""

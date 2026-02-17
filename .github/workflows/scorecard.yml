@@ -24,14 +24,14 @@ jobs:
           persist-credentials: false
 
       - name: "Run Scorecard"
-        uses: ossf/scorecard-action@v2
+        uses: ossf/scorecard-action@v2.4.3
         with:
-          results-file: results.sarif
-          results-format: sarif
-          publish-results: true
+          results_file: results.sarif
+          results_format: Sarif
+          publish_results: true
 
       - name: "Upload results to GitHub"
-        uses: github/codeql-action/upload-security-results@v3
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
           category: scorecard

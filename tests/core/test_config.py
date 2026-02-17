@@ -1,13 +1,14 @@
 """Tests for the config module."""
 
-import pytest
-import tempfile
-import os
-from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
 import json
+import os
+import tempfile
+from pathlib import Path
+from typing import Any, Dict
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 import tomlkit as toml
-from typing import Dict, Any
 
 from nodupe.core.config import ConfigManager, load_config
 
@@ -45,10 +46,10 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
         assert config_manager.config_path == str(self.config_path)
 
@@ -62,7 +63,7 @@ class TestConfigManager:
     def test_config_manager_missing_config_file(self):
         """Test ConfigManager with missing config file."""
         nonexistent_path = Path(self.temp_dir) / "nonexistent.toml"
-        
+
         with pytest.raises(FileNotFoundError, match="Configuration file .* not found"):
             ConfigManager(str(nonexistent_path))
 
@@ -70,7 +71,7 @@ class TestConfigManager:
         """Test ConfigManager with invalid TOML file."""
         with open(self.config_path, 'w') as f:
             f.write('invalid toml content [')
-        
+
         with pytest.raises(ValueError, match="Error parsing TOML file"):
             ConfigManager(str(self.config_path))
 
@@ -81,10 +82,10 @@ class TestConfigManager:
                 'other_tool': {'some_config': 'value'}
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         with pytest.raises(ValueError, match="missing \\[tool.nodupe\\] section"):
             ConfigManager(str(self.config_path))
 
@@ -98,13 +99,13 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
         nodupe_config = config_manager.get_nodupe_config()
-        
+
         assert isinstance(nodupe_config, dict)
         assert 'database' in nodupe_config
         assert 'scan' in nodupe_config
@@ -122,13 +123,13 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
         db_config = config_manager.get_database_config()
-        
+
         assert db_config['path'] == '/test/database.db'
         assert db_config['timeout'] == 30.0
         assert db_config['journal_mode'] == 'WAL'
@@ -147,13 +148,13 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
         scan_config = config_manager.get_scan_config()
-        
+
         assert scan_config['min_file_size'] == '1KB'
         assert scan_config['max_file_size'] == '100MB'
         assert scan_config['default_extensions'] == ['jpg', 'png', 'pdf', 'docx', 'txt']
@@ -173,13 +174,13 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
         similarity_config = config_manager.get_similarity_config()
-        
+
         assert similarity_config['default_backend'] == 'brute_force'
         assert similarity_config['vector_dimensions'] == 128
         assert similarity_config['search_k'] == 10
@@ -198,13 +199,13 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
         performance_config = config_manager.get_performance_config()
-        
+
         assert performance_config['workers'] == 4
         assert performance_config['batch_size'] == 100
         assert performance_config['memory_limit'] == '1GB'
@@ -222,13 +223,13 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
         logging_config = config_manager.get_logging_config()
-        
+
         assert logging_config['level'] == 'info'
         assert logging_config['format'] == '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         assert logging_config['file'] == 'nodupe.log'
@@ -243,20 +244,20 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
-        
+
         # Test existing value
         path = config_manager.get_config_value('database', 'path')
         assert path == '/test/path'
-        
+
         # Test non-existing value with default
         timeout = config_manager.get_config_value('database', 'timeout', 30.0)
         assert timeout == 30.0
-        
+
         # Test non-existing section
         nonexistent = config_manager.get_config_value('nonexistent', 'key', 'default')
         assert nonexistent == 'default'
@@ -274,10 +275,10 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
         assert config_manager.validate_config() is True
 
@@ -294,10 +295,10 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
         assert config_manager.validate_config() is False
 
@@ -311,10 +312,10 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
         assert config_manager.validate_config() is False
 
@@ -322,10 +323,10 @@ class TestConfigManager:
         """Test ConfigManager default behavior when no config file exists."""
         with patch('os.path.exists', return_value=False):
             config_manager = ConfigManager()
-            
+
             # Should have empty config
             assert config_manager.config == {}
-            
+
             # Methods should return empty dicts or defaults
             assert config_manager.get_nodupe_config() == {}
             assert config_manager.get_database_config() == {}
@@ -347,12 +348,12 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
-        
+
         assert config_manager.validate_config() is True
         assert config_manager.get_database_config()['path'] == 'test.db'
         assert config_manager.get_scan_config()['recursive'] is False
@@ -392,19 +393,19 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
-        
+
         db_config = config_manager.get_database_config()
         assert db_config['path'] == '/test/path'
         assert db_config['connection']['timeout'] == 30
         assert db_config['connection']['retries'] == 3
         assert db_config['connection']['pool']['min_size'] == 1
         assert db_config['connection']['pool']['max_size'] == 10
-        
+
         scan_config = config_manager.get_scan_config()
         assert scan_config['recursive'] is True
         assert scan_config['filters']['size']['min'] == 1024
@@ -429,17 +430,17 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
-        
+
         scan_config = config_manager.get_scan_config()
         assert scan_config['default_extensions'] == ['.txt', '.pdf', '.doc']
         assert scan_config['exclude_dirs'] == ['temp', 'cache', 'logs']
         assert scan_config['include_patterns'] == ['*.important', '*.critical']
-        
+
         performance_config = config_manager.get_performance_config()
         assert performance_config['workers'] == 4
         assert performance_config['batch_sizes'] == [10, 50, 100, 500]
@@ -466,22 +467,22 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
-        
+
         scan_config = config_manager.get_scan_config()
         assert scan_config['recursive'] is True
         assert scan_config['follow_symlinks'] is False
         assert scan_config['include_hidden'] is True
-        
+
         db_config = config_manager.get_database_config()
         assert db_config['backup_enabled'] is True
         assert db_config['auto_vacuum'] is False
         assert db_config['foreign_keys'] is True
-        
+
         performance_config = config_manager.get_performance_config()
         assert performance_config['parallel'] is True
         assert performance_config['cache_enabled'] is False
@@ -509,22 +510,22 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
-        
+
         db_config = config_manager.get_database_config()
         assert db_config['timeout'] == 30.5
         assert db_config['max_connections'] == 100
         assert db_config['page_size'] == 4096
-        
+
         scan_config = config_manager.get_scan_config()
         assert scan_config['min_file_size'] == 1024
         assert scan_config['max_file_size'] == 1048576
         assert scan_config['depth_limit'] == 10
-        
+
         performance_config = config_manager.get_performance_config()
         assert performance_config['workers'] == 8
         assert performance_config['batch_size'] == 1000
@@ -553,22 +554,22 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
-        
+
         db_config = config_manager.get_database_config()
         assert db_config['path'] == '/var/lib/nodupe/database.db'
         assert db_config['journal_mode'] == 'WAL'
         assert db_config['synchronous'] == 'NORMAL'
-        
+
         scan_config = config_manager.get_scan_config()
         assert scan_config['default_extensions'] == '.txt,.pdf,.doc'
         assert scan_config['exclude_dirs'] == 'temp,cache,logs'
         assert scan_config['encoding'] == 'utf-8'
-        
+
         logging_config = config_manager.get_logging_config()
         assert logging_config['level'] == 'INFO'
         assert logging_config['format'] == '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -578,7 +579,7 @@ class TestConfigManager:
         """Test ConfigManager with concurrent access."""
         import threading
         import time
-        
+
         config_data = {
             'tool': {
                 'nodupe': {
@@ -590,13 +591,13 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         results = []
         errors = []
-        
+
         def access_config():
             try:
                 config_manager = ConfigManager(str(self.config_path))
@@ -605,21 +606,21 @@ class TestConfigManager:
                 results.append((db_config['path'], scan_config['recursive']))
             except Exception as e:
                 errors.append(e)
-        
+
         # Create multiple threads
         threads = []
         for _ in range(10):
             thread = threading.Thread(target=access_config)
             threads.append(thread)
-        
+
         # Start all threads
         for thread in threads:
             thread.start()
-        
+
         # Wait for completion
         for thread in threads:
             thread.join()
-        
+
         # Should have no errors and all results should be identical
         assert len(errors) == 0
         assert len(results) == 10
@@ -647,21 +648,21 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
-        
+
         scan_config = config_manager.get_scan_config()
         assert len(scan_config['default_extensions']) == 1000
         assert len(scan_config['exclude_dirs']) == 100
         assert len(scan_config['include_patterns']) == 500
-        
+
         db_config = config_manager.get_database_config()
         assert len(db_config['paths']) == 100
         assert len(db_config['connection_strings']) == 50
-        
+
         performance_config = config_manager.get_performance_config()
         assert len(performance_config['worker_settings']) == 100
         assert len(performance_config['batch_sizes']) == 100
@@ -686,20 +687,20 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
-        
+
         db_config = config_manager.get_database_config()
         assert db_config['path'] == '/путь/к/базе/тест.db'
         assert db_config['name'] == 'тест_база'
-        
+
         scan_config = config_manager.get_scan_config()
         assert scan_config['description'] == 'Тест сканирования'
         assert scan_config['patterns'] == ['файлы.tmp', '文件.tmp', 'fichiers.tmp']
-        
+
         logging_config = config_manager.get_logging_config()
         assert logging_config['format'] == 'Тест формата: %(message)s'
         assert logging_config['file'] == '/логи/nodupe.log'
@@ -709,35 +710,35 @@ class TestConfigManager:
         # Test with corrupted TOML
         with open(self.config_path, 'w') as f:
             f.write('invalid toml [ content')
-        
+
         with pytest.raises(ValueError, match="Error parsing TOML file"):
             ConfigManager(str(self.config_path))
 
     def test_config_manager_memory_usage(self):
         """Test ConfigManager memory usage doesn't grow unbounded."""
         import gc
-        
+
         # Force garbage collection before test
         gc.collect()
-        
+
         initial_objects = len(gc.get_objects())
-        
+
         # Create many config managers
         for _ in range(100):
-            config_manager = ConfigManager()
-        
+            ConfigManager()
+
         # Force garbage collection after test
         gc.collect()
-        
+
         final_objects = len(gc.get_objects())
-        
+
         # Should not have significant memory leak
         assert final_objects - initial_objects < 5000
 
     def test_config_manager_serialization(self):
         """Test ConfigManager serialization and deserialization."""
         import pickle
-        
+
         config_data = {
             'tool': {
                 'nodupe': {
@@ -749,16 +750,16 @@ class TestConfigManager:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = ConfigManager(str(self.config_path))
-        
+
         # Serialize and deserialize
         pickled_data = pickle.dumps(config_manager)
         unpickled_manager = pickle.loads(pickled_data)
-        
+
         # Should have same configuration
         assert unpickled_manager.get_database_config()['path'] == '/test/path'
         assert unpickled_manager.get_scan_config()['recursive'] is True
@@ -798,12 +799,12 @@ class TestLoadConfig:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         config_manager = load_config(str(self.config_path))
-        
+
         assert isinstance(config_manager, ConfigManager)
         assert config_manager.get_database_config()['path'] == '/test/path'
 
@@ -850,38 +851,38 @@ class TestLoadConfig:
                 }
             }
         }
-        
+
         with open(self.config_path, 'w') as f:
             toml.dump(config_data, f)
-        
+
         # Load config using ConfigManager with explicit path
         config_manager = ConfigManager(str(self.config_path))
-        
+
         # Verify all sections are accessible
         assert config_manager.validate_config() is True
-        
+
         db_config = config_manager.get_database_config()
         assert db_config['path'] == 'nodupe.db'
         assert db_config['timeout'] == 30.0
         assert db_config['journal_mode'] == 'WAL'
-        
+
         scan_config = config_manager.get_scan_config()
         assert scan_config['min_file_size'] == '1KB'
         assert scan_config['max_file_size'] == '100MB'
         assert scan_config['default_extensions'] == ['jpg', 'png', 'pdf', 'docx', 'txt']
         assert scan_config['exclude_dirs'] == ['temp', 'cache']
-        
+
         similarity_config = config_manager.get_similarity_config()
         assert similarity_config['default_backend'] == 'brute_force'
         assert similarity_config['vector_dimensions'] == 128
         assert similarity_config['search_k'] == 10
         assert similarity_config['similarity_threshold'] == 0.85
-        
+
         performance_config = config_manager.get_performance_config()
         assert performance_config['workers'] == 4
         assert performance_config['batch_size'] == 100
         assert performance_config['memory_limit'] == '1GB'
-        
+
         logging_config = config_manager.get_logging_config()
         assert logging_config['level'] == 'info'
         assert logging_config['format'] == '%(asctime)s - %(name)s - %(levelname)s - %(message)s'

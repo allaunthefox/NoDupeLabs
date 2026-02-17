@@ -1,6 +1,8 @@
 """Similarity Search Tool for NoDupeLabs.
 
 This module provides similarity search functionality using vector embeddings
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 with multiple backend support and graceful degradation.
 
 Key Features:
@@ -14,13 +16,16 @@ Dependencies:
     - Standard library only (with optional NumPy and FAISS support)
 """
 
+import contextlib
 import json
 import pickle
 import warnings
-from typing import List, Dict, Any, Optional, Tuple
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 from nodupe.core.tool_system.base import Tool
+
 
 try:
     import numpy as np
@@ -49,7 +54,7 @@ class SimilarityBackend(ABC):
         """
 
     @abstractmethod
-    def add_vectors(self, vectors: List[List[float]], metadata: List[Dict[str, Any]]) -> bool:
+    def add_vectors(self, vectors: list[list[float]], metadata: list[dict[str, Any]]) -> bool:
         """Add vectors to the index.
 
         Args:
@@ -61,7 +66,7 @@ class SimilarityBackend(ABC):
         """
 
     @abstractmethod
-    def search(self, query_vector: List[float], k: int = 5, threshold: float = 0.8) -> List[Tuple[Dict[str, Any], float]]:
+    def search(self, query_vector: list[float], k: int = 5, threshold: float = 0.8) -> list[tuple[dict[str, Any], float]]:
         """Search for similar vectors.
 
         Args:
@@ -118,10 +123,10 @@ class BruteForceBackend(SimilarityBackend):
             dimensions: Number of dimensions for vectors
         """
         self.dimensions = dimensions
-        self.vectors: List[List[float]] = []
-        self.metadata: List[Dict[str, Any]] = []
+        self.vectors: list[list[float]] = []
+        self.metadata: list[dict[str, Any]] = []
 
-    def add_vectors(self, vectors: List[List[float]], metadata: List[Dict[str, Any]]) -> bool:
+    def add_vectors(self, vectors: list[list[float]], metadata: list[dict[str, Any]]) -> bool:
         """Add vectors to the index."""
         try:
             if len(vectors) != len(metadata):
@@ -141,7 +146,7 @@ class BruteForceBackend(SimilarityBackend):
             warnings.warn(f"Failed to add vectors: {e}")
             return False
 
-    def search(self, query_vector: List[float], k: int = 5, threshold: float = 0.8) -> List[Tuple[Dict[str, Any], float]]:
+    def search(self, query_vector: list[float], k: int = 5, threshold: float = 0.8) -> list[tuple[dict[str, Any], float]]:
         """Search for similar vectors."""
         if len(self.vectors) == 0:
             return []
@@ -224,7 +229,7 @@ class BruteForceBackend(SimilarityBackend):
             # First try JSON format (safer), fall back to pickle for backwards compatibility
             json_path = path + '.json'
             if Path(json_path).exists():
-                with open(json_path, 'r') as f:
+                with open(json_path) as f:
                     index_data = json.load(f)
             else:
                 # Fallback to pickle for backwards compatibility - but validate
@@ -269,9 +274,9 @@ class FaissBackend(SimilarityBackend):
 
         self.dimensions = dimensions
         self.index = faiss.IndexFlatIP(dimensions)
-        self.metadata: List[Dict[str, Any]] = []
+        self.metadata: list[dict[str, Any]] = []
 
-    def add_vectors(self, vectors: List[List[float]], metadata: List[Dict[str, Any]]) -> bool:
+    def add_vectors(self, vectors: list[list[float]], metadata: list[dict[str, Any]]) -> bool:
         """Add vectors to the FAISS index."""
         if not FAISS_AVAILABLE:
             return False
@@ -299,7 +304,7 @@ class FaissBackend(SimilarityBackend):
             warnings.warn(f"Failed to add vectors to FAISS: {e}")
             return False
 
-    def search(self, query_vector: List[float], k: int = 5, threshold: float = 0.8) -> List[Tuple[Dict[str, Any], float]]:
+    def search(self, query_vector: list[float], k: int = 5, threshold: float = 0.8) -> list[tuple[dict[str, Any], float]]:
         """Search for similar vectors using FAISS."""
         if not FAISS_AVAILABLE or (self.index is not None and self.index.ntotal == 0):
             return []
@@ -323,9 +328,8 @@ class FaissBackend(SimilarityBackend):
 
             results = []
             for score, idx in zip(scores[0], indices[0]):
-                if idx >= 0 and idx < len(self.metadata):
-                    if score >= threshold:
-                        results.append((self.metadata[idx], float(score)))
+                if idx >= 0 and idx < len(self.metadata) and score >= threshold:
+                    results.append((self.metadata[idx], float(score)))
 
             return results
         except Exception as e:
@@ -363,7 +367,7 @@ class FaissBackend(SimilarityBackend):
 
             # Load metadata
             metadata_path = f"{path}.metadata"
-            with open(metadata_path, 'r') as f:
+            with open(metadata_path) as f:
                 self.metadata = json.load(f)
 
             return True
@@ -387,7 +391,7 @@ class SimilarityManager:
 
     def __init__(self):
         """Initialize similarity manager."""
-        self.backends: Dict[str, SimilarityBackend] = {}
+        self.backends: dict[str, SimilarityBackend] = {}
         self.current_backend: Optional[SimilarityBackend] = None
 
         # Try to initialize available backends
@@ -398,10 +402,8 @@ class SimilarityManager:
             pass
 
         if FAISS_AVAILABLE:
-            try:
+            with contextlib.suppress(Exception):
                 self.add_backend('faiss', FaissBackend(dimensions=512))
-            except Exception:
-                pass
 
     def add_backend(self, name: str, backend: SimilarityBackend) -> None:
         """Add a similarity backend.
@@ -445,13 +447,13 @@ class SimilarityManager:
         """
         return self.current_backend
 
-    def add_vectors(self, vectors: List[List[float]], metadata: List[Dict[str, Any]]) -> bool:
+    def add_vectors(self, vectors: list[list[float]], metadata: list[dict[str, Any]]) -> bool:
         """Add vectors to current backend."""
         if self.current_backend:
             return self.current_backend.add_vectors(vectors, metadata)
         return False
 
-    def search(self, query_vector: List[float], k: int = 5, threshold: float = 0.8) -> List[Tuple[Dict[str, Any], float]]:
+    def search(self, query_vector: list[float], k: int = 5, threshold: float = 0.8) -> list[tuple[dict[str, Any], float]]:
         """Search for similar vectors."""
         if self.current_backend:
             return self.current_backend.search(query_vector, k, threshold)
@@ -498,11 +500,11 @@ class SimilarityBackendTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         return []
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
             'add_vectors': self.manager.add_vectors,
             'search': self.manager.search,
@@ -523,7 +525,7 @@ class SimilarityBackendTool(Tool):
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
             'backends': list(self.manager.backends.keys()),

@@ -1,11 +1,14 @@
 """Tests for FileWalker module."""
 
-import pytest
-import tempfile
 import os
+import tempfile
 from pathlib import Path
-from nodupe.tools.scanner_engine.walker import FileWalker, create_file_walker
+
+import pytest
+
 from nodupe.tools.scanner_engine.file_info import FileInfo
+from nodupe.tools.scanner_engine.walker import FileWalker, create_file_walker
+
 
 class TestFileWalker:
     """Test FileWalker class."""
@@ -122,7 +125,7 @@ class TestFileWalker:
         test_file2.write_text("content2")
 
         walker = FileWalker()
-        results = walker.walk(str(tmp_path))
+        walker.walk(str(tmp_path))
 
         # Get statistics
         stats = walker.get_statistics()

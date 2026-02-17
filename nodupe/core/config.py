@@ -2,12 +2,15 @@
 """NoDupeLabs Configuration Manager using TOML.
 
 This module provides configuration management for NoDupeLabs using TOML files.
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 It leverages the Even Better TOML VSCode extension for enhanced TOML support.
 """
 
 import os
 import sys
-from typing import Dict, Any, Optional
+from typing import Any, Optional
+
 
 try:
     import tomli as toml
@@ -38,7 +41,7 @@ class ConfigManager:
         self.config_path = config_path or "pyproject.toml"
         if toml is None:
             print("[WARN] toml package not found. Using default configuration.")
-            self.config: Dict[str, Any] = {}
+            self.config: dict[str, Any] = {}
             return
 
         self.config = {}
@@ -55,7 +58,7 @@ class ConfigManager:
                 f"Configuration file {self.config_path} not found")
 
         try:
-            with open(self.config_path, 'r', encoding='utf-8') as f:
+            with open(self.config_path, encoding='utf-8') as f:
                 self.config = toml.load(f)
         except Exception as e:
             raise ValueError(f"Error parsing TOML file: {e}") from e
@@ -64,30 +67,30 @@ class ConfigManager:
             raise ValueError(
                 "Invalid configuration file: missing [tool.nodupe] section")
 
-    def get_nodupe_config(self) -> Dict[str, Any]:
+    def get_nodupe_config(self) -> dict[str, Any]:
         """Get the NoDupeLabs configuration section."""
         try:
             return dict(self.config.get('tool', {}).get('nodupe', {}))
         except (AttributeError, TypeError, KeyError):
             return {}
 
-    def get_database_config(self) -> Dict[str, Any]:
+    def get_database_config(self) -> dict[str, Any]:
         """Get the database configuration."""
         return dict(self.get_nodupe_config().get('database', {}))
 
-    def get_scan_config(self) -> Dict[str, Any]:
+    def get_scan_config(self) -> dict[str, Any]:
         """Get the scan configuration."""
         return dict(self.get_nodupe_config().get('scan', {}))
 
-    def get_similarity_config(self) -> Dict[str, Any]:
+    def get_similarity_config(self) -> dict[str, Any]:
         """Get the similarity configuration."""
         return dict(self.get_nodupe_config().get('similarity', {}))
 
-    def get_performance_config(self) -> Dict[str, Any]:
+    def get_performance_config(self) -> dict[str, Any]:
         """Get the performance configuration."""
         return dict(self.get_nodupe_config().get('performance', {}))
 
-    def get_logging_config(self) -> Dict[str, Any]:
+    def get_logging_config(self) -> dict[str, Any]:
         """Get the logging configuration."""
         return dict(self.get_nodupe_config().get('logging', {}))
 
@@ -157,13 +160,13 @@ if __name__ == "__main__":
                 f"Description: {config.get_config_value('nodupe', 'description', 'NoDupeLabs')}")
 
             db_config = config.get_database_config()
-            print(f"\n🗃️ Database Configuration:")
+            print("\n🗃️ Database Configuration:")
             print(f"  Path: {db_config.get('path', 'nodupe.db')}")
             print(f"  Timeout: {db_config.get('timeout', 30.0)} seconds")
             print(f"  Journal Mode: {db_config.get('journal_mode', 'WAL')}")
 
             scan_config = config.get_scan_config()
-            print(f"\n🔍 Scan Configuration:")
+            print("\n🔍 Scan Configuration:")
             print(
                 f"  Min File Size: {scan_config.get('min_file_size', '1KB')}")
             print(
@@ -174,7 +177,7 @@ if __name__ == "__main__":
                 f"  Exclude Directories: {', '.join(scan_config.get('exclude_dirs', []))}")
 
             similarity_config = config.get_similarity_config()
-            print(f"\n🎯 Similarity Configuration:")
+            print("\n🎯 Similarity Configuration:")
             print(
                 f"  Default Backend: {similarity_config.get('default_backend', 'brute_force')}")
             print(

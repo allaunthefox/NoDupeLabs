@@ -16,8 +16,8 @@ Example:
 
 from __future__ import annotations
 
-from typing import Any
 import zlib
+from typing import Any
 
 
 class DatabaseCompression:

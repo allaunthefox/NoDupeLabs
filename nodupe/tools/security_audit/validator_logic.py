@@ -15,9 +15,9 @@ Dependencies:
     - re (standard library)
 """
 
-from typing import Any, Type, Optional, List, Union
 import re
 from pathlib import Path
+from typing import Any, Optional, Union
 
 
 class ValidationError(Exception):
@@ -32,7 +32,7 @@ class Validators:
     """
 
     @staticmethod
-    def validate_type(value: Any, expected_type: Type, allow_none: bool = False) -> bool:
+    def validate_type(value: Any, expected_type: type, allow_none: bool = False) -> bool:
         """Validate type.
 
         Args:
@@ -86,18 +86,16 @@ class Validators:
             if inclusive:
                 if value < min_val:
                     raise ValidationError(f"Value {value} < minimum {min_val}")
-            else:
-                if value <= min_val:
-                    raise ValidationError(f"Value {value} <= minimum {min_val}")
+            elif value <= min_val:
+                raise ValidationError(f"Value {value} <= minimum {min_val}")
 
         # Check maximum
         if max_val is not None:
             if inclusive:
                 if value > max_val:
                     raise ValidationError(f"Value {value} > maximum {max_val}")
-            else:
-                if value >= max_val:
-                    raise ValidationError(f"Value {value} >= maximum {max_val}")
+            elif value >= max_val:
+                raise ValidationError(f"Value {value} >= maximum {max_val}")
 
         return True
 
@@ -234,7 +232,7 @@ class Validators:
         return True
 
     @staticmethod
-    def validate_enum(value: Any, allowed_values: List[Any]) -> bool:
+    def validate_enum(value: Any, allowed_values: list[Any]) -> bool:
         """Validate value is in allowed list.
 
         Args:
@@ -257,8 +255,8 @@ class Validators:
     @staticmethod
     def validate_dict_keys(
         data: dict,
-        required_keys: Optional[List[str]] = None,
-        allowed_keys: Optional[List[str]] = None
+        required_keys: Optional[list[str]] = None,
+        allowed_keys: Optional[list[str]] = None
     ) -> bool:
         """Validate dictionary keys.
 
@@ -294,7 +292,7 @@ class Validators:
     @staticmethod
     def validate_list_items(
         items: list,
-        item_type: Type,
+        item_type: type,
         min_items: Optional[int] = None,
         max_items: Optional[int] = None
     ) -> bool:
@@ -413,6 +411,6 @@ class Validators:
             ValidationError: If value is empty
         """
         if not value:
-            raise ValidationError(f"Value is empty")
+            raise ValidationError("Value is empty")
 
         return True

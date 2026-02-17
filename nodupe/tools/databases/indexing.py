@@ -16,7 +16,7 @@ Dependencies:
 """
 
 import sqlite3
-from typing import List, Dict, Any, Optional
+from typing import Any, Optional
 
 
 class IndexingError(Exception):
@@ -48,7 +48,7 @@ class DatabaseIndexing:
             cursor = self.connection.cursor()
 
             # Files table indexes (from schema)
-            indexes: List[str] = [
+            indexes: list[str] = [
                 "CREATE INDEX IF NOT EXISTS idx_files_path ON files(path)",
                 "CREATE INDEX IF NOT EXISTS idx_files_size ON files(size)",
                 "CREATE INDEX IF NOT EXISTS idx_files_hash ON files(hash)",
@@ -114,7 +114,7 @@ class DatabaseIndexing:
         self,
         index_name: str,
         table_name: str,
-        columns: List[str],
+        columns: list[str],
         unique: bool = False,
         if_not_exists: bool = True
     ) -> None:
@@ -173,7 +173,7 @@ class DatabaseIndexing:
             self.connection.rollback()
             raise IndexingError(f"Failed to drop index {index_name}: {e}") from e
 
-    def get_indexes(self, table_name: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_indexes(self, table_name: Optional[str] = None) -> list[dict[str, Any]]:
         """Get list of indexes.
 
         Args:
@@ -200,7 +200,7 @@ class DatabaseIndexing:
                     "WHERE type='index' AND name NOT LIKE 'sqlite_%'"
                 )
 
-            indexes: List[Dict[str, Any]] = []
+            indexes: list[dict[str, Any]] = []
             for row in cursor.fetchall():
                 indexes.append({
                     'name': row[0],
@@ -213,7 +213,7 @@ class DatabaseIndexing:
         except sqlite3.Error as e:
             raise IndexingError(f"Failed to get indexes: {e}") from e
 
-    def get_index_info(self, index_name: str) -> List[Dict[str, Any]]:
+    def get_index_info(self, index_name: str) -> list[dict[str, Any]]:
         """Get detailed information about an index.
 
         Args:
@@ -229,7 +229,7 @@ class DatabaseIndexing:
             cursor = self.connection.cursor()
             cursor.execute(f"PRAGMA index_info({index_name})")
 
-            columns: List[Dict[str, Any]] = []
+            columns: list[dict[str, Any]] = []
             for row in cursor.fetchall():
                 columns.append({
                     'seqno': row[0],
@@ -242,7 +242,7 @@ class DatabaseIndexing:
         except sqlite3.Error as e:
             raise IndexingError(f"Failed to get index info for {index_name}: {e}") from e
 
-    def analyze_query(self, query: str) -> List[Dict[str, Any]]:
+    def analyze_query(self, query: str) -> list[dict[str, Any]]:
         """Analyze query execution plan.
 
         Args:
@@ -258,10 +258,10 @@ class DatabaseIndexing:
             cursor = self.connection.cursor()
             cursor.execute(f"EXPLAIN QUERY PLAN {query}")
 
-            plan: List[Dict[str, Any]] = []
+            plan: list[dict[str, Any]] = []
             rows = cursor.fetchall()
             for row in rows:
-                plan_item: Dict[str, Any] = {
+                plan_item: dict[str, Any] = {
                     'id': row[0],
                     'parent': row[1],
                     'detail': row[3] if len(row) > 3 else row[2]
@@ -301,7 +301,7 @@ class DatabaseIndexing:
                 raise
             raise IndexingError(f"Index usage check failed: {e}") from e
 
-    def get_table_stats(self, table_name: str) -> Dict[str, Any]:
+    def get_table_stats(self, table_name: str) -> dict[str, Any]:
         """Get table statistics.
 
         Args:
@@ -367,7 +367,7 @@ class DatabaseIndexing:
             self.connection.rollback()
             raise IndexingError(f"Reindex failed: {e}") from e
 
-    def find_missing_indexes(self) -> List[Dict[str, Any]]:
+    def find_missing_indexes(self) -> list[dict[str, Any]]:
         """Find tables without indexes (except primary key).
 
         Returns:
@@ -385,7 +385,7 @@ class DatabaseIndexing:
             )
             tables = [row[0] for row in cursor.fetchall()]
 
-            suggestions: List[Dict[str, Any]] = []
+            suggestions: list[dict[str, Any]] = []
 
             for table in tables:
                 # Get table info
@@ -415,7 +415,7 @@ class DatabaseIndexing:
         except sqlite3.Error as e:
             raise IndexingError(f"Missing index analysis failed: {e}") from e
 
-    def get_index_stats(self) -> Dict[str, Any]:
+    def get_index_stats(self) -> dict[str, Any]:
         """Get overall index statistics.
 
         Returns:
@@ -462,8 +462,8 @@ def create_covering_index(
     connection: sqlite3.Connection,
     index_name: str,
     table_name: str,
-    where_columns: List[str],
-    select_columns: List[str]
+    where_columns: list[str],
+    select_columns: list[str]
 ) -> None:
     """Create a covering index for a specific query pattern.
 

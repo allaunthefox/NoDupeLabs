@@ -141,3 +141,4 @@ output/
 # Editor settings
 .vscode/
 .clinerules/
+megalinter-reports/

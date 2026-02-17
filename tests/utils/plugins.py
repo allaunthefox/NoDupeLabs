@@ -1,22 +1,25 @@
 # Tool Test Utilities
 # Helper functions for tool system testing
 
-import tempfile
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Union, Callable
-from unittest.mock import MagicMock, patch, Mock
+import contextlib
 import importlib
 import sys
+import tempfile
+from pathlib import Path
 from types import ModuleType
-import contextlib
+from typing import Any, Callable, Dict, List, Optional, Union
+from unittest.mock import MagicMock, Mock, patch
+
 
 def create_mock_tool(
     name: str = "test_tool",
-    functions: Optional[Dict[str, Callable]] = None,
-    metadata: Optional[Dict[str, Any]] = None
+    functions: Optional[dict[str, Callable]] = None,
+    metadata: Optional[dict[str, Any]] = None
 ) -> Mock:
     """
     Create a mock tool for testing.
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 
     Args:
         name: Tool name
@@ -55,8 +58,8 @@ def create_mock_tool(
 
 def create_tool_directory_structure(
     base_path: Path,
-    tools: List[Dict[str, Any]]
-) -> Dict[str, Path]:
+    tools: list[dict[str, Any]]
+) -> dict[str, Path]:
     """
     Create a tool directory structure for testing.
 
@@ -115,7 +118,7 @@ metadata = {{
     return tool_paths
 
 def mock_tool_loader(
-    tools: Optional[List[Mock]] = None
+    tools: Optional[list[Mock]] = None
 ) -> MagicMock:
     """
     Create a mock tool loader for testing.
@@ -141,7 +144,7 @@ def mock_tool_loader(
 
     return mock_loader
 
-def create_tool_test_scenarios() -> List[Dict[str, Any]]:
+def create_tool_test_scenarios() -> list[dict[str, Any]]:
     """
     Create test scenarios for tool testing.
 
@@ -217,8 +220,8 @@ def simulate_tool_errors(
 
 def verify_tool_functionality(
     tool: Union[Mock, ModuleType],
-    test_cases: List[Dict[str, Any]]
-) -> Dict[str, bool]:
+    test_cases: list[dict[str, Any]]
+) -> dict[str, bool]:
     """
     Verify tool functionality against test cases.
 
@@ -258,8 +261,8 @@ def verify_tool_functionality(
     return results
 
 def create_tool_dependency_graph(
-    tools: List[Dict[str, Any]]
-) -> Dict[str, List[str]]:
+    tools: list[dict[str, Any]]
+) -> dict[str, list[str]]:
     """
     Create a tool dependency graph for testing.
 
@@ -280,8 +283,8 @@ def create_tool_dependency_graph(
     return graph
 
 def test_tool_dependency_resolution(
-    dependency_graph: Dict[str, List[str]],
-    resolution_order: List[str]
+    dependency_graph: dict[str, list[str]],
+    resolution_order: list[str]
 ) -> bool:
     """
     Test tool dependency resolution.
@@ -307,7 +310,7 @@ def test_tool_dependency_resolution(
 
     return True
 
-def create_tool_sandbox_environment() -> Dict[str, Any]:
+def create_tool_sandbox_environment() -> dict[str, Any]:
     """
     Create a sandbox environment for tool testing.
 
@@ -330,7 +333,7 @@ def create_tool_sandbox_environment() -> Dict[str, Any]:
     }
 
 def mock_tool_registry(
-    tools: Optional[List[Mock]] = None
+    tools: Optional[list[Mock]] = None
 ) -> MagicMock:
     """
     Create a mock tool registry for testing.
@@ -357,7 +360,7 @@ def mock_tool_registry(
 
     return mock_registry
 
-def create_tool_lifecycle_test_scenarios() -> List[Dict[str, Any]]:
+def create_tool_lifecycle_test_scenarios() -> list[dict[str, Any]]:
     """
     Create test scenarios for tool lifecycle testing.
 
@@ -398,9 +401,9 @@ def create_tool_lifecycle_test_scenarios() -> List[Dict[str, Any]]:
 
 def benchmark_tool_performance(
     tool: Union[Mock, ModuleType],
-    test_data: List[Dict[str, Any]],
+    test_data: list[dict[str, Any]],
     iterations: int = 100
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Benchmark tool performance.
 
@@ -444,7 +447,7 @@ def benchmark_tool_performance(
 
     return results
 
-def create_tool_security_test_scenarios() -> List[Dict[str, Any]]:
+def create_tool_security_test_scenarios() -> list[dict[str, Any]]:
     """
     Create test scenarios for tool security testing.
 

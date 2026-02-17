@@ -1,12 +1,15 @@
 """Snapshot management for rollback system."""
 
 import hashlib
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 import json
 import shutil
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Optional
+
 
 # Supported hash algorithms
 HASH_ALGORITHMS = {
@@ -60,10 +63,10 @@ class Snapshot:
 
     snapshot_id: str
     timestamp: str
-    files: List[SnapshotFile]
+    files: list[SnapshotFile]
     hash_algorithm: Optional[str] = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "snapshot_id": self.snapshot_id,
@@ -73,7 +76,7 @@ class Snapshot:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Snapshot":
+    def from_dict(cls, data: dict[str, Any]) -> "Snapshot":
         """Create from dictionary."""
         return cls(
             snapshot_id=data["snapshot_id"],
@@ -345,7 +348,7 @@ class SnapshotManager:
 
         return str(content_path)
 
-    def create_snapshot(self, paths: List[str]) -> Snapshot:
+    def create_snapshot(self, paths: list[str]) -> Snapshot:
         """Create a snapshot of specified paths with idempotent backup.
 
         Creates content-addressable backup of file contents before
@@ -389,7 +392,7 @@ class SnapshotManager:
         if not snapshot_path.exists():
             return False
 
-        with open(snapshot_path, "r") as f:
+        with open(snapshot_path) as f:
             data = json.load(f)
 
         snapshot = Snapshot.from_dict(data)
@@ -407,11 +410,11 @@ class SnapshotManager:
 
         return True
 
-    def list_snapshots(self) -> List[Dict[str, Any]]:
+    def list_snapshots(self) -> list[dict[str, Any]]:
         """List all available snapshots."""
         snapshots = []
         for snapshot_file in self.snapshot_dir.glob("*.json"):
-            with open(snapshot_file, "r") as f:
+            with open(snapshot_file) as f:
                 data = json.load(f)
                 snapshots.append(
                     {
