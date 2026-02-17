@@ -403,6 +403,40 @@ class TestCoreLoaderDatabase:
             mock_db_instance.initialize_database.assert_called_once()
             assert loader.database is mock_db_instance
 
+    def test_database_initialization_skips_on_error(self):
+        """If DB connection/init fails, initialize() should continue."""
+        loader = CoreLoader()
+
+        with (
+            patch("nodupe.core.loader.load_config") as mock_load_config,
+            patch.object(loader, "_apply_platform_autoconfig") as mock_autoconfig,
+            patch("nodupe.core.loader.ToolRegistry"),
+            patch("nodupe.core.loader.create_tool_loader"),
+            patch("nodupe.core.loader.create_tool_discovery"),
+            patch("nodupe.core.loader.create_lifecycle_manager"),
+            patch("nodupe.core.loader.ToolHotReload"),
+            patch("nodupe.core.loader.get_connection") as mock_db,
+            patch("nodupe.core.loader.logging") as mock_logging,
+        ):
+            mock_config = Mock()
+            mock_config.config = {}
+
+            # Simulate connection/init raising
+            mock_db.side_effect = Exception("cannot connect")
+
+            mock_load_config.return_value = mock_config
+            mock_autoconfig.return_value = {}
+            mock_logging.info = MagicMock()
+            mock_logging.debug = MagicMock()
+
+            # Should not raise even though DB setup failed
+            # Override instance logger so we can assert the exception-path was hit
+            loader.logger = Mock()
+
+            loader.initialize()
+            assert loader.database is None
+            loader.logger.debug.assert_called()
+
 
 class TestCoreLoaderHashAutotuning:
     """Test CoreLoader hash autotuning functionality."""
@@ -620,6 +654,52 @@ class TestCoreLoaderShutdown:
         loader.shutdown()
 
         loader.ipc_server.stop.assert_called_once()
+        assert loader.initialized is False
+
+    def test_shutdown_uses_log_compressor_when_available(self, tmp_path):
+        """If the maintenance LogCompressor is importable, shutdown should
+        call its compress_old_logs() method with the configured log_dir.
+        """
+        loader = CoreLoader()
+        loader.initialized = True
+
+        # Minimal environment so shutdown proceeds to the maintenance import
+        loader.tool_lifecycle = None
+        loader.hot_reload = None
+        loader.ipc_server = None
+        loader.tool_registry = None
+        loader.database = None
+
+        # Provide a config with a real temporary log dir
+        loader.config = Mock()
+        loader.config.config = {"log_dir": str(tmp_path)}
+
+        # Patch the LogCompressor class in its module
+        with patch("nodupe.tools.maintenance.log_compressor.LogCompressor") as mock_comp:
+            mock_comp.compress_old_logs = Mock()
+
+            loader.shutdown()
+
+            mock_comp.compress_old_logs.assert_called_once_with(str(tmp_path))
+
+    def test_shutdown_handles_database_close_exceptions(self):
+        """If database.close() raises, shutdown should catch and continue."""
+        loader = CoreLoader()
+        loader.initialized = True
+
+        # Provide a database whose close() raises
+        bad_db = Mock()
+        bad_db.close.side_effect = Exception("close failed")
+        loader.database = bad_db
+
+        # Ensure other components won't interfere
+        loader.tool_lifecycle = None
+        loader.hot_reload = None
+        loader.ipc_server = None
+        loader.tool_registry = None
+
+        # Should not raise despite close() failure
+        loader.shutdown()
         assert loader.initialized is False
 
 
