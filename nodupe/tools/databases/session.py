@@ -4,6 +4,8 @@
 """Database Session Module.
 
 This module provides database session management for tracking and managing
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 database connection sessions.
 
 Classes:
@@ -18,8 +20,8 @@ Example:
 
 from __future__ import annotations
 
-from typing import Any
 from contextlib import contextmanager
+from typing import Any
 
 
 class DatabaseSession:

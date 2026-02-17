@@ -73,7 +73,7 @@ pip install -e ".[dev]"
 pre-commit install
 ```
 
-**Note:** The `--break-system-packages` flag is NOT needed when using a virtual environment. 
+**Note:** The `--break-system-packages` flag is NOT needed when using a virtual environment.
 The `venv` module creates an isolated environment that bypasses PEP 668 externally-managed restrictions.
 
 ### Running the Project

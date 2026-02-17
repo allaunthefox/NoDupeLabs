@@ -19,11 +19,11 @@ Dependencies:
 
 import os
 import sys
-import time
-from pathlib import Path
-from typing import Optional, Callable, Any, Union
-from contextlib import contextmanager
 import threading
+import time
+from contextlib import contextmanager
+from pathlib import Path
+from typing import Any, Callable, Optional, Union
 
 
 class LimitsError(Exception):
@@ -49,22 +49,23 @@ class Limits:
         """
         try:
             # Try using resource module (Unix)
-            if hasattr(os, 'getrusage'):
+            if hasattr(os, "getrusage"):
                 import resource
+
                 usage = resource.getrusage(resource.RUSAGE_SELF)
                 # ru_maxrss is in kilobytes on Linux, bytes on macOS
-                if sys.platform == 'darwin':
+                if sys.platform == "darwin":
                     return usage.ru_maxrss
                 else:
                     return usage.ru_maxrss * 1024
 
             # Try reading /proc/self/status (Linux)
-            elif sys.platform.startswith('linux'):
-                status_path = Path('/proc/self/status')
+            elif sys.platform.startswith("linux"):
+                status_path = Path("/proc/self/status")
                 if status_path.exists():
                     with open(status_path) as f:
                         for line in f:
-                            if line.startswith('VmRSS:'):
+                            if line.startswith("VmRSS:"):
                                 # Extract memory in kB
                                 parts = line.split()
                                 return int(parts[1]) * 1024
@@ -113,14 +114,15 @@ class Limits:
         """
         try:
             # Try /proc/self/fd (Linux)
-            if sys.platform.startswith('linux'):
-                fd_path = Path('/proc/self/fd')
+            if sys.platform.startswith("linux"):
+                fd_path = Path("/proc/self/fd")
                 if fd_path.exists():
                     return len(list(fd_path.iterdir()))
 
             # Try resource module (Unix)
-            elif hasattr(os, 'getrusage'):
+            elif hasattr(os, "getrusage"):
                 import resource
+
                 # This is less accurate but works on macOS
                 # Get the hard limit to return as fallback estimate
                 _, hard_limit = resource.getrlimit(resource.RLIMIT_NOFILE)
@@ -130,7 +132,9 @@ class Limits:
             return 0
 
         except Exception as e:
-            raise LimitsError(f"Failed to get file descriptor count: {e}") from e
+            raise LimitsError(
+                f"Failed to get file descriptor count: {e}"
+            ) from e
 
     @staticmethod
     def check_file_handles(max_handles: Optional[int] = None) -> bool:
@@ -148,8 +152,9 @@ class Limits:
         try:
             # Get system limit if not specified
             if max_handles is None:
-                if hasattr(os, 'getrusage'):
+                if hasattr(os, "getrusage"):
                     import resource
+
                     soft, _ = resource.getrlimit(resource.RLIMIT_NOFILE)
                     max_handles = soft
                 else:
@@ -184,7 +189,9 @@ class Limits:
             LimitsError: If file exceeds limit
         """
         try:
-            path_obj = Path(file_path) if isinstance(file_path, str) else file_path
+            path_obj = (
+                Path(file_path) if isinstance(file_path, str) else file_path
+            )
 
             if not path_obj.exists():
                 return True
@@ -279,7 +286,9 @@ class RateLimiter:
         """Refill TOKEN_REMOVEDs based on elapsed time."""
         now = time.monotonic()
         elapsed = now - self.last_update
-        self.TOKEN_REMOVEDs = min(self.burst, self.TOKEN_REMOVEDs + elapsed * self.rate)
+        self.TOKEN_REMOVEDs = min(
+            self.burst, self.TOKEN_REMOVEDs + elapsed * self.rate
+        )
         self.last_update = now
 
     def consume(self, TOKEN_REMOVEDs: int = 1) -> bool:
@@ -298,7 +307,9 @@ class RateLimiter:
                 return True
             return False
 
-    def wait(self, TOKEN_REMOVEDs: int = 1, timeout: Optional[float] = None) -> bool:
+    def wait(
+        self, TOKEN_REMOVEDs: int = 1, timeout: Optional[float] = None
+    ) -> bool:
         """Wait until TOKEN_REMOVEDs are available.
 
         Args:
@@ -334,6 +345,7 @@ class RateLimiter:
                 self._condition.wait(timeout=wait_time)
 
                 # If we get here without timeout, loop will check TOKEN_REMOVEDs again
+
     def _notify_waiters(self) -> None:
         """Notify waiting threads that TOKEN_REMOVEDs may be available."""
         with self._condition:
@@ -497,11 +509,15 @@ def with_timeout(seconds: float):
             # Must complete within 5 seconds
             time.sleep(10)
     """
+
     def decorator(func: Callable) -> Callable:
         """TODO: Document decorator."""
+
         def wrapper(*args, **kwargs) -> Any:
             """TODO: Document wrapper."""
             with Limits.time_limit(seconds):
                 return func(*args, **kwargs)
+
         return wrapper
+
     return decorator

@@ -1,12 +1,14 @@
 """Snapshot management for rollback system."""
 
 import hashlib
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 import json
 import shutil
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Optional
 
 # Supported hash algorithms
 HASH_ALGORITHMS = {
@@ -60,10 +62,10 @@ class Snapshot:
 
     snapshot_id: str
     timestamp: str
-    files: List[SnapshotFile]
+    files: list[SnapshotFile]
     hash_algorithm: Optional[str] = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "snapshot_id": self.snapshot_id,
@@ -73,7 +75,7 @@ class Snapshot:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Snapshot":
+    def from_dict(cls, data: dict[str, Any]) -> "Snapshot":
         """Create from dictionary."""
         return cls(
             snapshot_id=data["snapshot_id"],
@@ -310,7 +312,9 @@ class SnapshotManager:
         # Create plain text recovery instructions (ISO-8859-1 compatible)
         recovery_path = self.backup_dir / "RECOVERY.txt"
         if not recovery_path.exists():
-            recovery_content = BACKUP_RECOVERY_PLAINTEXT.replace("{algorithm}", self.hash_algorithm)
+            recovery_content = BACKUP_RECOVERY_PLAINTEXT.replace(
+                "{algorithm}", self.hash_algorithm
+            )
             recovery_path.write_text(recovery_content, encoding="latin-1")
 
     def _compute_hash(self, filepath: Path) -> Optional[str]:
@@ -345,14 +349,16 @@ class SnapshotManager:
 
         return str(content_path)
 
-    def create_snapshot(self, paths: List[str]) -> Snapshot:
+    def create_snapshot(self, paths: list[str]) -> Snapshot:
         """Create a snapshot of specified paths with idempotent backup.
 
         Creates content-addressable backup of file contents before
         any operations. This is idempotent - same content is only
         stored once.
         """
-        snapshot_id = hashlib.sha256(datetime.now().isoformat().encode()).hexdigest()[:16]
+        snapshot_id = hashlib.sha256(
+            datetime.now().isoformat().encode()
+        ).hexdigest()[:16]
 
         files = []
         for path_str in paths:
@@ -368,13 +374,17 @@ class SnapshotManager:
                             path=str(path.absolute()),
                             hash=file_hash,
                             size=path.stat().st_size,
-                            modified=datetime.fromtimestamp(path.stat().st_mtime).isoformat(),
+                            modified=datetime.fromtimestamp(
+                                path.stat().st_mtime
+                            ).isoformat(),
                             backup_path=backup_path,
                         )
                     )
 
         snapshot = Snapshot(
-            snapshot_id=snapshot_id, timestamp=datetime.now().isoformat(), files=files
+            snapshot_id=snapshot_id,
+            timestamp=datetime.now().isoformat(),
+            files=files,
         )
 
         snapshot_path = self.snapshot_dir / f"{snapshot_id}.json"
@@ -389,7 +399,7 @@ class SnapshotManager:
         if not snapshot_path.exists():
             return False
 
-        with open(snapshot_path, "r") as f:
+        with open(snapshot_path) as f:
             data = json.load(f)
 
         snapshot = Snapshot.from_dict(data)
@@ -407,11 +417,11 @@ class SnapshotManager:
 
         return True
 
-    def list_snapshots(self) -> List[Dict[str, Any]]:
+    def list_snapshots(self) -> list[dict[str, Any]]:
         """List all available snapshots."""
         snapshots = []
         for snapshot_file in self.snapshot_dir.glob("*.json"):
-            with open(snapshot_file, "r") as f:
+            with open(snapshot_file) as f:
                 data = json.load(f)
                 snapshots.append(
                     {

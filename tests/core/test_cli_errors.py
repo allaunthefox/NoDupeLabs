@@ -11,14 +11,19 @@ This module tests CLI error handling including:
 - Command validation
 """
 
-import pytest
-import sys
 import os
-from unittest.mock import patch, MagicMock
+import sys
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.main import CLIHandler
-from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.apply import ApplyTool
-from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.similarity import (
+    SimilarityCommandTool as SimilarityTool,
+)
+
 
 class TestCLIArgumentValidation:
     """Test CLI argument validation errors."""
@@ -75,6 +80,7 @@ class TestCLIArgumentValidation:
         # This should fail validation
         result = apply_tool.execute_apply(args)
         assert result != 0
+
 
 class TestCLIFileSystemErrors:
     """Test CLI file system error handling."""
@@ -147,6 +153,7 @@ class TestCLIFileSystemErrors:
         result = apply_tool.execute_apply(args)
         assert result != 0
 
+
 class TestCLIPermissionErrors:
     """Test CLI permission error handling."""
 
@@ -183,6 +190,7 @@ class TestCLIPermissionErrors:
         # This should handle permission issues gracefully
         result = apply_tool.execute_apply(args)
         assert isinstance(result, int)
+
 
 class TestCLICommandValidation:
     """Test command-specific validation logic."""
@@ -240,6 +248,7 @@ class TestCLICommandValidation:
         # This should fail validation
         result = similarity_tool.execute_similarity(args)
         assert result != 0
+
 
 class TestCLIEdgeCases:
     """Test CLI edge cases and boundary conditions."""
@@ -325,6 +334,7 @@ class TestCLIEdgeCases:
             result = similarity_tool.execute_similarity(args)
             assert result == 0
 
+
 class TestCLIErrorRecovery:
     """Test CLI error recovery and graceful degradation."""
 
@@ -381,6 +391,7 @@ class TestCLIErrorRecovery:
         # This should handle missing query file gracefully
         result = similarity_tool.execute_similarity(args)
         assert isinstance(result, int)
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

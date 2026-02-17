@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
@@ -19,16 +20,36 @@ Dependencies:
     - typing (standard library)
 """
 
-import os
+import argparse
 import hashlib
 import logging
-from typing import List, Dict, Any, Optional, Callable
+import os
+from typing import Any, Callable, Optional
+
+from nodupe.core.api.codes import ActionCode
+from nodupe.core.container import container as global_container
+from nodupe.core.hasher_interface import HasherInterface
+
 from .walker import FileWalker
-from ..container import container as global_container
-from ..hasher_interface import HasherInterface
-from ..api.codes import ActionCode
 
 logger = logging.getLogger(__name__)
+
+
+def _get_default_hasher() -> HasherInterface:
+    """Get or create default hasher instance.
+
+    Returns:
+        HasherInterface implementation
+    """
+    # Try to get from container first
+    hasher = global_container.get_service("hasher_service")
+    if hasher is not None:
+        return hasher
+
+    # Fallback: create a new FileHasher instance
+    from nodupe.tools.hashing.hasher_logic import FileHasher
+
+    return FileHasher()
 
 
 class FileProcessor:
@@ -42,29 +63,37 @@ class FileProcessor:
     - Support batch operations
     """
 
-    def __init__(self, file_walker: Optional[FileWalker] = None, hasher: Optional[HasherInterface] = None):
+    def __init__(
+        self,
+        file_walker: Optional[FileWalker] = None,
+        hasher: Optional[HasherInterface] = None,
+    ):
         """Initialize file processor.
 
         Args:
             file_walker: Optional FileWalker instance
-            hasher: Optional HasherInterface implementation. 
+            hasher: Optional HasherInterface implementation.
                    If None, attempts to resolve from global_container.
         """
         self.logger = logger
         self.file_walker = file_walker or FileWalker()
-        
+
         # Dependency Injection (Constructor Injection preferred)
         if hasher:
             self._hasher = hasher
         else:
-            # Service Location fallback for backward compatibility
-            self._hasher = global_container.get_service('hasher_service')
-            
-        self._hash_algorithm = 'sha256'
+            # Service Location fallback with default hasher
+            self._hasher = _get_default_hasher()
+
+        self._hash_algorithm = "sha256"
         self._hash_buffer_size = 65536  # 64KB buffer
 
-    def process_files(self, root_path: str, file_filter: Optional[Callable[[Any], bool]] = None,
-                      on_progress: Optional[Callable[[Any], None]] = None) -> List[Dict[str, Any]]:
+    def process_files(
+        self,
+        root_path: str,
+        file_filter: Optional[Callable[[Any], bool]] = None,
+        on_progress: Optional[Callable[[Any], None]] = None,
+    ) -> list[dict[str, Any]]:
         """Process files in directory and return processed file information.
 
         Args:
@@ -90,19 +119,26 @@ class FileProcessor:
                 # Update progress
                 if on_progress and (i % 10 == 0 or i == len(files) - 1):
                     progress = {
-                        'files_processed': i + 1,
-                        'total_files': len(files),
-                        'current_file': file_info['path']
+                        "files_processed": i + 1,
+                        "total_files": len(files),
+                        "current_file": file_info["path"],
                     }
                     on_progress(progress)
 
-            except Exception as e:
-                self.logger.warning(f"[{ActionCode.FPT_FLS_FAIL}] Error processing file {file_info['path']}: {e}")
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                self.logger.warning(
+                    "[%s] Error processing file %s: %s",
+                    ActionCode["FPT_FLS_FAIL"],
+                    file_info["path"],
+                    e,
+                )
                 continue
 
         return processed_files
 
-    def _process_single_file(self, file_info: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def _process_single_file(
+        self, file_info: dict[str, Any]
+    ) -> Optional[dict[str, Any]]:
         """Process a single file and return enhanced file information.
 
         Args:
@@ -113,21 +149,26 @@ class FileProcessor:
         """
         try:
             # Calculate file hash
-            file_hash = self._calculate_file_hash(file_info['path'])
+            file_hash = self._calculate_file_hash(file_info["path"])
 
             # Create enhanced file info
             processed_file = {
                 **file_info,
-                'hash': file_hash,
-                'hash_algorithm': self._hash_algorithm,
-                'is_duplicate': False,
-                'duplicate_of': None
+                "hash": file_hash,
+                "hash_algorithm": self._hash_algorithm,
+                "is_duplicate": False,
+                "duplicate_of": None,
             }
 
             return processed_file
 
-        except Exception as e:
-            self.logger.warning(f"[{ActionCode.FPT_FLS_FAIL}] Error processing file {file_info['path']}: {e}")
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.logger.warning(
+                "[%s] Error processing file %s: %s",
+                ActionCode["FPT_FLS_FAIL"],
+                file_info["path"],
+                e,
+            )
             return None
 
     def _calculate_file_hash(self, file_path: str) -> str:
@@ -141,16 +182,23 @@ class FileProcessor:
         """
         try:
             # Sync internal state if needed (backward compatibility for direct attribute changes)
-            if hasattr(self._hasher, 'set_algorithm'):
+            if hasattr(self._hasher, "set_algorithm"):
                 self._hasher.set_algorithm(self._hash_algorithm)
-            
+
             return self._hasher.hash_file(file_path)
 
-        except Exception as e:
-            self.logger.warning(f"[{ActionCode.FPT_FLS_FAIL}] Error calculating hash for {file_path}: {e}")
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.logger.warning(
+                "[%s] Error calculating hash for %s: %s",
+                ActionCode["FPT_FLS_FAIL"],
+                file_path,
+                e,
+            )
             raise
 
-    def detect_duplicates(self, files: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def detect_duplicates(
+        self, files: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """Detect duplicates in list of files.
 
         Args:
@@ -165,10 +213,10 @@ class FileProcessor:
         # Group files by hash
         hash_groups = {}
         for file_info in files:
-            if 'hash' not in file_info or not file_info['hash']:
+            if "hash" not in file_info or not file_info["hash"]:
                 continue
 
-            file_hash = file_info['hash']
+            file_hash = file_info["hash"]
             if file_hash not in hash_groups:
                 hash_groups[file_hash] = []
             hash_groups[file_hash].append(file_info)
@@ -177,18 +225,21 @@ class FileProcessor:
         for file_hash, group in hash_groups.items():
             if len(group) > 1:
                 # Sort by file size (largest is likely original)
-                group.sort(key=lambda x: x['size'], reverse=True)
+                group.sort(key=lambda x: x["size"], reverse=True)
 
                 # First file is original, rest are duplicates
                 original_file = group[0]
                 for duplicate_file in group[1:]:
-                    duplicate_file['is_duplicate'] = True
-                    duplicate_file['duplicate_of'] = original_file['path']
+                    duplicate_file["is_duplicate"] = True
+                    duplicate_file["duplicate_of"] = original_file["path"]
 
         return files
 
-    def batch_process_files(self, file_paths: List[str],
-                            on_progress: Optional[Callable[[Any], None]] = None) -> List[Dict[str, Any]]:
+    def batch_process_files(
+        self,
+        file_paths: list[str],
+        on_progress: Optional[Callable[[Any], None]] = None,
+    ) -> list[dict[str, Any]]:
         """Process multiple files in batch.
 
         Args:
@@ -214,19 +265,24 @@ class FileProcessor:
                 # Update progress
                 if on_progress and (i % 10 == 0 or i == len(file_paths) - 1):
                     progress = {
-                        'files_processed': i + 1,
-                        'total_files': len(file_paths),
-                        'current_file': file_path
+                        "files_processed": i + 1,
+                        "total_files": len(file_paths),
+                        "current_file": file_path,
                     }
                     on_progress(progress)
 
-            except Exception as e:
-                self.logger.warning(f"[{ActionCode.FPT_FLS_FAIL}] Error processing file {file_path}: {e}")
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                self.logger.warning(
+                    "[%s] Error processing file %s: %s",
+                    ActionCode["FPT_FLS_FAIL"],
+                    file_path,
+                    e,
+                )
                 continue
 
         return processed_files
 
-    def _get_basic_file_info(self, file_path: str) -> Dict[str, Any]:
+    def _get_basic_file_info(self, file_path: str) -> dict[str, Any]:
         """Get basic file information for a single file.
 
         Args:
@@ -239,19 +295,24 @@ class FileProcessor:
             stat = os.stat(file_path)
 
             return {
-                'path': file_path,
-                'relative_path': os.path.basename(file_path),
-                'name': os.path.basename(file_path),
-                'extension': os.path.splitext(file_path)[1].lower(),
-                'size': stat.st_size,
-                'modified_time': int(stat.st_mtime),
-                'created_time': int(stat.st_ctime),
-                'is_directory': False,
-                'is_file': True,
-                'is_symlink': os.path.islink(file_path)
+                "path": file_path,
+                "relative_path": os.path.basename(file_path),
+                "name": os.path.basename(file_path),
+                "extension": os.path.splitext(file_path)[1].lower(),
+                "size": stat.st_size,
+                "modified_time": int(stat.st_mtime),
+                "created_time": int(stat.st_ctime),
+                "is_directory": False,
+                "is_file": True,
+                "is_symlink": os.path.islink(file_path),
             }
-        except Exception as e:
-            self.logger.warning(f"[{ActionCode.FPT_FLS_FAIL}] Error getting file info for {file_path}: {e}")
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.logger.warning(
+                "[%s] Error getting file info for %s: %s",
+                ActionCode["FPT_FLS_FAIL"],
+                file_path,
+                e,
+            )
             raise
 
     def set_hash_algorithm(self, algorithm: str) -> None:
@@ -293,7 +354,9 @@ class FileProcessor:
         return self._hash_buffer_size
 
 
-def create_file_processor(file_walker: Optional[FileWalker] = None) -> FileProcessor:
+def create_file_processor(
+    file_walker: Optional[FileWalker] = None,
+) -> FileProcessor:
     """Create and return a FileProcessor instance.
 
     Args:
@@ -304,10 +367,11 @@ def create_file_processor(file_walker: Optional[FileWalker] = None) -> FileProce
     """
     return FileProcessor(file_walker)
 
+
 if __name__ == "__main__":
-    import sys
-    import argparse
-    parser = argparse.ArgumentParser(description="This tool creates digital fingerprints for files to find duplicates.")
+    parser = argparse.ArgumentParser(
+        description="This tool creates digital fingerprints for files to find duplicates."
+    )
     parser.add_argument("path", help="The file or folder you want to process")
     args = parser.parse_args()
     processor = FileProcessor()

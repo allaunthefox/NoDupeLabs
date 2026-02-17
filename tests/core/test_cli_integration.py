@@ -10,17 +10,22 @@ This module tests CLI integration scenarios including:
 - System integration
 """
 
-import pytest
-import sys
-import os
-import tempfile
 import json
-from unittest.mock import patch, MagicMock
-from nodupe.core.main import main, CLIHandler
+import os
+import sys
+import tempfile
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.loader import bootstrap
-from nodupe.tools.commands.scan import ScanTool
+from nodupe.core.main import CLIHandler, main
 from nodupe.tools.commands.apply import ApplyTool
-from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.similarity import (
+    SimilarityCommandTool as SimilarityTool,
+)
+
 
 class TestCLIEndToEndWorkflows:
     """Test end-to-end CLI workflows."""
@@ -61,7 +66,7 @@ class TestCLIEndToEndWorkflows:
             duplicates_data = {
                 "files": [
                     {"path": test_file1, "size": 12, "hash": "abc123"},
-                    {"path": test_file2, "size": 12, "hash": "abc123"}
+                    {"path": test_file2, "size": 12, "hash": "abc123"},
                 ]
             }
 
@@ -126,8 +131,11 @@ class TestCLIEndToEndWorkflows:
             similarity_args.output = "text"
             similarity_args.verbose = False
 
-            similarity_result = similarity_tool.execute_similarity(similarity_args)
+            similarity_result = similarity_tool.execute_similarity(
+                similarity_args
+            )
             assert similarity_result == 0
+
 
 class TestCLICommandChaining:
     """Test command chaining scenarios."""
@@ -204,7 +212,7 @@ class TestCLICommandChaining:
             duplicates_data = {
                 "files": [
                     {"path": test_file1, "size": 12, "hash": "abc123"},
-                    {"path": test_file2, "size": 12, "hash": "abc123"}
+                    {"path": test_file2, "size": 12, "hash": "abc123"},
                 ]
             }
 
@@ -224,6 +232,7 @@ class TestCLICommandChaining:
 
                 apply_result = apply_tool.execute_apply(apply_args)
                 assert apply_result == 0
+
 
 class TestCLIToolIntegration:
     """Test CLI tool integration."""
@@ -246,7 +255,7 @@ class TestCLIToolIntegration:
         mock_loader.tool_registry = mock_tool_registry
 
         # Create CLI handler
-        cli = CLIHandler(mock_loader)
+        CLIHandler(mock_loader)
 
         # Verify tools were asked to register commands
         assert mock_tool1.register_commands.called
@@ -265,7 +274,7 @@ class TestCLIToolIntegration:
         mock_loader.tool_registry = mock_tool_registry
 
         # Create CLI handler
-        cli = CLIHandler(mock_loader)
+        CLIHandler(mock_loader)
 
         # Verify the tool registered commands
         assert scan_tool.register_commands.called
@@ -283,16 +292,21 @@ class TestCLIToolIntegration:
         # Create mock loader with tools
         mock_loader = MagicMock()
         mock_tool_registry = MagicMock()
-        mock_tool_registry.get_tools.return_value = [scan_tool, apply_tool, similarity_tool]
+        mock_tool_registry.get_tools.return_value = [
+            scan_tool,
+            apply_tool,
+            similarity_tool,
+        ]
         mock_loader.tool_registry = mock_tool_registry
 
         # Create CLI handler
-        cli = CLIHandler(mock_loader)
+        CLIHandler(mock_loader)
 
         # Verify all tools registered commands
         assert scan_tool.register_commands.called
         assert apply_tool.register_commands.called
         assert similarity_tool.register_commands.called
+
 
 class TestCLISystemIntegration:
     """Test CLI system integration."""
@@ -300,25 +314,25 @@ class TestCLISystemIntegration:
     def test_cli_with_real_bootstrap(self):
         """Test CLI with real bootstrap system."""
         # Test version command with real bootstrap
-        with patch('sys.argv', ['nodupe', 'version']):
+        with patch("sys.argv", ["nodupe", "version"]):
             result = main()
             assert result == 0
 
         # Test tool command with real bootstrap
-        with patch('sys.argv', ['nodupe', 'tool', '--list']):
+        with patch("sys.argv", ["nodupe", "tool", "--list"]):
             result = main()
             assert result == 0
 
     def test_cli_error_handling_integration(self):
         """Test CLI error handling with real system."""
         # Test invalid command
-        with patch('sys.argv', ['nodupe', 'invalid_command']):
+        with patch("sys.argv", ["nodupe", "invalid_command"]):
             with pytest.raises(SystemExit) as excinfo:
                 main()
             assert excinfo.value.code != 0
 
         # Test missing arguments
-        with patch('sys.argv', ['nodupe', 'scan']):
+        with patch("sys.argv", ["nodupe", "scan"]):
             with pytest.raises(SystemExit) as excinfo:
                 main()
             assert excinfo.value.code != 0
@@ -326,22 +340,23 @@ class TestCLISystemIntegration:
     def test_cli_help_integration(self):
         """Test CLI help system integration."""
         # Test main help
-        with patch('sys.argv', ['nodupe', '--help']):
+        with patch("sys.argv", ["nodupe", "--help"]):
             with pytest.raises(SystemExit) as excinfo:
                 main()
             assert excinfo.value.code == 0
 
         # Test version help
-        with patch('sys.argv', ['nodupe', 'version', '--help']):
+        with patch("sys.argv", ["nodupe", "version", "--help"]):
             with pytest.raises(SystemExit) as excinfo:
                 main()
             assert excinfo.value.code == 0
 
         # Test tool help
-        with patch('sys.argv', ['nodupe', 'tool', '--help']):
+        with patch("sys.argv", ["nodupe", "tool", "--help"]):
             with pytest.raises(SystemExit) as excinfo:
                 main()
             assert excinfo.value.code == 0
+
 
 class TestCLIPerformanceIntegration:
     """Test CLI performance-related integration."""
@@ -349,31 +364,32 @@ class TestCLIPerformanceIntegration:
     def test_performance_overrides_integration(self):
         """Test performance override flags integration."""
         # Test cores override
-        with patch('sys.argv', ['nodupe', '--cores', '8', 'version']):
+        with patch("sys.argv", ["nodupe", "--cores", "8", "version"]):
             result = main()
             assert result == 0
 
         # Test max-workers override
-        with patch('sys.argv', ['nodupe', '--max-workers', '16', 'version']):
+        with patch("sys.argv", ["nodupe", "--max-workers", "16", "version"]):
             result = main()
             assert result == 0
 
         # Test batch-size override
-        with patch('sys.argv', ['nodupe', '--batch-size', '500', 'version']):
+        with patch("sys.argv", ["nodupe", "--batch-size", "500", "version"]):
             result = main()
             assert result == 0
 
     def test_debug_logging_integration(self):
         """Test debug logging integration."""
         # Test debug flag
-        with patch('sys.argv', ['nodupe', '--debug', 'version']):
+        with patch("sys.argv", ["nodupe", "--debug", "version"]):
             result = main()
             assert result == 0
 
         # Test debug with tool command
-        with patch('sys.argv', ['nodupe', '--debug', 'tool', '--list']):
+        with patch("sys.argv", ["nodupe", "--debug", "tool", "--list"]):
             result = main()
             assert result == 0
+
 
 class TestCLIComplexScenarios:
     """Test complex CLI scenarios."""
@@ -419,7 +435,7 @@ class TestCLIComplexScenarios:
                 ("test.json", '{"key": "value"}'),
                 ("test.csv", "col1,col2\nval1,val2"),
                 ("test.py", "print('hello')"),
-                ("test.md", "# Test File")
+                ("test.md", "# Test File"),
             ]
 
             for filename, content in file_types:
@@ -478,9 +494,21 @@ class TestCLIComplexScenarios:
             duplicates_file = os.path.join(temp_dir, "duplicates.json")
             duplicates_data = {
                 "files": [
-                    {"path": os.path.join(temp_dir, "test_0.txt"), "size": 14, "hash": "abc123"},
-                    {"path": os.path.join(temp_dir, "test_1.txt"), "size": 14, "hash": "def456"},
-                    {"path": os.path.join(temp_dir, "test_2.txt"), "size": 14, "hash": "ghi789"}
+                    {
+                        "path": os.path.join(temp_dir, "test_0.txt"),
+                        "size": 14,
+                        "hash": "abc123",
+                    },
+                    {
+                        "path": os.path.join(temp_dir, "test_1.txt"),
+                        "size": 14,
+                        "hash": "def456",
+                    },
+                    {
+                        "path": os.path.join(temp_dir, "test_2.txt"),
+                        "size": 14,
+                        "hash": "ghi789",
+                    },
                 ]
             }
 
@@ -517,8 +545,11 @@ class TestCLIComplexScenarios:
             similarity_args.output = "text"
             similarity_args.verbose = False
 
-            similarity_result = similarity_tool.execute_similarity(similarity_args)
+            similarity_result = similarity_tool.execute_similarity(
+                similarity_args
+            )
             assert similarity_result == 0
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

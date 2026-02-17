@@ -7,14 +7,14 @@ Defines the interface for MIME detection aspects to be used by plugins and core.
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, Dict
-from pathlib import Path
+from typing import Optional
+
 
 class MIMEDetectionInterface(ABC):
     """Abstract base class for MIME detectors."""
 
     @abstractmethod
-    def detect_mime_type(self, file_path: str, use_magic: bool = True) -> str:
+    def detect_mime_type(self, file_path: str) -> str:
         """Detect MIME type."""
 
     @abstractmethod

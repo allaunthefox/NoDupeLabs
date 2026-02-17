@@ -1,8 +1,10 @@
 """Tests for filesystem module."""
 
-import pytest
 from pathlib import Path
-from nodupe.core.filesystem import Filesystem, FilesystemError
+
+import pytest
+
+from nodupe.tools.os_filesystem.filesystem import Filesystem, FilesystemError
 
 
 class TestFilesystem:
@@ -90,7 +92,9 @@ class TestFilesystem:
     def test_validate_path_nonexistent(self, tmp_path):
         """Test validation of nonexistent path."""
         with pytest.raises(FilesystemError):
-            Filesystem.validate_path(tmp_path / "nonexistent.txt", must_exist=True)
+            Filesystem.validate_path(
+                tmp_path / "nonexistent.txt", must_exist=True
+            )
 
     def test_get_size(self, tmp_path):
         """Test getting file size."""
@@ -161,7 +165,9 @@ class TestFilesystem:
 
         # Should raise error with missing_ok=False
         with pytest.raises(FilesystemError):
-            Filesystem.remove_file(tmp_path / "nonexistent.txt", missing_ok=False)
+            Filesystem.remove_file(
+                tmp_path / "nonexistent.txt", missing_ok=False
+            )
 
     def test_copy_file(self, tmp_path):
         """Test file copying."""
@@ -177,7 +183,9 @@ class TestFilesystem:
     def test_copy_file_nonexistent_source(self, tmp_path):
         """Test copying nonexistent file."""
         with pytest.raises(FilesystemError):
-            Filesystem.copy_file(tmp_path / "nonexistent.txt", tmp_path / "dest.txt")
+            Filesystem.copy_file(
+                tmp_path / "nonexistent.txt", tmp_path / "dest.txt"
+            )
 
     def test_copy_file_existing_dest(self, tmp_path):
         """Test copying to existing destination."""
@@ -209,7 +217,9 @@ class TestFilesystem:
     def test_move_file_nonexistent_source(self, tmp_path):
         """Test moving nonexistent file."""
         with pytest.raises(FilesystemError):
-            Filesystem.move_file(tmp_path / "nonexistent.txt", tmp_path / "dest.txt")
+            Filesystem.move_file(
+                tmp_path / "nonexistent.txt", tmp_path / "dest.txt"
+            )
 
     def test_move_file_existing_dest(self, tmp_path):
         """Test moving to existing destination."""

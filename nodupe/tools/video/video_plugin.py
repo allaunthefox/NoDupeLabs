@@ -6,9 +6,12 @@
 Provides video analysis capabilities as a tool.
 """
 
-from typing import List, Dict, Any, Optional, Callable
+from typing import Any, Callable
+
 from nodupe.core.tool_system.base import Tool
+
 from . import get_video_backend_manager
+
 
 class VideoTool(Tool):
     """Video processing capabilities tool."""
@@ -22,15 +25,15 @@ class VideoTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         return []
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
-            'extract_frames': self.manager.extract_frames,
-            'get_metadata': self.manager.get_video_metadata,
-            'compute_phash': self.manager.compute_perceptual_hash
+            "extract_frames": self.manager.extract_frames,
+            "get_metadata": self.manager.get_video_metadata,
+            "compute_phash": self.manager.compute_perceptual_hash,
         }
 
     def __init__(self):
@@ -39,17 +42,18 @@ class VideoTool(Tool):
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool and register services."""
-        container.register_service('video_manager', self.manager)
+        container.register_service("video_manager", self.manager)
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
-            'backends': [b.__class__.__name__ for b in self.manager.backends],
-            'available': len(self.manager.backends) > 0
+            "backends": [b.__class__.__name__ for b in self.manager.backends],
+            "available": len(self.manager.backends) > 0,
         }
+
 
 def register_tool():
     """Register the video tool."""

@@ -7,17 +7,22 @@ This module tests system response to critical failures, backup and recovery
 procedures, data integrity during error conditions, and system logging.
 """
 
-import pytest
-import sys
-import os
-import tempfile
 import json
+import os
+import sys
+import tempfile
 import time
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.main import main
-from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.apply import ApplyTool
-from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.similarity import (
+    SimilarityCommandTool as SimilarityTool,
+)
+
 
 class TestCriticalFailureSimulations:
     """Test system response to critical failure scenarios."""
@@ -81,6 +86,7 @@ class TestCriticalFailureSimulations:
         # Should handle permission errors gracefully
         assert isinstance(scan_result, int)
 
+
 class TestDataCorruptionRecovery:
     """Test recovery from data corruption scenarios."""
 
@@ -113,7 +119,7 @@ class TestDataCorruptionRecovery:
                 if i % 3 == 0:
                     # Create file with binary-like content
                     with open(test_file, "wb") as f:
-                        f.write(b'\x00\x01\x02\x03\x04\x05')  # Binary content
+                        f.write(b"\x00\x01\x02\x03\x04\x05")  # Binary content
                 else:
                     with open(test_file, "w") as f:
                         f.write(f"Normal content {i}")
@@ -136,6 +142,7 @@ class TestDataCorruptionRecovery:
             scan_result = scan_tool.execute_scan(scan_args)
             # Should handle mixed file content gracefully
             assert isinstance(scan_result, int)
+
 
 class TestBackupRecoveryProcedures:
     """Test backup and recovery procedures."""
@@ -162,7 +169,10 @@ class TestBackupRecoveryProcedures:
 
             scan_tool = ScanTool()
             scan_args = MagicMock()
-            scan_args.paths = [valid_dir, invalid_dir]  # Mix of valid and invalid
+            scan_args.paths = [
+                valid_dir,
+                invalid_dir,
+            ]  # Mix of valid and invalid
             scan_args.min_size = 0
             scan_args.max_size = None
             scan_args.extensions = None
@@ -184,14 +194,19 @@ class TestBackupRecoveryProcedures:
                     {
                         "hash": "partial_hash_1",
                         "files": [
-                            {"path": "/tmp/existing_file.txt", "size": 100, "type": "txt"},
-                            {"path": "/tmp/nonexistent_file.txt", "size": 100, "type": "txt"}
-                        ]
+                            {
+                                "path": "/tmp/existing_file.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                            {
+                                "path": "/tmp/nonexistent_file.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                        ],
                     },
-                    {
-                        "hash": "partial_hash_2",
-                        "files": []  # Empty files list
-                    }
+                    {"hash": "partial_hash_2", "files": []},  # Empty files list
                 ]
             }
 
@@ -209,6 +224,7 @@ class TestBackupRecoveryProcedures:
             apply_result = apply_tool.execute_apply(apply_args)
             # Should handle partial data gracefully
             assert isinstance(apply_result, int)
+
 
 class TestSystemLogging:
     """Test system logging and monitoring capabilities."""
@@ -250,9 +266,17 @@ class TestSystemLogging:
                     {
                         "hash": "logging_hash",
                         "files": [
-                            {"path": "/tmp/log_file1.txt", "size": 150, "type": "txt"},
-                            {"path": "/tmp/log_file2.txt", "size": 150, "type": "txt"}
-                        ]
+                            {
+                                "path": "/tmp/log_file1.txt",
+                                "size": 150,
+                                "type": "txt",
+                            },
+                            {
+                                "path": "/tmp/log_file2.txt",
+                                "size": 150,
+                                "type": "txt",
+                            },
+                        ],
                     }
                 ]
             }
@@ -270,6 +294,7 @@ class TestSystemLogging:
 
             apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0  # Should complete with verbose logging
+
 
 class TestErrorInjection:
     """Test error injection and recovery scenarios."""
@@ -308,8 +333,12 @@ class TestErrorInjection:
                     {
                         "hash": "error_hash",
                         "files": [
-                            {"path": "/tmp/error_file.txt", "size": 200, "type": "txt"}
-                        ]
+                            {
+                                "path": "/tmp/error_file.txt",
+                                "size": 200,
+                                "type": "txt",
+                            }
+                        ],
                     }
                 ]
             }
@@ -328,6 +357,7 @@ class TestErrorInjection:
             apply_result = apply_tool.execute_apply(apply_args)
             # Should handle invalid action gracefully
             assert isinstance(apply_result, int)
+
 
 class TestCriticalFailureRecovery:
     """Test recovery from critical system failures."""
@@ -364,6 +394,7 @@ class TestCriticalFailureRecovery:
         # Should handle critical failure gracefully
         assert isinstance(apply_result, int)
 
+
 class TestDataIntegrity:
     """Test data integrity during error conditions."""
 
@@ -375,10 +406,10 @@ class TestDataIntegrity:
                 test_file = os.path.join(temp_dir, f"integrity_{i}.txt")
                 if i % 4 == 0:
                     # Create empty file
-                    open(test_file, 'w').close()
+                    open(test_file, "w").close()
                 elif i % 4 == 1:
                     # Create file with special characters
-                    with open(test_file, "w", encoding='utf-8') as f:
+                    with open(test_file, "w", encoding="utf-8") as f:
                         f.write("Special chars: ñ, ü, é, ß, ©, ®")
                 else:
                     with open(test_file, "w") as f:
@@ -413,26 +444,42 @@ class TestDataIntegrity:
                     {
                         "hash": "integrity_hash_1",
                         "files": [
-                            {"path": "/tmp/normal_file.txt", "size": 100, "type": "txt"},
-                            {"path": "/tmp/normal_file2.txt", "size": 100, "type": "txt"}
-                        ]
+                            {
+                                "path": "/tmp/normal_file.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                            {
+                                "path": "/tmp/normal_file2.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                        ],
                     },
                     {
                         "hash": "integrity_hash_2",
                         "files": [
-                            {"path": "", "size": 0, "type": ""}  # Empty/missing data
-                        ]
+                            {
+                                "path": "",
+                                "size": 0,
+                                "type": "",
+                            }  # Empty/missing data
+                        ],
                     },
                     {
                         "hash": "integrity_hash_3",
                         "files": [
-                            {"path": "/tmp/special_chars_ñ.txt", "size": 150, "type": "txt"}
-                        ]
-                    }
+                            {
+                                "path": "/tmp/special_chars_ñ.txt",
+                                "size": 150,
+                                "type": "txt",
+                            }
+                        ],
+                    },
                 ]
             }
 
-            with open(mixed_file, "w", encoding='utf-8') as f:
+            with open(mixed_file, "w", encoding="utf-8") as f:
                 json.dump(mixed_data, f)
 
             apply_tool = ApplyTool()
@@ -446,6 +493,7 @@ class TestDataIntegrity:
             apply_result = apply_tool.execute_apply(apply_args)
             # Should maintain data integrity
             assert isinstance(apply_result, int)
+
 
 class TestSystemMonitoring:
     """Test system monitoring and error reporting."""
@@ -481,15 +529,25 @@ class TestSystemMonitoring:
         """Test apply monitoring with comprehensive error reporting."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create duplicates file
-            duplicates_file = os.path.join(temp_dir, "monitoring_duplicates.json")
+            duplicates_file = os.path.join(
+                temp_dir, "monitoring_duplicates.json"
+            )
             monitoring_data = {
                 "duplicate_groups": [
                     {
                         "hash": "monitoring_hash",
                         "files": [
-                            {"path": "/tmp/monitor_file1.txt", "size": 200, "type": "txt"},
-                            {"path": "/tmp/monitor_file2.txt", "size": 200, "type": "txt"}
-                        ]
+                            {
+                                "path": "/tmp/monitor_file1.txt",
+                                "size": 200,
+                                "type": "txt",
+                            },
+                            {
+                                "path": "/tmp/monitor_file2.txt",
+                                "size": 200,
+                                "type": "txt",
+                            },
+                        ],
                     }
                 ]
             }
@@ -508,6 +566,7 @@ class TestSystemMonitoring:
             apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0  # Should complete with monitoring
 
+
 class TestRecoveryValidation:
     """Test validation of recovery procedures."""
 
@@ -524,23 +583,15 @@ class TestRecoveryValidation:
             scan_tool = ScanTool()
             test_scenarios = [
                 # Normal scenario
-                {
-                    "paths": [temp_dir],
-                    "container": MagicMock(),
-                    "expected": 0
-                },
+                {"paths": [temp_dir], "container": MagicMock(), "expected": 0},
                 # Missing container scenario
-                {
-                    "paths": [temp_dir],
-                    "container": None,
-                    "expected": "int"
-                },
+                {"paths": [temp_dir], "container": None, "expected": "int"},
                 # Invalid path scenario
                 {
                     "paths": ["/invalid/path"],
                     "container": None,
-                    "expected": "int"
-                }
+                    "expected": "int",
+                },
             ]
 
             for scenario in test_scenarios:
@@ -575,9 +626,17 @@ class TestRecoveryValidation:
                     {
                         "hash": "valid_hash",
                         "files": [
-                            {"path": "/tmp/valid1.txt", "size": 100, "type": "txt"},
-                            {"path": "/tmp/valid2.txt", "size": 100, "type": "txt"}
-                        ]
+                            {
+                                "path": "/tmp/valid1.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                            {
+                                "path": "/tmp/valid2.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                        ],
                     }
                 ]
             }
@@ -589,23 +648,15 @@ class TestRecoveryValidation:
             apply_tool = ApplyTool()
             test_scenarios = [
                 # Normal scenario
-                {
-                    "input": valid_file,
-                    "action": "list",
-                    "expected": 0
-                },
+                {"input": valid_file, "action": "list", "expected": 0},
                 # Invalid file scenario
                 {
                     "input": "/invalid/file.json",
                     "action": "list",
-                    "expected": "int"
+                    "expected": "int",
                 },
                 # Invalid action scenario
-                {
-                    "input": valid_file,
-                    "action": "invalid",
-                    "expected": "int"
-                }
+                {"input": valid_file, "action": "invalid", "expected": "int"},
             ]
 
             for scenario in test_scenarios:
@@ -622,6 +673,7 @@ class TestRecoveryValidation:
                     assert apply_result == 0
                 else:
                     assert isinstance(apply_result, int)
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

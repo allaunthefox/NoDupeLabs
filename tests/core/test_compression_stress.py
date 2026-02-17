@@ -5,15 +5,19 @@ These tests validate:
 - Concurrency safety (thread safety)
 - Archive security (path traversal protection)
 """
+
 import concurrent.futures
-import tarfile
 import io
+import tarfile
+
 import pytest
-from hypothesis import given, settings, Verbosity, HealthCheck
+from hypothesis import HealthCheck, Verbosity, given, settings
 from hypothesis import strategies as st
 
-from nodupe.core.compression import Compression, CompressionError
-
+from nodupe.tools.compression_standard.engine_logic import (
+    Compression,
+    CompressionError,
+)
 
 # =============================================================================
 # PHASE 2: Large Data Property Tests
@@ -28,7 +32,7 @@ compression_formats = st.sampled_from(["gzip", "bz2", "lzma"])
 def test_large_roundtrip(data_fmt):
     data, fmt = data_fmt
     """Verify roundtrip for large payloads (1KB - 2MB).
-    
+
     This validates:
     - Reversibility invariant
     - Stability under large input
@@ -43,6 +47,7 @@ def test_large_roundtrip(data_fmt):
 # PHASE 3: Concurrency Stress Tests
 # =============================================================================
 
+
 def roundtrip(data, fmt):
     """Helper for concurrent execution."""
     c = Compression.compress_data(data, fmt)
@@ -53,7 +58,7 @@ def roundtrip(data, fmt):
 @given(st.tuples(st.binary(min_size=10, max_size=50_000), compression_formats))
 def test_thread_safety(data_fmt):
     """Verify thread safety and absence of shared state issues.
-    
+
     This validates:
     - No race conditions
     - No shared-state corruption
@@ -73,16 +78,24 @@ def test_thread_safety(data_fmt):
 # =============================================================================
 
 file_names = st.text(min_size=1, max_size=30).filter(
-    lambda x: x and x not in ('.', '..') and "/" not in x and "\\" not in x and "\x00" not in x
+    lambda x: x
+    and x not in (".", "..")
+    and "/" not in x
+    and "\\" not in x
+    and "\x00" not in x
 )
 
 
-@settings(max_examples=30, deadline=None, verbosity=Verbosity.quiet, 
-          suppress_health_check=[HealthCheck.function_scoped_fixture])
+@settings(
+    max_examples=30,
+    deadline=None,
+    verbosity=Verbosity.quiet,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
 @given(file_names)
 def test_tar_traversal_blocked(tmp_path, name):
     """Verify path traversal attacks are blocked in tar archives.
-    
+
     This validates:
     - Path traversal is rejected
     - Fuzzed filenames do not bypass validation
@@ -101,12 +114,16 @@ def test_tar_traversal_blocked(tmp_path, name):
         Compression.extract_archive(tar_path, tmp_path / "out")
 
 
-@settings(max_examples=30, deadline=None, verbosity=Verbosity.quiet,
-          suppress_health_check=[HealthCheck.function_scoped_fixture])
+@settings(
+    max_examples=30,
+    deadline=None,
+    verbosity=Verbosity.quiet,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
 @given(file_names)
 def test_tar_valid_extraction(tmp_path, name):
     """Verify valid tar archives extract correctly.
-    
+
     This validates:
     - Valid archives extract correctly
     - Fuzzed filenames work properly
@@ -128,8 +145,12 @@ def test_tar_valid_extraction(tmp_path, name):
     assert extracted[0].read_bytes() == data, "Extracted data mismatch"
 
 
-@settings(max_examples=30, deadline=None, verbosity=Verbosity.quiet,
-          suppress_health_check=[HealthCheck.function_scoped_fixture])
+@settings(
+    max_examples=30,
+    deadline=None,
+    verbosity=Verbosity.quiet,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
 @given(file_names)
 def test_tar_gz_traversal_blocked(tmp_path, name):
     """Verify path traversal attacks are blocked in tar.gz archives."""
@@ -145,8 +166,12 @@ def test_tar_gz_traversal_blocked(tmp_path, name):
         Compression.extract_archive(tar_path, tmp_path / "out")
 
 
-@settings(max_examples=30, deadline=None, verbosity=Verbosity.quiet,
-          suppress_health_check=[HealthCheck.function_scoped_fixture])
+@settings(
+    max_examples=30,
+    deadline=None,
+    verbosity=Verbosity.quiet,
+    suppress_health_check=[HealthCheck.function_scoped_fixture],
+)
 @given(file_names)
 def test_tar_gz_valid_extraction(tmp_path, name):
     """Verify valid tar.gz archives extract correctly."""

@@ -9,13 +9,15 @@ Provides JSON schema validation for API requests and responses.
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Optional
 
 
 class SchemaValidationError(Exception):
     """Exception raised when schema validation fails."""
 
-    def __init__(self, message: str, errors: Optional[List[str]] = None) -> None:
+    def __init__(
+        self, message: str, errors: Optional[list[str]] = None
+    ) -> None:
         """Initialize validation error."""
         self.message = message
         self.errors = errors or []
@@ -33,19 +35,22 @@ class SchemaValidator:
         """Initialize schema validator."""
         self.strict_mode = strict_mode
 
-    def validate(self, schema: Dict[str, Any], data: Any) -> bool:
+    def validate(self, schema: dict[str, Any], data: Any) -> bool:
         """Validate data against a JSON schema."""
-        errors: List[str] = []
+        errors: list[str] = []
         self._validate_recursive(schema, data, "", errors)
         if errors:
             raise SchemaValidationError("Validation failed", errors)
         return True
 
-    def _validate_recursive(self, schema: Dict[str, Any], data: Any, path: str, errors: List[str]) -> bool:
+    def _validate_recursive(
+        self, schema: dict[str, Any], data: Any, path: str, errors: list[str]
+    ) -> bool:
         """Recursively validate data against schema."""
-        if "type" in schema:
-            if not self._check_type(data, schema["type"]):
-                errors.append(f"{path}: expected {schema['type']}, got {type(data).__name__}")
+        if "type" in schema and not self._check_type(data, schema["type"]):
+            errors.append(
+                f"{path}: expected {schema['type']}, got {type(data).__name__}"
+            )
         return len(errors) == 0 or not self.strict_mode
 
     def _check_type(self, data: Any, expected_type: str) -> bool:
@@ -67,21 +72,31 @@ class SchemaValidator:
         return True
 
 
-def validate_request(schema: Dict[str, Any]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def validate_request(
+    schema: dict[str, Any]
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to validate request data against a schema."""
+
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
-def validate_response(schema: Dict[str, Any]) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def validate_response(
+    schema: dict[str, Any]
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to validate response data against a schema."""
+
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator

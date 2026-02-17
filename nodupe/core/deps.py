@@ -18,7 +18,7 @@ Dependencies:
 """
 
 import importlib.util
-from typing import Dict, Any, Optional, Callable
+from typing import Any, Callable, Optional
 
 
 class DependencyManager:
@@ -33,7 +33,7 @@ class DependencyManager:
 
     def __init__(self):
         """Initialize dependency manager."""
-        self.dependencies: Dict[str, bool] = {}
+        self.dependencies: dict[str, bool] = {}
 
     def check_dependency(self, module_name: str) -> bool:
         """Check if a dependency is available.
@@ -56,7 +56,9 @@ class DependencyManager:
             self.dependencies[module_name] = False
             return False
 
-    def with_fallback(self, primary: Callable[[], Any], fallback: Callable[[], Any]) -> Any:
+    def with_fallback(
+        self, primary: Callable[[], Any], fallback: Callable[[], Any]
+    ) -> Any:
         """Execute primary function with fallback on failure.
 
         Args:
@@ -72,7 +74,9 @@ class DependencyManager:
             print(f"[WARN] Primary function failed, using fallback: {e}")
             return fallback()
 
-    def try_import(self, module_name: str, fallback: Optional[Any] = None) -> Optional[Any]:
+    def try_import(
+        self, module_name: str, fallback: Optional[Any] = None
+    ) -> Optional[Any]:
         """Try to import a module with fallback.
 
         Args:

@@ -1,6 +1,9 @@
+# pylint: disable=logging-fstring-interpolation
 """Parallel Module.
 
 Parallel processing utilities using standard library only.
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 
 Key Features:
     - Process pool for CPU-bound tasks
@@ -19,14 +22,16 @@ Dependencies:
 """
 
 import concurrent.futures
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-from multiprocessing import cpu_count
-from typing import Callable, List, Any, Optional, Iterator, Tuple
-import threading
-import sys
-import time
+import contextlib
 import logging
 import os
+import sys
+import threading
+import time
+from collections.abc import Iterator
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from multiprocessing import cpu_count
+from typing import Any, Callable, Optional
 
 
 def _process_batch_worker(func_and_batch):
@@ -69,10 +74,10 @@ class Parallel:
         Returns:
             True if running in free-threaded mode, False otherwise
         """
-        return hasattr(sys, 'flags') and getattr(sys.flags, 'gil', 1) == 0
+        return hasattr(sys, "flags") and getattr(sys.flags, "gil", 1) == 0
 
     @staticmethod
-    def get_python_version_info() -> Tuple[int, int]:
+    def get_python_version_info() -> tuple[int, int]:
         """Get current Python version as (major, minor) tuple.
 
         Returns:
@@ -93,12 +98,12 @@ class Parallel:
     @staticmethod
     def process_in_parallel(
         func: Callable,
-        items: List[Any],
+        items: list[Any],
         workers: Optional[int] = None,
         use_processes: bool = False,
         use_interpreters: bool = False,
-        timeout: Optional[float] = None
-    ) -> List[Any]:
+        timeout: Optional[float] = None,
+    ) -> list[Any]:
         """Process items in parallel.
 
         Args:
@@ -118,12 +123,17 @@ class Parallel:
         try:
             # Determine number of workers
             if workers is None:
-                workers = Parallel.get_cpu_count() if use_processes else min(32, len(items))
+                workers = (
+                    Parallel.get_cpu_count()
+                    if use_processes
+                    else min(32, len(items))
+                )
 
             # Choose executor based on options
             if use_interpreters and Parallel.supports_interpreter_pool():
                 try:
                     from concurrent.futures import InterpreterPoolExecutor
+
                     executor_class = InterpreterPoolExecutor
                 except ImportError:
                     # Fallback to ThreadPoolExecutor if InterpreterPoolExecutor not available
@@ -139,7 +149,9 @@ class Parallel:
                 futures = [executor.submit(func, item) for item in items]
                 submit_end = time.monotonic()
                 logging.getLogger(__name__).debug(
-                    "Submitted %d tasks in %.3fs", len(futures), submit_end - start_submit
+                    "Submitted %d tasks in %.3fs",
+                    len(futures),
+                    submit_end - start_submit,
                 )
 
                 results = []
@@ -154,7 +166,9 @@ class Parallel:
                         )
                         results.append(result)
                     except Exception as e:
-                        logging.getLogger(__name__).exception("Task %d failed", idx)
+                        logging.getLogger(__name__).exception(
+                            "Task %d failed", idx
+                        )
                         raise ParallelError(f"Task failed: {e}") from e
 
                 return results
@@ -167,12 +181,12 @@ class Parallel:
     @staticmethod
     def map_parallel(
         func: Callable,
-        items: List[Any],
+        items: list[Any],
         workers: Optional[int] = None,
         use_processes: bool = False,
         use_interpreters: bool = False,
-        chunk_size: int = 1
-    ) -> List[Any]:
+        chunk_size: int = 1,
+    ) -> list[Any]:
         """Map function over items in parallel.
 
         Args:
@@ -192,12 +206,17 @@ class Parallel:
         try:
             # Determine number of workers
             if workers is None:
-                workers = Parallel.get_cpu_count() if use_processes else min(32, len(items))
+                workers = (
+                    Parallel.get_cpu_count()
+                    if use_processes
+                    else min(32, len(items))
+                )
 
             # Choose executor based on options
             if use_interpreters and Parallel.supports_interpreter_pool():
                 try:
                     from concurrent.futures import InterpreterPoolExecutor
+
                     executor_class = InterpreterPoolExecutor
                 except ImportError:
                     # Fallback to ThreadPoolExecutor if InterpreterPoolExecutor not available
@@ -210,7 +229,9 @@ class Parallel:
             # Map in parallel
             with executor_class(max_workers=workers) as executor:
                 if use_interpreters or use_processes:
-                    results = list(executor.map(func, items, chunksize=chunk_size))
+                    results = list(
+                        executor.map(func, items, chunksize=chunk_size)
+                    )
                 else:
                     results = list(executor.map(func, items))
 
@@ -222,13 +243,13 @@ class Parallel:
     @staticmethod
     def map_parallel_unordered(
         func: Callable,
-        items: List[Any],
+        items: list[Any],
         workers: Optional[int] = None,
         use_processes: bool = False,
         use_interpreters: bool = False,
         timeout: Optional[float] = None,
         prefer_map: bool = True,
-        prefer_batches: bool = True
+        prefer_batches: bool = True,
     ) -> Iterator[Any]:
         """Map function over items in parallel, yielding results as completed.
 
@@ -258,10 +279,20 @@ class Parallel:
                 chunk_factor = int(os.getenv("NODUPE_CHUNK_FACTOR", "1024"))
             except Exception:
                 chunk_factor = 1024
-            batch_logging = os.getenv("NODUPE_BATCH_LOG", "0") in ("1", "true", "True", "yes", "on")
+            batch_logging = os.getenv("NODUPE_BATCH_LOG", "0") in (
+                "1",
+                "true",
+                "True",
+                "yes",
+                "on",
+            )
             # Determine number of workers
             if workers is None:
-                workers = Parallel.get_cpu_count() if use_processes else min(32, len(items))
+                workers = (
+                    Parallel.get_cpu_count()
+                    if use_processes
+                    else min(32, len(items))
+                )
 
             # For process pools, avoid oversubscription: cap workers to (cpu_count - 1) if possible
             if use_processes:
@@ -276,6 +307,7 @@ class Parallel:
             if use_interpreters and Parallel.supports_interpreter_pool():
                 try:
                     from concurrent.futures import InterpreterPoolExecutor
+
                     executor_class = InterpreterPoolExecutor
                 except ImportError:
                     # Fallback to ThreadPoolExecutor if InterpreterPoolExecutor not available
@@ -289,42 +321,54 @@ class Parallel:
             with executor_class(max_workers=workers) as executor:
                 if use_processes and prefer_batches:
                     try:
-                        batch_size = max(1, len(items) // (max(1, workers) * batch_divisor))
+                        batch_size = max(
+                            1, len(items) // (max(1, workers) * batch_divisor)
+                        )
                     except Exception:
                         batch_size = 1
 
                     if batch_size <= 1:
                         # Fallback to chunksize mapping if batches would be size 1
                         try:
-                            chunksize = max(1, len(items) // (max(1, workers) * chunk_factor))
+                            chunksize = max(
+                                1,
+                                len(items) // (max(1, workers) * chunk_factor),
+                            )
                         except Exception:
                             chunksize = 1
-                        for result in executor.map(func, items, chunksize=chunksize):
+                        for result in executor.map(
+                            func, items, chunksize=chunksize
+                        ):
                             yield result
                     else:
                         # Map batches using a top-level helper so callables are picklable
-                        batches = [items[i:i + batch_size]
-                                   for i in range(0, len(items), batch_size)]
+                        batches = [
+                            items[i : i + batch_size]
+                            for i in range(0, len(items), batch_size)
+                        ]
                         paired = [(func, b) for b in batches]
                         prev = time.monotonic()
-                        for batch_result in executor.map(_process_batch_worker, paired):
+                        for batch_result in executor.map(
+                            _process_batch_worker, paired
+                        ):
                             now = time.monotonic()
                             duration = now - prev
                             prev = now
                             if batch_logging:
-                                try:
+                                with contextlib.suppress(Exception):
                                     logging.getLogger(__name__).debug(
-                                        "batch size=%d processed in %.3fs", len(
-                                            batch_result), duration
+                                        "batch size=%d processed in %.3fs",
+                                        len(batch_result),
+                                        duration,
                                     )
-                                except Exception:
-                                    pass
                             yield from batch_result
                 elif use_processes and prefer_map:
                     # Auto-balance chunksize: smaller chunks reduce per-task overhead but increase scheduling;
                     # use a conservative factor to amortize pickling/IPC work.
                     try:
-                        chunksize = max(1, len(items) // (max(1, workers) * chunk_factor))
+                        chunksize = max(
+                            1, len(items) // (max(1, workers) * chunk_factor)
+                        )
                     except Exception:
                         chunksize = 1
                     yield from executor.map(func, items, chunksize=chunksize)
@@ -342,7 +386,9 @@ class Parallel:
 
                     # Iterate, yielding as futures complete and submitting new tasks
                     while futures:
-                        for future in concurrent.futures.as_completed(futures, timeout=timeout):
+                        for future in concurrent.futures.as_completed(
+                            futures, timeout=timeout
+                        ):
                             try:
                                 result = future.result()
                                 yield result
@@ -350,10 +396,8 @@ class Parallel:
                                 raise ParallelError(f"Task failed: {e}") from e
                             finally:
                                 # Remove completed future and submit next item if available
-                                try:
+                                with contextlib.suppress(KeyError):
                                     futures.remove(future)
-                                except KeyError:
-                                    pass
 
                                 try:
                                     nxt = next(it)
@@ -369,11 +413,11 @@ class Parallel:
     @staticmethod
     def smart_map(
         func: Callable,
-        items: List[Any],
-        task_type: str = 'auto',
+        items: list[Any],
+        task_type: str = "auto",
         workers: Optional[int] = None,
-        timeout: Optional[float] = None
-    ) -> List[Any]:
+        timeout: Optional[float] = None,
+    ) -> list[Any]:
         """Smart map that automatically chooses the best executor based on Python version and task type.
 
         Args:
@@ -390,50 +434,42 @@ class Parallel:
             ParallelError: If mapping fails
         """
         # Auto-detect task type if needed
-        if task_type == 'auto':
+        if task_type == "auto":
             # For now, assume CPU-bound if not specified
             # In real implementation, you might inspect the function
             import inspect
+
             _sig = inspect.signature(func)
-            task_type = 'cpu'  # Default assumption
+            task_type = "cpu"  # Default assumption
 
         # Determine best executor strategy
-        if task_type == 'cpu':
+        if task_type == "cpu":
             if Parallel.supports_interpreter_pool():
                 # Use InterpreterPoolExecutor for Python 3.14+
                 return Parallel.map_parallel(
                     func=func,
                     items=items,
                     workers=workers,
-                    use_interpreters=True
+                    use_interpreters=True,
                 )
             elif Parallel.is_free_threaded():
                 # Use threads in free-threaded mode
                 return Parallel.map_parallel(
-                    func=func,
-                    items=items,
-                    workers=workers,
-                    use_processes=False
+                    func=func, items=items, workers=workers, use_processes=False
                 )
             else:
                 # Use processes for traditional GIL-locked Python
                 return Parallel.map_parallel(
-                    func=func,
-                    items=items,
-                    workers=workers,
-                    use_processes=True
+                    func=func, items=items, workers=workers, use_processes=True
                 )
         else:  # I/O-bound
             # Always use threads for I/O-bound tasks
             return Parallel.map_parallel(
-                func=func,
-                items=items,
-                workers=workers,
-                use_processes=False
+                func=func, items=items, workers=workers, use_processes=False
             )
 
     @staticmethod
-    def get_optimal_workers(task_type: str = 'cpu') -> int:
+    def get_optimal_workers(task_type: str = "cpu") -> int:
         """Get optimal number of workers based on system and Python version.
 
         Args:
@@ -450,29 +486,30 @@ class Parallel:
 
         if Parallel.is_free_threaded():
             # In free-threaded mode, can use more threads efficiently
-            if task_type == 'cpu':
+            if task_type == "cpu":
                 return cpu_count * 2
             else:
                 return min(32, cpu_count * 2)
         elif Parallel.supports_interpreter_pool():
             # For interpreter pools, use CPU count as baseline
             return cpu_count
+        # Traditional GIL mode - be more conservative
+        elif task_type == "cpu":
+            return min(
+                32, cpu_count
+            )  # Avoid GIL contention with too many processes
         else:
-            # Traditional GIL mode - be more conservative
-            if task_type == 'cpu':
-                return min(32, cpu_count)  # Avoid GIL contention with too many processes
-            else:
-                return min(32, cpu_count * 2)  # More I/O workers allowed
+            return min(32, cpu_count * 2)  # More I/O workers allowed
 
     @staticmethod
     def process_batches(
         func: Callable,
-        items: List[Any],
+        items: list[Any],
         batch_size: int,
         workers: Optional[int] = None,
         use_processes: bool = False,
-        use_interpreters: bool = False
-    ) -> List[Any]:
+        use_interpreters: bool = False,
+    ) -> list[Any]:
         """Process items in batches in parallel.
 
         Args:
@@ -492,7 +529,7 @@ class Parallel:
         try:
             # Create batches
             batches = [
-                items[i:i + batch_size]
+                items[i : i + batch_size]
                 for i in range(0, len(items), batch_size)
             ]
 
@@ -502,7 +539,7 @@ class Parallel:
                 items=batches,
                 workers=workers,
                 use_processes=use_processes,
-                use_interpreters=use_interpreters
+                use_interpreters=use_interpreters,
             )
 
         except Exception as e:
@@ -512,11 +549,11 @@ class Parallel:
     def reduce_parallel(
         map_func: Callable,
         reduce_func: Callable,
-        items: List[Any],
+        items: list[Any],
         initial: Any = None,
         workers: Optional[int] = None,
         use_processes: bool = False,
-        use_interpreters: bool = False
+        use_interpreters: bool = False,
     ) -> Any:
         """Parallel map-reduce operation.
 
@@ -542,7 +579,7 @@ class Parallel:
                 items=items,
                 workers=workers,
                 use_processes=use_processes,
-                use_interpreters=use_interpreters
+                use_interpreters=use_interpreters,
             )
 
             # Reduce phase
@@ -552,7 +589,9 @@ class Parallel:
                     result = reduce_func(result, item)
             else:
                 if not mapped:
-                    raise ParallelError("Cannot reduce empty sequence without initial value")
+                    raise ParallelError(
+                        "Cannot reduce empty sequence without initial value"
+                    )
                 result = mapped[0]
                 for item in mapped[1:]:
                     result = reduce_func(result, item)
@@ -591,7 +630,7 @@ class ParallelProgress:
             else:
                 self.failed += 1
 
-    def get_progress(self) -> Tuple[int, int, float]:
+    def get_progress(self) -> tuple[int, int, float]:
         """Get current progress.
 
         Returns:
@@ -599,7 +638,9 @@ class ParallelProgress:
         """
         with self._lock:
             total_processed = self.completed + self.failed
-            percentage = (total_processed / self.total * 100) if self.total > 0 else 0
+            percentage = (
+                (total_processed / self.total * 100) if self.total > 0 else 0
+            )
             return (self.completed, self.failed, percentage)
 
     @property
@@ -615,11 +656,11 @@ class ParallelProgress:
 
 def parallel_map(
     func: Callable,
-    items: List[Any],
+    items: list[Any],
     workers: Optional[int] = None,
     use_processes: bool = False,
-    use_interpreters: bool = False
-) -> List[Any]:
+    use_interpreters: bool = False,
+) -> list[Any]:
     """Convenience function for parallel map.
 
     Args:
@@ -632,16 +673,18 @@ def parallel_map(
     Returns:
         List of results
     """
-    return Parallel.map_parallel(func, items, workers, use_processes, use_interpreters)
+    return Parallel.map_parallel(
+        func, items, workers, use_processes, use_interpreters
+    )
 
 
 def parallel_filter(
     predicate: Callable[[Any], bool],
-    items: List[Any],
+    items: list[Any],
     workers: Optional[int] = None,
     use_processes: bool = False,
-    use_interpreters: bool = False
-) -> List[Any]:
+    use_interpreters: bool = False,
+) -> list[Any]:
     """Parallel filter operation.
 
     Args:
@@ -654,12 +697,15 @@ def parallel_filter(
     Returns:
         Filtered list of items
     """
+
     # Create pairs of (item, keep_bool)
     def check_item(item):
         """TODO: Document check_item."""
         return (item, predicate(item))
 
-    results = Parallel.map_parallel(check_item, items, workers, use_processes, use_interpreters)
+    results = Parallel.map_parallel(
+        check_item, items, workers, use_processes, use_interpreters
+    )
 
     # Filter based on predicate results
     return [item for item, keep in results if keep]
@@ -667,11 +713,11 @@ def parallel_filter(
 
 def parallel_partition(
     predicate: Callable[[Any], bool],
-    items: List[Any],
+    items: list[Any],
     workers: Optional[int] = None,
     use_processes: bool = False,
-    use_interpreters: bool = False
-) -> Tuple[List[Any], List[Any]]:
+    use_interpreters: bool = False,
+) -> tuple[list[Any], list[Any]]:
     """Partition items based on predicate in parallel.
 
     Args:
@@ -684,12 +730,15 @@ def parallel_partition(
     Returns:
         Tuple of (true_items, false_items)
     """
+
     # Create pairs of (item, predicate_result)
     def check_item(item):
         """TODO: Document check_item."""
         return (item, predicate(item))
 
-    results = Parallel.map_parallel(check_item, items, workers, use_processes, use_interpreters)
+    results = Parallel.map_parallel(
+        check_item, items, workers, use_processes, use_interpreters
+    )
 
     # Partition based on predicate
     true_items = [item for item, result in results if result]
@@ -700,11 +749,11 @@ def parallel_partition(
 
 def parallel_starmap(
     func: Callable,
-    args_list: List[Tuple],
+    args_list: list[tuple],
     workers: Optional[int] = None,
     use_processes: bool = False,
-    use_interpreters: bool = False
-) -> List[Any]:
+    use_interpreters: bool = False,
+) -> list[Any]:
     """Parallel starmap operation (func with multiple arguments).
 
     Args:
@@ -724,8 +773,11 @@ def parallel_starmap(
         results = parallel_starmap(add, [(1, 2), (3, 4), (5, 6)])
         # Returns [3, 7, 11]
     """
+
     def wrapper(args):
         """TODO: Document wrapper."""
         return func(*args)
 
-    return Parallel.map_parallel(wrapper, args_list, workers, use_processes, use_interpreters)
+    return Parallel.map_parallel(
+        wrapper, args_list, workers, use_processes, use_interpreters
+    )

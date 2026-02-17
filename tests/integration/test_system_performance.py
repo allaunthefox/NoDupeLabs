@@ -7,17 +7,22 @@ This module tests system performance metrics, scalability with large datasets,
 performance optimization features, and benchmarks against established goals.
 """
 
-import pytest
-import sys
+import json
 import os
+import sys
 import tempfile
 import time
-import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.main import main
-from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.apply import ApplyTool
-from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.similarity import (
+    SimilarityCommandTool as SimilarityTool,
+)
+
 
 class TestPerformanceBenchmarking:
     """Test performance benchmarking framework."""
@@ -53,25 +58,33 @@ class TestPerformanceBenchmarking:
 
             assert scan_result == 0
             execution_time = end_time - start_time
-            assert execution_time < 10.0  # Should complete within reasonable time
+            assert (
+                execution_time < 10.0
+            )  # Should complete within reasonable time
 
     def test_apply_performance_benchmarking(self):
         """Test apply performance with timing metrics."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create duplicates file with large dataset
             duplicates_file = os.path.join(temp_dir, "duplicates.json")
-            large_duplicates = {
-                "duplicate_groups": []
-            }
+            large_duplicates = {"duplicate_groups": []}
 
             # Create 100 duplicate groups
             for i in range(100):
                 group = {
                     "hash": f"hash_{i}",
                     "files": [
-                        {"path": f"/tmp/file_{i}_1.txt", "size": 100 + i, "type": "txt"},
-                        {"path": f"/tmp/file_{i}_2.txt", "size": 100 + i, "type": "txt"}
-                    ]
+                        {
+                            "path": f"/tmp/file_{i}_1.txt",
+                            "size": 100 + i,
+                            "type": "txt",
+                        },
+                        {
+                            "path": f"/tmp/file_{i}_2.txt",
+                            "size": 100 + i,
+                            "type": "txt",
+                        },
+                    ],
                 }
                 large_duplicates["duplicate_groups"].append(group)
 
@@ -115,12 +128,15 @@ class TestPerformanceBenchmarking:
             similarity_args.verbose = False
 
             start_time = time.time()
-            similarity_result = similarity_tool.execute_similarity(similarity_args)
+            similarity_result = similarity_tool.execute_similarity(
+                similarity_args
+            )
             end_time = time.time()
 
             assert similarity_result == 0
             execution_time = end_time - start_time
             assert execution_time < 3.0  # Should be fast
+
 
 class TestLargeDatasetPerformance:
     """Test system performance with large datasets."""
@@ -166,19 +182,29 @@ class TestLargeDatasetPerformance:
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create large duplicates file
             duplicates_file = os.path.join(temp_dir, "large_duplicates.json")
-            large_dataset = {
-                "duplicate_groups": []
-            }
+            large_dataset = {"duplicate_groups": []}
 
             # Create 500 duplicate groups
             for i in range(500):
                 group = {
                     "hash": f"hash_{i}",
                     "files": [
-                        {"path": f"/data/file_{i}_1.txt", "size": 1000 + i, "type": "txt"},
-                        {"path": f"/data/file_{i}_2.txt", "size": 1000 + i, "type": "txt"},
-                        {"path": f"/data/file_{i}_3.txt", "size": 1000 + i, "type": "txt"}
-                    ]
+                        {
+                            "path": f"/data/file_{i}_1.txt",
+                            "size": 1000 + i,
+                            "type": "txt",
+                        },
+                        {
+                            "path": f"/data/file_{i}_2.txt",
+                            "size": 1000 + i,
+                            "type": "txt",
+                        },
+                        {
+                            "path": f"/data/file_{i}_3.txt",
+                            "size": 1000 + i,
+                            "type": "txt",
+                        },
+                    ],
                 }
                 large_dataset["duplicate_groups"].append(group)
 
@@ -201,6 +227,7 @@ class TestLargeDatasetPerformance:
             assert apply_result == 0
             execution_time = end_time - start_time
             assert execution_time < 8.0  # Should handle 500 groups efficiently
+
 
 class TestMemoryUsage:
     """Test system memory usage and resource management."""
@@ -239,9 +266,7 @@ class TestMemoryUsage:
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create large duplicates file
             duplicates_file = os.path.join(temp_dir, "memory_test.json")
-            memory_intensive_data = {
-                "duplicate_groups": []
-            }
+            memory_intensive_data = {"duplicate_groups": []}
 
             # Create groups with large metadata
             for i in range(200):
@@ -250,7 +275,7 @@ class TestMemoryUsage:
                     "files": [],
                     "metadata": {
                         "additional_info": "x" * 1000  # Large metadata
-                    }
+                    },
                 }
 
                 for j in range(5):
@@ -260,7 +285,7 @@ class TestMemoryUsage:
                         "type": "txt",
                         "attributes": {
                             "extended": "x" * 500  # Large attributes
-                        }
+                        },
                     }
                     group["files"].append(file_entry)
 
@@ -280,6 +305,7 @@ class TestMemoryUsage:
 
             apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0
+
 
 class TestPerformanceOptimization:
     """Test performance optimization features."""
@@ -322,7 +348,7 @@ class TestPerformanceOptimization:
         """Test scan performance with extension filters."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create files with different extensions
-            extensions = ['txt', 'json', 'csv', 'py', 'md']
+            extensions = ["txt", "json", "csv", "py", "md"]
             for i in range(50):
                 ext = extensions[i % len(extensions)]
                 test_file = os.path.join(temp_dir, f"file_{i}.{ext}")
@@ -340,7 +366,7 @@ class TestPerformanceOptimization:
             scan_args.paths = [temp_dir]
             scan_args.min_size = 0
             scan_args.max_size = None
-            scan_args.extensions = ['txt', 'json']  # Only scan these
+            scan_args.extensions = ["txt", "json"]  # Only scan these
             scan_args.exclude = None
             scan_args.verbose = False
             scan_args.container = mock_container
@@ -352,6 +378,7 @@ class TestPerformanceOptimization:
             assert scan_result == 0
             execution_time = end_time - start_time
             assert execution_time < 3.0  # Filtered scan should be very fast
+
 
 class TestConcurrentOperationPerformance:
     """Test performance under concurrent operation scenarios."""
@@ -395,7 +422,7 @@ class TestConcurrentOperationPerformance:
                 end_time = time.time()
 
                 assert scan_result == 0
-                total_time += (end_time - start_time)
+                total_time += end_time - start_time
 
             # Average time per scan should be reasonable
             avg_time = total_time / 5
@@ -441,9 +468,17 @@ class TestConcurrentOperationPerformance:
                     {
                         "hash": "workflow_hash",
                         "files": [
-                            {"path": f"{temp_dir}/workflow_0.txt", "size": 25, "type": "txt"},
-                            {"path": f"{temp_dir}/workflow_5.txt", "size": 25, "type": "txt"}
-                        ]
+                            {
+                                "path": f"{temp_dir}/workflow_0.txt",
+                                "size": 25,
+                                "type": "txt",
+                            },
+                            {
+                                "path": f"{temp_dir}/workflow_5.txt",
+                                "size": 25,
+                                "type": "txt",
+                            },
+                        ],
                     }
                 ]
             }
@@ -477,7 +512,9 @@ class TestConcurrentOperationPerformance:
             similarity_args.verbose = False
 
             similarity_start = time.time()
-            similarity_result = similarity_tool.execute_similarity(similarity_args)
+            similarity_result = similarity_tool.execute_similarity(
+                similarity_args
+            )
             similarity_end = time.time()
 
             # Verify all steps completed successfully
@@ -495,6 +532,7 @@ class TestConcurrentOperationPerformance:
             assert apply_time < 1.0
             assert similarity_time < 2.0
             assert total_workflow_time < 10.0
+
 
 class TestPerformanceRegression:
     """Test performance regression scenarios."""
@@ -538,7 +576,9 @@ class TestPerformanceRegression:
 
             # Performance should be consistent (no major regressions)
             assert avg_baseline < 8.0  # Should be under 8 seconds
-            assert max(baseline_times) - min(baseline_times) < 2.0  # Consistent performance
+            assert (
+                max(baseline_times) - min(baseline_times) < 2.0
+            )  # Consistent performance
 
     def test_memory_leak_detection(self):
         """Test detection of memory leaks in repeated operations."""
@@ -576,6 +616,7 @@ class TestPerformanceRegression:
 
                 # Performance should remain consistent
                 assert iteration_time < 3.0
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

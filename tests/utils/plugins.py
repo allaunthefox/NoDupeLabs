@@ -1,30 +1,33 @@
 # Tool Test Utilities
 # Helper functions for tool system testing
 
-import tempfile
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Union, Callable
-from unittest.mock import MagicMock, patch, Mock
+import contextlib
 import importlib
 import sys
+import tempfile
+from pathlib import Path
 from types import ModuleType
-import contextlib
+from typing import Any, Callable, Dict, List, Optional, Union
+from unittest.mock import MagicMock, Mock, patch
+
 
 def create_mock_tool(
     name: str = "test_tool",
-    functions: Optional[Dict[str, Callable]] = None,
-    metadata: Optional[Dict[str, Any]] = None
+    functions: Optional[dict[str, Callable]] = None,
+    metadata: Optional[dict[str, Any]] = None,
 ) -> Mock:
     """
-    Create a mock tool for testing.
+        Create a mock tool for testing.
 
-    Args:
-        name: Tool name
-        functions: Dictionary of tool functions
-        metadata: Tool metadata
+    # pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 
-    Returns:
-        Mock tool object
+        Args:
+            name: Tool name
+            functions: Dictionary of tool functions
+            metadata: Tool metadata
+
+        Returns:
+            Mock tool object
     """
     mock_tool = Mock()
     mock_tool.name = name
@@ -35,7 +38,7 @@ def create_mock_tool(
             "name": name,
             "version": "1.0.0",
             "author": "Test Author",
-            "description": "Test tool for testing"
+            "description": "Test tool for testing",
         }
 
     mock_tool.metadata = metadata
@@ -45,7 +48,7 @@ def create_mock_tool(
         functions = {
             "initialize": lambda: True,
             "execute": lambda *args, **kwargs: {"result": "success"},
-            "cleanup": lambda: None
+            "cleanup": lambda: None,
         }
 
     for func_name, func_impl in functions.items():
@@ -53,10 +56,10 @@ def create_mock_tool(
 
     return mock_tool
 
+
 def create_tool_directory_structure(
-    base_path: Path,
-    tools: List[Dict[str, Any]]
-) -> Dict[str, Path]:
+    base_path: Path, tools: list[dict[str, Any]]
+) -> dict[str, Path]:
     """
     Create a tool directory structure for testing.
 
@@ -114,9 +117,8 @@ metadata = {{
 
     return tool_paths
 
-def mock_tool_loader(
-    tools: Optional[List[Mock]] = None
-) -> MagicMock:
+
+def mock_tool_loader(tools: Optional[list[Mock]] = None) -> MagicMock:
     """
     Create a mock tool loader for testing.
 
@@ -129,10 +131,7 @@ def mock_tool_loader(
     mock_loader = MagicMock()
 
     if tools is None:
-        tools = [
-            create_mock_tool("tool1"),
-            create_mock_tool("tool2")
-        ]
+        tools = [create_mock_tool("tool1"), create_mock_tool("tool2")]
 
     mock_loader.load_tools.return_value = tools
     mock_loader.get_tool_by_name.side_effect = lambda name: next(
@@ -141,7 +140,8 @@ def mock_tool_loader(
 
     return mock_loader
 
-def create_tool_test_scenarios() -> List[Dict[str, Any]]:
+
+def create_tool_test_scenarios() -> list[dict[str, Any]]:
     """
     Create test scenarios for tool testing.
 
@@ -153,30 +153,30 @@ def create_tool_test_scenarios() -> List[Dict[str, Any]]:
             "name": "successful_tool_loading",
             "tools": [
                 {"name": "valid_tool1", "version": "1.0.0"},
-                {"name": "valid_tool2", "version": "2.0.0"}
+                {"name": "valid_tool2", "version": "2.0.0"},
             ],
-            "expected_result": "success"
+            "expected_result": "success",
         },
         {
             "name": "tool_loading_failure",
             "tools": [
                 {"name": "invalid_tool", "version": "1.0.0", "has_error": True}
             ],
-            "expected_result": "failure"
+            "expected_result": "failure",
         },
         {
             "name": "tool_compatibility_issue",
             "tools": [
                 {"name": "old_tool", "version": "0.5.0"},
-                {"name": "new_tool", "version": "3.0.0"}
+                {"name": "new_tool", "version": "3.0.0"},
             ],
-            "expected_result": "compatibility_warning"
-        }
+            "expected_result": "compatibility_warning",
+        },
     ]
 
+
 def simulate_tool_errors(
-    error_type: str = "loading",
-    tool_name: str = "test_tool"
+    error_type: str = "loading", tool_name: str = "test_tool"
 ) -> Callable:
     """
     Create a context manager to simulate tool errors.
@@ -188,18 +188,23 @@ def simulate_tool_errors(
     Returns:
         Context manager for error simulation
     """
+
     @contextlib.contextmanager
     def error_context():
         error_map = {
             "loading": ImportError(f"Cannot load tool {tool_name}"),
-            "initialization": RuntimeError(f"Tool {tool_name} initialization failed"),
+            "initialization": RuntimeError(
+                f"Tool {tool_name} initialization failed"
+            ),
             "execution": ValueError(f"Tool {tool_name} execution error"),
-            "compatibility": RuntimeError(f"Tool {tool_name} compatibility issue")
+            "compatibility": RuntimeError(
+                f"Tool {tool_name} compatibility issue"
+            ),
         }
 
         error = error_map.get(error_type, RuntimeError("Tool error"))
 
-        with patch('importlib.import_module') as mock_import:
+        with patch("importlib.import_module") as mock_import:
             if error_type == "loading":
                 mock_import.side_effect = error
             else:
@@ -215,10 +220,10 @@ def simulate_tool_errors(
 
     return error_context
 
+
 def verify_tool_functionality(
-    tool: Union[Mock, ModuleType],
-    test_cases: List[Dict[str, Any]]
-) -> Dict[str, bool]:
+    tool: Union[Mock, ModuleType], test_cases: list[dict[str, Any]]
+) -> dict[str, bool]:
     """
     Verify tool functionality against test cases.
 
@@ -238,7 +243,9 @@ def verify_tool_functionality(
             if test_case["function"] == "initialize":
                 result = tool.initialize()
             elif test_case["function"] == "execute":
-                result = tool.execute(*test_case.get("args", []), **test_case.get("kwargs", {}))
+                result = tool.execute(
+                    *test_case.get("args", []), **test_case.get("kwargs", {})
+                )
             elif test_case["function"] == "cleanup":
                 result = tool.cleanup()
             else:
@@ -257,9 +264,10 @@ def verify_tool_functionality(
 
     return results
 
+
 def create_tool_dependency_graph(
-    tools: List[Dict[str, Any]]
-) -> Dict[str, List[str]]:
+    tools: list[dict[str, Any]]
+) -> dict[str, list[str]]:
     """
     Create a tool dependency graph for testing.
 
@@ -279,9 +287,9 @@ def create_tool_dependency_graph(
 
     return graph
 
+
 def test_tool_dependency_resolution(
-    dependency_graph: Dict[str, List[str]],
-    resolution_order: List[str]
+    dependency_graph: dict[str, list[str]], resolution_order: list[str]
 ) -> bool:
     """
     Test tool dependency resolution.
@@ -307,7 +315,8 @@ def test_tool_dependency_resolution(
 
     return True
 
-def create_tool_sandbox_environment() -> Dict[str, Any]:
+
+def create_tool_sandbox_environment() -> dict[str, Any]:
     """
     Create a sandbox environment for tool testing.
 
@@ -320,18 +329,17 @@ def create_tool_sandbox_environment() -> Dict[str, Any]:
         "resource_limits": {
             "memory": 1024 * 1024,  # 1MB
             "cpu": 1.0,  # 1 CPU core
-            "timeout": 30  # 30 seconds
+            "timeout": 30,  # 30 seconds
         },
         "permissions": {
             "file_access": "read_only",
             "network_access": False,
-            "process_creation": False
-        }
+            "process_creation": False,
+        },
     }
 
-def mock_tool_registry(
-    tools: Optional[List[Mock]] = None
-) -> MagicMock:
+
+def mock_tool_registry(tools: Optional[list[Mock]] = None) -> MagicMock:
     """
     Create a mock tool registry for testing.
 
@@ -346,7 +354,7 @@ def mock_tool_registry(
     if tools is None:
         tools = [
             create_mock_tool("registered_tool1"),
-            create_mock_tool("registered_tool2")
+            create_mock_tool("registered_tool2"),
         ]
 
     # Mock registry methods
@@ -357,7 +365,8 @@ def mock_tool_registry(
 
     return mock_registry
 
-def create_tool_lifecycle_test_scenarios() -> List[Dict[str, Any]]:
+
+def create_tool_lifecycle_test_scenarios() -> list[dict[str, Any]]:
     """
     Create test scenarios for tool lifecycle testing.
 
@@ -372,8 +381,8 @@ def create_tool_lifecycle_test_scenarios() -> List[Dict[str, Any]]:
                 {"action": "initialize", "expected": "success"},
                 {"action": "execute", "expected": "success"},
                 {"action": "cleanup", "expected": "success"},
-                {"action": "unload", "expected": "success"}
-            ]
+                {"action": "unload", "expected": "success"},
+            ],
         },
         {
             "name": "initialization_failure",
@@ -381,8 +390,8 @@ def create_tool_lifecycle_test_scenarios() -> List[Dict[str, Any]]:
                 {"action": "load", "expected": "success"},
                 {"action": "initialize", "expected": "failure"},
                 {"action": "cleanup", "expected": "success"},
-                {"action": "unload", "expected": "success"}
-            ]
+                {"action": "unload", "expected": "success"},
+            ],
         },
         {
             "name": "execution_failure",
@@ -391,16 +400,17 @@ def create_tool_lifecycle_test_scenarios() -> List[Dict[str, Any]]:
                 {"action": "initialize", "expected": "success"},
                 {"action": "execute", "expected": "failure"},
                 {"action": "cleanup", "expected": "success"},
-                {"action": "unload", "expected": "success"}
-            ]
-        }
+                {"action": "unload", "expected": "success"},
+            ],
+        },
     ]
+
 
 def benchmark_tool_performance(
     tool: Union[Mock, ModuleType],
-    test_data: List[Dict[str, Any]],
-    iterations: int = 100
-) -> Dict[str, float]:
+    test_data: list[dict[str, Any]],
+    iterations: int = 100,
+) -> dict[str, float]:
     """
     Benchmark tool performance.
 
@@ -414,11 +424,7 @@ def benchmark_tool_performance(
     """
     import time
 
-    results = {
-        "initialize": 0.0,
-        "execute": 0.0,
-        "cleanup": 0.0
-    }
+    results = {"initialize": 0.0, "execute": 0.0, "cleanup": 0.0}
 
     # Benchmark initialize
     start_time = time.time()
@@ -444,7 +450,8 @@ def benchmark_tool_performance(
 
     return results
 
-def create_tool_security_test_scenarios() -> List[Dict[str, Any]]:
+
+def create_tool_security_test_scenarios() -> list[dict[str, Any]]:
     """
     Create test scenarios for tool security testing.
 
@@ -458,7 +465,7 @@ def create_tool_security_test_scenarios() -> List[Dict[str, Any]]:
 def execute():
     return {"result": "success"}
 """,
-            "expected_result": "allowed"
+            "expected_result": "allowed",
         },
         {
             "name": "dangerous_tool",
@@ -468,7 +475,7 @@ def execute():
     os.system("rm -rf /")
     return {"result": "success"}
 """,
-            "expected_result": "blocked"
+            "expected_result": "blocked",
         },
         {
             "name": "resource_intensive_tool",
@@ -478,6 +485,6 @@ def execute():
         pass
     return {"result": "success"}
 """,
-            "expected_result": "timeout"
-        }
+            "expected_result": "timeout",
+        },
     ]

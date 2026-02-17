@@ -21,9 +21,9 @@ Dependencies:
 import sqlite3
 import threading
 from pathlib import Path
-from typing import Optional, Any, Dict, List, Tuple, Union, TypeVar
+from typing import Any, Optional, TypeVar, Union
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class DatabaseConnection:
@@ -36,7 +36,7 @@ class DatabaseConnection:
     - Manage connection lifecycle
     """
 
-    _instances: Dict[str, 'DatabaseConnection'] = {}
+    _instances: dict[str, "DatabaseConnection"] = {}
     _lock = threading.Lock()
 
     def __init__(self, db_path: str = "output/index.db"):
@@ -52,7 +52,9 @@ class DatabaseConnection:
         self._local = threading.local()
 
     @classmethod
-    def get_instance(cls, db_path: str = "output/index.db") -> 'DatabaseConnection':
+    def get_instance(
+        cls, db_path: str = "output/index.db"
+    ) -> "DatabaseConnection":
         """Get singleton instance of DatabaseConnection.
 
         Args:
@@ -72,7 +74,7 @@ class DatabaseConnection:
         Returns:
             sqlite3.Connection instance
         """
-        if not hasattr(self._local, 'connection'):
+        if not hasattr(self._local, "connection"):
             # Create database directory if it doesn't exist
             db_dir = Path(self.db_path).parent
             if db_dir and not db_dir.exists():
@@ -82,18 +84,18 @@ class DatabaseConnection:
             connection = sqlite3.connect(
                 self.db_path,
                 timeout=30.0,
-                isolation_level='IMMEDIATE',
-                check_same_thread=False
+                isolation_level="IMMEDIATE",
+                check_same_thread=False,
             )
 
             # Configure connection for better performance
-            connection.execute('PRAGMA journal_mode=WAL')
-            connection.execute('PRAGMA synchronous=NORMAL')
-            connection.execute('PRAGMA temp_store=MEMORY')
-            connection.execute('PRAGMA cache_size=-20000')  # 20MB cache
+            connection.execute("PRAGMA journal_mode=WAL")
+            connection.execute("PRAGMA synchronous=NORMAL")
+            connection.execute("PRAGMA temp_store=MEMORY")
+            connection.execute("PRAGMA cache_size=-20000")  # 20MB cache
 
             # Enable foreign key constraints
-            connection.execute('PRAGMA foreign_keys=ON')
+            connection.execute("PRAGMA foreign_keys=ON")
 
             self._local.connection = connection
 
@@ -102,7 +104,7 @@ class DatabaseConnection:
     def execute(
         self,
         query: str,
-        params: Optional[Union[Tuple[Any, ...], Dict[str, Any]]] = None
+        params: Optional[Union[tuple[Any, ...], dict[str, Any]]] = None,
     ) -> sqlite3.Cursor:
         """Execute SQL query with parameters.
 
@@ -126,7 +128,7 @@ class DatabaseConnection:
     def executemany(
         self,
         query: str,
-        params_list: List[Union[Tuple[Any, ...], Dict[str, Any]]]
+        params_list: list[Union[tuple[Any, ...], dict[str, Any]]],
     ) -> sqlite3.Cursor:
         """Execute SQL query with multiple parameter sets.
 
@@ -162,7 +164,7 @@ class DatabaseConnection:
 
     def close(self) -> None:
         """Close database connection."""
-        if hasattr(self._local, 'connection'):
+        if hasattr(self._local, "connection"):
             try:
                 self._local.connection.close()
             except sqlite3.Error as e:
@@ -179,7 +181,8 @@ class DatabaseConnection:
         conn = self.get_connection()
 
         # Create files table if it doesn't exist
-        conn.execute('''
+        conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS files (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 path TEXT NOT NULL UNIQUE,
@@ -190,20 +193,20 @@ class DatabaseConnection:
                 duplicate_of INTEGER,
                 FOREIGN KEY (duplicate_of) REFERENCES files(id)
             )
-        ''')
+        """
+        )
 
         # Create file indexes for better performance
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_files_path ON files(path)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_files_hash ON files(hash)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_files_size ON files(size)")
         conn.execute(
-            'CREATE INDEX IF NOT EXISTS idx_files_path ON files(path)')
-        conn.execute(
-            'CREATE INDEX IF NOT EXISTS idx_files_hash ON files(hash)')
-        conn.execute(
-            'CREATE INDEX IF NOT EXISTS idx_files_size ON files(size)')
-        conn.execute(
-            'CREATE INDEX IF NOT EXISTS idx_files_duplicate ON files(is_duplicate)')
+            "CREATE INDEX IF NOT EXISTS idx_files_duplicate ON files(is_duplicate)"
+        )
 
         # Create embeddings table if it doesn't exist
-        conn.execute('''
+        conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS embeddings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 file_id INTEGER NOT NULL,
@@ -213,13 +216,16 @@ class DatabaseConnection:
                 FOREIGN KEY (file_id) REFERENCES files(id),
                 UNIQUE(file_id, model_version)
             )
-        ''')
+        """
+        )
 
         # Create embedding indexes
         conn.execute(
-            'CREATE INDEX IF NOT EXISTS idx_embeddings_file ON embeddings(file_id)')
+            "CREATE INDEX IF NOT EXISTS idx_embeddings_file ON embeddings(file_id)"
+        )
         conn.execute(
-            'CREATE INDEX IF NOT EXISTS idx_embeddings_model ON embeddings(model_version)')
+            "CREATE INDEX IF NOT EXISTS idx_embeddings_model ON embeddings(model_version)"
+        )
 
         conn.commit()
 

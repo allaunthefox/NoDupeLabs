@@ -2,6 +2,8 @@
 
 Resource pooling utilities using standard library only.
 
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
+
 Key Features:
     - Thread pool for concurrent tasks
     - Connection pool for database connections
@@ -18,19 +20,19 @@ Dependencies:
     - sys (for GIL detection)
 """
 
-import threading
 import queue
-from typing import Any, Callable, Optional, Generic, TypeVar, List
-from contextlib import contextmanager
-import time
 import sys
+import threading
+import time
+from contextlib import contextmanager, suppress
+from typing import Any, Callable, Generic, Optional, TypeVar
 
 
 class PoolError(Exception):
     """Pool operation error"""
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def _is_free_threaded() -> bool:
@@ -39,7 +41,7 @@ def _is_free_threaded() -> bool:
     Returns:
         True if running in free-threaded mode, False otherwise
     """
-    return hasattr(sys, 'flags') and getattr(sys.flags, 'gil', 1) == 0
+    return hasattr(sys, "flags") and getattr(sys.flags, "gil", 1) == 0
 
 
 class ObjectPool(Generic[T]):
@@ -56,7 +58,7 @@ class ObjectPool(Generic[T]):
         timeout: float = 5.0,
         reset_func: Optional[Callable[[T], None]] = None,
         destroy_func: Optional[Callable[[T], None]] = None,
-        use_rlock: bool = True  # Use RLock instead of Lock for better free-threaded compatibility
+        use_rlock: bool = True,  # Use RLock instead of Lock for better free-threaded compatibility
     ):
         """Initialize object pool.
 
@@ -89,7 +91,9 @@ class ObjectPool(Generic[T]):
         """
         return self._is_free_threaded
 
-    def get_optimal_pool_size(self, estimated_concurrent_usage: Optional[int] = None) -> int:
+    def get_optimal_pool_size(
+        self, estimated_concurrent_usage: Optional[int] = None
+    ) -> int:
         """Get optimal pool size based on Python version and usage patterns.
 
         Args:
@@ -160,10 +164,8 @@ class ObjectPool(Generic[T]):
         if self._closed:
             # Destroy object if pool is closed
             if self.destroy_func:
-                try:
+                with suppress(Exception):
                     self.destroy_func(obj)
-                except Exception:
-                    pass
             return
 
         try:
@@ -179,10 +181,8 @@ class ObjectPool(Generic[T]):
             with self._lock:
                 self._active_count -= 1
             if self.destroy_func:
-                try:
+                with suppress(Exception):
                     self.destroy_func(obj)
-                except Exception:
-                    pass
 
     @contextmanager
     def get_object(self, timeout: Optional[float] = None):
@@ -263,7 +263,7 @@ class ConnectionPool:
         connect_func: Callable[[], Any],
         max_connections: int = 10,
         timeout: float = 5.0,
-        test_on_borrow: bool = True
+        test_on_borrow: bool = True,
     ):
         """Initialize connection pool.
 
@@ -283,7 +283,7 @@ class ConnectionPool:
             max_size=max_connections,
             timeout=timeout,
             reset_func=None,  # Connections don't need reset
-            destroy_func=self._close_connection
+            destroy_func=self._close_connection,
         )
 
     @property
@@ -302,7 +302,7 @@ class ConnectionPool:
             conn: Connection to close
         """
         try:
-            if hasattr(conn, 'close'):
+            if hasattr(conn, "close"):
                 conn.close()
         except Exception:
             pass
@@ -318,8 +318,8 @@ class ConnectionPool:
         """
         try:
             # Try to execute a simple query
-            if hasattr(conn, 'execute'):
-                conn.execute('SELECT 1')
+            if hasattr(conn, "execute"):
+                conn.execute("SELECT 1")
                 return True
             return True
         except Exception:
@@ -340,11 +340,10 @@ class ConnectionPool:
         conn = self._pool.acquire(timeout)
 
         # Test connection if required
-        if self.test_on_borrow:
-            if not self._test_connection(conn):
-                # Connection is bad, destroy it and try again
-                self._close_connection(conn)
-                return self.acquire(timeout)
+        if self.test_on_borrow and not self._test_connection(conn):
+            # Connection is bad, destroy it and try again
+            self._close_connection(conn)
+            return self.acquire(timeout)
 
         return conn
 
@@ -412,9 +411,11 @@ class WorkerPool:
         else:
             self._queue = queue.Queue()
 
-        self._threads: List[threading.Thread] = []
+        self._threads: list[threading.Thread] = []
         self._running = False
-        self._lock = threading.RLock() if self._is_free_threaded else threading.Lock()
+        self._lock = (
+            threading.RLock() if self._is_free_threaded else threading.Lock()
+        )
 
     @property
     def is_free_threaded(self) -> bool:
@@ -458,9 +459,7 @@ class WorkerPool:
             # Create and start worker threads
             for i in range(optimal_workers):
                 thread = threading.Thread(
-                    target=self._worker,
-                    name=f"Worker-{i}",
-                    daemon=True
+                    target=self._worker, name=f"Worker-{i}", daemon=True
                 )
                 thread.start()
                 self._threads.append(thread)
@@ -490,11 +489,7 @@ class WorkerPool:
                 continue
 
     def submit(
-        self,
-        func: Callable,
-        *args,
-        timeout: Optional[float] = None,
-        **kwargs
+        self, func: Callable, *args, timeout: Optional[float] = None, **kwargs
     ) -> None:
         """Submit a task to the pool.
 
@@ -516,7 +511,9 @@ class WorkerPool:
         except queue.Full:
             raise PoolError("Worker queue is full")
 
-    def shutdown(self, wait: bool = True, timeout: Optional[float] = None) -> None:
+    def shutdown(
+        self, wait: bool = True, timeout: Optional[float] = None
+    ) -> None:
         """Shutdown worker pool.
 
         Args:
@@ -597,9 +594,7 @@ class Pools:
 
     @staticmethod
     def create_pool(
-        factory: Callable[[], T],
-        max_size: int = 10,
-        **kwargs
+        factory: Callable[[], T], max_size: int = 10, **kwargs
     ) -> ObjectPool[T]:
         """Create a generic object pool.
 
@@ -615,9 +610,7 @@ class Pools:
 
     @staticmethod
     def create_pool_optimized(
-        factory: Callable[[], T],
-        max_size: int = 10,
-        **kwargs
+        factory: Callable[[], T], max_size: int = 10, **kwargs
     ) -> ObjectPool[T]:
         """Create a generic object pool optimized for current Python version.
 
@@ -632,16 +625,16 @@ class Pools:
         is_free_threaded = _is_free_threaded()
 
         # Adjust max_size based on threading mode if not explicitly set
-        if 'max_size' not in kwargs and is_free_threaded:
+        if "max_size" not in kwargs and is_free_threaded:
             max_size = max_size * 2  # More capacity in free-threaded mode
 
-        return ObjectPool(factory=factory, max_size=max_size, use_rlock=True, **kwargs)
+        return ObjectPool(
+            factory=factory, max_size=max_size, use_rlock=True, **kwargs
+        )
 
     @staticmethod
     def create_connection_pool(
-        connect_func: Callable[[], Any],
-        max_connections: int = 10,
-        **kwargs
+        connect_func: Callable[[], Any], max_connections: int = 10, **kwargs
     ) -> ConnectionPool:
         """Create a connection pool.
 
@@ -654,16 +647,12 @@ class Pools:
             ConnectionPool instance
         """
         return ConnectionPool(
-            connect_func=connect_func,
-            max_connections=max_connections,
-            **kwargs
+            connect_func=connect_func, max_connections=max_connections, **kwargs
         )
 
     @staticmethod
     def create_connection_pool_optimized(
-        connect_func: Callable[[], Any],
-        max_connections: int = 10,
-        **kwargs
+        connect_func: Callable[[], Any], max_connections: int = 10, **kwargs
     ) -> ConnectionPool:
         """Create a connection pool optimized for current Python version.
 
@@ -679,15 +668,12 @@ class Pools:
             # In free-threaded mode, can handle more concurrent connections
             max_connections = max_connections * 2
         return ConnectionPool(
-            connect_func=connect_func,
-            max_connections=max_connections,
-            **kwargs
+            connect_func=connect_func, max_connections=max_connections, **kwargs
         )
 
     @staticmethod
     def create_worker_pool(
-        workers: int = 4,
-        queue_size: int = 100
+        workers: int = 4, queue_size: int = 100
     ) -> WorkerPool:
         """Create a worker pool.
 
@@ -702,8 +688,7 @@ class Pools:
 
     @staticmethod
     def create_worker_pool_optimized(
-        workers: int = 4,
-        queue_size: int = 100
+        workers: int = 4, queue_size: int = 100
     ) -> WorkerPool:
         """Create a worker pool optimized for current Python version.
 

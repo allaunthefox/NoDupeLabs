@@ -39,7 +39,7 @@ import warnings
 
 def deprecated_function():
     """Deprecated: Use new_function() instead.
-    
+
     Deprecated since version 1.2.0, will be removed in 2.0.0.
     """
     warnings.warn(
@@ -93,11 +93,11 @@ class IntegrityError(DatabaseError):
 ```python
 def create_backup(db_path: str, backup_dir: str) -> str:
     """Create timestamped database backup.
-    
+
     Args:
         db_path: Path to source database
         backup_dir: Directory for backup files
-    
+
     Returns:
         Path to created backup file
     """
@@ -167,7 +167,7 @@ Always index:
 ```
 tests/
 ├── unit/              # Individual component tests
-├── integration/       # Multi-component tests  
+├── integration/       # Multi-component tests
 ├── performance/       # Benchmark tests
 ├── security/         # Penetration tests
 └── regression/        # Bug fix verification
@@ -191,7 +191,7 @@ tests/
 ```python
 def health_check(db_path: str) -> Dict[str, Any]:
     """Perform database health check.
-    
+
     Returns:
         Dictionary with health status, issues, and recommendations
     """

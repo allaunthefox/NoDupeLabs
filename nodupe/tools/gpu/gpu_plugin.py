@@ -6,9 +6,12 @@
 Provides hardware acceleration capabilities as a tool.
 """
 
-from typing import List, Dict, Any, Optional, Callable
+from typing import Any, Callable
+
 from nodupe.core.tool_system.base import Tool
+
 from . import get_gpu_backend
+
 
 class GPUBackendTool(Tool):
     """Hardware acceleration tool."""
@@ -22,16 +25,16 @@ class GPUBackendTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         return []
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
-            'compute_embeddings': self.backend.compute_embeddings,
-            'matrix_multiply': self.backend.matrix_multiply,
-            'get_device_info': self.backend.get_device_info,
-            'is_available': self.backend.is_available
+            "compute_embeddings": self.backend.compute_embeddings,
+            "matrix_multiply": self.backend.matrix_multiply,
+            "get_device_info": self.backend.get_device_info,
+            "is_available": self.backend.is_available,
         }
 
     def __init__(self):
@@ -40,19 +43,20 @@ class GPUBackendTool(Tool):
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool and register services."""
-        container.register_service('gpu_backend', self.backend)
+        container.register_service("gpu_backend", self.backend)
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         info = self.backend.get_device_info()
         return {
-            'device_type': info.get('type', 'unknown'),
-            'device_name': info.get('name', 'unknown'),
-            'available': self.backend.is_available()
+            "device_type": info.get("type", "unknown"),
+            "device_name": info.get("name", "unknown"),
+            "available": self.backend.is_available(),
         }
+
 
 def register_tool():
     """Register the GPU tool."""

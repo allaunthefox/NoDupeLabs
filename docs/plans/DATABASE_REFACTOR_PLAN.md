@@ -1,8 +1,8 @@
 # Core Module Refactor Plan
 
-**Version:** 5.0  
-**Created:** 2026-02-14  
-**Status:** Planning Phase  
+**Version:** 5.0
+**Created:** 2026-02-14
+**Status:** Planning Phase
 
 ---
 
@@ -529,7 +529,7 @@ Phase 7: Verification [FINAL]
 
 ---
 
-**Document Status:** Ready for Implementation  
+**Document Status:** Ready for Implementation
 **Next Step:** "Toggle to Act mode" to begin Phase 1 implementation
 
 ---

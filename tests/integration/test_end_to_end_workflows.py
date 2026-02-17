@@ -8,18 +8,23 @@ data flow through all system components and integration between CLI, tools,
 and core services.
 """
 
-import pytest
-import sys
-import os
-import tempfile
 import json
+import os
+import sys
+import tempfile
 import time
-from unittest.mock import patch, MagicMock
-from nodupe.core.main import main
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.loader import bootstrap
-from nodupe.tools.commands.scan import ScanTool
+from nodupe.core.main import main
 from nodupe.tools.commands.apply import ApplyTool
-from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.similarity import (
+    SimilarityCommandTool as SimilarityTool,
+)
+
 
 class TestCompleteScanApplyWorkflow:
     """Test complete scan and apply workflow integration."""
@@ -62,15 +67,15 @@ class TestCompleteScanApplyWorkflow:
                         "hash": "abc123",
                         "files": [
                             {"path": test_files[0], "size": 18, "type": "txt"},
-                            {"path": test_files[2], "size": 18, "type": "txt"}
-                        ]
+                            {"path": test_files[2], "size": 18, "type": "txt"},
+                        ],
                     },
                     {
                         "hash": "def456",
                         "files": [
                             {"path": test_files[1], "size": 18, "type": "txt"}
-                        ]
-                    }
+                        ],
+                    },
                 ]
             }
 
@@ -127,8 +132,8 @@ class TestCompleteScanApplyWorkflow:
                         "hash": "hash1",
                         "files": [
                             {"path": test_files[0], "size": 10, "type": "txt"},
-                            {"path": test_files[2], "size": 10, "type": "txt"}
-                        ]
+                            {"path": test_files[2], "size": 10, "type": "txt"},
+                        ],
                     }
                 ]
             }
@@ -148,6 +153,7 @@ class TestCompleteScanApplyWorkflow:
             apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0
 
+
 class TestCompleteScanSimilarityWorkflow:
     """Test complete scan followed by similarity workflow integration."""
 
@@ -158,7 +164,9 @@ class TestCompleteScanSimilarityWorkflow:
             for i in range(5):
                 test_file = os.path.join(temp_dir, f"document_{i}.txt")
                 with open(test_file, "w") as f:
-                    f.write(f"Document content about topic {i % 3}")  # Similar content groups
+                    f.write(
+                        f"Document content about topic {i % 3}"
+                    )  # Similar content groups
 
             # Create query file
             query_file = os.path.join(temp_dir, "query.txt")
@@ -195,8 +203,11 @@ class TestCompleteScanSimilarityWorkflow:
             similarity_args.output = "text"
             similarity_args.verbose = False
 
-            similarity_result = similarity_tool.execute_similarity(similarity_args)
+            similarity_result = similarity_tool.execute_similarity(
+                similarity_args
+            )
             assert similarity_result == 0
+
 
 class TestToolLifecycleIntegration:
     """Test complete tool lifecycle integration."""
@@ -261,6 +272,7 @@ class TestToolLifecycleIntegration:
         # Verify command registration calls
         assert mock_subparsers.add_parser.call_count == 3
 
+
 class TestDatabaseIntegration:
     """Test database integration workflows."""
 
@@ -319,8 +331,8 @@ class TestDatabaseIntegration:
                         "hash": "testhash",
                         "files": [
                             {"path": test_files[0], "size": 18, "type": "txt"},
-                            {"path": test_files[1], "size": 18, "type": "txt"}
-                        ]
+                            {"path": test_files[1], "size": 18, "type": "txt"},
+                        ],
                     }
                 ]
             }
@@ -340,6 +352,7 @@ class TestDatabaseIntegration:
             apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0
 
+
 class TestCLIIntegration:
     """Test CLI integration with core system."""
 
@@ -352,7 +365,9 @@ class TestCLIIntegration:
                 f.write("test content")
 
             # Test CLI scan command
-            with patch('sys.argv', ['nodupe', 'scan', temp_dir, '--min-size', '0']):
+            with patch(
+                "sys.argv", ["nodupe", "scan", temp_dir, "--min-size", "0"]
+            ):
                 result = main()
                 # Scan should complete successfully
                 assert isinstance(result, int)
@@ -360,16 +375,17 @@ class TestCLIIntegration:
     def test_cli_tool_command_integration(self):
         """Test CLI tool command integration."""
         # Test CLI tool list command
-        with patch('sys.argv', ['nodupe', 'tool', '--list']):
+        with patch("sys.argv", ["nodupe", "tool", "--list"]):
             result = main()
             assert result == 0
 
     def test_cli_version_command_integration(self):
         """Test CLI version command integration."""
         # Test CLI version command
-        with patch('sys.argv', ['nodupe', 'version']):
+        with patch("sys.argv", ["nodupe", "version"]):
             result = main()
             assert result == 0
+
 
 class TestComplexWorkflowIntegration:
     """Test complex multi-step workflow integration."""
@@ -382,7 +398,9 @@ class TestComplexWorkflowIntegration:
             for i in range(6):
                 test_file = os.path.join(temp_dir, f"doc_{i}.txt")
                 with open(test_file, "w") as f:
-                    f.write(f"Content about subject {i % 2}")  # Creates duplicates
+                    f.write(
+                        f"Content about subject {i % 2}"
+                    )  # Creates duplicates
                 test_files.append(test_file)
 
             # Step 2: Mock container and services
@@ -413,17 +431,17 @@ class TestComplexWorkflowIntegration:
                         "files": [
                             {"path": test_files[0], "size": 22, "type": "txt"},
                             {"path": test_files[2], "size": 22, "type": "txt"},
-                            {"path": test_files[4], "size": 22, "type": "txt"}
-                        ]
+                            {"path": test_files[4], "size": 22, "type": "txt"},
+                        ],
                     },
                     {
                         "hash": "hash2",
                         "files": [
                             {"path": test_files[1], "size": 22, "type": "txt"},
                             {"path": test_files[3], "size": 22, "type": "txt"},
-                            {"path": test_files[5], "size": 22, "type": "txt"}
-                        ]
-                    }
+                            {"path": test_files[5], "size": 22, "type": "txt"},
+                        ],
+                    },
                 ]
             }
 
@@ -456,7 +474,9 @@ class TestComplexWorkflowIntegration:
             similarity_args.output = "text"
             similarity_args.verbose = False
 
-            similarity_result = similarity_tool.execute_similarity(similarity_args)
+            similarity_result = similarity_tool.execute_similarity(
+                similarity_args
+            )
             assert similarity_result == 0
 
     def test_large_dataset_workflow(self):
@@ -489,6 +509,7 @@ class TestComplexWorkflowIntegration:
             scan_result = scan_tool.execute_scan(scan_args)
             assert scan_result == 0
 
+
 class TestErrorHandlingIntegration:
     """Test error handling in integrated workflows."""
 
@@ -510,7 +531,7 @@ class TestErrorHandlingIntegration:
 
     def test_workflow_with_missing_files(self):
         """Test workflow error handling with missing files."""
-        with tempfile.TemporaryDirectory() as temp_dir:
+        with tempfile.TemporaryDirectory():
             # Test apply with missing input file
             apply_tool = ApplyTool()
             apply_args = MagicMock()
@@ -539,6 +560,7 @@ class TestErrorHandlingIntegration:
         scan_result = scan_tool.execute_scan(scan_args)
         # Should handle permission error gracefully
         assert isinstance(scan_result, int)
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

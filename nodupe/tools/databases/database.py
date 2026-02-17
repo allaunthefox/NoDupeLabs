@@ -16,6 +16,6 @@ DEPRECATED: Import directly from nodupe.core.database instead:
 from .wrapper import Database, DatabaseError
 
 __all__ = [
-    'Database',
-    'DatabaseError',
+    "Database",
+    "DatabaseError",
 ]

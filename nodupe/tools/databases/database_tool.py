@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
@@ -6,9 +7,12 @@
 Provides SQLite-based data storage as a tool.
 """
 
-from typing import List, Dict, Any, Optional, Callable
+from typing import Any, Callable
+
 from nodupe.core.tool_system.base import Tool, ToolMetadata
+
 from .connection import DatabaseConnection
+
 
 class StandardDatabaseTool(Tool):
     """Standard database tool (SQLite implementation)."""
@@ -22,7 +26,7 @@ class StandardDatabaseTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         return []
 
     @property
@@ -36,16 +40,16 @@ class StandardDatabaseTool(Tool):
             author="NoDupeLabs",
             license="Apache-2.0",
             dependencies=self.dependencies,
-            tags=["database", "sqlite", "storage", "metadata"]
+            tags=["database", "sqlite", "storage", "metadata"],
         )
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         # Expose relevant database methods
         return {
-            'initialize': self.db.initialize_database,
-            'get_connection': lambda: self.db,
-            'close': self.db.close
+            "initialize": self.db.initialize_database,
+            "get_connection": lambda: self.db,
+            "close": self.db.close,
         }
 
     def __init__(self):
@@ -56,16 +60,19 @@ class StandardDatabaseTool(Tool):
         """Initialize the tool and register services."""
         try:
             self.db.initialize_database()
-            container.register_service('database', self.db)
+            container.register_service("database", self.db)
         except Exception as e:
             import logging
-            logging.getLogger(__name__).error(f"Failed to initialize database: {e}")
+
+            logging.getLogger(__name__).exception(
+                f"Failed to initialize database: {e}"
+            )
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
         self.db.close()
 
-    def run_standalone(self, args: List[str]) -> int:
+    def run_standalone(self, args: list[str]) -> int:
         """Stand-alone database check."""
         print(f"Database Path: {self.db.db_path}")
         try:
@@ -84,18 +91,21 @@ class StandardDatabaseTool(Tool):
             "can remember them later and find duplicates quickly."
         )
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         return {
-            'engine': 'SQLite',
-            'path': self.db.db_path,
-            'features': ['connection_pooling', 'transactions']
+            "engine": "SQLite",
+            "path": self.db.db_path,
+            "features": ["connection_pooling", "transactions"],
         }
+
 
 def register_tool():
     """Register the database tool."""
     return StandardDatabaseTool()
 
+
 if __name__ == "__main__":
     import sys
+
     tool = StandardDatabaseTool()
     sys.exit(tool.run_standalone(sys.argv[1:]))

@@ -304,8 +304,8 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          user: __TOKEN_REMOVED__
-          PASSWORD_REMOVED: ${{ SECRET_REMOVEDs.PYPI_API_TOKEN }}
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
           skip-existing: true
 
       - name: Create GitHub Release
@@ -319,4 +319,4 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ SECRET_REMOVEDs.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,8 +1,8 @@
 # NoDupeLabs Project Plan
 
-**Version:** 2.0  
-**Created:** 2026-02-14  
-**Status:** Active  
+**Version:** 2.0
+**Created:** 2026-02-14
+**Status:** Active
 
 ---
 
@@ -321,5 +321,5 @@ Release 1.0.0 published to PyPI
 
 ---
 
-**Document Status:** Ready for Implementation  
+**Document Status:** Ready for Implementation
 **Next Review:** After Phase 3 completion

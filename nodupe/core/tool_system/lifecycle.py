@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 """Tool Lifecycle Module.
 
 Tool lifecycle management using standard library only.
@@ -15,10 +16,11 @@ Dependencies:
 
 import logging
 from enum import Enum
-from typing import Dict, List, Optional, Any
+from typing import Any, Optional
+
+from ..api.codes import ActionCode
 from .base import Tool
 from .registry import ToolRegistry
-from ..api.codes import ActionCode
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +31,9 @@ class ToolLifecycleError(Exception):
 
 class ToolState(Enum):
     """Tool lifecycle states."""
+
     UNLOADED = "unloaded"
+    UNINITIALIZED = "uninitialized"
     LOADED = "loaded"
     INITIALIZING = "initializing"
     INITIALIZED = "initialized"
@@ -51,9 +55,9 @@ class ToolLifecycleManager:
             registry: Tool registry instance
         """
         self.registry = registry or ToolRegistry()
-        self._tool_states: Dict[str, ToolState] = {}
-        self._tool_dependencies: Dict[str, List[str]] = {}
-        self._tool_containers: Dict[str, Any] = {}
+        self._tool_states: dict[str, ToolState] = {}
+        self._tool_dependencies: dict[str, list[str]] = {}
+        self._tool_containers: dict[str, Any] = {}
         self.container = None
 
     def initialize(self, container: Any) -> None:
@@ -64,7 +68,7 @@ class ToolLifecycleManager:
         """
         self.container = container
 
-    def initialize_tools(self, tools: List[Tool]) -> None:
+    def initialize_tools(self, tools: list[Tool]) -> None:
         """Initialize multiple tools.
 
         Args:
@@ -77,7 +81,7 @@ class ToolLifecycleManager:
         self,
         tool: Tool,
         container: Any,
-        dependencies: Optional[List[str]] = None
+        dependencies: Optional[list[str]] = None,
     ) -> bool:
         """Initialize a tool with dependency resolution.
 
@@ -95,14 +99,32 @@ class ToolLifecycleManager:
         try:
             tool_name = tool.name
 
-            # Check if tool is already initialized
+            # Validate stored state is sane
             current_state = self._tool_states.get(tool_name, ToolState.UNLOADED)
+            if not isinstance(current_state, ToolState):
+                raise ToolLifecycleError(
+                    f"Invalid state for tool {tool_name}: {current_state}"
+                )
+
+            # Reject tools that don't implement required lifecycle hooks
+            required_methods = ["initialize", "shutdown", "get_capabilities"]
+            for method in required_methods:
+                cls_method = getattr(type(tool), method, None)
+                base_method = getattr(Tool, method, None)
+                if cls_method is None or cls_method == base_method:
+                    raise ToolLifecycleError(
+                        f"Tool {tool_name} missing required method: {method}"
+                    )
+
+            # Check if tool is already initialized
             if current_state == ToolState.INITIALIZED:
                 return True  # Already initialized
 
             # Set state to initializing
             self._tool_states[tool_name] = ToolState.INITIALIZING
-            logger.info(f"[{ActionCode.FIA_UAU_INIT}] Initializing tool: {tool_name}")
+            logger.info(
+                f"[{ActionCode.FIA_UAU_INIT}] Initializing tool: {tool_name}"
+            )
 
             # Store dependencies if provided
             if dependencies is not None:
@@ -120,28 +142,39 @@ class ToolLifecycleManager:
 
             # Check for accessibility compliance before initialization
             from .base import AccessibleTool
+
             if isinstance(tool, AccessibleTool):
-                logger.info(f"[{ActionCode.ACC_ISO_CMP}] Initializing ISO accessibility compliant tool: {tool_name}")
+                logger.info(
+                    f"[{ActionCode.ACC_ISO_CMP}] Initializing ISO accessibility compliant tool: {tool_name}"
+                )
             else:
-                logger.info(f"[{ActionCode.ACC_FEATURE_DISABLED}] Initializing tool without accessibility features: {tool_name}")
+                logger.info(
+                    f"[{ActionCode.ACC_FEATURE_DISABLED}] Initializing tool without accessibility features: {tool_name}"
+                )
 
             # Initialize the tool
             tool.initialize(container)
 
             # Set state to initialized
             self._tool_states[tool_name] = ToolState.INITIALIZED
-            logger.info(f"[{ActionCode.FIA_UAU_INIT}] Tool initialized successfully: {tool_name}")
+            logger.info(
+                f"[{ActionCode.FIA_UAU_INIT}] Tool initialized successfully: {tool_name}"
+            )
 
             return True
 
         except Exception as e:
             self._tool_states[tool_name] = ToolState.ERROR
-            logger.error(f"[{ActionCode.FPT_STM_ERR}] Failed to initialize tool {tool_name}: {e}")
+            logger.exception(
+                f"[{ActionCode.FPT_STM_ERR}] Failed to initialize tool {tool_name}: {e}"
+            )
             if isinstance(e, ToolLifecycleError):
                 raise
-            raise ToolLifecycleError(f"Failed to initialize tool {tool_name}: {e}") from e
+            raise ToolLifecycleError(
+                f"Failed to initialize tool {tool_name}: {e}"
+            ) from e
 
-    def shutdown_tools(self, tools: List[Tool]) -> None:
+    def shutdown_tools(self, tools: list[Tool]) -> None:
         """Shutdown multiple tools.
 
         Args:
@@ -166,38 +199,59 @@ class ToolLifecycleManager:
                 return False
 
             current_state = self._tool_states.get(tool_name, ToolState.UNLOADED)
+            # Validate saved state
+            if not isinstance(current_state, ToolState):
+                raise ToolLifecycleError(
+                    f"Invalid state for tool {tool_name}: {current_state}"
+                )
+
             if current_state in [ToolState.SHUTDOWN, ToolState.UNLOADED]:
                 return True  # Already shutdown
 
             # Set state to shutting down
             self._tool_states[tool_name] = ToolState.SHUTTING_DOWN
-            logger.info(f"[{ActionCode.FIA_UAU_SHUTDOWN}] Shutting down tool: {tool_name}")
+            logger.info(
+                f"[{ActionCode.FIA_UAU_SHUTDOWN}] Shutting down tool: {tool_name}"
+            )
 
             # Check for accessibility compliance during shutdown
             from .base import AccessibleTool
+
             if isinstance(tool, AccessibleTool):
-                logger.info(f"[{ActionCode.ACC_ISO_CMP}] Shutting down ISO accessibility compliant tool: {tool_name}")
+                logger.info(
+                    f"[{ActionCode.ACC_ISO_CMP}] Shutting down ISO accessibility compliant tool: {tool_name}"
+                )
             else:
-                logger.info(f"[{ActionCode.ACC_FEATURE_DISABLED}] Shutting down tool without accessibility features: {tool_name}")
+                logger.info(
+                    f"[{ActionCode.ACC_FEATURE_DISABLED}] Shutting down tool without accessibility features: {tool_name}"
+                )
 
             # Shutdown the tool
             try:
                 tool.shutdown()
             except Exception as e:
                 # Log error but continue
-                logger.warning(f"[{ActionCode.ERR_INTERNAL}] Error shutting down tool {tool_name}: {e}")
+                logger.warning(
+                    f"[{ActionCode.ERR_INTERNAL}] Error shutting down tool {tool_name}: {e}"
+                )
 
             # Clean up state
             self._tool_states[tool_name] = ToolState.SHUTDOWN
             self._tool_containers.pop(tool_name, None)
-            logger.info(f"[{ActionCode.FIA_UAU_SHUTDOWN}] Tool shutdown complete: {tool_name}")
+            logger.info(
+                f"[{ActionCode.FIA_UAU_SHUTDOWN}] Tool shutdown complete: {tool_name}"
+            )
 
             return True
 
         except Exception as e:
             self._tool_states[tool_name] = ToolState.ERROR
-            logger.error(f"[{ActionCode.FPT_STM_ERR}] Failed to shutdown tool {tool_name}: {e}")
-            raise ToolLifecycleError(f"Failed to shutdown tool {tool_name}: {e}") from e
+            logger.exception(
+                f"[{ActionCode.FPT_STM_ERR}] Failed to shutdown tool {tool_name}: {e}"
+            )
+            raise ToolLifecycleError(
+                f"Failed to shutdown tool {tool_name}: {e}"
+            ) from e
 
     def initialize_all_tools(self, container: Any) -> bool:
         """Initialize all registered tools with dependency resolution.
@@ -221,14 +275,18 @@ class ToolLifecycleManager:
             # Initialize each tool
             for tool in ordered_tools:
                 if not self.initialize_tool(tool, container):
-                    raise ToolLifecycleError(f"Failed to initialize tool {tool.name}")
+                    raise ToolLifecycleError(
+                        f"Failed to initialize tool {tool.name}"
+                    )
 
             return True
 
         except Exception as e:
             if isinstance(e, ToolLifecycleError):
                 raise
-            raise ToolLifecycleError(f"Failed to initialize all tools: {e}") from e
+            raise ToolLifecycleError(
+                f"Failed to initialize all tools: {e}"
+            ) from e
 
     def shutdown_all_tools(self) -> bool:
         """Shutdown all initialized tools.
@@ -247,13 +305,34 @@ class ToolLifecycleManager:
                 except ToolLifecycleError:
                     # Continue shutting down other tools even if one fails
                     continue
+                # After global shutdown we mark tool as uninitialized to
+                # indicate it can be initialized again from a fresh state.
+                self._tool_states[tool.name] = ToolState.UNINITIALIZED
 
             return True
 
         except Exception as e:
-            raise ToolLifecycleError(f"Failed to shutdown all tools: {e}") from e
+            raise ToolLifecycleError(
+                f"Failed to shutdown all tools: {e}"
+            ) from e
 
-    def get_tool_states(self) -> Dict[str, ToolState]:
+    def shutdown(self) -> None:
+        """Shutdown lifecycle manager and all managed tools.
+
+        Convenience helper used by tests and higher-level shutdown hooks.
+        """
+        # Best-effort shutdown of all tools managed by this lifecycle
+        try:
+            self.shutdown_all_tools()
+        except ToolLifecycleError:
+            # Swallow errors during global shutdown to allow cleanup to continue
+            pass
+        finally:
+            # Clear the container reference on shutdown to match test
+            # expectations for lifecycle manager lifecycle behaviour.
+            self.container = None
+
+    def get_tool_states(self) -> dict[str, ToolState]:
         """Get all tool states.
 
         Returns:
@@ -281,7 +360,10 @@ class ToolLifecycleManager:
         Returns:
             True if tool is initialized
         """
-        return self._tool_states.get(tool_name, ToolState.UNLOADED) == ToolState.INITIALIZED
+        return (
+            self._tool_states.get(tool_name, ToolState.UNLOADED)
+            == ToolState.INITIALIZED
+        )
 
     def is_tool_active(self, tool_name: str) -> bool:
         """Check if a tool is active (loaded and initialized).
@@ -295,18 +377,19 @@ class ToolLifecycleManager:
         state = self._tool_states.get(tool_name, ToolState.UNLOADED)
         return state in [ToolState.INITIALIZED, ToolState.INITIALIZING]
 
-    def get_active_tools(self) -> List[str]:
+    def get_active_tools(self) -> list[str]:
         """Get list of active tool names.
 
         Returns:
             List of active tool names
         """
         return [
-            name for name, state in self._tool_states.items()
+            name
+            for name, state in self._tool_states.items()
             if state in [ToolState.INITIALIZED, ToolState.INITIALIZING]
         ]
 
-    def get_tool_dependencies(self, tool_name: str) -> List[str]:
+    def get_tool_dependencies(self, tool_name: str) -> list[str]:
         """Get dependencies for a tool.
 
         Args:
@@ -315,9 +398,23 @@ class ToolLifecycleManager:
         Returns:
             List of dependency tool names
         """
-        return self._tool_dependencies.get(tool_name, [])
+        # Prefer explicit lifecycle-managed dependencies; otherwise fall
+        # back to the Tool instance's declared dependencies (if available).
+        deps = self._tool_dependencies.get(tool_name)
+        if deps is not None:
+            return deps
 
-    def set_tool_dependencies(self, tool_name: str, dependencies: List[str]) -> None:
+        tool = self.registry.get_tool(tool_name)
+        if tool is None:
+            return []
+        try:
+            return list(tool.dependencies)
+        except Exception:
+            return []
+
+    def set_tool_dependencies(
+        self, tool_name: str, dependencies: list[str]
+    ) -> None:
         """Set dependencies for a tool.
 
         Args:
@@ -344,7 +441,7 @@ class ToolLifecycleManager:
 
         return True
 
-    def _sort_tools_by_dependencies(self, tools: List[Tool]) -> List[Tool]:
+    def _sort_tools_by_dependencies(self, tools: list[Tool]) -> list[Tool]:
         """Sort tools by dependency order (topological sort).
 
         Args:
@@ -370,7 +467,9 @@ class ToolLifecycleManager:
         def visit(node):
             """TODO: Document visit."""
             if node in temp_visited:
-                raise ToolLifecycleError(f"Circular dependency detected: {node}")
+                raise ToolLifecycleError(
+                    f"Circular dependency detected: {node}"
+                )
             if node not in visited:
                 temp_visited.add(node)
                 for dep in graph.get(node, []):
@@ -386,7 +485,9 @@ class ToolLifecycleManager:
         return result
 
 
-def create_lifecycle_manager(registry: Optional[ToolRegistry] = None) -> ToolLifecycleManager:
+def create_lifecycle_manager(
+    registry: Optional[ToolRegistry] = None,
+) -> ToolLifecycleManager:
     """Create a tool lifecycle manager instance.
 
     Args:

@@ -2,16 +2,16 @@
 # Helper functions for error condition simulation and testing
 
 import contextlib
-from typing import Dict, Any, List, Optional, Union, Callable, Type
-from unittest.mock import MagicMock, patch
-import random
 import os
+import random
 import tempfile
 from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Type, Union
+from unittest.mock import MagicMock, patch
+
 
 def simulate_file_system_errors(
-    error_type: str = "permission",
-    operation: str = "read"
+    error_type: str = "permission", operation: str = "read"
 ) -> Callable:
     """
     Create a context manager to simulate file system errors.
@@ -23,17 +23,18 @@ def simulate_file_system_errors(
     Returns:
         Context manager for error simulation
     """
+
     @contextlib.contextmanager
     def error_context():
         error_map = {
             "permission": PermissionError("Operation not permitted"),
             "not_found": FileNotFoundError("File not found"),
             "disk_full": OSError("No space left on device"),
-            "io_error": IOError("Input/output error"),
-            "access_denied": PermissionError("Access denied")
+            "io_error": OSError("Input/output error"),
+            "access_denied": PermissionError("Access denied"),
         }
 
-        error = error_map.get(error_type, IOError("File system error"))
+        error = error_map.get(error_type, OSError("File system error"))
 
         original_open = open
         original_path = Path
@@ -73,13 +74,14 @@ def simulate_file_system_errors(
                 raise error
             return original_open(*args, **kwargs)
 
-        with patch('builtins.open', side_effect=mock_open):
-            with patch('pathlib.Path', side_effect=MockPath):
+        with patch("builtins.open", side_effect=mock_open):
+            with patch("pathlib.Path", side_effect=MockPath):
                 yield
 
     return error_context
 
-def create_error_test_scenarios() -> List[Dict[str, Any]]:
+
+def create_error_test_scenarios() -> list[dict[str, Any]]:
     """
     Create error test scenarios.
 
@@ -90,33 +92,33 @@ def create_error_test_scenarios() -> List[Dict[str, Any]]:
         {
             "name": "file_not_found",
             "error_type": "FileNotFoundError",
-            "expected_behavior": "graceful_failure"
+            "expected_behavior": "graceful_failure",
         },
         {
             "name": "permission_denied",
             "error_type": "PermissionError",
-            "expected_behavior": "retry_or_fail"
+            "expected_behavior": "retry_or_fail",
         },
         {
             "name": "disk_full",
             "error_type": "OSError",
-            "expected_behavior": "cleanup_and_fail"
+            "expected_behavior": "cleanup_and_fail",
         },
         {
             "name": "network_timeout",
             "error_type": "TimeoutError",
-            "expected_behavior": "retry_with_backoff"
+            "expected_behavior": "retry_with_backoff",
         },
         {
             "name": "invalid_input",
             "error_type": "ValueError",
-            "expected_behavior": "validate_and_fail"
-        }
+            "expected_behavior": "validate_and_fail",
+        },
     ]
 
+
 def simulate_network_errors(
-    error_type: str = "timeout",
-    failure_rate: float = 1.0
+    error_type: str = "timeout", failure_rate: float = 1.0
 ) -> Callable:
     """
     Create a context manager to simulate network errors.
@@ -128,6 +130,7 @@ def simulate_network_errors(
     Returns:
         Context manager for network error simulation
     """
+
     @contextlib.contextmanager
     def error_context():
         error_map = {
@@ -135,12 +138,12 @@ def simulate_network_errors(
             "connection_refused": ConnectionRefusedError("Connection refused"),
             "dns_failure": OSError("Name or service not known"),
             "ssl_error": OSError("SSL handshake failed"),
-            "network_unreachable": OSError("Network is unreachable")
+            "network_unreachable": OSError("Network is unreachable"),
         }
 
         error = error_map.get(error_type, OSError("Network error"))
 
-        original_requests = __import__('requests')
+        original_requests = __import__("requests")
 
         class MockRequests:
             @staticmethod
@@ -155,15 +158,16 @@ def simulate_network_errors(
                     raise error
                 return original_requests.post(*args, **kwargs)
 
-        with patch('requests', MockRequests):
-            with patch('urllib.request.urlopen') as mock_urlopen:
+        with patch("requests", MockRequests):
+            with patch("urllib.request.urlopen") as mock_urlopen:
                 if random.random() < failure_rate:
                     mock_urlopen.side_effect = error
                 yield
 
     return error_context
 
-def create_exception_test_cases() -> List[Dict[str, Any]]:
+
+def create_exception_test_cases() -> list[dict[str, Any]]:
     """
     Create exception test cases.
 
@@ -175,37 +179,36 @@ def create_exception_test_cases() -> List[Dict[str, Any]]:
             "name": "value_error",
             "exception": ValueError,
             "message": "Invalid value provided",
-            "test_function": lambda: int("invalid")
+            "test_function": lambda: int("invalid"),
         },
         {
             "name": "type_error",
             "exception": TypeError,
             "message": "Invalid type provided",
-            "test_function": lambda: "string" + 123
+            "test_function": lambda: "string" + 123,
         },
         {
             "name": "index_error",
             "exception": IndexError,
             "message": "Index out of range",
-            "test_function": lambda: [1, 2, 3][10]
+            "test_function": lambda: [1, 2, 3][10],
         },
         {
             "name": "key_error",
             "exception": KeyError,
             "message": "Key not found",
-            "test_function": lambda: {"a": 1}["b"]
+            "test_function": lambda: {"a": 1}["b"],
         },
         {
             "name": "attribute_error",
             "exception": AttributeError,
             "message": "Attribute not found",
-            "test_function": lambda: "string".nonexistent_method()
-        }
+            "test_function": "string".nonexistent_method,
+        },
     ]
 
-def simulate_memory_errors(
-    error_type: str = "out_of_memory"
-) -> Callable:
+
+def simulate_memory_errors(error_type: str = "out_of_memory") -> Callable:
     """
     Create a context manager to simulate memory errors.
 
@@ -215,29 +218,33 @@ def simulate_memory_errors(
     Returns:
         Context manager for memory error simulation
     """
+
     @contextlib.contextmanager
     def error_context():
         error_map = {
             "out_of_memory": MemoryError("Out of memory"),
             "memory_leak": MemoryError("Memory allocation failed"),
-            "stack_overflow": RecursionError("Maximum recursion depth exceeded")
+            "stack_overflow": RecursionError(
+                "Maximum recursion depth exceeded"
+            ),
         }
 
         error = error_map.get(error_type, MemoryError("Memory error"))
 
-        original_alloc = __import__('builtins').__dict__['object'].__new__
+        original_alloc = __import__("builtins").__dict__["object"].__new__
 
         def mock_alloc(cls, *args, **kwargs):
             if random.random() > 0.5:  # 50% chance of failure
                 raise error
             return original_alloc(cls, *args, **kwargs)
 
-        with patch('builtins.object.__new__', side_effect=mock_alloc):
+        with patch("builtins.object.__new__", side_effect=mock_alloc):
             yield
 
     return error_context
 
-def create_error_recovery_test_scenarios() -> List[Dict[str, Any]]:
+
+def create_error_recovery_test_scenarios() -> list[dict[str, Any]]:
     """
     Create error recovery test scenarios.
 
@@ -250,31 +257,30 @@ def create_error_recovery_test_scenarios() -> List[Dict[str, Any]]:
             "error_type": "temporary_failure",
             "recovery_strategy": "retry",
             "max_retries": 3,
-            "expected_result": "success"
+            "expected_result": "success",
         },
         {
             "name": "fallback_mechanism",
             "error_type": "permanent_failure",
             "recovery_strategy": "fallback",
-            "expected_result": "degraded_functionality"
+            "expected_result": "degraded_functionality",
         },
         {
             "name": "graceful_degradation",
             "error_type": "resource_exhaustion",
             "recovery_strategy": "degrade",
-            "expected_result": "reduced_performance"
+            "expected_result": "reduced_performance",
         },
         {
             "name": "manual_intervention",
             "error_type": "critical_failure",
             "recovery_strategy": "alert",
-            "expected_result": "admin_notification"
-        }
+            "expected_result": "admin_notification",
+        },
     ]
 
-def simulate_database_errors(
-    error_type: str = "connection_failed"
-) -> Callable:
+
+def simulate_database_errors(error_type: str = "connection_failed") -> Callable:
     """
     Create a context manager to simulate database errors.
 
@@ -284,20 +290,26 @@ def simulate_database_errors(
     Returns:
         Context manager for database error simulation
     """
+
     @contextlib.contextmanager
     def error_context():
         import sqlite3
+
         error_map = {
-            "connection_failed": sqlite3.OperationalError("Unable to connect to database"),
+            "connection_failed": sqlite3.OperationalError(
+                "Unable to connect to database"
+            ),
             "query_failed": sqlite3.ProgrammingError("SQL syntax error"),
-            "constraint_violation": sqlite3.IntegrityError("Constraint violation"),
+            "constraint_violation": sqlite3.IntegrityError(
+                "Constraint violation"
+            ),
             "timeout": sqlite3.OperationalError("Database locked"),
-            "disk_full": sqlite3.OperationalError("Database or disk is full")
+            "disk_full": sqlite3.OperationalError("Database or disk is full"),
         }
 
         error = error_map.get(error_type, sqlite3.Error("Database error"))
 
-        with patch('sqlite3.connect') as mock_connect:
+        with patch("sqlite3.connect") as mock_connect:
             mock_conn = MagicMock()
             mock_cursor = MagicMock()
 
@@ -305,9 +317,7 @@ def simulate_database_errors(
                 mock_connect.side_effect = error
             else:
                 mock_conn.cursor.return_value = mock_cursor
-                if error_type == "query_failed":
-                    mock_cursor.execute.side_effect = error
-                elif error_type == "constraint_violation":
+                if error_type in {"query_failed", "constraint_violation"}:
                     mock_cursor.execute.side_effect = error
                 elif error_type == "timeout":
                     mock_conn.commit.side_effect = error
@@ -320,7 +330,8 @@ def simulate_database_errors(
 
     return error_context
 
-def create_error_injection_test_scenarios() -> List[Dict[str, Any]]:
+
+def create_error_injection_test_scenarios() -> list[dict[str, Any]]:
     """
     Create error injection test scenarios.
 
@@ -332,23 +343,22 @@ def create_error_injection_test_scenarios() -> List[Dict[str, Any]]:
             "name": "random_failures",
             "failure_rate": 0.1,
             "target_components": ["network", "database", "file_system"],
-            "expected_behavior": "resilient_operation"
+            "expected_behavior": "resilient_operation",
         },
         {
             "name": "cascading_failures",
             "failure_sequence": ["database", "cache", "api"],
-            "expected_behavior": "failure_containment"
+            "expected_behavior": "failure_containment",
         },
         {
             "name": "intermittent_failures",
             "failure_pattern": "on_off",
-            "expected_behavior": "automatic_recovery"
-        }
+            "expected_behavior": "automatic_recovery",
+        },
     ]
 
-def simulate_tool_errors(
-    error_type: str = "loading_failed"
-) -> Callable:
+
+def simulate_tool_errors(error_type: str = "loading_failed") -> Callable:
     """
     Create a context manager to simulate tool errors.
 
@@ -358,6 +368,7 @@ def simulate_tool_errors(
     Returns:
         Context manager for tool error simulation
     """
+
     @contextlib.contextmanager
     def error_context():
         error_map = {
@@ -365,12 +376,12 @@ def simulate_tool_errors(
             "initialization_failed": RuntimeError("Tool initialization failed"),
             "execution_failed": ValueError("Tool execution error"),
             "compatibility_error": RuntimeError("Tool compatibility issue"),
-            "security_violation": RuntimeError("Tool security violation")
+            "security_violation": RuntimeError("Tool security violation"),
         }
 
         error = error_map.get(error_type, RuntimeError("Tool error"))
 
-        with patch('importlib.import_module') as mock_import:
+        with patch("importlib.import_module") as mock_import:
             if error_type == "loading_failed":
                 mock_import.side_effect = error
             else:
@@ -390,7 +401,8 @@ def simulate_tool_errors(
 
     return error_context
 
-def create_error_handling_test_scenarios() -> List[Dict[str, Any]]:
+
+def create_error_handling_test_scenarios() -> list[dict[str, Any]]:
     """
     Create error handling test scenarios.
 
@@ -402,31 +414,30 @@ def create_error_handling_test_scenarios() -> List[Dict[str, Any]]:
             "name": "exception_handling",
             "error_type": "ValueError",
             "handling_strategy": "catch_and_log",
-            "expected_result": "logged_error"
+            "expected_result": "logged_error",
         },
         {
             "name": "resource_cleanup",
             "error_type": "IOError",
             "handling_strategy": "cleanup_and_rethrow",
-            "expected_result": "cleaned_up_resources"
+            "expected_result": "cleaned_up_resources",
         },
         {
             "name": "fallback_operation",
             "error_type": "TimeoutError",
             "handling_strategy": "use_fallback",
-            "expected_result": "fallback_used"
+            "expected_result": "fallback_used",
         },
         {
             "name": "retry_operation",
             "error_type": "TemporaryError",
             "handling_strategy": "retry_with_backoff",
-            "expected_result": "operation_retry"
-        }
+            "expected_result": "operation_retry",
+        },
     ]
 
-def simulate_concurrency_errors(
-    error_type: str = "race_condition"
-) -> Callable:
+
+def simulate_concurrency_errors(error_type: str = "race_condition") -> Callable:
     """
     Create a context manager to simulate concurrency errors.
 
@@ -436,6 +447,7 @@ def simulate_concurrency_errors(
     Returns:
         Context manager for concurrency error simulation
     """
+
     @contextlib.contextmanager
     def error_context():
         import threading
@@ -444,12 +456,10 @@ def simulate_concurrency_errors(
             "race_condition": RuntimeError("Race condition detected"),
             "deadlock": RuntimeError("Deadlock detected"),
             "thread_failure": RuntimeError("Thread execution failed"),
-            "resource_contention": RuntimeError("Resource contention detected")
+            "resource_contention": RuntimeError("Resource contention detected"),
         }
 
         error = error_map.get(error_type, RuntimeError("Concurrency error"))
-
-        original_thread = threading.Thread
 
         class MockThread(threading.Thread):
             def __init__(self, *args, **kwargs):
@@ -461,12 +471,13 @@ def simulate_concurrency_errors(
                     raise self._error
                 super().run()
 
-        with patch('threading.Thread', MockThread):
+        with patch("threading.Thread", MockThread):
             yield
 
     return error_context
 
-def create_error_validation_test_scenarios() -> List[Dict[str, Any]]:
+
+def create_error_validation_test_scenarios() -> list[dict[str, Any]]:
     """
     Create error validation test scenarios.
 
@@ -479,27 +490,28 @@ def create_error_validation_test_scenarios() -> List[Dict[str, Any]]:
             "test_cases": [
                 {"input": None, "expected_error": "ValueError"},
                 {"input": -1, "expected_error": "ValueError"},
-                {"input": "invalid", "expected_error": "TypeError"}
-            ]
+                {"input": "invalid", "expected_error": "TypeError"},
+            ],
         },
         {
             "name": "state_validation",
             "test_cases": [
                 {"state": "invalid_state", "expected_error": "RuntimeError"},
-                {"state": "corrupted_data", "expected_error": "DataError"}
-            ]
+                {"state": "corrupted_data", "expected_error": "DataError"},
+            ],
         },
         {
             "name": "security_validation",
             "test_cases": [
                 {"permission": "denied", "expected_error": "PermissionError"},
-                {"access": "unauthorized", "expected_error": "SecurityError"}
-            ]
-        }
+                {"access": "unauthorized", "expected_error": "SecurityError"},
+            ],
+        },
     ]
 
+
 def simulate_resource_exhaustion_errors(
-    resource_type: str = "memory"
+    resource_type: str = "memory",
 ) -> Callable:
     """
     Create a context manager to simulate resource exhaustion errors.
@@ -510,6 +522,7 @@ def simulate_resource_exhaustion_errors(
     Returns:
         Context manager for resource exhaustion simulation
     """
+
     @contextlib.contextmanager
     def error_context():
         error_map = {
@@ -517,30 +530,31 @@ def simulate_resource_exhaustion_errors(
             "cpu": RuntimeError("CPU resources exhausted"),
             "disk": OSError("No space left on device"),
             "handles": OSError("Too many open files"),
-            "threads": RuntimeError("Too many threads")
+            "threads": RuntimeError("Too many threads"),
         }
 
         error = error_map.get(resource_type, RuntimeError("Resource exhausted"))
 
         if resource_type == "memory":
-            original_alloc = __import__('builtins').__dict__['object'].__new__
+            original_alloc = __import__("builtins").__dict__["object"].__new__
 
             def mock_alloc(cls, *args, **kwargs):
                 if random.random() > 0.3:  # 70% chance of failure
                     raise error
                 return original_alloc(cls, *args, **kwargs)
 
-            with patch('builtins.object.__new__', side_effect=mock_alloc):
+            with patch("builtins.object.__new__", side_effect=mock_alloc):
                 yield
 
         elif resource_type == "disk":
+
             def mock_write(*args, **kwargs):
                 if random.random() > 0.5:  # 50% chance of failure
                     raise error
                 original_write(*args, **kwargs)
 
             original_write = open
-            with patch('builtins.open', side_effect=mock_write):
+            with patch("builtins.open", side_effect=mock_write):
                 yield
 
         else:
@@ -549,12 +563,13 @@ def simulate_resource_exhaustion_errors(
                 if random.random() > 0.7:  # 30% chance of failure
                     raise error
 
-            with patch('resource.getrlimit', side_effect=resource_check):
+            with patch("resource.getrlimit", side_effect=resource_check):
                 yield
 
     return error_context
 
-def create_error_monitoring_test_scenarios() -> List[Dict[str, Any]]:
+
+def create_error_monitoring_test_scenarios() -> list[dict[str, Any]]:
     """
     Create error monitoring test scenarios.
 
@@ -566,30 +581,31 @@ def create_error_monitoring_test_scenarios() -> List[Dict[str, Any]]:
             "name": "error_logging",
             "monitoring_type": "logging",
             "expected_behavior": "error_logged",
-            "verification": "check_log_files"
+            "verification": "check_log_files",
         },
         {
             "name": "error_metrics",
             "monitoring_type": "metrics",
             "expected_behavior": "metrics_updated",
-            "verification": "check_metrics_endpoint"
+            "verification": "check_metrics_endpoint",
         },
         {
             "name": "error_alerting",
             "monitoring_type": "alerting",
             "expected_behavior": "alert_sent",
-            "verification": "check_alert_system"
+            "verification": "check_alert_system",
         },
         {
             "name": "error_tracing",
             "monitoring_type": "tracing",
             "expected_behavior": "trace_recorded",
-            "verification": "check_tracing_system"
-        }
+            "verification": "check_tracing_system",
+        },
     ]
 
+
 def simulate_timeout_errors(
-    timeout_type: str = "operation_timeout"
+    timeout_type: str = "operation_timeout",
 ) -> Callable:
     """
     Create a context manager to simulate timeout errors.
@@ -600,6 +616,7 @@ def simulate_timeout_errors(
     Returns:
         Context manager for timeout error simulation
     """
+
     @contextlib.contextmanager
     def error_context():
         import time
@@ -608,7 +625,7 @@ def simulate_timeout_errors(
             "operation_timeout": TimeoutError("Operation timed out"),
             "connection_timeout": TimeoutError("Connection timed out"),
             "read_timeout": TimeoutError("Read operation timed out"),
-            "write_timeout": TimeoutError("Write operation timed out")
+            "write_timeout": TimeoutError("Write operation timed out"),
         }
 
         error = error_map.get(timeout_type, TimeoutError("Timeout error"))
@@ -628,13 +645,14 @@ def simulate_timeout_errors(
                 raise error
             original_sleep(seconds)
 
-        with patch('time.monotonic', side_effect=slow_monotonic):
-            with patch('time.sleep', side_effect=slow_sleep):
+        with patch("time.monotonic", side_effect=slow_monotonic):
+            with patch("time.sleep", side_effect=slow_sleep):
                 yield
 
     return error_context
 
-def create_error_recovery_validation_scenarios() -> List[Dict[str, Any]]:
+
+def create_error_recovery_validation_scenarios() -> list[dict[str, Any]]:
     """
     Create error recovery validation scenarios.
 
@@ -646,18 +664,18 @@ def create_error_recovery_validation_scenarios() -> List[Dict[str, Any]]:
             "name": "data_consistency_after_error",
             "error_type": "database_error",
             "recovery_method": "transaction_rollback",
-            "validation": "verify_data_integrity"
+            "validation": "verify_data_integrity",
         },
         {
             "name": "resource_cleanup_after_error",
             "error_type": "file_error",
             "recovery_method": "resource_release",
-            "validation": "verify_no_resource_leaks"
+            "validation": "verify_no_resource_leaks",
         },
         {
             "name": "state_consistency_after_error",
             "error_type": "state_error",
             "recovery_method": "state_reset",
-            "validation": "verify_consistent_state"
-        }
+            "validation": "verify_consistent_state",
+        },
     ]

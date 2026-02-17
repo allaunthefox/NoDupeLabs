@@ -12,7 +12,9 @@ class MMAPHandler:
     """Handle memory-mapped file operations"""
 
     @staticmethod
-    def create_mmap(file_path: str, access_mode: int = mmap.ACCESS_READ) -> mmap.mmap:
+    def create_mmap(
+        file_path: str, access_mode: int = mmap.ACCESS_READ
+    ) -> mmap.mmap:
         """Create memory-mapped file for efficient access
 
         Args:
@@ -22,7 +24,7 @@ class MMAPHandler:
         Returns:
             Memory-mapped file object
         """
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             # Get file size to ensure we can create the mapping
             file_size = os.path.getsize(file_path)
             if file_size == 0:

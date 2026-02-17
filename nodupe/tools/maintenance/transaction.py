@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 class OperationType(Enum):
@@ -29,12 +29,12 @@ class Operation:
     backup_path: Optional[str] = None
     new_path: Optional[str] = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Operation":
+    def from_dict(cls, data: dict[str, Any]) -> "Operation":
         """Create from dictionary."""
         return cls(**data)
 
@@ -52,7 +52,7 @@ class TransactionLog:
         self.transaction_dir = self.log_dir / "transactions"
         self.transaction_dir.mkdir(parents=True, exist_ok=True)
         self.current_transaction: Optional[str] = None
-        self.current_operations: List[Operation] = []
+        self.current_operations: list[Operation] = []
 
     def begin_transaction(self) -> str:
         """Start a new transaction.
@@ -71,7 +71,9 @@ class TransactionLog:
             operation: Operation to log
         """
         if self.current_transaction is None:
-            raise RuntimeError("No active transaction. Call begin_transaction() first.")
+            raise RuntimeError(
+                "No active transaction. Call begin_transaction() first."
+            )
         self.current_operations.append(operation)
 
     def commit_transaction(self) -> str:
@@ -113,7 +115,7 @@ class TransactionLog:
         if not tx_path.exists():
             return False
 
-        with open(tx_path, "r") as f:
+        with open(tx_path) as f:
             data = json.load(f)
 
         # Reverse operations for rollback
@@ -132,7 +134,7 @@ class TransactionLog:
 
         return True
 
-    def get_transaction(self, transaction_id: str) -> Optional[Dict[str, Any]]:
+    def get_transaction(self, transaction_id: str) -> Optional[dict[str, Any]]:
         """Get transaction details.
 
         Args:
@@ -145,11 +147,11 @@ class TransactionLog:
         if not tx_path.exists():
             return None
 
-        with open(tx_path, "r") as f:
+        with open(tx_path) as f:
             data = json.load(f)
             return dict(data)
 
-    def list_transactions(self) -> List[Dict[str, Any]]:
+    def list_transactions(self) -> list[dict[str, Any]]:
         """List all transactions.
 
         Returns:
@@ -157,7 +159,7 @@ class TransactionLog:
         """
         transactions = []
         for tx_file in self.transaction_dir.glob("*.json"):
-            with open(tx_file, "r") as f:
+            with open(tx_file) as f:
                 data = json.load(f)
                 transactions.append(
                     {

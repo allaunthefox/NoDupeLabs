@@ -1,21 +1,22 @@
 # File System Test Utilities
 # Helper functions for file system operations testing
 
-import os
-import stat
 import hashlib
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Union
-import tempfile
+import os
 import shutil
+import stat
+import tempfile
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 from unittest.mock import MagicMock
+
 
 def create_test_file_structure(
     base_path: Path,
-    structure: Dict[str, Union[Dict, str, bytes]],
+    structure: dict[str, Union[dict, str, bytes]],
     file_permissions: int = 0o644,
-    dir_permissions: int = 0o755
-) -> Dict[str, Path]:
+    dir_permissions: int = 0o755,
+) -> dict[str, Path]:
     """
     Create a complex file structure for testing.
 
@@ -36,9 +37,11 @@ def create_test_file_structure(
         if isinstance(content, dict):
             # It's a directory - create it and recurse
             full_path.mkdir(exist_ok=True, mode=dir_permissions)
-            created_files.update(create_test_file_structure(
-                full_path, content, file_permissions, dir_permissions
-            ))
+            created_files.update(
+                create_test_file_structure(
+                    full_path, content, file_permissions, dir_permissions
+                )
+            )
         else:
             # It's a file - create it with content
             if isinstance(content, str):
@@ -52,12 +55,13 @@ def create_test_file_structure(
 
     return created_files
 
+
 def create_duplicate_files(
     base_path: Path,
     original_content: str,
     num_duplicates: int = 3,
-    file_size: int = 1024
-) -> List[Path]:
+    file_size: int = 1024,
+) -> list[Path]:
     """
     Create multiple duplicate files for testing.
 
@@ -95,11 +99,10 @@ def create_duplicate_files(
 
     return files
 
+
 def create_files_with_varying_sizes(
-    base_path: Path,
-    sizes: List[int],
-    content_pattern: str = "Test content "
-) -> List[Path]:
+    base_path: Path, sizes: list[int], content_pattern: str = "Test content "
+) -> list[Path]:
     """
     Create files with varying sizes for testing.
 
@@ -120,17 +123,19 @@ def create_files_with_varying_sizes(
         file_path = base_path / f"file_{size}.txt"
 
         # Create content that matches the desired size
-        content = (content_pattern * ((size // len(content_pattern)) + 1))[:size]
+        content = (content_pattern * ((size // len(content_pattern)) + 1))[
+            :size
+        ]
         file_path.write_text(content)
 
         files.append(file_path)
 
     return files
 
+
 def create_symlinks_and_hardlinks(
-    base_path: Path,
-    target_file: Path
-) -> Dict[str, List[Path]]:
+    base_path: Path, target_file: Path
+) -> dict[str, list[Path]]:
     """
     Create symlinks and hardlinks for testing.
 
@@ -144,17 +149,14 @@ def create_symlinks_and_hardlinks(
     if not base_path.exists():
         base_path.mkdir(parents=True)
 
-    result = {
-        'symlinks': [],
-        'hardlinks': []
-    }
+    result = {"symlinks": [], "hardlinks": []}
 
     # Create symlinks
     for i in range(3):
         symlink = base_path / f"symlink_{i}.txt"
         try:
             symlink.symlink_to(target_file)
-            result['symlinks'].append(symlink)
+            result["symlinks"].append(symlink)
         except OSError:
             # Symlinks not supported on this system
             break
@@ -164,12 +166,13 @@ def create_symlinks_and_hardlinks(
         hardlink = base_path / f"hardlink_{i}.txt"
         try:
             hardlink.link_to(target_file)
-            result['hardlinks'].append(hardlink)
+            result["hardlinks"].append(hardlink)
         except OSError:
             # Hardlinks not supported for this file type
             break
 
     return result
+
 
 def calculate_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
     """
@@ -190,6 +193,7 @@ def calculate_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
             hash_func.update(chunk)
 
     return hash_func.hexdigest()
+
 
 def compare_files(file1: Path, file2: Path) -> bool:
     """
@@ -218,10 +222,10 @@ def compare_files(file1: Path, file2: Path) -> bool:
 
     return True
 
+
 def create_files_with_different_permissions(
-    base_path: Path,
-    permissions: List[int]
-) -> List[Path]:
+    base_path: Path, permissions: list[int]
+) -> list[Path]:
     """
     Create files with different permissions for testing.
 
@@ -245,11 +249,10 @@ def create_files_with_different_permissions(
 
     return files
 
+
 def create_nested_directory_structure(
-    base_path: Path,
-    depth: int = 3,
-    files_per_dir: int = 2
-) -> Dict[str, List[Path]]:
+    base_path: Path, depth: int = 3, files_per_dir: int = 2
+) -> dict[str, list[Path]]:
     """
     Create a nested directory structure for testing.
 
@@ -284,10 +287,10 @@ def create_nested_directory_structure(
     _create_nested(base_path, 0)
     return structure
 
+
 def create_files_with_timestamps(
-    base_path: Path,
-    timestamps: List[float]
-) -> List[Path]:
+    base_path: Path, timestamps: list[float]
+) -> list[Path]:
     """
     Create files with specific timestamps for testing.
 
@@ -314,9 +317,9 @@ def create_files_with_timestamps(
 
     return files
 
+
 def verify_file_structure(
-    base_path: Path,
-    expected_structure: Dict[str, Union[Dict, str]]
+    base_path: Path, expected_structure: dict[str, Union[dict, str]]
 ) -> bool:
     """
     Verify that a file structure matches expected structure.
@@ -347,12 +350,12 @@ def verify_file_structure(
                 # Check text content
                 if full_path.read_text() != expected:
                     return False
-            else:
-                # Check binary content
-                if full_path.read_bytes() != expected:
-                    return False
+            # Check binary content
+            elif full_path.read_bytes() != expected:
+                return False
 
     return True
+
 
 def mock_file_operations() -> MagicMock:
     """
@@ -379,10 +382,9 @@ def mock_file_operations() -> MagicMock:
 
     return mock
 
+
 def create_large_file(
-    base_path: Path,
-    size_mb: int = 10,
-    chunk_size: int = 1024 * 1024
+    base_path: Path, size_mb: int = 10, chunk_size: int = 1024 * 1024
 ) -> Path:
     """
     Create a large file for performance testing.

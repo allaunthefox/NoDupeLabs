@@ -385,7 +385,7 @@ class MyTool(Tool):
         - Computation: Return None
         - Timestamps: Return monotonic time
         - Network: Use local cache
-    
+
     ISO/IEC/IEEE 42010 Compliance:
         - Addresses operator concerns about system stability
         - Provides clear failure indicators for monitoring

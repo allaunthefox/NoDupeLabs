@@ -2,6 +2,8 @@
 
 Tool security and validation using standard library only.
 
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
+
 Key Features:
     - Tool file validation and security checking
     - Safe execution environment setup
@@ -17,7 +19,7 @@ Dependencies:
 
 import ast
 from pathlib import Path
-from typing import List, Set, Optional, Dict, Any
+from typing import Any, Optional
 
 
 class ToolSecurityError(Exception):
@@ -33,44 +35,98 @@ class ToolSecurity:
     # Dangerous AST nodes that should not be allowed in tools
     DANGEROUS_NODES = {
         # Import-related dangerous nodes
-        'Import', 'ImportFrom',  # Imports can be controlled separately
-        'Exec', 'Eval',  # Dynamic code execution
-        'Compile',  # Dynamic compilation
+        "Import",
+        "ImportFrom",  # Imports can be controlled separately
+        "Exec",
+        "Eval",  # Dynamic code execution
+        "Compile",  # Dynamic compilation
         # File system access
-        'With',  # Can be used for file access
+        "With",  # Can be used for file access
         # System calls
-        'Call',  # Need to check specific function calls
+        "Call",  # Need to check specific function calls
     }
 
     # Dangerous built-in functions that should be restricted
     DANGEROUS_BUILTINS = {
-        'exec', 'eval', 'compile', 'open', 'execfile', 'file',
-        'input', 'raw_input',  # Input functions
-        '__import__',  # Import function
-        'globals', 'locals', 'vars', 'dir',  # Reflection
-        'getattr', 'setattr', 'delattr',  # Attribute manipulation
-        'hasattr', '__getattribute__',  # Attribute access
-        'breakpoint', 'quit', 'exit',  # Program termination
-        'copyright', 'credits', 'license', 'help',  # Help functions
+        "exec",
+        "eval",
+        "compile",
+        "open",
+        "execfile",
+        "file",
+        "input",
+        "raw_input",  # Input functions
+        "__import__",  # Import function
+        "globals",
+        "locals",
+        "vars",
+        "dir",  # Reflection
+        "getattr",
+        "setattr",
+        "delattr",  # Attribute manipulation
+        "hasattr",
+        "__getattribute__",  # Attribute access
+        "breakpoint",
+        "quit",
+        "exit",  # Program termination
+        "copyright",
+        "credits",
+        "license",
+        "help",  # Help functions
     }
 
     # Dangerous modules that should not be imported
     DANGEROUS_MODULES = {
-        'os', 'sys', 'subprocess', 'socket', 'urllib', 'requests',
-        'pickle', 'marshal', 'shelve', 'cgi', 'ctypes', 'platform',
-        'multiprocessing', 'threading', 'concurrent', 'asyncio',
-        'code', 'codeop', 'trace', 'pdb', 'profile', 'cProfile',
-        'runpy', 'importlib', 'pkgutil', 'zipimport', 'compileall',
-        'py_compile', 'distutils', 'site', 'sysconfig', 'builtins',
-        'gc', 'inspect', 'dis', 'opcode', 'symbol', 'TOKEN_REMOVED',
-        'keyword', 'TOKEN_REMOVEDize', 'tabnanny', 'pyclbr', 'pickletools',
+        "os",
+        "sys",
+        "subprocess",
+        "socket",
+        "urllib",
+        "requests",
+        "pickle",
+        "marshal",
+        "shelve",
+        "cgi",
+        "ctypes",
+        "platform",
+        "multiprocessing",
+        "threading",
+        "concurrent",
+        "asyncio",
+        "code",
+        "codeop",
+        "trace",
+        "pdb",
+        "profile",
+        "cProfile",
+        "runpy",
+        "importlib",
+        "pkgutil",
+        "zipimport",
+        "compileall",
+        "py_compile",
+        "distutils",
+        "site",
+        "sysconfig",
+        "builtins",
+        "gc",
+        "inspect",
+        "dis",
+        "opcode",
+        "symbol",
+        "TOKEN_REMOVED",
+        "keyword",
+        "TOKEN_REMOVEDize",
+        "tabnanny",
+        "pyclbr",
+        "pickletools",
     }
 
     def __init__(self):
         """Initialize tool security."""
-        self._whitelisted_modules: Set[str] = set()
-        self._blacklisted_modules: Set[str] = self.DANGEROUS_MODULES.copy()
-        self._security_policies: Dict[str, Any] = {}
+        self._whitelisted_modules: set[str] = set()
+        self._blacklisted_modules: set[str] = self.DANGEROUS_MODULES.copy()
+        self._security_policies: dict[str, Any] = {}
 
     def check_tool_permissions(self, tool: Any) -> bool:
         """Check if tool has required permissions.
@@ -93,7 +149,7 @@ class ToolSecurity:
             True if tool is valid
         """
         # For now, just return True if it's a tool-like object
-        return hasattr(tool, 'name') and hasattr(tool, 'version')
+        return hasattr(tool, "name") and hasattr(tool, "version")
 
     def validate_tool_file(self, file_path: Path) -> bool:
         """Validate a tool file for security issues.
@@ -109,13 +165,17 @@ class ToolSecurity:
         """
         try:
             if not file_path.exists():
-                raise ToolSecurityError(f"Tool file does not exist: {file_path}")
+                raise ToolSecurityError(
+                    f"Tool file does not exist: {file_path}"
+                )
 
-            if file_path.suffix != '.py':
-                raise ToolSecurityError(f"Tool file must be Python: {file_path}")
+            if file_path.suffix != ".py":
+                raise ToolSecurityError(
+                    f"Tool file must be Python: {file_path}"
+                )
 
             # Read and parse the file
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Parse AST
@@ -138,9 +198,13 @@ class ToolSecurity:
         except ToolSecurityError:
             raise
         except Exception as e:
-            raise ToolSecurityError(f"Security validation failed for {file_path}: {e}") from e
+            raise ToolSecurityError(
+                f"Security validation failed for {file_path}: {e}"
+            ) from e
 
-    def validate_tool_code(self, code: str, source_name: str = "<string>") -> bool:
+    def validate_tool_code(
+        self, code: str, source_name: str = "<string>"
+    ) -> bool:
         """Validate tool code string for security issues.
 
         Args:
@@ -179,10 +243,10 @@ class ToolSecurity:
             return False
 
         # Check whitelist
-        if self._whitelisted_modules and module_name not in self._whitelisted_modules:
-            return False
-
-        return True
+        return not (
+            self._whitelisted_modules
+            and module_name not in self._whitelisted_modules
+        )
 
     def set_security_policy(self, policy_name: str, policy_value: Any) -> None:
         """Set a security policy.
@@ -236,7 +300,9 @@ class ToolSecurity:
         """
         self._blacklisted_modules.discard(module_name)
 
-    def _check_dangerous_constructs(self, tree: ast.AST, file_path: Path) -> None:
+    def _check_dangerous_constructs(
+        self, tree: ast.AST, file_path: Path
+    ) -> None:
         """Check AST for dangerous constructs.
 
         Args:
@@ -250,7 +316,7 @@ class ToolSecurity:
         visitor.visit(tree)
 
         if visitor.dangerous_nodes:
-            dangerous_list = ', '.join(visitor.dangerous_nodes)
+            dangerous_list = ", ".join(visitor.dangerous_nodes)
             raise ToolSecurityError(
                 f"Dangerous constructs found in {file_path}: {dangerous_list}"
             )
@@ -280,7 +346,9 @@ class ToolSecurity:
                         f"Dangerous import found in {file_path}: from {module_name} import ..."
                     )
 
-    def _check_additional_security_issues(self, tree: ast.AST, file_path: Path) -> None:
+    def _check_additional_security_issues(
+        self, tree: ast.AST, file_path: Path
+    ) -> None:
         """Check for additional security issues.
 
         Args:
@@ -302,7 +370,7 @@ class ToolSecurity:
                 elif isinstance(node.func, ast.Attribute):
                     # Check for dangerous method calls like file operations
                     if isinstance(node.func.value, ast.Name):
-                        if node.func.attr in ['open', 'write', 'read', 'close']:
+                        if node.func.attr in ["open", "write", "read", "close"]:
                             raise ToolSecurityError(
                                 f"Dangerous method call found in {file_path}: {node.func.attr}"
                             )
@@ -313,23 +381,23 @@ class SecurityASTVisitor(ast.NodeVisitor):
 
     def __init__(self):
         """Initialize the visitor."""
-        self.dangerous_nodes: List[str] = []
+        self.dangerous_nodes: list[str] = []
 
     def visit_exec(self, node: ast.AST) -> None:
         """Visit exec statement (Python 2, if somehow present)."""
-        self.dangerous_nodes.append('exec statement')
+        self.dangerous_nodes.append("exec statement")
         self.generic_visit(node)
 
     def visit_eval(self, node: ast.AST) -> None:
         """Visit eval call."""
-        self.dangerous_nodes.append('eval')
+        self.dangerous_nodes.append("eval")
         self.generic_visit(node)
 
     def visit_call(self, node: ast.Call) -> None:
         """Visit function calls."""
         if isinstance(node.func, ast.Name):
-            if node.func.id in ['exec', 'eval', 'compile', 'open']:
-                self.dangerous_nodes.append(f'call to {node.func.id}')
+            if node.func.id in ["exec", "eval", "compile", "open"]:
+                self.dangerous_nodes.append(f"call to {node.func.id}")
         self.generic_visit(node)
 
     def visit_import(self, node: ast.AST) -> None:

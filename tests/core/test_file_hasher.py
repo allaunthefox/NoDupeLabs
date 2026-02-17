@@ -1,10 +1,13 @@
 """Tests for FileHasher module."""
 
-import pytest
-import tempfile
 import hashlib
+import tempfile
 from pathlib import Path
+
+import pytest
+
 from nodupe.tools.hashing.hasher_logic import FileHasher, create_file_hasher
+
 
 class TestFileHasher:
     """Test FileHasher class."""
@@ -13,7 +16,7 @@ class TestFileHasher:
         """Test FileHasher initialization."""
         hasher = FileHasher()
         assert isinstance(hasher, FileHasher)
-        assert hasher.get_algorithm() == 'sha256'
+        assert hasher.get_algorithm() == "sha256"
         assert hasher.get_buffer_size() == 65536
 
     def test_create_file_hasher(self):
@@ -23,8 +26,8 @@ class TestFileHasher:
 
     def test_create_file_hasher_with_custom_params(self):
         """Test create_file_hasher with custom parameters."""
-        hasher = create_file_hasher(algorithm='md5', buffer_size=32768)
-        assert hasher.get_algorithm() == 'md5'
+        hasher = create_file_hasher(algorithm="md5", buffer_size=32768)
+        assert hasher.get_algorithm() == "md5"
         assert hasher.get_buffer_size() == 32768
 
     def test_set_and_get_algorithm(self):
@@ -32,11 +35,11 @@ class TestFileHasher:
         hasher = FileHasher()
 
         # Test setting algorithm
-        hasher.set_algorithm('md5')
-        assert hasher.get_algorithm() == 'md5'
+        hasher.set_algorithm("md5")
+        assert hasher.get_algorithm() == "md5"
 
-        hasher.set_algorithm('sha512')
-        assert hasher.get_algorithm() == 'sha512'
+        hasher.set_algorithm("sha512")
+        assert hasher.get_algorithm() == "sha512"
 
     def test_set_and_get_buffer_size(self):
         """Test setting and getting buffer size."""
@@ -55,10 +58,10 @@ class TestFileHasher:
         algorithms = hasher.get_available_algorithms()
 
         # Should have standard algorithms
-        assert 'sha256' in algorithms
-        assert 'md5' in algorithms
-        assert 'sha1' in algorithms
-        assert 'sha512' in algorithms
+        assert "sha256" in algorithms
+        assert "md5" in algorithms
+        assert "sha1" in algorithms
+        assert "sha512" in algorithms
 
     def test_hash_string(self):
         """Test hashing strings."""
@@ -71,7 +74,7 @@ class TestFileHasher:
         assert len(sha256_hash) > 0
 
         # Test with MD5
-        hasher.set_algorithm('md5')
+        hasher.set_algorithm("md5")
         md5_hash = hasher.hash_string(test_string)
         assert isinstance(md5_hash, str)
         assert len(md5_hash) > 0
@@ -117,7 +120,9 @@ class TestFileHasher:
             progress_updates.append(progress)
 
         hasher = FileHasher()
-        file_hash = hasher.hash_file(str(test_file), on_progress=progress_callback)
+        file_hash = hasher.hash_file(
+            str(test_file), on_progress=progress_callback
+        )
 
         assert isinstance(file_hash, str)
         assert len(file_hash) > 0
@@ -214,7 +219,7 @@ class TestFileHasher:
         hasher = FileHasher()
 
         # Test different algorithms
-        algorithms_to_test = ['md5', 'sha1', 'sha256', 'sha512']
+        algorithms_to_test = ["md5", "sha1", "sha256", "sha512"]
 
         hashes = {}
         for algo in algorithms_to_test:
@@ -227,7 +232,7 @@ class TestFileHasher:
 
         # All should be valid hex strings
         for hash_val in hash_values:
-            assert all(c in '0123456789abcdef' for c in hash_val.lower())
+            assert all(c in "0123456789abcdef" for c in hash_val.lower())
 
     def test_hash_large_file(self, tmp_path):
         """Test hashing large files."""

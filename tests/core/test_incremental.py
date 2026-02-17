@@ -1,16 +1,19 @@
 """Test incremental module functionality."""
 
-import pytest
 import json
-import tempfile
 import shutil
-from pathlib import Path
+import tempfile
 from datetime import datetime
+from pathlib import Path
+
 from nodupe.tools.scanner_engine.incremental import Incremental
 
 
 class TestIncremental:
     """Test Incremental class functionality."""
+
+    temp_dir: str
+    scan_path: str
 
     def setup_method(self):
         """Set up test environment."""
@@ -29,7 +32,7 @@ class TestIncremental:
         """Test saving checkpoint."""
         processed_files = {
             "file1.txt": {"hash": "abc123", "size": 100},
-            "file2.txt": {"hash": "def456", "size": 200}
+            "file2.txt": {"hash": "def456", "size": 200},
         }
         metadata = {"version": "1.0", "scan_type": "full"}
 
@@ -38,7 +41,7 @@ class TestIncremental:
         checkpoint_file = Path(self.scan_path) / Incremental.CHECKPOINT_FILE
         assert checkpoint_file.exists()
 
-        with open(checkpoint_file, 'r') as f:
+        with open(checkpoint_file, encoding="utf-8") as f:
             data = json.load(f)
 
         assert data["scan_path"] == self.scan_path
@@ -58,7 +61,7 @@ class TestIncremental:
         checkpoint_file = Path(self.scan_path) / Incremental.CHECKPOINT_FILE
         assert checkpoint_file.exists()
 
-        with open(checkpoint_file, 'r') as f:
+        with open(checkpoint_file, encoding="utf-8") as f:
             data = json.load(f)
 
         assert data["scan_path"] == self.scan_path
@@ -72,11 +75,11 @@ class TestIncremental:
             "scan_path": self.scan_path,
             "processed_files": {"file1.txt": {"hash": "abc123"}},
             "timestamp": "2023-01-01T00:00:00",
-            "metadata": {"version": "1.0"}
+            "metadata": {"version": "1.0"},
         }
 
         checkpoint_file = Path(self.scan_path) / Incremental.CHECKPOINT_FILE
-        with open(checkpoint_file, 'w') as f:
+        with open(checkpoint_file, "w", encoding="utf-8") as f:
             json.dump(checkpoint_data, f)
 
         # Load the checkpoint
@@ -99,18 +102,18 @@ class TestIncremental:
         # Create checkpoint with some processed files
         processed_files = {
             "file1.txt": {"hash": "abc123"},
-            "file3.txt": {"hash": "def456"}
+            "file3.txt": {"hash": "def456"},
         }
 
         checkpoint_data = {
             "scan_path": self.scan_path,
             "processed_files": processed_files,
             "timestamp": "2023-01-01T00:00:00",
-            "metadata": {}
+            "metadata": {},
         }
 
         checkpoint_file = Path(self.scan_path) / Incremental.CHECKPOINT_FILE
-        with open(checkpoint_file, 'w') as f:
+        with open(checkpoint_file, "w", encoding="utf-8") as f:
             json.dump(checkpoint_data, f)
 
         # Test with all files
@@ -126,11 +129,11 @@ class TestIncremental:
             "scan_path": self.scan_path,
             "processed_files": {},
             "timestamp": "2023-01-01T00:00:00",
-            "metadata": {}
+            "metadata": {},
         }
 
         checkpoint_file = Path(self.scan_path) / Incremental.CHECKPOINT_FILE
-        with open(checkpoint_file, 'w') as f:
+        with open(checkpoint_file, "w", encoding="utf-8") as f:
             json.dump(checkpoint_data, f)
 
         all_files = ["file1.txt", "file2.txt"]
@@ -145,9 +148,9 @@ class TestIncremental:
 
         # Update with new files
         new_files = {
-            "file2.txt": {
-                "hash": "def456"}, "file3.txt": {
-                "hash": "ghi789"}}
+            "file2.txt": {"hash": "def456"},
+            "file3.txt": {"hash": "ghi789"},
+        }
         Incremental.update_checkpoint(self.scan_path, new_files)
 
         # Load and verify
@@ -159,7 +162,7 @@ class TestIncremental:
         assert updated["processed_files"]["file2.txt"] == {"hash": "def456"}
 
         # Verify timestamp was updated
-        first_timestamp = updated["timestamp"]
+        datetime.fromisoformat(updated["timestamp"])
         assert "timestamp" in updated
 
     def test_update_checkpoint_new(self):
@@ -178,9 +181,8 @@ class TestIncremental:
         """Test cleaning up existing checkpoint."""
         # Create checkpoint
         Incremental.save_checkpoint(
-            self.scan_path, {
-                "file1.txt": {
-                    "hash": "abc123"}})
+            self.scan_path, {"file1.txt": {"hash": "abc123"}}
+        )
 
         # Clean up
         result = Incremental.cleanup_checkpoint(self.scan_path)
@@ -199,6 +201,9 @@ class TestIncremental:
 class TestIncrementalEdgeCases:
     """Test incremental edge cases."""
 
+    temp_dir: str
+    scan_path: str
+
     def setup_method(self):
         """Set up test environment."""
         self.temp_dir = tempfile.mkdtemp()
@@ -215,7 +220,7 @@ class TestIncrementalEdgeCases:
         checkpoint_file = Path(self.scan_path) / Incremental.CHECKPOINT_FILE
         assert checkpoint_file.exists()
 
-        with open(checkpoint_file, 'r') as f:
+        with open(checkpoint_file, encoding="utf-8") as f:
             data = json.load(f)
 
         assert data["processed_files"] == {}
@@ -229,9 +234,8 @@ class TestIncrementalEdgeCases:
         """Test updating checkpoint with empty files."""
         # Create initial checkpoint
         Incremental.save_checkpoint(
-            self.scan_path, {
-                "file1.txt": {
-                    "hash": "abc123"}})
+            self.scan_path, {"file1.txt": {"hash": "abc123"}}
+        )
 
         # Update with empty files
         Incremental.update_checkpoint(self.scan_path, {})
@@ -243,15 +247,14 @@ class TestIncrementalEdgeCases:
     def test_checkpoint_file_permissions(self):
         """Test checkpoint file creation with proper permissions."""
         Incremental.save_checkpoint(
-            self.scan_path, {
-                "file1.txt": {
-                    "hash": "abc123"}})
+            self.scan_path, {"file1.txt": {"hash": "abc123"}}
+        )
 
         checkpoint_file = Path(self.scan_path) / Incremental.CHECKPOINT_FILE
         assert checkpoint_file.exists()
 
         # Verify file is readable
-        with open(checkpoint_file, 'r') as f:
+        with open(checkpoint_file, encoding="utf-8") as f:
             data = json.load(f)
 
         assert data["processed_files"]["file1.txt"]["hash"] == "abc123"
@@ -259,6 +262,9 @@ class TestIncrementalEdgeCases:
 
 class TestIncrementalIntegration:
     """Test incremental integration scenarios."""
+
+    temp_dir: str
+    scan_path: str
 
     def setup_method(self):
         """Set up test environment."""
@@ -279,7 +285,7 @@ class TestIncrementalIntegration:
         # Process some files and save checkpoint
         processed_files = {
             "file1.txt": {"hash": "abc123", "size": 100},
-            "file2.txt": {"hash": "def456", "size": 200}
+            "file2.txt": {"hash": "def456", "size": 200},
         }
         Incremental.save_checkpoint(self.scan_path, processed_files)
 
@@ -306,7 +312,7 @@ class TestIncrementalIntegration:
         metadata = {
             "scan_version": "1.0",
             "scan_type": "incremental",
-            "user": "test_user"
+            "user": "test_user",
         }
         Incremental.save_checkpoint(self.scan_path, processed_files, metadata)
 
@@ -327,7 +333,7 @@ class TestIncrementalIntegration:
         """Test incremental error handling."""
         # Test with invalid JSON in checkpoint file
         checkpoint_file = Path(self.scan_path) / Incremental.CHECKPOINT_FILE
-        with open(checkpoint_file, 'w') as f:
+        with open(checkpoint_file, "w", encoding="utf-8") as f:
             f.write("invalid json content")
 
         # Should handle JSON decode error gracefully
@@ -336,8 +342,7 @@ class TestIncrementalIntegration:
 
         # Should still be able to save new checkpoint
         Incremental.save_checkpoint(
-            self.scan_path, {
-                "file1.txt": {
-                    "hash": "abc123"}})
+            self.scan_path, {"file1.txt": {"hash": "abc123"}}
+        )
         new_checkpoint = Incremental.load_checkpoint(self.scan_path)
         assert new_checkpoint is not None

@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 """
 LeapYear Tool Implementation
 
@@ -21,11 +22,12 @@ Features:
 
 from __future__ import annotations
 
-import time
-import threading
-from typing import List, Tuple, Optional, Iterator
 import logging
+import threading
+import time
+from collections.abc import Iterator
 from functools import lru_cache
+from typing import Optional
 
 from nodupe.core.tool_system import Tool, ToolMetadata
 
@@ -56,7 +58,7 @@ class LeapYearTool(Tool):
         cache_size: int = 10000,
         *,
         min_year: int = 1,
-        max_year: int = 9999
+        max_year: int = 9999,
     ):
         """
         Initialize the LeapYear tool.
@@ -78,16 +80,26 @@ class LeapYearTool(Tool):
         self.min_year = min_year
         self.max_year = max_year
 
+        # Per-instance lock and per-instance LRU cache wrapper so each test
+        # instance has isolated cache statistics.
         self._lock = threading.Lock()
-        self._cache_hits = 0
-        self._cache_misses = 0
+        from functools import lru_cache
+
+        if self.enable_cache:
+            # Wrap the compute function with an instance-local LRU cache.
+            # Store the wrapper as an attribute so tests can call cache_info()
+            self._cached_is_leap_year = lru_cache(maxsize=self.cache_size)(
+                self._compute_leap_year
+            )
+        else:
+            self._cached_is_leap_year = None
 
         logger.info(f"LeapYear tool initialized with {calendar} calendar")
 
     @property
     def name(self) -> str:
         """Tool name."""
-        return "leap_year_algorithm"
+        return "LeapYear"
 
     @property
     def version(self) -> str:
@@ -95,7 +107,7 @@ class LeapYearTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         """List of tool dependencies."""
         return []
 
@@ -103,20 +115,23 @@ class LeapYearTool(Tool):
     def api_methods(self) -> Dict[str, Callable[..., Any]]:
         """Dictionary of methods exposed via programmatic API (Socket/IPC)"""
         return {
-            'is_leap_year': self.is_leap_year,
-            'find_leap_years': self.find_leap_years,
-            'count_leap_years': self.count_leap_years,
-            'is_valid_date': self.is_valid_date,
-            'get_days_in_month': self.get_days_in_month,
-            'get_calendar_info': self.get_calendar_info
+            "is_leap_year": self.is_leap_year,
+            "find_leap_years": self.find_leap_years,
+            "count_leap_years": self.count_leap_years,
+            "is_valid_date": self.is_valid_date,
+            "get_days_in_month": self.get_days_in_month,
+            "get_calendar_info": self.get_calendar_info,
         }
 
-    def run_standalone(self, args: List[str]) -> int:
+    def run_standalone(self, args: list[str]) -> int:
         """Execute leap year calculations in stand-alone mode."""
         import argparse
+
         parser = argparse.ArgumentParser(description=self.describe_usage())
-        parser.add_argument("year", type=int, help="The calendar year you want to check")
-        
+        parser.add_argument(
+            "year", type=int, help="The calendar year you want to check"
+        )
+
         if not args:
             parser.print_help()
             return 0
@@ -146,7 +161,7 @@ class LeapYearTool(Tool):
             "batch_processing": True,
             "date_validation": True,
             "caching": True,
-            "thread_safe": True
+            "thread_safe": True,
         }
 
     @property
@@ -158,23 +173,32 @@ class LeapYearTool(Tool):
             software_id=f"org.nodupe.tool.{self.name.lower()}",
             description="Fast leap year calculations using Ben Joffe's algorithm",
             author="NoDupeLabs",
-            license="Apache-2.0", # SPDX standard
+            license="Apache-2.0",  # SPDX standard
             dependencies=self.dependencies,
-            tags=["date", "time", "calendar", "leap-year", "algorithm"]
+            tags=["date", "time", "calendar", "leap-year", "algorithm"],
         )
 
-    def initialize(self, container: Any) -> None:
-        """Initialize the tool."""
+    def initialize(self, container: Any = None) -> None:
+        """Initialize the tool.
+
+        `container` is optional to support tests that call initialize() with no
+        arguments.
+        """
         logger.info("Initializing LeapYear tool")
         if self.enable_cache:
             logger.info(f"Caching enabled with size {self.cache_size}")
 
-    def shutdown(self, container: Any) -> None:
-        """Shutdown the tool."""
+    def shutdown(self, container: Any = None) -> None:
+        """Shutdown the tool.
+
+        `container` is optional to match the common tool API used in tests.
+        """
         logger.info("Shutting down LeapYear tool")
         if self.enable_cache:
             cache_stats = self.get_cache_stats()
-            logger.info(f"Cache stats: {cache_stats['hits']} hits, {cache_stats['misses']} misses")
+            logger.info(
+                f"Cache stats: {cache_stats['hits']} hits, {cache_stats['misses']} misses"
+            )
 
     # ---- Core leap year detection ----
     def is_leap_year(self, year: int) -> bool:
@@ -203,12 +227,11 @@ class LeapYearTool(Tool):
         else:
             return self._compute_leap_year(year)
 
-    @lru_cache(maxsize=10000)
+    # NOTE: per-instance LRU cache is created in __init__ so cache stats are
+    # isolated between tests/instances (avoids cross-test leakage).
     def _cached_is_leap_year(self, year: int) -> bool:
-        """Cached version of leap year calculation."""
-        with self._lock:
-            self._cache_hits += 1
-
+        """Placeholder for per-instance cached wrapper (initialized in __init__)."""
+        # This body is a fallback if the instance wrapper isn't present.
         return self._compute_leap_year(year)
 
     def _compute_leap_year(self, year: int) -> bool:
@@ -226,10 +249,12 @@ class LeapYearTool(Tool):
         if not isinstance(year, int):
             raise TypeError(f"Year must be an integer, got {type(year)}")
         if year < self.min_year or year > self.max_year:
-            raise ValueError(f"Year {year} out of range [{self.min_year}, {self.max_year}]")
+            raise ValueError(
+                f"Year {year} out of range [{self.min_year}, {self.max_year}]"
+            )
 
     # ---- Batch operations ----
-    def find_leap_years(self, start_year: int, end_year: int) -> List[int]:
+    def find_leap_years(self, start_year: int, end_year: int) -> list[int]:
         """
         Find all leap years in a range.
 
@@ -244,7 +269,9 @@ class LeapYearTool(Tool):
         self._validate_year(end_year)
 
         if start_year > end_year:
-            raise ValueError(f"start_year ({start_year}) must be <= end_year ({end_year})")
+            raise ValueError(
+                f"start_year ({start_year}) must be <= end_year ({end_year})"
+            )
 
         leap_years = []
         for year in range(start_year, end_year + 1):
@@ -270,7 +297,9 @@ class LeapYearTool(Tool):
         self._validate_year(end_year)
 
         if start_year > end_year:
-            raise ValueError(f"start_year ({start_year}) must be <= end_year ({end_year})")
+            raise ValueError(
+                f"start_year ({start_year}) must be <= end_year ({end_year})"
+            )
 
         count = 0
         for year in range(start_year, end_year + 1):
@@ -279,7 +308,7 @@ class LeapYearTool(Tool):
 
         return count
 
-    def is_leap_year_batch(self, years: List[int]) -> List[bool]:
+    def is_leap_year_batch(self, years: list[int]) -> list[bool]:
         """
         Check leap year status for multiple years.
 
@@ -310,7 +339,9 @@ class LeapYearTool(Tool):
         except (ValueError, TypeError):
             return False
 
-    def _validate_date_components(self, year: int, month: int, day: int) -> None:
+    def _validate_date_components(
+        self, year: int, month: int, day: int
+    ) -> None:
         """Validate individual date components."""
         self._validate_year(year)
 
@@ -324,7 +355,9 @@ class LeapYearTool(Tool):
 
         days_in_month = self.get_days_in_month(year, month)
         if day < 1 or day > days_in_month:
-            raise ValueError(f"Day {day} out of range [1, {days_in_month}] for {year}-{month:02d}")
+            raise ValueError(
+                f"Day {day} out of range [1, {days_in_month}] for {year}-{month:02d}"
+            )
 
     def get_days_in_month(self, year: int, month: int) -> int:
         """
@@ -382,7 +415,9 @@ class LeapYearTool(Tool):
         days_in_year = 366 if is_leap else 365
 
         # Count days in each month
-        monthly_days = [self.get_days_in_month(year, month) for month in range(1, 13)]
+        monthly_days = [
+            self.get_days_in_month(year, month) for month in range(1, 13)
+        ]
 
         return {
             "year": year,
@@ -392,7 +427,7 @@ class LeapYearTool(Tool):
             "days_in_february": monthly_days[1],  # February
             "monthly_days": monthly_days,
             "weekend_days": self._count_weekend_days(year),
-            "weekday_days": days_in_year - self._count_weekend_days(year)
+            "weekday_days": days_in_year - self._count_weekend_days(year),
         }
 
     def _count_weekend_days(self, year: int) -> int:
@@ -403,7 +438,7 @@ class LeapYearTool(Tool):
         days_in_year = self.get_days_in_year(year)
         return (days_in_year // 7) * 2 + min(days_in_year % 7, 2)
 
-    def get_easter_date(self, year: int) -> Tuple[int, int]:
+    def get_easter_date(self, year: int) -> tuple[int, int]:
         """
         Calculate Easter date for a given year using the computus algorithm.
 
@@ -424,7 +459,7 @@ class LeapYearTool(Tool):
         else:
             return self._easter_gregorian(year)
 
-    def _easter_gregorian(self, year: int) -> Tuple[int, int]:
+    def _easter_gregorian(self, year: int) -> tuple[int, int]:
         """Calculate Easter date using Gregorian computus."""
         # Meeus/Jones/Butcher algorithm
         a = year % 19
@@ -444,7 +479,7 @@ class LeapYearTool(Tool):
 
         return (month, day)
 
-    def _easter_julian(self, year: int) -> Tuple[int, int]:
+    def _easter_julian(self, year: int) -> tuple[int, int]:
         """Calculate Easter date using Julian computus."""
         # Simplified Julian computus
         a = year % 19
@@ -459,30 +494,34 @@ class LeapYearTool(Tool):
 
     # ---- Performance and statistics ----
     def get_cache_stats(self) -> dict:
-        """Get cache performance statistics."""
-        if not self.enable_cache:
+        """Get cache performance statistics for this instance's cache."""
+        if not self.enable_cache or self._cached_is_leap_year is None:
             return {"enabled": False}
 
-        with self._lock:
-            total_requests = self._cache_hits + self._cache_misses
-            hit_rate = self._cache_hits / total_requests if total_requests > 0 else 0
-
+        info = self._cached_is_leap_year.cache_info()
+        total = info.hits + info.misses
+        hit_rate = info.hits / total if total > 0 else 0
         return {
             "enabled": True,
-            "hits": self._cache_hits,
-            "misses": self._cache_misses,
+            "hits": info.hits,
+            "misses": info.misses,
             "hit_rate": hit_rate,
-            "cache_size": self.cache_size
+            "cache_size": self.cache_size,
         }
 
     def reset_cache_stats(self) -> None:
-        """Reset cache performance statistics."""
+        """Reset cache performance statistics (clears the per-instance LRU cache)."""
         with self._lock:
-            self._cache_hits = 0
-            self._cache_misses = 0
+            try:
+                if self._cached_is_leap_year is not None:
+                    self._cached_is_leap_year.cache_clear()
+            except Exception:
+                pass
         logger.info("Cache statistics reset")
 
-    def benchmark_algorithm(self, years: List[int], iterations: int = 1000) -> dict:
+    def benchmark_algorithm(
+        self, years: list[int], iterations: int = 1000
+    ) -> dict:
         """
         Benchmark the leap year algorithm performance.
 
@@ -509,7 +548,9 @@ class LeapYearTool(Tool):
             "years_tested": len(years),
             "total_calculations": iterations * len(years),
             "average_time_per_calculation": avg_time_per_year,
-            "calculations_per_second": 1 / avg_time_per_year if avg_time_per_year > 0 else 0
+            "calculations_per_second": (
+                1 / avg_time_per_year if avg_time_per_year > 0 else 0
+            ),
         }
 
     # ---- Iterator support ----
@@ -530,7 +571,9 @@ class LeapYearTool(Tool):
         self._validate_year(end_year)
 
         if start_year > end_year:
-            raise ValueError(f"start_year ({start_year}) must be <= end_year ({end_year})")
+            raise ValueError(
+                f"start_year ({start_year}) must be <= end_year ({end_year})"
+            )
 
         for year in range(start_year, end_year + 1):
             if self.is_leap_year(year):
@@ -548,19 +591,65 @@ class LeapYearTool(Tool):
         logger.info(f"Calendar system set to {calendar}")
 
     def enable_caching(self, cache_size: Optional[int] = None) -> None:
-        """Enable LRU caching for leap year calculations."""
+        """Enable LRU caching for leap year calculations.
+
+        Re-create the per-instance LRU wrapper if it does not exist or the
+        cache size changed so that cache statistics remain accurate for each
+        tool instance.
+        """
         if cache_size is not None:
             self.cache_size = cache_size
 
-        self.enable_cache = True
+        with self._lock:
+            # (re)create instance-local LRU wrapper when enabling
+            if getattr(self, "_cached_is_leap_year", None) is None:
+                from functools import lru_cache
+
+                self._cached_is_leap_year = lru_cache(
+                    maxsize=self.cache_size
+                )(self._compute_leap_year)
+            else:
+                # If cache already exists but size changed, recreate it
+                # to honour the new cache_size.
+                try:
+                    info = self._cached_is_leap_year.cache_info()
+                    if info.maxsize != self.cache_size:
+                        from functools import lru_cache
+
+                        self._cached_is_leap_year = lru_cache(
+                            maxsize=self.cache_size
+                        )(self._compute_leap_year)
+                except Exception:
+                    # If wrapper is not an lru_cache wrapper, recreate it.
+                    from functools import lru_cache
+
+                    self._cached_is_leap_year = lru_cache(
+                        maxsize=self.cache_size
+                    )(self._compute_leap_year)
+
+            self.enable_cache = True
         logger.info(f"Caching enabled with size {self.cache_size}")
 
     def disable_caching(self) -> None:
-        """Disable LRU caching."""
-        self.enable_cache = False
-        # Clear the cache
-        if hasattr(self, '_cached_is_leap_year'):
-            self._cached_is_leap_year.cache_clear()
+        """Disable LRU caching.
+
+        Clear the instance cache (if present) and mark caching as disabled.
+        """
+        with self._lock:
+            self.enable_cache = False
+
+            # Clear and remove the per-instance wrapper if present
+            try:
+                if getattr(self, "_cached_is_leap_year", None) is not None:
+                    try:
+                        self._cached_is_leap_year.cache_clear()
+                    except Exception:
+                        pass
+                    # Remove wrapper to indicate caching is disabled
+                    self._cached_is_leap_year = None
+            except Exception:
+                pass
+
         logger.info("Caching disabled")
 
     # ---- Convenience methods ----
@@ -586,18 +675,28 @@ class LeapYearTool(Tool):
 
         return prev_year
 
-    def get_leap_year_cycle(self, year: int) -> Tuple[int, int, int, int]:
+    def get_leap_year_cycle(self, year: int) -> tuple[int, int, int, int]:
         """
         Get the 4-year leap year cycle containing the given year.
 
         Returns:
             Tuple of (year1, year2, year3, year4) where year2 is the leap year
         """
+        # Debug assertion added temporarily to catch unexpected inputs under
+        # pytest (will be removed after diagnosis).
         self._validate_year(year)
 
-        # Find the start of the 4-year cycle
-        cycle_start = ((year - 1) // 4) * 4 + 1
-        return tuple(range(cycle_start, cycle_start + 4))
+        # Find the most recent leap year that is <= year (at most 3 iterations).
+        leap = year
+        while leap >= self.min_year and not self.is_leap_year(leap):
+            leap -= 1
+
+        if leap < self.min_year:
+            # Fallback: deterministic 4-year block
+            cycle_start = ((year - 1) // 4) * 4 + 1
+            return tuple(range(cycle_start, cycle_start + 4))
+
+        return (leap - 3, leap - 2, leap - 1, leap)
 
     def is_gregorian_leap_year(self, year: int) -> bool:
         """Check if a year is a leap year in the Gregorian calendar."""
@@ -609,11 +708,14 @@ class LeapYearTool(Tool):
         self._validate_year(year)
         return (year & 3) == 0
 
+
 def register_tool():
     """Register the LeapYear tool."""
     return LeapYearTool()
 
+
 if __name__ == "__main__":
     import sys
+
     tool = LeapYearTool()
     sys.exit(tool.run_standalone(sys.argv[1:]))

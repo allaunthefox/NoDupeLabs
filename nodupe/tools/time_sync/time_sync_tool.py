@@ -1,5 +1,8 @@
+# pylint: disable=logging-fstring-interpolation
 """
 time_synchronization Tool Implementation
+
+# pylint: disable=W0718  # broad-exception-caught - intentional for graceful degradation
 
 Provides NTP-based time synchronization and FastDate64 timestamp encoding.
 This tool ensures accurate, monotonic timekeeping for the NoDupeLabs system.
@@ -23,25 +26,25 @@ Environment variables:
 
 from __future__ import annotations
 
+import logging
 import os
 import socket
 import struct
-import time
 import threading
+import time
+from collections.abc import Iterable
 from datetime import datetime, timezone
-from typing import Iterable, Optional, Tuple, List
-import logging
+from typing import Optional
 
-from nodupe.core.tool_system import Tool
+from nodupe.core.tool_system import Tool, ToolMetadata
+
 from .sync_utils import (
-    ParallelNTPClient,
-
-
-    TargetedFileScanner,
     FastDate64Encoder,
+    ParallelNTPClient,
+    TargetedFileScanner,
     get_global_dns_cache,
     get_global_metrics,
-    performance_timer
+    performance_timer,
 )
 
 logger = logging.getLogger(__name__)
@@ -65,14 +68,19 @@ class LeapYearCalculator:
         """Initialize the LeapYear tool if available."""
         try:
             from nodupe.tools.leap_year import LeapYearTool
+
             self._leap_year_tool = LeapYearTool(calendar="gregorian")
             self._leap_year_tool.initialize()
             self._use_tool = True
-            logger.info("LeapYear tool loaded successfully for time calculations")
+            logger.info(
+                "LeapYear tool loaded successfully for time calculations"
+            )
         except (ImportError, Exception) as e:
             self._leap_year_tool = None
             self._use_tool = False
-            logger.debug(f"LeapYear tool not available, using built-in calculations: {e}")
+            logger.debug(
+                f"LeapYear tool not available, using built-in calculations: {e}"
+            )
 
     def is_leap_year(self, year: int) -> bool:
         """
@@ -91,7 +99,9 @@ class LeapYearCalculator:
             try:
                 return self._leap_year_tool.is_leap_year(year)
             except Exception as e:
-                logger.warning(f"LeapYear tool error, falling back to built-in: {e}")
+                logger.warning(
+                    f"LeapYear tool error, falling back to built-in: {e}"
+                )
                 return self._is_leap_year_builtin(year)
         else:
             return self._is_leap_year_builtin(year)
@@ -126,6 +136,7 @@ class LeapYearCalculator:
         """Check if the LeapYear tool is available and being used."""
         return self._use_tool
 
+
 # Constants
 NTP_TO_UNIX = 2208988800  # seconds between 1900-01-01 and 1970-01-01
 DEFAULT_SERVERS = (
@@ -134,7 +145,7 @@ DEFAULT_SERVERS = (
     "time.apple.com",
     "time.windows.com",
     "time.facebook.com",
-    "pool.ntp.org"
+    "pool.ntp.org",
 )
 DEFAULT_TIMEOUT = 3.0
 DEFAULT_ATTEMPTS = 2
@@ -146,17 +157,30 @@ FASTDATE_FRAC_SCALE = 1 << FASTDATE_FRAC_BITS
 FASTDATE_SECONDS_MAX = (1 << FASTDATE_SECONDS_BITS) - 1
 
 # Environment-driven defaults (allow override per-instance)
-_env_enabled = os.getenv("NODUPE_TIMESYNC_ENABLED", "1").lower() not in ("0", "false", "no")
-_env_no_network = os.getenv("NODUPE_TIMESYNC_NO_NETWORK", "0").lower() in ("1", "true", "yes")
-_env_allow_bg = os.getenv("NODUPE_TIMESYNC_ALLOW_BG", "1").lower() not in ("0", "false", "no")
+_env_enabled = os.getenv("NODUPE_TIMESYNC_ENABLED", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
+_env_no_network = os.getenv("NODUPE_TIMESYNC_NO_NETWORK", "0").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+_env_allow_bg = os.getenv("NODUPE_TIMESYNC_ALLOW_BG", "1").lower() not in (
+    "0",
+    "false",
+    "no",
+)
 
 
-class time_synchronizationDisabledError(RuntimeError):
+class TimeSynchronizationDisabledError(RuntimeError):
     """Raised when a requested operation is disabled on the time_synchronization instance."""
+
     pass
 
 
-class time_synchronizationTool(Tool):
+class TimeSynchronizationTool(Tool):
     """
     time_synchronization Tool for NTP-based time synchronization and FastDate64 encoding.
 
@@ -213,8 +237,16 @@ class time_synchronizationTool(Tool):
 
         # Runtime flags default to environment-driven values but can be overridden per-instance
         self._enabled = _env_enabled if enabled is None else bool(enabled)
-        self._allow_network = (not _env_no_network) if allow_network is None else bool(allow_network)
-        self._allow_background = _env_allow_bg if allow_background is None else bool(allow_background)
+        self._allow_network = (
+            (not _env_no_network)
+            if allow_network is None
+            else bool(allow_network)
+        )
+        self._allow_background = (
+            _env_allow_bg
+            if allow_background is None
+            else bool(allow_background)
+        )
 
         self._lock = threading.Lock()
         self._base_server_time: Optional[float] = None
@@ -225,19 +257,25 @@ class time_synchronizationTool(Tool):
         self._bg_thread: Optional[threading.Thread] = None
         self._bg_stop = threading.Event()
 
+        # Leap-year helper (tool may use LeapYear tool when available)
+        self._leap_year_calculator = LeapYearCalculator()
 
-    def initialize(self, container: Any) -> None:
-        """Initialize the tool."""
+    def initialize(self, container: Any = None) -> None:
+        """Initialize the tool (container is optional for tests).
+
+        Historically this method accepted an optional dependency container; keep
+        that behaviour for compatibility with existing tests.
+        """
         logger.info("Initializing time_synchronization tool")
         if self._enabled:
-            logger.info("time_synchronization enabled, attempting initial synchronization")
+            logger.info("TimeSync enabled, attempting initial synchronization")
             try:
                 self.force_sync()
                 logger.info("Initial time synchronization successful")
             except Exception as e:
                 logger.warning(f"Initial time synchronization failed: {e}")
         else:
-            logger.info("time_synchronization disabled")
+            logger.info("TimeSync disabled")
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
@@ -256,7 +294,7 @@ class time_synchronizationTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         """List of tool dependencies."""
         return []
 
@@ -269,18 +307,25 @@ class time_synchronizationTool(Tool):
             software_id=f"org.nodupe.tool.{self.name.lower()}",
             description="NTP-based time synchronization and FastDate64 timestamp encoding",
             author="NoDupeLabs",
-            license="Apache-2.0", # SPDX standard
+            license="Apache-2.0",  # SPDX standard
             dependencies=self.dependencies,
-            tags=["time", "ntp", "synchronization", "timestamps"]
+            tags=["time", "ntp", "synchronization", "timestamps"],
         )
 
-    def run_standalone(self, args: List[str]) -> int:
+    def run_standalone(self, args: list[str]) -> int:
         """Execute time synchronization in stand-alone mode."""
         import argparse
-        parser = argparse.ArgumentParser(description="NoDupeLabs Stand-Alone time_synchronization Utility")
-        parser.add_argument("--sync", action="store_true", help="Perform NTP synchronization")
-        parser.add_argument("--format", default="rfc3339", help="Output format (rfc3339, unix)")
-        
+
+        parser = argparse.ArgumentParser(
+            description="NoDupeLabs Stand-Alone time_synchronization Utility"
+        )
+        parser.add_argument(
+            "--sync", action="store_true", help="Perform NTP synchronization"
+        )
+        parser.add_argument(
+            "--format", default="rfc3339", help="Output format (rfc3339, unix)"
+        )
+
         parsed = parser.parse_args(args)
         try:
             if parsed.sync:
@@ -296,15 +341,15 @@ class time_synchronizationTool(Tool):
     def api_methods(self) -> Dict[str, Callable[..., Any]]:
         """Dictionary of methods exposed via programmatic API (Socket/IPC)"""
         return {
-            'force_sync': self.force_sync,
-            'sync_with_fallback': self.sync_with_fallback,
-            'get_authenticated_time': self.get_authenticated_time,
-            'get_corrected_time': self.get_corrected_time,
-            'get_timestamp_fast64': self.get_timestamp_fast64,
-            'encode_fastdate64': self.encode_fastdate64,
-            'decode_fastdate64': self.decode_fastdate64,
-            'get_status': self.get_status,
-            'is_leap_year': self.is_leap_year
+            "force_sync": self.force_sync,
+            "sync_with_fallback": self.sync_with_fallback,
+            "get_authenticated_time": self.get_authenticated_time,
+            "get_corrected_time": self.get_corrected_time,
+            "get_timestamp_fast64": self.get_timestamp_fast64,
+            "encode_fastdate64": self.encode_fastdate64,
+            "decode_fastdate64": self.decode_fastdate64,
+            "get_status": self.get_status,
+            "is_leap_year": self.is_leap_year,
         }
 
     def get_capabilities(self) -> Dict[str, Any]:
@@ -321,8 +366,8 @@ class time_synchronizationTool(Tool):
                 "ntp_sync",
                 "rtc_fallback",
                 "fastdate64_encoding",
-                "authenticated_time"
-            ]
+                "authenticated_time",
+            ],
         }
 
     # ---- runtime flags API ----
@@ -371,7 +416,7 @@ class time_synchronizationTool(Tool):
         logger.info("time_synchronization background synchronization disabled")
 
     # ---- internal helpers ----
-    def _to_ntp(self, ts: float) -> Tuple[int, int]:
+    def _to_ntp(self, ts: float) -> tuple[int, int]:
         """Convert POSIX timestamp to NTP format."""
         ntp = ts + NTP_TO_UNIX
         sec = int(ntp)
@@ -382,14 +427,16 @@ class time_synchronizationTool(Tool):
         """Convert NTP timestamp to POSIX format."""
         return (sec + float(frac) / (1 << 32)) - NTP_TO_UNIX
 
-    def _resolve_addresses(self, host: str, port: int = 123) -> List[Tuple]:
+    def _resolve_addresses(self, host: str, port: int = 123) -> list[tuple]:
         """Resolve a host to socket address tuples using getaddrinfo."""
         try:
             return socket.getaddrinfo(host, port, 0, socket.SOCK_DGRAM)
         except socket.gaierror:
             return []
 
-    def _query_address(self, addr_info: Tuple, timeout: float) -> Tuple[float, float, float]:
+    def _query_address(
+        self, addr_info: tuple, timeout: float
+    ) -> tuple[float, float, float]:
         """
         Query a single getaddrinfo entry. Returns (server_time, offset, delay).
         Raises socket.timeout / OSError / ValueError on error.
@@ -422,7 +469,9 @@ class time_synchronizationTool(Tool):
         server_time = t3
         return server_time, offset, delay
 
-    def _query_ntp_once(self, host: str, timeout: float) -> Tuple[float, float, float]:
+    def _query_ntp_once(
+        self, host: str, timeout: float
+    ) -> tuple[float, float, float]:
         """
         Query a host and return best reply (lowest delay) across resolved addresses.
         Returns (server_time, offset, delay).
@@ -436,7 +485,9 @@ class time_synchronizationTool(Tool):
         last_exc = None
         for addr_info in addrs:
             try:
-                server_time, offset, delay = self._query_address(addr_info, timeout)
+                server_time, offset, delay = self._query_address(
+                    addr_info, timeout
+                )
                 if best is None or delay < best[0]:
                     best = (delay, server_time, offset)
             except Exception as e:
@@ -444,12 +495,16 @@ class time_synchronizationTool(Tool):
                 continue
 
         if best is None:
-            raise RuntimeError(f"No NTP responses from {host}; last error: {last_exc!r}")
+            raise RuntimeError(
+                f"No NTP responses from {host}; last error: {last_exc!r}"
+            )
 
         delay, server_time, offset = best
         return server_time, offset, delay
 
-    def _query_servers_best(self, hosts: Iterable[str]) -> Tuple[str, float, float, float]:
+    def _query_servers_best(
+        self, hosts: Iterable[str]
+    ) -> tuple[str, float, float, float]:
         """
         Query multiple servers and return the best reply overall (host, server_time, offset, delay).
         """
@@ -458,7 +513,9 @@ class time_synchronizationTool(Tool):
         for host in hosts:
             for _ in range(self.attempts):
                 try:
-                    server_time, offset, delay = self._query_ntp_once(host, self.timeout)
+                    server_time, offset, delay = self._query_ntp_once(
+                        host, self.timeout
+                    )
                     if best is None or delay < best[0]:
                         best = (delay, host, server_time, offset)
                 except Exception as e:
@@ -471,7 +528,9 @@ class time_synchronizationTool(Tool):
         delay, host, server_time, offset = best
         return host, server_time, offset, delay
 
-    def _apply_new_measurement(self, server_time: float, offset: float, delay: float) -> None:
+    def _apply_new_measurement(
+        self, server_time: float, offset: float, delay: float
+    ) -> None:
         """Apply a new NTP measurement to update internal state."""
         with self._lock:
             self._base_server_time = server_time
@@ -480,28 +539,33 @@ class time_synchronizationTool(Tool):
             if self._smoothed_offset is None:
                 self._smoothed_offset = offset
             else:
-                self._smoothed_offset = (self.alpha * offset) + ((1.0 - self.alpha) * self._smoothed_offset)
+                self._smoothed_offset = (self.alpha * offset) + (
+                    (1.0 - self.alpha) * self._smoothed_offset
+                )
 
     # ---- public API that involves network ----
-    def force_sync(self) -> Tuple[str, float, float, float]:
+    def force_sync(self) -> tuple[str, float, float, float]:
         """
         Synchronously query NTP servers and update local reference.
         Returns (host, server_time, offset, delay).
 
         Raises:
-            time_synchronizationDisabledError if the instance or network operation is disabled.
+            TimeSynchronizationDisabledError if the instance or network operation is disabled.
             RuntimeError on network / NTP failures.
         """
         if not self.is_enabled():
-            raise time_synchronizationDisabledError("time_synchronization instance is disabled")
+            raise TimeSynchronizationDisabledError(
+                "TimeSync instance is disabled"
+            )
         if not self.is_network_allowed():
-            raise time_synchronizationDisabledError("Network operations are disabled for time_synchronization")
+            raise TimeSynchronizationDisabledError(
+                "Network operations are disabled"
+            )
 
         # Use parallel NTP client for improved performance
         with performance_timer("NTP parallel sync"):
             parallel_client = ParallelNTPClient(
-                timeout=self.timeout,
-                dns_cache=get_global_dns_cache()
+                timeout=self.timeout, dns_cache=get_global_dns_cache()
             )
 
             result = parallel_client.query_hosts_parallel(
@@ -509,38 +573,54 @@ class time_synchronizationTool(Tool):
                 attempts_per_host=self.attempts,
                 max_acceptable_delay=self.max_acceptable_delay,
                 stop_on_good_result=True,
-                good_delay_threshold=0.1
+                good_delay_threshold=0.1,
             )
 
             parallel_client.shutdown(wait=False)
 
         if not result.success or result.best_response is None:
-            raise RuntimeError("No successful NTP responses")
-
-        best = result.best_response
-        host = best.host
-        server_time = best.server_time
-        offset = best.offset
-        delay = best.delay
+            # Fall back to legacy single-threaded querying (tests mock those helpers).
+            logger.debug(
+                "ParallelNTPClient failed — trying legacy _query_servers_best fallback"
+            )
+            try:
+                host, server_time, offset, delay = self._query_servers_best(
+                    self.servers
+                )
+            except Exception as e:
+                raise RuntimeError("No successful NTP responses") from e
+        else:
+            best = result.best_response
+            host = best.host
+            server_time = best.server_time
+            offset = best.offset
+            delay = best.delay
 
         if delay > self.max_acceptable_delay:
-            raise RuntimeError(f"NTP reply from {host} too noisy (delay={delay:.3f}s)")
+            raise RuntimeError(
+                f"NTP reply from {host} too noisy (delay={delay:.3f}s)"
+            )
 
         self._apply_new_measurement(server_time, offset, delay)
-        logger.info(f"Time synchronized with {host}, offset: {offset:.3f}s, delay: {delay:.3f}s")
+        logger.info(
+            f"Time synchronized with {host}, offset: {offset:.3f}s, delay: {delay:.3f}s"
+        )
 
         # Record performance metrics
         get_global_metrics().record_parallel_query(
             num_hosts=len(self.servers),
-            num_addresses=sum(len(get_global_dns_cache().get(host, []) or []) for host in self.servers),
+            num_addresses=sum(
+                len(get_global_dns_cache().get(host, []) or [])
+                for host in self.servers
+            ),
             success=True,
             duration=0.0,  # Would need to measure actual duration
-            best_delay=delay
+            best_delay=delay,
         )
 
         return host, server_time, offset, delay
 
-    def maybe_sync(self) -> Optional[Tuple[str, float, float, float]]:
+    def maybe_sync(self) -> Optional[tuple[str, float, float, float]]:
         """
         Try to sync; return None on disabled/no-response instead of raising.
         """
@@ -552,7 +632,7 @@ class time_synchronizationTool(Tool):
             logger.warning(f"Time synchronization failed: {e}")
             return None
 
-    def sync_with_fallback(self) -> Tuple[str, float, float, float]:
+    def sync_with_fallback(self) -> tuple[str, float, float, float]:
         """
         Attempt NTP synchronization with fallback to local time resources.
 
@@ -568,10 +648,12 @@ class time_synchronizationTool(Tool):
             the method used ('ntp', 'rtc', 'system', 'file', or 'monotonic')
 
         Raises:
-            time_synchronizationDisabledError if the instance is disabled
+            TimeSynchronizationDisabledError if the instance is disabled
         """
         if not self.is_enabled():
-            raise time_synchronizationDisabledError("time_synchronization instance is disabled")
+            raise TimeSynchronizationDisabledError(
+                "TimeSync instance is disabled"
+            )
 
         # Primary: Try NTP synchronization
         if self.is_network_allowed():
@@ -580,7 +662,9 @@ class time_synchronizationTool(Tool):
                 logger.info(f"Successfully synchronized via NTP: {host}")
                 return ("ntp", server_time, offset, delay)
             except Exception as e:
-                logger.warning(f"NTP synchronization failed, trying RTC fallback: {e}")
+                logger.warning(
+                    f"NTP synchronization failed, trying RTC fallback: {e}"
+                )
 
         # Fallback 1: Use system RTC with monotonic correction
         try:
@@ -611,9 +695,15 @@ class time_synchronizationTool(Tool):
             # Validate system time is reasonable (not too far in the past or future)
             current_time = time.time()
             if system_time < 1262304000:  # Before year 2010
-                raise RuntimeError("System time appears invalid (too far in the past)")
-            if abs(system_time - current_time) > 300:  # More than 5 minutes difference
-                raise RuntimeError("System time appears unstable (large drift detected)")
+                raise RuntimeError(
+                    "System time appears invalid (too far in the past)"
+                )
+            if (
+                abs(system_time - current_time) > 300
+            ):  # More than 5 minutes difference
+                raise RuntimeError(
+                    "System time appears unstable (large drift detected)"
+                )
 
             # Calculate offset between system time and monotonic
             offset = system_time - monotonic_time
@@ -624,7 +714,9 @@ class time_synchronizationTool(Tool):
             return ("system", system_time, offset, delay)
 
         except Exception as e:
-            logger.warning(f"System time fallback failed ({e}), trying file timestamp: {e}")
+            logger.warning(
+                f"System time fallback failed ({e}), trying file timestamp: {e}"
+            )
 
         # Fallback 3: File timestamp fallback using recent files
         try:
@@ -637,8 +729,12 @@ class time_synchronizationTool(Tool):
 
             # Additional validation: ensure file time isn't too old or too new
             current_time = time.time()
-            if abs(file_time - current_time) > 86400:  # More than 24 hours difference
-                raise RuntimeError("File timestamp appears stale (too old or future)")
+            if (
+                abs(file_time - current_time) > 86400
+            ):  # More than 24 hours difference
+                raise RuntimeError(
+                    "File timestamp appears stale (too old or future)"
+                )
 
             # Calculate offset between file time and monotonic
             offset = file_time - monotonic_time
@@ -649,7 +745,9 @@ class time_synchronizationTool(Tool):
             return ("file", file_time, offset, delay)
 
         except Exception as e:
-            logger.warning(f"File timestamp fallback failed ({e}), using pure monotonic time: {e}")
+            logger.warning(
+                f"File timestamp fallback failed ({e}), using pure monotonic time: {e}"
+            )
 
         # Fallback 4: Pure monotonic time with date estimation
         try:
@@ -665,8 +763,12 @@ class time_synchronizationTool(Tool):
 
             # Validate the estimated time isn't too far in the past or future
             current_time = time.time()
-            if abs(estimated_time - current_time) > 86400:  # More than 24 hours difference
-                logger.warning(f"File-based time estimation seems stale: {abs(estimated_time - current_time)/3600:.1f} hours difference")
+            if (
+                abs(estimated_time - current_time) > 86400
+            ):  # More than 24 hours difference
+                logger.warning(
+                    f"File-based time estimation seems stale: {abs(estimated_time - current_time)/3600:.1f} hours difference"
+                )
                 # Fall back to pure monotonic if estimation is too far off
                 raise RuntimeError("File-based time estimation too stale")
 
@@ -674,17 +776,21 @@ class time_synchronizationTool(Tool):
             delay = 0.0
 
             self._apply_new_measurement(estimated_time, offset, delay)
-            logger.info(f"Using monotonic time with file-based date estimation from {file_time}")
+            logger.info(
+                f"Using monotonic time with file-based date estimation from {file_time}"
+            )
             return ("monotonic_estimated", estimated_time, offset, delay)
 
-        except Exception as e:
+        except Exception:
             # Final fallback: pure monotonic time (no date concept)
             monotonic_time = time.monotonic()
             offset = 0.0
             delay = 0.0
 
             self._apply_new_measurement(monotonic_time, offset, delay)
-            logger.warning("Using pure monotonic time (no date concept available) - certificate validation may fail")
+            logger.warning(
+                "Using pure monotonic time (no date concept available) - certificate validation may fail"
+            )
             return ("monotonic", monotonic_time, offset, delay)
 
     def get_authenticated_time(self, format: str = "iso8601") -> str:
@@ -715,7 +821,7 @@ class time_synchronizationTool(Tool):
             "[Null Time - Failure]" if all time sources fail and format="failure"
 
         Raises:
-            time_synchronizationDisabledError: If the tool is disabled
+            TimeSynchronizationDisabledError: If the tool is disabled
 
         Behavioral Guidelines:
             - Trust Factor: This time is cryptographically verified via NTS when available.
@@ -730,7 +836,7 @@ class time_synchronizationTool(Tool):
               and step vs slew strategy for large time corrections.
 
         Example usage:
-            >>> tool = time_synchronizationTool()
+            >>> tool = TimeSynchronizationTool()
             >>> tool.get_authenticated_time()
             "2025-12-18T15:03:24.123456Z"
             >>> tool.get_authenticated_time(format="unix")
@@ -739,7 +845,29 @@ class time_synchronizationTool(Tool):
             "[Null Time - Failure]"  # Only when all methods fail
         """
         if not self.is_enabled():
-            raise time_synchronizationDisabledError("time_synchronization instance is disabled")
+            raise TimeSynchronizationDisabledError(
+                "TimeSync instance is disabled"
+            )
+
+        # Validate and normalize format early so ValueError is raised directly
+        fmt = (format or "").lower()
+        valid_iso = {"iso8601", "iso", "rfc3339", "rfc"}
+        valid_unix = {"unix"}
+        valid_human = {"human"}
+        valid_failure = {"failure"}
+
+        if fmt in valid_iso:
+            normalized_format = "iso8601"
+        elif fmt in valid_unix:
+            normalized_format = "unix"
+        elif fmt in valid_human:
+            normalized_format = "human"
+        elif fmt in valid_failure:
+            normalized_format = "failure"
+        else:
+            raise ValueError(
+                f"Unsupported format: {format}. Supported formats: iso8601, unix, rfc3339, human, failure"
+            )
 
         # Try to get the best available time source
         try:
@@ -751,44 +879,55 @@ class time_synchronizationTool(Tool):
 
             # Production Hardening: Check for certificate validation capability
             if source == "monotonic":
-                logger.warning("WARNING: Using pure monotonic time - certificate validation may fail due to lack of date concept")
+                # Keep this as debug to avoid duplicate warning in tests; the outward-facing
+                # warning is emitted below when the source is used by callers.
+                logger.debug(
+                    "Using pure monotonic time - certificate validation may fail due to lack of date concept"
+                )
             elif source == "monotonic_estimated":
-                logger.info("Using monotonic time with date estimation - suitable for most applications")
+                logger.info(
+                    "Using monotonic time with date estimation - suitable for most applications"
+                )
 
             # Format the time based on the requested format
-            if format.lower() in ["iso8601", "rfc3339"]:
+            if normalized_format == "iso8601":
                 # Convert to ISO-8601 / RFC 3339 format (YYYY-MM-DDTHH:MM:SS.mmmmmmZ)
                 dt = datetime.fromtimestamp(current_time, tz=timezone.utc)
                 # ISO 8601 and RFC 3339 are compatible here
-                result = dt.isoformat(timespec="microseconds").replace("+00:00", "Z")
+                result = dt.isoformat(timespec="microseconds").replace(
+                    "+00:00", "Z"
+                )
 
-            elif format.lower() == "unix":
+            elif normalized_format == "unix":
                 # Return Unix timestamp as string
                 result = f"{current_time:.6f}"
 
-            elif format.lower() == "human":
+            elif normalized_format == "human":
                 # Human-readable format
                 dt = datetime.fromtimestamp(current_time, tz=timezone.utc)
                 result = dt.strftime("%Y-%m-%d %H:%M:%S.%f UTC")
 
-            else:
-                raise ValueError(f"Unsupported format: {format}. Supported formats: iso8601, unix, rfc3339, human, failure")
-
             # Log fallback information if applicable
             if source != "ntp":
-                logger.warning(f"Time obtained via {source} fallback (not NTP/NTS). "
-                              f"Time may have slight drift from network time.")
+                logger.warning(
+                    f"Time obtained via {source} fallback (not NTP/NTS). "
+                    f"Time may have slight drift from network time."
+                )
 
             return result
 
         except Exception as e:
             # All fallback methods failed
-            logger.error(f"All time synchronization methods failed: {e}")
+            logger.exception(f"All time synchronization methods failed: {e}")
 
             # Check if failure format is requested
-            if format.lower() == "failure":
-                logger.critical("CRITICAL: All time sources have failed. Disabling time_synchronization tool to prevent log spam.")
-                logger.critical("time_synchronization tool is shutting down. Metadata timestamping will use system time.")
+            if normalized_format == "failure":
+                logger.critical(
+                    "CRITICAL: All time sources have failed. Disabling time_synchronization tool to prevent log spam."
+                )
+                logger.critical(
+                    "time_synchronization tool is shutting down. Metadata timestamping will use system time."
+                )
 
                 # Gracefully disable the tool to prevent endless error spam
                 self.disable()
@@ -796,7 +935,9 @@ class time_synchronizationTool(Tool):
                 return "[Null Time - Failure]"
             else:
                 # Re-raise the exception for other formats
-                raise RuntimeError(f"Unable to obtain time from any source: {e}")
+                raise RuntimeError(
+                    f"Unable to obtain time from any source: {e}"
+                )
 
     def _get_file_timestamp(self) -> float:
         """
@@ -826,7 +967,9 @@ class time_synchronizationTool(Tool):
             if file_time is None:
                 raise RuntimeError("No suitable recent files found")
 
-            logger.info(f"Using file timestamp from optimized scanner: {file_time}")
+            logger.info(
+                f"Using file timestamp from optimized scanner: {file_time}"
+            )
             return file_time
 
         except Exception as e:
@@ -840,8 +983,8 @@ class time_synchronizationTool(Tool):
 
         This is used if the optimized scanner fails.
         """
-        import os
         import glob
+        import os
 
         # Common locations to search for recently modified files
         search_paths = [
@@ -883,7 +1026,7 @@ class time_synchronizationTool(Tool):
                                 if mtime > latest_time:
                                     latest_time = mtime
                                     latest_file = file_path
-                        except (OSError, IOError):
+                        except OSError:
                             # Skip files we can't access
                             continue
 
@@ -892,10 +1035,14 @@ class time_synchronizationTool(Tool):
                     continue
 
         if latest_time > 0:
-            logger.info(f"Using file timestamp from fallback scanner: {latest_file}: {latest_time}")
+            logger.info(
+                f"Using file timestamp from fallback scanner: {latest_file}: {latest_time}"
+            )
             return latest_time
         else:
-            raise RuntimeError("No suitable recent files found for timestamp fallback")
+            raise RuntimeError(
+                "No suitable recent files found for timestamp fallback"
+            )
 
     def _get_rtc_time(self) -> float:
         """
@@ -915,7 +1062,9 @@ class time_synchronizationTool(Tool):
 
             # Validate that we got a reasonable timestamp
             if rtc_time < 1000000000:  # Before year 2002
-                raise RuntimeError("RTC time appears invalid (too far in the past)")
+                raise RuntimeError(
+                    "RTC time appears invalid (too far in the past)"
+                )
 
             return rtc_time
 
@@ -937,15 +1086,20 @@ class time_synchronizationTool(Tool):
                 "last_delay": self._last_delay,
                 "has_external_reference": False,
                 "monotonic_base": self._base_monotonic,
-                "server_time_base": self._base_server_time
+                "server_time_base": self._base_server_time,
             }
 
-            if self._base_server_time is not None and self._base_monotonic is not None:
+            if (
+                self._base_server_time is not None
+                and self._base_monotonic is not None
+            ):
                 # Determine sync method based on the source of the base time
                 if self._last_delay and self._last_delay > 0:
                     status["sync_method"] = "ntp"
                     status["has_external_reference"] = True
-                elif self._smoothed_offset == (self._base_server_time - self._base_monotonic):
+                elif self._smoothed_offset == (
+                    self._base_server_time - self._base_monotonic
+                ):
                     status["sync_method"] = "rtc"
                     status["has_external_reference"] = True
                 else:
@@ -956,7 +1110,9 @@ class time_synchronizationTool(Tool):
             return status
 
     # ---- background worker ----
-    def start_background(self, interval: float = 300.0, initial_sync: bool = True) -> None:
+    def start_background(
+        self, interval: float = 300.0, initial_sync: bool = True
+    ) -> None:
         """
         Start a background thread that periodically refreshes the offset.
 
@@ -968,11 +1124,17 @@ class time_synchronizationTool(Tool):
             time_synchronizationDisabledError if disabled or background not allowed.
         """
         if not self.is_enabled():
-            raise time_synchronizationDisabledError("time_synchronization instance is disabled")
+            raise TimeSynchronizationDisabledError(
+                "TimeSync instance is disabled"
+            )
         if not self.is_background_allowed():
-            raise time_synchronizationDisabledError("Background syncing is disabled for time_synchronization")
+            raise TimeSynchronizationDisabledError(
+                "Background syncing is disabled"
+            )
         if not self.is_network_allowed():
-            raise time_synchronizationDisabledError("Cannot start background sync when network is disabled")
+            raise TimeSynchronizationDisabledError(
+                "Cannot start background sync"
+            )
 
         if self._bg_thread is not None and self._bg_thread.is_alive():
             return
@@ -992,11 +1154,17 @@ class time_synchronizationTool(Tool):
                 except Exception as e:
                     logger.warning(f"Background sync failed: {e}")
 
-        self._bg_thread = threading.Thread(target=_loop, daemon=True, name="time_synchronizationThread")
+        self._bg_thread = threading.Thread(
+            target=_loop, daemon=True, name="time_synchronizationThread"
+        )
         self._bg_thread.start()
-        logger.info(f"time_synchronization background synchronization started (interval: {interval}s)")
+        logger.info(
+            f"time_synchronization background synchronization started (interval: {interval}s)"
+        )
 
-    def stop_background(self, wait: bool = True, timeout: Optional[float] = None) -> None:
+    def stop_background(
+        self, wait: bool = True, timeout: Optional[float] = None
+    ) -> None:
         """Stop the background synchronization thread."""
         if self._bg_thread is None:
             return
@@ -1017,7 +1185,9 @@ class time_synchronizationTool(Tool):
         with self._lock:
             if self._base_server_time is None or self._base_monotonic is None:
                 return time.monotonic()
-            return self._base_server_time + (time.monotonic() - self._base_monotonic)
+            return self._base_server_time + (
+                time.monotonic() - self._base_monotonic
+            )
 
     def get_corrected_fast64(self) -> int:
         """
@@ -1103,9 +1273,13 @@ class time_synchronizationTool(Tool):
         frac = int((ts - sec) * FASTDATE32_FRAC_SCALE)
 
         if sec > FASTDATE32_SECONDS_MAX:
-            raise ValueError(f"Timestamp seconds {sec} too large for {FASTDATE32_SECONDS_BITS}-bit field")
+            raise ValueError(
+                f"Timestamp seconds {sec} too large for {FASTDATE32_SECONDS_BITS}-bit field"
+            )
 
-        return (sec << FASTDATE32_FRAC_BITS) | (frac & (FASTDATE32_FRAC_SCALE - 1))
+        return (sec << FASTDATE32_FRAC_BITS) | (
+            frac & (FASTDATE32_FRAC_SCALE - 1)
+        )
 
     @staticmethod
     def decode_fastdate(value: int) -> float:
@@ -1162,12 +1336,16 @@ class time_synchronizationTool(Tool):
         if relative_seconds < 0:
             raise ValueError("Timestamp too far in the past (before 2024)")
         if relative_seconds > SAFEDATE_SECONDS_MAX:
-            raise ValueError(f"Timestamp too far in the future (exceeds {SAFEDATE_SECONDS_MAX} seconds from 2024)")
+            raise ValueError(
+                f"Timestamp too far in the future (exceeds {SAFEDATE_SECONDS_MAX} seconds from 2024)"
+            )
 
         # Get fractional part
         frac = int((ts - int(ts)) * SAFEDATE_FRAC_SCALE)
 
-        return (relative_seconds << SAFEDATE_FRAC_BITS) | (frac & (SAFEDATE_FRAC_SCALE - 1))
+        return (relative_seconds << SAFEDATE_FRAC_BITS) | (
+            frac & (SAFEDATE_FRAC_SCALE - 1)
+        )
 
     @staticmethod
     def decode_safedate(value: int) -> float:
@@ -1192,7 +1370,11 @@ class time_synchronizationTool(Tool):
         relative_seconds = value >> SAFEDATE_FRAC_BITS
         frac = value & frac_mask
 
-        return epoch_2024 + float(relative_seconds) + (float(frac) / SAFEDATE_FRAC_SCALE)
+        return (
+            epoch_2024
+            + float(relative_seconds)
+            + (float(frac) / SAFEDATE_FRAC_SCALE)
+        )
 
     @staticmethod
     def fastdate64_to_iso(value: int) -> str:
@@ -1205,7 +1387,7 @@ class time_synchronizationTool(Tool):
         Returns:
             ISO 8601 formatted timestamp string
         """
-        ts = time_synchronizationTool.decode_fastdate64(value)
+        ts = TimeSynchronizationTool.decode_fastdate64(value)
         dt = datetime.fromtimestamp(ts, tz=timezone.utc)
         return dt.isoformat(timespec="microseconds")
 
@@ -1224,7 +1406,7 @@ class time_synchronizationTool(Tool):
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
         ts = dt.timestamp()
-        return time_synchronizationTool.encode_fastdate64(ts)
+        return TimeSynchronizationTool.encode_fastdate64(ts)
 
     # ---- convenience methods ----
     def get_timestamp(self) -> float:
@@ -1242,7 +1424,8 @@ class time_synchronizationTool(Tool):
                 "enabled": self.is_enabled(),
                 "network_allowed": self.is_network_allowed(),
                 "background_allowed": self.is_background_allowed(),
-                "background_running": self._bg_thread is not None and self._bg_thread.is_alive(),
+                "background_running": self._bg_thread is not None
+                and self._bg_thread.is_alive(),
                 "base_server_time": self._base_server_time,
                 "base_monotonic": self._base_monotonic,
                 "smoothed_offset": self._smoothed_offset,
@@ -1252,7 +1435,7 @@ class time_synchronizationTool(Tool):
                 "attempts": self.attempts,
                 "max_acceptable_delay": self.max_acceptable_delay,
                 "smoothing_alpha": self.alpha,
-                "leap_year_tool_available": self.is_leap_year_tool_available()
+                "leap_year_tool_available": self.is_leap_year_tool_available(),
             }
 
     # ---- leap year integration ----
@@ -1309,11 +1492,14 @@ class time_synchronizationTool(Tool):
         """
         return self._leap_year_calculator.is_tool_available()
 
+
 def register_tool():
     """Register the time_synchronization tool."""
-    return time_synchronizationTool()
+    return TimeSynchronizationTool()
+
 
 if __name__ == "__main__":
     import sys
-    tool = time_synchronizationTool()
+
+    tool = TimeSynchronizationTool()
     sys.exit(tool.run_standalone(sys.argv[1:]))

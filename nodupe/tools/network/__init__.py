@@ -1,13 +1,14 @@
+# pylint: disable=logging-fstring-interpolation
 """NoDupeLabs Network Tools - Network and Distributed Features
 
 This module provides network-related functionality including remote storage,
 distributed processing, and cloud synchronization with graceful degradation.
 """
 
-from typing import List, Optional
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import List, Optional
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -29,7 +30,7 @@ class RemoteStorageBackend(ABC):
         """Download file from remote storage"""
 
     @abstractmethod
-    def list_files(self, prefix: str = "") -> List[str]:
+    def list_files(self, prefix: str = "") -> list[str]:
         """List files in remote storage"""
 
     @abstractmethod
@@ -61,15 +62,17 @@ class LocalStorageBackend(RemoteStorageBackend):
             remote_path_obj.parent.mkdir(parents=True, exist_ok=True)
 
             # Copy file
-            with open(local_path_obj, 'rb') as src:
-                with open(remote_path_obj, 'wb') as dst:
-                    dst.write(src.read())
+            with (
+                open(local_path_obj, "rb") as src,
+                open(remote_path_obj, "wb") as dst,
+            ):
+                dst.write(src.read())
 
             logger.info(f"Uploaded {local_path} to {remote_path}")
             return True
 
         except Exception as e:
-            logger.error(f"Error uploading file: {e}")
+            logger.exception(f"Error uploading file: {e}")
             return False
 
     def download_file(self, remote_path: str, local_path: str) -> bool:
@@ -84,18 +87,20 @@ class LocalStorageBackend(RemoteStorageBackend):
             local_path_obj.parent.mkdir(parents=True, exist_ok=True)
 
             # Copy file
-            with open(remote_path_obj, 'rb') as src:
-                with open(local_path_obj, 'wb') as dst:
-                    dst.write(src.read())
+            with (
+                open(remote_path_obj, "rb") as src,
+                open(local_path_obj, "wb") as dst,
+            ):
+                dst.write(src.read())
 
             logger.info(f"Downloaded {remote_path} to {local_path}")
             return True
 
         except Exception as e:
-            logger.error(f"Error downloading file: {e}")
+            logger.exception(f"Error downloading file: {e}")
             return False
 
-    def list_files(self, prefix: str = "") -> List[str]:
+    def list_files(self, prefix: str = "") -> list[str]:
         """List files in local storage"""
         try:
             files = []
@@ -105,7 +110,7 @@ class LocalStorageBackend(RemoteStorageBackend):
                     files.append(str(relative_path))
             return files
         except Exception as e:
-            logger.error(f"Error listing files: {e}")
+            logger.exception(f"Error listing files: {e}")
             return []
 
     def delete_file(self, remote_path: str) -> bool:
@@ -120,7 +125,7 @@ class LocalStorageBackend(RemoteStorageBackend):
                 logger.warning(f"File not found: {remote_path}")
                 return False
         except Exception as e:
-            logger.error(f"Error deleting file: {e}")
+            logger.exception(f"Error deleting file: {e}")
             return False
 
 
@@ -136,10 +141,11 @@ class S3StorageBackend(RemoteStorageBackend):
         if self._available:
             try:
                 import boto3
-                self._client = boto3.client('s3', **kwargs)
+
+                self._client = boto3.client("s3", **kwargs)
                 logger.info(f"S3 backend initialized for bucket {bucket_name}")
             except Exception as e:
-                logger.error(f"Failed to initialize S3 client: {e}")
+                logger.exception(f"Failed to initialize S3 client: {e}")
                 self._available = False
 
     def _check_s3_available(self) -> bool:
@@ -163,10 +169,12 @@ class S3StorageBackend(RemoteStorageBackend):
 
         try:
             self._client.upload_file(local_path, self.bucket_name, remote_path)
-            logger.info(f"Uploaded {local_path} to s3://{self.bucket_name}/{remote_path}")
+            logger.info(
+                f"Uploaded {local_path} to s3://{self.bucket_name}/{remote_path}"
+            )
             return True
         except Exception as e:
-            logger.error(f"Error uploading to S3: {e}")
+            logger.exception(f"Error uploading to S3: {e}")
             return False
 
     def download_file(self, remote_path: str, local_path: str) -> bool:
@@ -177,14 +185,18 @@ class S3StorageBackend(RemoteStorageBackend):
             return fallback.download_file(remote_path, local_path)
 
         try:
-            self._client.download_file(self.bucket_name, remote_path, local_path)
-            logger.info(f"Downloaded s3://{self.bucket_name}/{remote_path} to {local_path}")
+            self._client.download_file(
+                self.bucket_name, remote_path, local_path
+            )
+            logger.info(
+                f"Downloaded s3://{self.bucket_name}/{remote_path} to {local_path}"
+            )
             return True
         except Exception as e:
-            logger.error(f"Error downloading from S3: {e}")
+            logger.exception(f"Error downloading from S3: {e}")
             return False
 
-    def list_files(self, prefix: str = "") -> List[str]:
+    def list_files(self, prefix: str = "") -> list[str]:
         """List files in S3 bucket"""
         if not self.is_available():
             logger.warning("S3 backend not available, using local fallback")
@@ -193,17 +205,16 @@ class S3StorageBackend(RemoteStorageBackend):
 
         try:
             response = self._client.list_objects_v2(
-                Bucket=self.bucket_name,
-                Prefix=prefix
+                Bucket=self.bucket_name, Prefix=prefix
             )
 
             files = []
-            if 'Contents' in response:
-                for obj in response['Contents']:
-                    files.append(obj['Key'])
+            if "Contents" in response:
+                for obj in response["Contents"]:
+                    files.append(obj["Key"])
             return files
         except Exception as e:
-            logger.error(f"Error listing S3 files: {e}")
+            logger.exception(f"Error listing S3 files: {e}")
             return []
 
     def delete_file(self, remote_path: str) -> bool:
@@ -218,7 +229,7 @@ class S3StorageBackend(RemoteStorageBackend):
             logger.info(f"Deleted s3://{self.bucket_name}/{remote_path}")
             return True
         except Exception as e:
-            logger.error(f"Error deleting from S3: {e}")
+            logger.exception(f"Error deleting from S3: {e}")
             return False
 
 
@@ -233,8 +244,8 @@ class NetworkManager:
         """Initialize the best available storage backend"""
         # Try backends in priority order
         backends_to_try = [
-            ('s3', lambda: S3StorageBackend()),
-            ('local', lambda: LocalStorageBackend())
+            ("s3", S3StorageBackend),
+            ("local", LocalStorageBackend),
         ]
 
         for name, backend_factory in backends_to_try:
@@ -258,7 +269,7 @@ class NetworkManager:
         """Download file using the best available backend"""
         return self.storage_backend.download_file(remote_path, local_path)
 
-    def list_files(self, prefix: str = "") -> List[str]:
+    def list_files(self, prefix: str = "") -> list[str]:
         """List files using the best available backend"""
         return self.storage_backend.list_files(prefix)
 
@@ -283,7 +294,11 @@ def get_network_manager() -> NetworkManager:
 get_network_manager()
 
 __all__ = [
-    'RemoteStorageBackend', 'LocalStorageBackend', 'S3StorageBackend',
-    'NetworkManager', 'get_network_manager', 'register_tool'
+    "LocalStorageBackend",
+    "NetworkManager",
+    "RemoteStorageBackend",
+    "S3StorageBackend",
+    "get_network_manager",
+    "register_tool",
 ]
 from .network_tool import register_tool

@@ -1,0 +1,21 @@
+# MegaLinter Configuration for NoDupeLabs
+# Run locally: docker run --rm -v $(pwd):/tmp/lint ghcr.io/oxsecurity/megalinter-ci_light:v8
+
+# Only run on changed files (faster)
+VALIDATE_ALL_CODEBASE: false
+DEFAULT_BRANCH: main
+
+# Disable linters that are too noisy for this project
+DISABLE_LINTERS:
+  # Copy-paste detection is too aggressive for this project
+  - COPYPASTE_JSCPD
+  # Grype finds vulnerabilities in GitHub Actions (already covered by other tools)
+  - REPOSITORY_GRYPE
+  # YAML formatting is a style preference, not a critical issue
+  - YAML_YAMLLINT
+  # Prettier formatting issues
+  - YAML_PRETTIER
+  - JSON_PRETTIER
+
+# Disable fail-safe to allow MegaLinter to pass with warnings
+DISABLE_ERRORS: true

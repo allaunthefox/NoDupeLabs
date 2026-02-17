@@ -4,16 +4,17 @@
 """Test API module functionality."""
 
 import pytest
+
 from nodupe.core.api import (
     APIVersion,
     OpenAPIGenerator,
     RateLimiter,
     SchemaValidator,
+    api_endpoint,
+    cors,
     rate_limited,
     validate_request,
     validate_response,
-    api_endpoint,
-    cors,
 )
 
 
@@ -165,6 +166,7 @@ class TestRateLimitedDecorator:
 
     def test_decorator_allows_requests(self):
         """Test decorator allows requests under limit."""
+
         @rate_limited(requests_per_minute=60)
         def test_func():
             return "success"
@@ -205,6 +207,7 @@ class TestApiEndpointDecorator:
 
     def test_decorator_basic(self):
         """Test basic decorator functionality."""
+
         @api_endpoint()
         def test_func():
             return "test"
@@ -218,6 +221,7 @@ class TestCorsDecorator:
 
     def test_decorator_adds_cors_headers(self):
         """Test decorator adds CORS headers."""
+
         @cors(origins=["https://example.com"])
         def test_func():
             return {"data": "test"}
@@ -233,17 +237,17 @@ class TestAPIIntegration:
     def test_complete_versioning_workflow(self):
         """Test complete API versioning workflow."""
         api = APIVersion()
-        
+
         # Register versions
         api.register_version("v1")
         api.register_version("v2")
-        
+
         # Set current
         api.set_current_version("v2")
-        
+
         # Deprecate old
         api.deprecate_version("v1", "v2")
-        
+
         # Verify
         assert api.is_version_supported("v1")
         assert api.is_version_supported("v2")
@@ -253,16 +257,16 @@ class TestAPIIntegration:
     def test_complete_openapi_workflow(self):
         """Test complete OpenAPI generation workflow."""
         gen = OpenAPIGenerator()
-        
+
         # Configure
         gen.set_info("Test API", "1.0.0", "Test")
         gen.add_server("https://api.test.com")
         gen.add_path("/users", "get", {"200": {"description": "List users"}})
         gen.add_schema("User", {"type": "object"})
-        
+
         # Generate
-        spec = gen.generate_spec()
-        
+        gen.generate_spec()
+
         # Validate
         result = gen.validate_spec()
         assert result["valid"] is True
@@ -270,14 +274,14 @@ class TestAPIIntegration:
     def test_rate_limiting_workflow(self):
         """Test complete rate limiting workflow."""
         limiter = RateLimiter(requests_per_minute=3)
-        
+
         # First 3 should pass
         assert limiter.check_rate_limit("client1") is True
         assert limiter.check_rate_limit("client1") is True
         assert limiter.check_rate_limit("client1") is True
-        
+
         # 4th should fail
         assert limiter.check_rate_limit("client1") is False
-        
+
         # Different client should pass
         assert limiter.check_rate_limit("client2") is True

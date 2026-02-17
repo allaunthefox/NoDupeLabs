@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2025 Allaun
 
@@ -6,19 +7,25 @@
 Singleton registry for managing system tools (formerly tools).
 """
 
-from typing import List, Optional, Any
-from .base import Tool
+from typing import Any, Optional
+
+import logging
+
+from ..api.codes import ActionCode
+from .base import Tool, AccessibleTool
+
+_logger = logging.getLogger(__name__)
 
 
 class ToolRegistry:
     """Singleton registry for managing system tools."""
 
-    _instance: Optional['ToolRegistry'] = None
+    _instance: Optional["ToolRegistry"] = None
     _tools: dict[str, Tool]
     _initialized: bool
     _container: Any
 
-    def __new__(cls) -> 'ToolRegistry':
+    def __new__(cls) -> "ToolRegistry":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._tools = {}
@@ -31,19 +38,25 @@ class ToolRegistry:
             raise ValueError(f"Tool {tool.name} already registered")
 
         # Check for accessibility compliance before registering
-        from .api.codes import ActionCode
-        import logging
-        logger = logging.getLogger(__name__)
-        
-        # Check if the tool implements accessibility features
-        from .base import AccessibleTool
+        # Guard logging calls to avoid expensive string formatting when
+        # INFO level is disabled (micro-optimization for high-frequency ops).
         if isinstance(tool, AccessibleTool):
-            logger.info(f"[{ActionCode.ACC_ISO_CMP}] Registering ISO accessibility compliant tool: {tool.name}")
+            if _logger.isEnabledFor(logging.INFO):
+                _logger.info(
+                    "[%s] Registering ISO accessibility compliant tool: %s",
+                    ActionCode.ACC_ISO_CMP,
+                    tool.name,
+                )
         else:
-            logger.info(f"[{ActionCode.ACC_FEATURE_DISABLED}] Registering tool without accessibility features: {tool.name}")
+            if _logger.isEnabledFor(logging.INFO):
+                _logger.info(
+                    "[%s] Registering tool without accessibility features: %s",
+                    ActionCode.ACC_FEATURE_DISABLED,
+                    tool.name,
+                )
 
         self._tools[tool.name] = tool
-        if hasattr(self, '_container') and self._container:
+        if hasattr(self, "_container") and self._container:
             tool.initialize(self._container)
 
     def unregister(self, name: str) -> None:
@@ -59,7 +72,7 @@ class ToolRegistry:
         """Get a tool by name."""
         return self._tools.get(name)
 
-    def get_tools(self) -> List[Tool]:
+    def get_tools(self) -> list[Tool]:
         """Get all registered tools."""
         return list(self._tools.values())
 
@@ -74,7 +87,10 @@ class ToolRegistry:
                 tool.shutdown()
             except Exception as e:
                 import logging
-                logging.getLogger(__name__).warning(f"Error shutting down tool {tool.name}: {e}")
+
+                logging.getLogger(__name__).warning(
+                    f"Error shutting down tool {tool.name}: {e}"
+                )
 
         self._tools.clear()
         self._container = None
@@ -88,7 +104,7 @@ class ToolRegistry:
     @property
     def container(self):
         """Get the service container."""
-        return getattr(self, '_container', None)
+        return getattr(self, "_container", None)
 
     @classmethod
     def _reset_instance(cls):

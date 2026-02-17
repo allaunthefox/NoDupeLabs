@@ -1,10 +1,16 @@
 """Tests for FileProcessor module."""
 
-import pytest
 import tempfile
 from pathlib import Path
-from nodupe.tools.scanner_engine.processor import FileProcessor, create_file_processor
+
+import pytest
+
+from nodupe.tools.scanner_engine.processor import (
+    FileProcessor,
+    create_file_processor,
+)
 from nodupe.tools.scanner_engine.walker import FileWalker
+
 
 class TestFileProcessor:
     """Test FileProcessor class."""
@@ -42,10 +48,10 @@ class TestFileProcessor:
         assert len(results) == 2
 
         for result in results:
-            assert 'path' in result
-            assert 'size' in result
-            assert 'hash' in result
-            assert 'extension' in result
+            assert "path" in result
+            assert "size" in result
+            assert "hash" in result
+            assert "extension" in result
 
     def test_process_files_with_filter(self, tmp_path):
         """Test file processing with filter."""
@@ -60,7 +66,7 @@ class TestFileProcessor:
 
         # Filter for .txt files only - file_info uses 'path' not 'file_path'
         def txt_filter(file_info):
-            return file_info['path'].endswith('.txt')
+            return file_info["path"].endswith(".txt")
 
         processor = FileProcessor()
         results = processor.process_files(str(tmp_path), file_filter=txt_filter)
@@ -68,7 +74,7 @@ class TestFileProcessor:
         # Should only process .txt files
         assert len(results) == 2
         for result in results:
-            assert result['path'].endswith('.txt')
+            assert result["path"].endswith(".txt")
 
     def test_process_files_empty_directory(self, tmp_path):
         """Test processing empty directory."""
@@ -104,16 +110,24 @@ class TestFileProcessor:
         assert len(duplicates) == 3  # All files are returned
 
         # Check that duplicates are marked correctly
-        duplicate_files = [f for f in duplicates if f.get('is_duplicate', False)]
-        original_files = [f for f in duplicates if not f.get('is_duplicate', False)]
+        duplicate_files = [
+            f for f in duplicates if f.get("is_duplicate", False)
+        ]
+        original_files = [
+            f for f in duplicates if not f.get("is_duplicate", False)
+        ]
 
-        assert len(duplicate_files) == 1  # One file should be marked as duplicate
-        assert len(original_files) == 2  # Two files should be originals (one is the original of the duplicate)
+        assert (
+            len(duplicate_files) == 1
+        )  # One file should be marked as duplicate
+        assert (
+            len(original_files) == 2
+        )  # Two files should be originals (one is the original of the duplicate)
 
         # Check that the duplicate points to the original
         for dup_file in duplicate_files:
-            assert 'duplicate_of' in dup_file
-            assert dup_file['duplicate_of'] is not None
+            assert "duplicate_of" in dup_file
+            assert dup_file["duplicate_of"] is not None
 
     def test_detect_duplicates_no_duplicates(self, tmp_path):
         """Test duplicate detection with no duplicates."""
@@ -137,7 +151,9 @@ class TestFileProcessor:
         assert len(duplicates) == 3  # All files are returned
 
         # Check that no files are marked as duplicates
-        duplicate_files = [f for f in duplicates if f.get('is_duplicate', False)]
+        duplicate_files = [
+            f for f in duplicates if f.get("is_duplicate", False)
+        ]
         assert len(duplicate_files) == 0  # No duplicates
 
     def test_batch_process_files(self, tmp_path):
@@ -161,9 +177,9 @@ class TestFileProcessor:
         assert len(results) == 3
 
         for result in results:
-            assert 'path' in result
-            assert 'size' in result
-            assert 'hash' in result
+            assert "path" in result
+            assert "size" in result
+            assert "hash" in result
 
     def test_batch_process_files_empty_list(self):
         """Test batch processing with empty file list."""
@@ -179,11 +195,11 @@ class TestFileProcessor:
         processor = FileProcessor()
 
         # Test setting algorithm
-        processor.set_hash_algorithm('md5')
-        assert processor.get_hash_algorithm() == 'md5'
+        processor.set_hash_algorithm("md5")
+        assert processor.get_hash_algorithm() == "md5"
 
-        processor.set_hash_algorithm('sha512')
-        assert processor.get_hash_algorithm() == 'sha512'
+        processor.set_hash_algorithm("sha512")
+        assert processor.get_hash_algorithm() == "sha512"
 
     def test_hash_buffer_size_configuration(self):
         """Test hash buffer size configuration."""
@@ -203,16 +219,16 @@ class TestFileProcessor:
         test_file.write_text("test content")
 
         processor = FileProcessor()
-        processor.set_hash_algorithm('md5')
+        processor.set_hash_algorithm("md5")
 
         results = processor.process_files(str(tmp_path))
 
         # Should use MD5 algorithm
         assert len(results) == 1
-        assert results[0]['hash'] is not None
-        assert len(results[0]['hash']) > 0
+        assert results[0]["hash"] is not None
+        assert len(results[0]["hash"]) > 0
         # MD5 hash should be 32 characters
-        assert len(results[0]['hash']) == 32
+        assert len(results[0]["hash"]) == 32
 
     def test_process_files_with_custom_buffer_size(self, tmp_path):
         """Test processing files with custom buffer size."""
@@ -227,7 +243,7 @@ class TestFileProcessor:
 
         # Should process successfully with custom buffer size
         assert len(results) == 1
-        assert results[0]['hash'] is not None
+        assert results[0]["hash"] is not None
 
     def test_process_files_with_large_files(self, tmp_path):
         """Test processing large files."""
@@ -238,7 +254,9 @@ class TestFileProcessor:
         large_content = "X" * (1024 * 1024)  # 1MB
 
         test_file1.write_text(large_content)
-        test_file2.write_text(large_content)  # Same content for duplicate detection
+        test_file2.write_text(
+            large_content
+        )  # Same content for duplicate detection
 
         processor = FileProcessor()
         results = processor.process_files(str(tmp_path))
@@ -246,15 +264,17 @@ class TestFileProcessor:
         # Should process large files successfully
         assert len(results) == 2
         for result in results:
-            assert result['size'] == len(large_content.encode())
-            assert result['hash'] is not None
+            assert result["size"] == len(large_content.encode())
+            assert result["hash"] is not None
 
         # Should detect duplicates
         duplicates = processor.detect_duplicates(results)
         assert len(duplicates) == 2  # Both files returned
 
         # One should be marked as duplicate
-        duplicate_files = [f for f in duplicates if f.get('is_duplicate', False)]
+        duplicate_files = [
+            f for f in duplicates if f.get("is_duplicate", False)
+        ]
         assert len(duplicate_files) == 1  # One duplicate
 
     def test_process_files_with_special_characters(self, tmp_path):
@@ -275,10 +295,10 @@ class TestFileProcessor:
         assert len(results) == 3
 
         # Check that special characters are preserved
-        file_paths = [r['path'] for r in results]
-        assert any('file with spaces.txt' in path for path in file_paths)
-        assert any('file-with-dashes.txt' in path for path in file_paths)
-        assert any('file_with_underscores.txt' in path for path in file_paths)
+        file_paths = [r["path"] for r in results]
+        assert any("file with spaces.txt" in path for path in file_paths)
+        assert any("file-with-dashes.txt" in path for path in file_paths)
+        assert any("file_with_underscores.txt" in path for path in file_paths)
 
     def test_process_files_error_handling(self):
         """Test error handling during file processing."""
@@ -293,7 +313,7 @@ class TestFileProcessor:
         """Test processing files in nested directory structure."""
         # Create nested directory structure
         for i in range(3):
-            dir_path = tmp_path / f"level1" / f"level2_{i}"
+            dir_path = tmp_path / "level1" / f"level2_{i}"
             dir_path.mkdir(parents=True)
 
             for j in range(2):
@@ -326,11 +346,11 @@ class TestFileProcessor:
         assert len(results) == 4
 
         # Check that extensions are detected
-        extensions = [r['extension'] for r in results]
-        assert any('.txt' in ext for ext in extensions)
-        assert any('.log' in ext for ext in extensions)
-        assert any('.json' in ext for ext in extensions)
-        assert any('.csv' in ext for ext in extensions)
+        extensions = [r["extension"] for r in results]
+        assert any(".txt" in ext for ext in extensions)
+        assert any(".log" in ext for ext in extensions)
+        assert any(".json" in ext for ext in extensions)
+        assert any(".csv" in ext for ext in extensions)
 
     def test_process_files_with_empty_files(self, tmp_path):
         """Test processing empty files."""
@@ -347,8 +367,8 @@ class TestFileProcessor:
         # Should process empty files
         assert len(results) == 2
         for result in results:
-            assert result['size'] == 0
-            assert result['hash'] is not None
+            assert result["size"] == 0
+            assert result["hash"] is not None
 
         # Empty files with same content should be duplicates
         duplicates = processor.detect_duplicates(results)
@@ -356,7 +376,9 @@ class TestFileProcessor:
         assert len(duplicates) == 2  # Both files returned
 
         # One should be marked as duplicate
-        duplicate_files = [f for f in duplicates if f.get('is_duplicate', False)]
+        duplicate_files = [
+            f for f in duplicates if f.get("is_duplicate", False)
+        ]
         assert len(duplicate_files) == 1  # One duplicate
 
     def test_process_files_with_binary_files(self, tmp_path):
@@ -377,8 +399,8 @@ class TestFileProcessor:
         # Should process binary files
         assert len(results) == 2
         for result in results:
-            assert result['size'] > 0
-            assert result['hash'] is not None
+            assert result["size"] > 0
+            assert result["hash"] is not None
 
         # Different binary content should not be duplicates
         duplicates = processor.detect_duplicates(results)
@@ -386,5 +408,7 @@ class TestFileProcessor:
         assert len(duplicates) == 2  # Both files returned
 
         # Neither should be marked as duplicate
-        duplicate_files = [f for f in duplicates if f.get('is_duplicate', False)]
+        duplicate_files = [
+            f for f in duplicates if f.get("is_duplicate", False)
+        ]
         assert len(duplicate_files) == 0  # No duplicates
