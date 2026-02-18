@@ -125,6 +125,21 @@ def test_concurrent_access_thread_safety():
     # no exceptions raised means thread-safety holds for this workload
 
 
+def test_export_metrics_prometheus_contains_expected_metrics():
+    qc = QueryCache(max_size=10, ttl_seconds=60)
+    qc.set_result("SELECT 1", None, [1])
+    _ = qc.get_result("SELECT 1")
+    _ = qc.get_result("SELECT 2")  # miss
+
+    metrics = qc.export_metrics_prometheus()
+    assert "nodupe_query_cache_hits_total" in metrics
+    assert "nodupe_query_cache_misses_total" in metrics
+    assert "nodupe_query_cache_evictions_total" in metrics
+    assert "nodupe_query_cache_ttl_expiries_total" in metrics
+    assert "nodupe_query_cache_size" in metrics
+    assert "nodupe_query_cache_hit_rate" in metrics
+
+
 def test_invalidate_and_invalidate_by_prefix_and_clear_by_query_pattern():
     qc = create_query_cache(max_size=10, ttl_seconds=60)
 

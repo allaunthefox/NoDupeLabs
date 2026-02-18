@@ -63,7 +63,6 @@ class QueryCache:
             "ttl_expiries": 0,
         }
 
-    def get_result
     def get_result(self, query: str, params: Optional[Dict[str, Any]] = None) -> Optional[Any]:
         """Get cached result for a query.
 
@@ -206,14 +205,42 @@ class QueryCache:
         """
         with self._lock:
             stats = self._stats.copy()
-            stats['size'] = len(self._cache)
-            stats['capacity'] = self.max_size
-            stats['hit_rate'] = (
-                stats['hits'] / (stats['hits'] + stats['misses'])
-                if (stats['hits'] + stats['misses']) > 0
+            stats["size"] = len(self._cache)
+            stats["capacity"] = self.max_size
+            stats["hit_rate"] = (
+                stats["hits"] / (stats["hits"] + stats["misses"])
+                if (stats["hits"] + stats["misses"]) > 0
                 else 0.0
             )
             return stats
+
+    def export_metrics_prometheus(self, prefix: str = "nodupe_query_cache_") -> str:
+        """Export cache metrics in Prometheus text format.
+
+        Args:
+            prefix: Metric name prefix
+
+        Returns:
+            A Prometheus-format metrics string
+        """
+        with self._lock:
+            s = []
+            stats = self.get_stats()
+
+            # Counters
+            s.append(f"{prefix}hits_total {int(self._stats.get('hits', 0))}")
+            s.append(f"{prefix}misses_total {int(self._stats.get('misses', 0))}")
+            s.append(f"{prefix}insertions_total {int(self._stats.get('insertions', 0))}")
+            s.append(f"{prefix}evictions_total {int(self._stats.get('evictions', 0))}")
+            s.append(f"{prefix}ttl_expiries_total {int(self._stats.get('ttl_expiries', 0))}")
+
+            # Gauges
+            s.append(f"{prefix}size {int(stats.get('size', 0))}")
+            s.append(f"{prefix}capacity {int(stats.get('capacity', 0))}")
+            s.append(f"{prefix}hit_rate {float(stats.get('hit_rate', 0.0)):.6f}")
+
+            return "\n".join(s)
+
 
     def get_cache_size(self) -> int:
         """Get current cache size.
