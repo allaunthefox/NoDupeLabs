@@ -54,13 +54,16 @@ class QueryCache:
         # Cache storage: query_key -> (result, timestamp)
         self._cache: OrderedDict[str, Tuple[Any, float]] = OrderedDict()
         self._lock = threading.RLock()
+        # Add ttl_expiries and ensure counters exist for metrics
         self._stats = {
-            'hits': 0,
-            'misses': 0,
-            'evictions': 0,
-            'insertions': 0
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "insertions": 0,
+            "ttl_expiries": 0,
         }
 
+    def get_result
     def get_result(self, query: str, params: Optional[Dict[str, Any]] = None) -> Optional[Any]:
         """Get cached result for a query.
 
@@ -83,10 +86,19 @@ class QueryCache:
             # Check if entry is expired
             if time.monotonic() - timestamp > self.ttl_seconds:
                 del self._cache[query_key]
-                self._stats['misses'] += 1
+# track TTL-driven expirations separately
+                self._stats["ttl_expiries"] += 1
+                self._stats["misses"] += 1
                 return None
 
-            self._stats['hits'] += 1
+            # ACCESS-LRU: mark this entry as recently used on read
+            try:
+                self._cache.move_to_end(query_key, last=True)
+            except Exception:
+                # non-critical — keep serving result
+                pass
+
+            self._stats["hits"] += 1
             return result
 
     def set_result(self, query: str, params: Optional[Dict[str, Any]] = None, result: Any = None) -> None:
@@ -182,6 +194,7 @@ class QueryCache:
             for query_key in keys_to_remove:
                 del self._cache[query_key]
                 removed_count += 1
+                self._stats["ttl_expiries"] += 1
 
             return removed_count
 
