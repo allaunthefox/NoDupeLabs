@@ -54,11 +54,13 @@ class QueryCache:
         # Cache storage: query_key -> (result, timestamp)
         self._cache: OrderedDict[str, Tuple[Any, float]] = OrderedDict()
         self._lock = threading.RLock()
+        # Add ttl_expiries and ensure counters exist for metrics
         self._stats = {
-            'hits': 0,
-            'misses': 0,
-            'evictions': 0,
-            'insertions': 0
+            "hits": 0,
+            "misses": 0,
+            "evictions": 0,
+            "insertions": 0,
+            "ttl_expiries": 0,
         }
 
     def get_result(self, query: str, params: Optional[Dict[str, Any]] = None) -> Optional[Any]:
@@ -83,10 +85,19 @@ class QueryCache:
             # Check if entry is expired
             if time.monotonic() - timestamp > self.ttl_seconds:
                 del self._cache[query_key]
-                self._stats['misses'] += 1
+# track TTL-driven expirations separately
+                self._stats["ttl_expiries"] += 1
+                self._stats["misses"] += 1
                 return None
 
-            self._stats['hits'] += 1
+            # ACCESS-LRU: mark this entry as recently used on read
+            try:
+                self._cache.move_to_end(query_key, last=True)
+            except Exception:
+                # non-critical — keep serving result
+                pass
+
+            self._stats["hits"] += 1
             return result
 
     def set_result(self, query: str, params: Optional[Dict[str, Any]] = None, result: Any = None) -> None:
@@ -182,6 +193,7 @@ class QueryCache:
             for query_key in keys_to_remove:
                 del self._cache[query_key]
                 removed_count += 1
+                self._stats["ttl_expiries"] += 1
 
             return removed_count
 
@@ -193,14 +205,42 @@ class QueryCache:
         """
         with self._lock:
             stats = self._stats.copy()
-            stats['size'] = len(self._cache)
-            stats['capacity'] = self.max_size
-            stats['hit_rate'] = (
-                stats['hits'] / (stats['hits'] + stats['misses'])
-                if (stats['hits'] + stats['misses']) > 0
+            stats["size"] = len(self._cache)
+            stats["capacity"] = self.max_size
+            stats["hit_rate"] = (
+                stats["hits"] / (stats["hits"] + stats["misses"])
+                if (stats["hits"] + stats["misses"]) > 0
                 else 0.0
             )
             return stats
+
+    def export_metrics_prometheus(self, prefix: str = "nodupe_query_cache_") -> str:
+        """Export cache metrics in Prometheus text format.
+
+        Args:
+            prefix: Metric name prefix
+
+        Returns:
+            A Prometheus-format metrics string
+        """
+        with self._lock:
+            s = []
+            stats = self.get_stats()
+
+            # Counters
+            s.append(f"{prefix}hits_total {int(self._stats.get('hits', 0))}")
+            s.append(f"{prefix}misses_total {int(self._stats.get('misses', 0))}")
+            s.append(f"{prefix}insertions_total {int(self._stats.get('insertions', 0))}")
+            s.append(f"{prefix}evictions_total {int(self._stats.get('evictions', 0))}")
+            s.append(f"{prefix}ttl_expiries_total {int(self._stats.get('ttl_expiries', 0))}")
+
+            # Gauges
+            s.append(f"{prefix}size {int(stats.get('size', 0))}")
+            s.append(f"{prefix}capacity {int(stats.get('capacity', 0))}")
+            s.append(f"{prefix}hit_rate {float(stats.get('hit_rate', 0.0)):.6f}")
+
+            return "\n".join(s)
+
 
     def get_cache_size(self) -> int:
         """Get current cache size.
