@@ -258,6 +258,95 @@ def benchmark_database_operations(
 
         end_time = time.time()
         avg_time = (end_time - start_time) / iterations
+        results[f"op_{i}"] = avg_time
+
+    return results
+
+
+def generate_files_with_duplicates(
+    repo,
+    total_files: int = 10000,
+    avg_group_size: int = 5,
+    hash_ratio: float = 0.8,
+    chunk_size: int = 2000
+) -> Dict[str, int]:
+    """Generate and insert synthetic files into `repo` containing many duplicate-hash groups.
+
+    This helper inserts data in chunks using `FileRepository.batch_add_files` to avoid
+    building a giant in-memory list. It is intended for performance / integration tests.
+
+    Args:
+        repo: Instance of `FileRepository` (tests should pass FileRepository(db))
+        total_files: Total number of file rows to create
+        avg_group_size: Average number of files sharing the same hash
+        hash_ratio: Fraction of files that have a non-null hash (0..1)
+        chunk_size: Number of rows to insert per batch
+
+    Returns:
+        Dictionary with statistics about the dataset created
+    """
+    import math
+
+    hashed_files = int(total_files * hash_ratio)
+    un_hashed_files = total_files - hashed_files
+    # Ensure at least one group
+    num_groups = max(1, math.ceil(hashed_files / avg_group_size))
+
+    file_id = 0
+    groups_created = 0
+    duplicates_created = 0
+
+    def _make_file(i: int, h: str | None):
+        return {
+            "path": f"/data/f_{i}.dat",
+            "size": 1024 + (i % 4096),
+            "modified_time": 1000000 + i,
+            "hash": h
+        }
+
+    # Create hashed groups (each group will have between 1 and 2*avg_group_size members to vary)
+    for gid in range(num_groups):
+        group_size = avg_group_size
+        # Last group may be smaller
+        if hashed_files - (gid * avg_group_size) < avg_group_size:
+            group_size = max(1, hashed_files - (gid * avg_group_size))
+
+        h = f"hash_{gid}"
+        batch = []
+        for j in range(group_size):
+            batch.append(_make_file(file_id, h))
+            file_id += 1
+
+            if len(batch) >= chunk_size:
+                repo.batch_add_files(batch)
+                batch = []
+
+        if batch:
+            repo.batch_add_files(batch)
+
+        groups_created += 1
+        if group_size > 1:
+            duplicates_created += (group_size - 1)
+
+    # Remaining files with no hash
+    batch = []
+    for i in range(un_hashed_files):
+        batch.append(_make_file(file_id, None))
+        file_id += 1
+        if len(batch) >= chunk_size:
+            repo.batch_add_files(batch)
+            batch = []
+    if batch:
+        repo.batch_add_files(batch)
+
+    stats = {
+        "total_files": total_files,
+        "groups_created": groups_created,
+        "duplicates_created": duplicates_created,
+        "unique_unhashed": un_hashed_files
+    }
+
+    return stats
 
         results[f"operation_{i}"] = avg_time
 

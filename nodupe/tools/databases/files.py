@@ -181,6 +181,65 @@ class FileRepository:
             print(f"[ERROR] Failed to mark file as duplicate: {e}")
             raise
 
+    def mark_as_original(self, file_id: int) -> bool:
+        """Mark a file as an original (not a duplicate).
+
+        Args:
+            file_id: File ID to mark as original
+
+        Returns:
+            True if updated, False if not found
+        """
+        try:
+            cursor = self.db.execute(
+                'UPDATE files SET is_duplicate = FALSE, duplicate_of = NULL WHERE id = ?',
+                (file_id,)
+            )
+            return cursor.rowcount > 0
+        except Exception as e:
+            print(f"[ERROR] Failed to mark file as original: {e}")
+            raise
+
+    def batch_mark_as_duplicate(self, duplicate_ids: List[int], keeper_id: int) -> int:
+        """Mark multiple files as duplicates in a single DB statement.
+
+        Args:
+            duplicate_ids: List of file IDs to mark as duplicates
+            keeper_id: File ID of the keeper/original
+
+        Returns:
+            Number of rows updated
+        """
+        if not duplicate_ids:
+            return 0
+
+        try:
+            placeholders = ','.join('?' for _ in duplicate_ids)
+            params = [keeper_id] + duplicate_ids
+            cursor = self.db.execute(
+                f'UPDATE files SET is_duplicate = TRUE, duplicate_of = ? WHERE id IN ({placeholders})',
+                tuple(params)
+            )
+            return cursor.rowcount
+        except Exception as e:
+            print(f"[ERROR] Failed to batch mark files as duplicate: {e}")
+            raise
+
+    def get_duplicate_hashes(self) -> List[str]:
+        """Return list of hash values that have more than one file entry.
+
+        This allows callers to stream or iterate duplicate groups without
+        loading the entire files table into memory.
+        """
+        try:
+            cursor = self.db.execute(
+                'SELECT hash FROM files WHERE hash IS NOT NULL GROUP BY hash HAVING COUNT(*) > 1'
+            )
+            return [row[0] for row in cursor.fetchall()]
+        except Exception as e:
+            print(f"[ERROR] Failed to get duplicate hashes: {e}")
+            raise
+
     def find_duplicates_by_hash(self, hash_value: str) -> List[Dict[str, Any]]:
         """Find files with same hash.
 
