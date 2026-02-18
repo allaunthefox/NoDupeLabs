@@ -62,16 +62,8 @@ class QueryCache:
             "insertions": 0,
             "ttl_expiries": 0,
         }
-        # Add ttl_expiries and ensure counters exist for metrics
-        self._stats = {
-            "hits": 0,
-            "misses": 0,
-            "evictions": 0,
-            "insertions": 0,
-            "ttl_expiries": 0,
->>>>>>> af29af7 (fix(querycache): access-LRU reads + ttl_expiry metric; add concurrency & LRU-access tests)
-        }
 
+    def get_result
     def get_result(self, query: str, params: Optional[Dict[str, Any]] = None) -> Optional[Any]:
         """Get cached result for a query.
 
