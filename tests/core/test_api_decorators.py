@@ -52,7 +52,8 @@ def test_cache_response_caches_and_respects_ttl(monkeypatch):
     assert calls["n"] == 1
 
     # advance time beyond TTL
-    monkeypatch.setattr("time.time", lambda: time.time() + 2)
+    orig_time = time.time
+    monkeypatch.setattr(time, "time", lambda: orig_time() + 2)
     assert expensive(1) == 1
     assert calls["n"] == 2
 
