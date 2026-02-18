@@ -47,6 +47,25 @@ class PlanTool(Tool):
         """Get tool capabilities."""
         return {'commands': ['plan'], 'strategies': ['newest', 'oldest', 'interactive']}
 
+    @property
+    def api_methods(self) -> Dict[str, Any]:
+        """Programmatic API methods exposed by this tool."""
+        return {'execute_plan': self.execute_plan}
+
+    def describe_usage(self) -> str:
+        """Human readable usage description for the tool."""
+        return "Create an execution plan from duplicate detection results."
+
+    def run_standalone(self, args: list) -> int:
+        """Run the command as a standalone CLI entry point."""
+        parser = argparse.ArgumentParser(description=self.describe_usage())
+        parser.add_argument('--strategy', choices=['newest', 'oldest', 'interactive'], default='newest')
+        parser.add_argument('--output', '-o', default='plan.json')
+        parsed = parser.parse_args(args)
+        # Provide a minimal namespace compatible with execute_plan
+        ns = argparse.Namespace(strategy=parsed.strategy, output=parsed.output, container=None)
+        return self.execute_plan(ns)
+
     def _on_plan_start(self, **kwargs: Any) -> None:
         """Handle plan start event."""
         print(f"[TOOL] Planning started with strategy: {kwargs.get('strategy', 'unknown')}")
@@ -92,45 +111,34 @@ class PlanTool(Tool):
                 from nodupe.core.database.connection import DatabaseConnection
                 db = DatabaseConnection.get_instance()
 
-            from nodupe.core.database.files import FileRepository
+            # Import the concrete FileRepository implementation from tools
+            from nodupe.tools.databases.files import FileRepository
             repo = FileRepository(db)
-            files = repo.get_all_files()
 
-            if not files:
-                print("[TOOL] No files in database to plan.")
+            # Stream duplicate groups from the database (avoid full table load)
+            duplicate_hashes = repo.get_duplicate_hashes()
+            if not duplicate_hashes:
+                print("[TOOL] No duplicate groups found in database to plan.")
                 return 0
-
-            # 2. Group by Hash
-            print(f"[TOOL] Grouping {len(files)} files by hash...")
-            groups = {}
-            for f in files:
-                if not f.get('hash'):
-                    continue
-                if f['hash'] not in groups:
-                    groups[f['hash']] = []
-                groups[f['hash']].append(f)
 
             action_plan = []
             stats = {"total_groups": 0, "duplicates_found": 0, "reassigned": 0}
 
-            # 3. Apply Strategy
-            print(f"[TOOL] Applying strategy '{args.strategy}'...")
-            for _, group in groups.items():
+            # 3. Apply Strategy (operate per-group, DB-side)
+            print(f"[TOOL] Applying strategy '{args.strategy}' on {len(duplicate_hashes)} duplicate hashes...")
+            for h in duplicate_hashes:
+                group = repo.find_duplicates_by_hash(h)
                 if len(group) < 2:
                     continue
 
                 stats["total_groups"] += 1
 
-                # Sort group based on strategy
-                # The first item in sorted list will be the KEEPER (Original)
+                # Sort group based on strategy (same logic as before)
                 if args.strategy == 'newest':
-                    # Keep newest modified: Sort descending by mtime
                     group.sort(key=lambda x: x.get('modified_time', 0), reverse=True)
                 elif args.strategy == 'oldest':
-                    # Keep oldest modified: Sort ascending by mtime
                     group.sort(key=lambda x: x.get('modified_time', 0))
                 else:
-                    # Default/Interactive: Keep shortest path length (preferred usually)
                     group.sort(key=lambda x: len(x['path']))
 
                 keeper = group[0]
@@ -138,7 +146,6 @@ class PlanTool(Tool):
 
                 stats["duplicates_found"] += len(duplicates)
 
-                # 4. Generate Actions & Update DB
                 # Ensure keeper is NOT marked as duplicate
                 if keeper.get('is_duplicate'):
                     repo.mark_as_original(keeper['id'])
@@ -150,12 +157,13 @@ class PlanTool(Tool):
                     "reason": f"Selected by {args.strategy} strategy (id={keeper['id']})"
                 })
 
-                for dup in duplicates:
-                    # Update DB to point to new keeper
-                    repo.mark_as_duplicate(dup['id'], keeper['id'])
+                # Batch update duplicates to point at keeper
+                dup_ids = [d['id'] for d in duplicates]
+                updated = repo.batch_mark_as_duplicate(dup_ids, keeper['id'])
 
+                for dup in duplicates:
                     action_plan.append({
-                        "type": "DELETE",  # Or implies 'process'
+                        "type": "DELETE",
                         "path": dup['path'],
                         "duplicate_of": keeper['path'],
                         "reason": f"Duplicate of {keeper['path']}"
