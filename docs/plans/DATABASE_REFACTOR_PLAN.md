@@ -136,6 +136,31 @@ All new code MUST include:
 - **Metric:** `pytest tests/core/test_database.py -v` shows **100% pass rate**
 - **GATE:** Must pass before Phase 2 - if tests fail, fix and re-run until 100% passes
 
+---
+
+## PlanTool — DB-streaming performance benchmarks ✅
+
+As part of the database refactor, `PlanTool` was updated to perform DB-side grouping and batch updates for duplicates (streaming duplicate hashes, avoiding full files table load). The following benchmarks were added to verify memory and CPU characteristics and to provide acceptance criteria.
+
+Test harness: `tests/performance/test_plan_tool_perf.py` — generates synthetic datasets and asserts runtime + memory thresholds. Thresholds are configurable via pytest marker `@pytest.mark.plantool_thresholds(time=<seconds>, memory=<MB>)`.
+
+Acceptance criteria (defaults):
+- Medium dataset (10k rows, many duplicate groups): runtime <= 2.0s, memory increase <= 75 MB
+- Large dataset (50k rows, many duplicate groups): runtime <= 8.0s, memory increase <= 250 MB
+
+Recorded results (local run):
+- 10k rows: runtime = TBD sec, peak memory increase = TBD MB
+- 50k rows: runtime = TBD sec, peak memory increase = TBD MB
+
+If benchmarks exceed thresholds, the plan is to apply micro-optimizations to `PlanTool` / `FileRepository` (stream hashes as generator, avoid per-group materialization, batch DB operations) and re-run benchmarks until acceptance.
+
+Metrics & follow-ups:
+- Add CI gating for the medium dataset benchmark
+- Add optional nightly stress job for the 50k/100k dataset
+- Consider changing `get_duplicate_hashes()` to a streaming generator if group-counts grow very large
+
+---
+
 ### Step 1.10: Update Imports Across Codebase
 - **Action:** Update all files importing from database module
 - **Verification:** No import errors
