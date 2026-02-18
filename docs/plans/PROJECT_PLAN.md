@@ -1,8 +1,8 @@
 # NoDupeLabs Project Plan
 
-**Version:** 2.0  
-**Created:** 2026-02-14  
-**Status:** Active  
+**Version:** 2.0
+**Created:** 2026-02-14
+**Status:** Active
 
 ---
 
@@ -321,5 +321,55 @@ Release 1.0.0 published to PyPI
 
 ---
 
-**Document Status:** Ready for Implementation  
+## 90-Day Roadmap (Immediate next steps)
+
+Focus: Stabilize PlanTool and QueryCache (P0), split CI for deterministic gating, expand tests/coverage, and implement DB batching and performance hardening (P1).
+
+1) Weeks 0–2 — P0 (stabilize, unblock merging)
+- QueryCache: convert to access-LRU, add concurrency tests, TTL + metrics
+  - Branches/PRs: `fix/querycache-access-lru`, `test/querycache-concurrency`
+  - Estimate: 3–5 days
+  - Acceptance: concurrency + LRU unit tests added and passing; cache metrics (hit/miss/evictions/ttl_expiry) present; no regressions in existing tests
+  - Verification: `pytest tests/tools/test_query_cache.py -q` and new concurrency tests pass in CI
+
+- CI split: separate fast unit job from integration/perf; add PR smoke job
+  - Branch/PR: `ci/split-unit-integration`
+  - Estimate: 1–2 days
+  - Acceptance: unit job completes <2min; coverage gate applies to unit job only; PR smoke job executes on PRs
+  - Verification: pipeline shows `unit` and `integration` stages; unit stage enforces `--cov-fail-under`
+
+2) Weeks 2–6 — P0 (PlanTool + DB batching)
+- PlanTool refactor: DB-side grouping + streaming, avoid full-table memory load
+  - Branch/PRs: `perf/plan-db-grouping`, `feat/file-repo-batch-updates`
+  - Estimate: 5–10 days
+  - Acceptance: `FileRepository.batch_mark_as_duplicate()` implemented; PlanTool uses DB grouping/streaming; end-to-end plan run scales to 1M files within memory/time targets
+  - Verification: new integration test `tests/tools/test_plan_db_grouping.py`; benchmarks in `benchmarks/` validate memory/time
+
+3) Weeks 6–12 — P1 (performance, sharding, typing)
+- QueryCache sharding + key memoization; add TTL expiry counters and metrics
+  - Branch: `feat/querycache-sharding`
+  - Estimate: 3–5 days
+
+- Typing & lint hardening (mypy + ruff + black + isort)
+  - Branch: `chore/typing-and-lint`
+  - Estimate: 7–14 days
+  - Acceptance: `mypy` returns 0 errors for core modules; `ruff --fix` and formatting checks pass in CI
+
+Metrics & Definition of Done
+- Targets to monitor:
+  - Unit coverage: increase from 56% → 95% (goal: 100% for gating)
+  - QueryCache: 0 race conditions; pass concurrency tests
+  - PlanTool memory usage: <2GB on 1M-file benchmark
+  - CI: unit job <2 minutes
+- Done when all P0 PRs merged, acceptance tests green, and benchmark targets met
+
+Owners & proposed PR names
+- QueryCache: `@backend-team` — `fix/querycache-access-lru`
+- PlanTool/DB: `@db-team` — `perf/plan-db-grouping`
+- CI: `@devops` — `ci/split-unit-integration`
+- Typing & lint: `@maintainers` — `chore/typing-and-lint`
+
+---
+
+**Document Status:** Ready for Implementation
 **Next Review:** After Phase 3 completion

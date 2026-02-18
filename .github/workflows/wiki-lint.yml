@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Run wiki style enforcement
       run: |
         bash tools/wiki/enforce_wiki_style.sh
-      
+
     - name: Fix wiki style
       if: github.event_name == 'pull_request'
       run: |

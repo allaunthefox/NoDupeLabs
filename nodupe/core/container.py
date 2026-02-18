@@ -17,7 +17,7 @@ Dependencies:
     - Standard library only
 """
 
-from typing import Dict, Any, Optional, Callable
+from typing import Any, Callable, Optional
 
 
 class ServiceContainer:
@@ -31,8 +31,8 @@ class ServiceContainer:
 
     def __init__(self) -> None:
         """Initialize service container."""
-        self.services: Dict[str, Any] = {}
-        self.factories: Dict[str, Callable[[], Any]] = {}
+        self.services: dict[str, Any] = {}
+        self.factories: dict[str, Callable[[], Any]] = {}
 
     def register_service(self, name: str, service: Any) -> None:
         """Register a service instance.
@@ -68,9 +68,9 @@ class ServiceContainer:
 
         return None
 
-    def check_compliance(self) -> Dict[str, Any]:
+    def check_compliance(self) -> dict[str, Any]:
         """ISO/IEC 25010:2011 Compliance Health Check.
-        
+
         Verifies Functional Suitability and Reliability of all registered services.
         """
         report = {
@@ -78,17 +78,19 @@ class ServiceContainer:
             "services": {},
             "metrics": {
                 "total_services": len(self.services) + len(self.factories),
-                "active_services": len(self.services)
-            }
+                "active_services": len(self.services),
+            },
         }
-        
+
         for name in list(self.services.keys()) + list(self.factories.keys()):
             report["services"][name] = {
                 "is_active": name in self.services,
                 "is_lazy": name in self.factories,
-                "reliability": "VERIFIED" if name in self.services else "PENDING"
+                "reliability": (
+                    "VERIFIED" if name in self.services else "PENDING"
+                ),
             }
-            
+
         return report
 
     def has_service(self, name: str) -> bool:

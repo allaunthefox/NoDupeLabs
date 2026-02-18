@@ -1,3 +1,4 @@
+# pylint: disable=logging-fstring-interpolation
 """
 Tool Loading Order Management
 
@@ -8,10 +9,10 @@ to prevent cascading failures and ensure proper initialization sequence.
 from __future__ import annotations
 
 import logging
-from enum import Enum
-from typing import Dict, List, Set, Optional, Tuple, Any, Callable
-from dataclasses import dataclass
 from collections import defaultdict
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Callable, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -41,22 +42,27 @@ class ToolLoadOrder(Enum):
 @dataclass
 class ToolLoadInfo:
     """Information about tool loading requirements."""
+
     name: str
     load_order: ToolLoadOrder
-    required_dependencies: List[str]
-    optional_dependencies: List[str]
+    required_dependencies: list[str]
+    optional_dependencies: list[str]
     critical: bool = False  # If True, failure prevents loading other tools
     description: str = ""
-    load_priority: int = 0  # Higher priority loads first within same order level
+    load_priority: int = (
+        0  # Higher priority loads first within same order level
+    )
 
 
 class ToolLoadingError(Exception):
     """Exception raised when tool loading fails."""
+
     pass
 
 
 class ToolDependencyError(ToolLoadingError):
     """Exception raised when tool dependencies cannot be resolved."""
+
     pass
 
 
@@ -65,13 +71,13 @@ class ToolLoadingOrder:
 
     def __init__(self):
         """Initialize the tool loading order manager."""
-        self._tool_info: Dict[str, ToolLoadInfo] = {}
-        self._load_order_groups: Dict[ToolLoadOrder, List[str]] = {
+        self._tool_info: dict[str, ToolLoadInfo] = {}
+        self._load_order_groups: dict[ToolLoadOrder, list[str]] = {
             order: [] for order in ToolLoadOrder
         }
-        self._dependency_graph: Dict[str, Set[str]] = {}
-        self._reverse_dependencies: Dict[str, Set[str]] = {}
-        self._load_callbacks: Dict[str, List[Callable]] = defaultdict(list)
+        self._dependency_graph: dict[str, set[str]] = {}
+        self._reverse_dependencies: dict[str, set[str]] = {}
+        self._load_callbacks: dict[str, list[Callable]] = defaultdict(list)
 
         # Initialize known tool order
         self._initialize_known_tools()
@@ -87,7 +93,7 @@ class ToolLoadingOrder:
                 required_dependencies=[],
                 optional_dependencies=[],
                 critical=True,
-                description="Core system infrastructure"
+                description="Core system infrastructure",
             ),
             ToolLoadInfo(
                 name="deps",
@@ -95,7 +101,7 @@ class ToolLoadingOrder:
                 required_dependencies=[],
                 optional_dependencies=[],
                 critical=True,
-                description="Dependency management"
+                description="Dependency management",
             ),
             ToolLoadInfo(
                 name="container",
@@ -103,7 +109,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "deps"],
                 optional_dependencies=[],
                 critical=True,
-                description="Dependency injection container"
+                description="Dependency injection container",
             ),
             ToolLoadInfo(
                 name="registry",
@@ -111,7 +117,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "container"],
                 optional_dependencies=[],
                 critical=True,
-                description="Tool registry"
+                description="Tool registry",
             ),
             ToolLoadInfo(
                 name="discovery",
@@ -119,7 +125,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "registry"],
                 optional_dependencies=[],
                 critical=True,
-                description="Tool discovery"
+                description="Tool discovery",
             ),
             ToolLoadInfo(
                 name="loader",
@@ -127,7 +133,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "registry", "discovery"],
                 optional_dependencies=[],
                 critical=True,
-                description="Tool loader"
+                description="Tool loader",
             ),
             ToolLoadInfo(
                 name="security",
@@ -135,7 +141,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core"],
                 optional_dependencies=[],
                 critical=True,
-                description="Security services"
+                description="Security services",
             ),
         ]
 
@@ -147,7 +153,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "container"],
                 optional_dependencies=["security"],
                 critical=False,
-                description="Configuration management"
+                description="Configuration management",
             ),
             ToolLoadInfo(
                 name="logging",
@@ -155,7 +161,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "config"],
                 optional_dependencies=[],
                 critical=False,
-                description="Logging services"
+                description="Logging services",
             ),
             ToolLoadInfo(
                 name="limits",
@@ -163,7 +169,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "config"],
                 optional_dependencies=[],
                 critical=False,
-                description="System limits"
+                description="System limits",
             ),
             ToolLoadInfo(
                 name="parallel",
@@ -171,7 +177,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "limits"],
                 optional_dependencies=[],
                 critical=False,
-                description="Parallel processing"
+                description="Parallel processing",
             ),
             ToolLoadInfo(
                 name="pools",
@@ -179,7 +185,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "parallel"],
                 optional_dependencies=[],
                 critical=False,
-                description="Resource pools"
+                description="Resource pools",
             ),
             ToolLoadInfo(
                 name="cache",
@@ -187,7 +193,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "pools"],
                 optional_dependencies=[],
                 critical=False,
-                description="Caching services"
+                description="Caching services",
             ),
             ToolLoadInfo(
                 name="time_sync",
@@ -195,7 +201,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "cache"],
                 optional_dependencies=["security"],
                 critical=False,
-                description="Time synchronization"
+                description="Time synchronization",
             ),
             ToolLoadInfo(
                 name="leap_year",
@@ -203,7 +209,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core"],
                 optional_dependencies=[],
                 critical=False,
-                description="Leap year calculations"
+                description="Leap year calculations",
             ),
         ]
 
@@ -215,7 +221,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "config", "security", "limits"],
                 optional_dependencies=["cache", "time_sync"],
                 critical=True,
-                description="Database services"
+                description="Database services",
             ),
             ToolLoadInfo(
                 name="filesystem",
@@ -223,7 +229,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "limits"],
                 optional_dependencies=["cache"],
                 critical=False,
-                description="File system operations"
+                description="File system operations",
             ),
             ToolLoadInfo(
                 name="compression",
@@ -231,7 +237,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "filesystem"],
                 optional_dependencies=[],
                 critical=False,
-                description="Compression utilities"
+                description="Compression utilities",
             ),
             ToolLoadInfo(
                 name="mime_detection",
@@ -239,7 +245,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "filesystem"],
                 optional_dependencies=[],
                 critical=False,
-                description="MIME type detection"
+                description="MIME type detection",
             ),
         ]
 
@@ -248,10 +254,15 @@ class ToolLoadingOrder:
             ToolLoadInfo(
                 name="scan",
                 load_order=ToolLoadOrder.PROCESSING_SERVICES,
-                required_dependencies=["core", "filesystem", "limits", "parallel"],
+                required_dependencies=[
+                    "core",
+                    "filesystem",
+                    "limits",
+                    "parallel",
+                ],
                 optional_dependencies=["mime_detection", "compression"],
                 critical=False,
-                description="File scanning"
+                description="File scanning",
             ),
             ToolLoadInfo(
                 name="incremental",
@@ -259,7 +270,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "database", "scan"],
                 optional_dependencies=["time_sync"],
                 critical=False,
-                description="Incremental processing"
+                description="Incremental processing",
             ),
             ToolLoadInfo(
                 name="hash_autotune",
@@ -267,7 +278,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "limits", "parallel"],
                 optional_dependencies=[],
                 critical=False,
-                description="Hash autotuning"
+                description="Hash autotuning",
             ),
         ]
 
@@ -279,7 +290,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "config", "logging"],
                 optional_dependencies=["database", "scan"],
                 critical=False,
-                description="Command line interface"
+                description="Command line interface",
             ),
             ToolLoadInfo(
                 name="commands",
@@ -287,7 +298,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "cli", "database"],
                 optional_dependencies=["scan", "incremental"],
                 critical=False,
-                description="Command implementations"
+                description="Command implementations",
             ),
         ]
 
@@ -299,7 +310,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "commands", "database"],
                 optional_dependencies=["scan", "incremental"],
                 critical=False,
-                description="Similarity detection"
+                description="Similarity detection",
             ),
             ToolLoadInfo(
                 name="apply",
@@ -307,7 +318,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "commands", "database"],
                 optional_dependencies=["scan"],
                 critical=False,
-                description="Apply operations"
+                description="Apply operations",
             ),
             ToolLoadInfo(
                 name="scan_command",
@@ -315,7 +326,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "commands", "scan"],
                 optional_dependencies=["database"],
                 critical=False,
-                description="Scan command"
+                description="Scan command",
             ),
             ToolLoadInfo(
                 name="verify",
@@ -323,7 +334,7 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "commands", "database"],
                 optional_dependencies=["scan"],
                 critical=False,
-                description="Verification tools"
+                description="Verification tools",
             ),
             ToolLoadInfo(
                 name="plan",
@@ -331,14 +342,18 @@ class ToolLoadingOrder:
                 required_dependencies=["core", "commands", "database"],
                 optional_dependencies=["scan"],
                 critical=False,
-                description="Plan operations"
+                description="Plan operations",
             ),
         ]
 
         # Register all tools
         all_tools = (
-            core_tools + utility_tools + storage_tools +
-            processing_tools + ui_tools + specialized_tools
+            core_tools
+            + utility_tools
+            + storage_tools
+            + processing_tools
+            + ui_tools
+            + specialized_tools
         )
 
         for tool_info in all_tools:
@@ -354,7 +369,9 @@ class ToolLoadingOrder:
         self._load_order_groups[tool_info.load_order].append(tool_info.name)
 
         # Build dependency graph
-        self._dependency_graph[tool_info.name] = set(tool_info.required_dependencies)
+        self._dependency_graph[tool_info.name] = set(
+            tool_info.required_dependencies
+        )
         self._reverse_dependencies[tool_info.name] = set()
 
         # Update reverse dependencies
@@ -363,7 +380,7 @@ class ToolLoadingOrder:
                 self._reverse_dependencies[dep] = set()
             self._reverse_dependencies[dep].add(tool_info.name)
 
-    def get_load_order(self) -> List[ToolLoadOrder]:
+    def get_load_order(self) -> list[ToolLoadOrder]:
         """Get the tool loading order levels.
 
         Returns:
@@ -371,7 +388,7 @@ class ToolLoadingOrder:
         """
         return list(ToolLoadOrder)
 
-    def get_tools_for_order(self, order: ToolLoadOrder) -> List[str]:
+    def get_tools_for_order(self, order: ToolLoadOrder) -> list[str]:
         """Get tools that should be loaded at a specific order level.
 
         Args:
@@ -382,7 +399,7 @@ class ToolLoadingOrder:
         """
         return self._load_order_groups.get(order, [])
 
-    def get_required_dependencies(self, tool_name: str) -> List[str]:
+    def get_required_dependencies(self, tool_name: str) -> list[str]:
         """Get required dependencies for a tool.
 
         Args:
@@ -395,7 +412,7 @@ class ToolLoadingOrder:
             return []
         return self._tool_info[tool_name].required_dependencies
 
-    def get_optional_dependencies(self, tool_name: str) -> List[str]:
+    def get_optional_dependencies(self, tool_name: str) -> list[str]:
         """Get optional dependencies for a tool.
 
         Args:
@@ -432,7 +449,9 @@ class ToolLoadingOrder:
         """
         return self._tool_info.get(tool_name)
 
-    def validate_dependencies(self, tool_name: str, available_tools: Set[str]) -> Tuple[bool, List[str]]:
+    def validate_dependencies(
+        self, tool_name: str, available_tools: set[str]
+    ) -> tuple[bool, list[str]]:
         """Validate that all required dependencies are available.
 
         Args:
@@ -450,7 +469,7 @@ class ToolLoadingOrder:
 
         return len(missing) == 0, list(missing)
 
-    def get_load_sequence(self, tool_names: List[str]) -> List[str]:
+    def get_load_sequence(self, tool_names: list[str]) -> list[str]:
         """Get the optimal loading sequence for a set of tools.
 
         Args:
@@ -477,7 +496,9 @@ class ToolLoadingOrder:
         def visit(node: str) -> None:
             """TODO: Document visit."""
             if node in temp_mark:
-                raise ValueError(f"Circular dependency detected involving {node}")
+                raise ValueError(
+                    f"Circular dependency detected involving {node}"
+                )
 
             if node not in visited:
                 temp_mark.add(node)
@@ -509,7 +530,7 @@ class ToolLoadingOrder:
 
         return load_sequence
 
-    def get_critical_tools(self) -> List[str]:
+    def get_critical_tools(self) -> list[str]:
         """Get all critical tools that must load successfully.
 
         Returns:
@@ -530,7 +551,7 @@ class ToolLoadingOrder:
             return self._tool_info[tool_name].description
         return "Unknown tool"
 
-    def get_dependency_chain(self, tool_name: str) -> List[str]:
+    def get_dependency_chain(self, tool_name: str) -> list[str]:
         """Get the full dependency chain for a tool.
 
         Args:
@@ -558,7 +579,9 @@ class ToolLoadingOrder:
         add_deps(tool_name)
         return chain[:-1]  # Remove the tool itself, return only dependencies
 
-    def validate_load_sequence(self, tool_names: List[str]) -> Tuple[bool, List[str], List[str]]:
+    def validate_load_sequence(
+        self, tool_names: list[str]
+    ) -> tuple[bool, list[str], list[str]]:
         """Validate a complete tool load sequence for dependencies and conflicts.
 
         Args:
@@ -585,9 +608,15 @@ class ToolLoadingOrder:
                     if dep not in tool_names:
                         missing_deps.append(f"{tool_name} requires {dep}")
 
-        return len(missing_deps) == 0 and len(circular_deps) == 0, missing_deps, circular_deps
+        return (
+            len(missing_deps) == 0 and len(circular_deps) == 0,
+            missing_deps,
+            circular_deps,
+        )
 
-    def get_safe_load_sequence(self, tool_names: List[str]) -> Tuple[List[str], List[str]]:
+    def get_safe_load_sequence(
+        self, tool_names: list[str]
+    ) -> tuple[list[str], list[str]]:
         """Get a safe loading sequence that handles failures gracefully.
 
         Args:
@@ -609,11 +638,17 @@ class ToolLoadingOrder:
 
         # Process by load order levels
         for order in self.get_load_order():
-            order_tools = [p for p in optimal_sequence if p in self._load_order_groups[order]]
+            order_tools = [
+                p
+                for p in optimal_sequence
+                if p in self._load_order_groups[order]
+            ]
 
             # Separate critical and non-critical tools
             critical_tools = [p for p in order_tools if self.is_critical(p)]
-            non_critical_tools = [p for p in order_tools if not self.is_critical(p)]
+            non_critical_tools = [
+                p for p in order_tools if not self.is_critical(p)
+            ]
 
             # Load critical tools first (they must succeed)
             safe_sequence.extend(critical_tools)
@@ -624,26 +659,35 @@ class ToolLoadingOrder:
         # Check for missing dependencies and exclude tools that can't load
         available_for_validation = set(safe_sequence)
         for tool_name in list(safe_sequence):
-            is_valid, missing = self.validate_dependencies(tool_name, available_for_validation - {tool_name})
+            is_valid, missing = self.validate_dependencies(
+                tool_name, available_for_validation - {tool_name}
+            )
             if not is_valid:
                 safe_sequence.remove(tool_name)
                 excluded.append(f"{tool_name} (missing: {', '.join(missing)})")
 
         return safe_sequence, excluded
 
-    def _fallback_load_sequence(self, tool_names: List[str]) -> List[str]:
+    def _fallback_load_sequence(self, tool_names: list[str]) -> list[str]:
         """Fallback sequence generator when optimal fails."""
         # Sort by load order, then by name for deterministic ordering
         sorted_tools = sorted(
             tool_names,
             key=lambda name: (
-                self._tool_info.get(name, ToolLoadInfo(name, ToolLoadOrder.CORE_INFRASTRUCTURE, [], [])).load_order.value,
-                name
-            )
+                self._tool_info.get(
+                    name,
+                    ToolLoadInfo(
+                        name, ToolLoadOrder.CORE_INFRASTRUCTURE, [], []
+                    ),
+                ).load_order.value,
+                name,
+            ),
         )
         return sorted_tools
 
-    def get_failure_impact_analysis(self, failed_tool: str, loaded_tools: List[str]) -> Dict[str, List[str]]:
+    def get_failure_impact_analysis(
+        self, failed_tool: str, loaded_tools: list[str]
+    ) -> dict[str, list[str]]:
         """Analyze the impact of a tool failure on other tools.
 
         Args:
@@ -669,7 +713,9 @@ class ToolLoadingOrder:
 
         return impact
 
-    def should_continue_loading(self, failed_tool: str, loaded_tools: List[str]) -> Tuple[bool, str]:
+    def should_continue_loading(
+        self, failed_tool: str, loaded_tools: list[str]
+    ) -> tuple[bool, str]:
         """Determine if loading should continue after a tool failure.
 
         Args:
@@ -683,9 +729,14 @@ class ToolLoadingOrder:
             return True, f"Non-critical tool {failed_tool} failed, continuing"
 
         # Critical tool failed - always stop loading
-        return False, f"Critical tool {failed_tool} failed, stopping loading sequence"
+        return (
+            False,
+            f"Critical tool {failed_tool} failed, stopping loading sequence",
+        )
 
-    def get_load_priorities(self, tool_names: List[str]) -> List[Tuple[str, int]]:
+    def get_load_priorities(
+        self, tool_names: list[str]
+    ) -> list[tuple[str, int]]:
         """Get loading priorities for tools based on dependencies and criticality.
 
         Args:
@@ -709,19 +760,28 @@ class ToolLoadingOrder:
             critical_bonus = 50 if info.critical else 0
 
             # Add dependency count bonus (tools with more dependents should load first)
-            dependency_bonus = len(self._reverse_dependencies.get(tool_name, set())) * 10
+            dependency_bonus = (
+                len(self._reverse_dependencies.get(tool_name, set())) * 10
+            )
 
             # Add configured priority
             configured_priority = info.load_priority
 
-            total_priority = base_priority + critical_bonus + dependency_bonus + configured_priority
+            total_priority = (
+                base_priority
+                + critical_bonus
+                + dependency_bonus
+                + configured_priority
+            )
             priorities.append((tool_name, total_priority))
 
         # Sort by priority descending
         priorities.sort(key=lambda x: x[1], reverse=True)
         return priorities
 
-    def register_load_callback(self, tool_name: str, callback: Callable) -> None:
+    def register_load_callback(
+        self, tool_name: str, callback: Callable
+    ) -> None:
         """Register a callback to be called when a tool is loaded.
 
         Args:
@@ -740,34 +800,36 @@ class ToolLoadingOrder:
             try:
                 callback(tool_name)
             except Exception as e:
-                logger.error(f"Error in load callback for {tool_name}: {e}")
+                logger.exception(f"Error in load callback for {tool_name}: {e}")
 
-    def get_tool_statistics(self) -> Dict[str, Any]:
+    def get_tool_statistics(self) -> dict[str, Any]:
         """Get statistics about the tool loading order configuration.
 
         Returns:
             Dict containing tool statistics
         """
         stats = {
-            'total_tools': len(self._tool_info),
-            'tools_by_order': {},
-            'critical_tools': self.get_critical_tools(),
-            'dependency_counts': {},
-            'tools_with_optional_deps': []
+            "total_tools": len(self._tool_info),
+            "tools_by_order": {},
+            "critical_tools": self.get_critical_tools(),
+            "dependency_counts": {},
+            "tools_with_optional_deps": [],
         }
 
         # Count tools by order
         for order in self.get_load_order():
-            stats['tools_by_order'][order.name] = len(self.get_tools_for_order(order))
+            stats["tools_by_order"][order.name] = len(
+                self.get_tools_for_order(order)
+            )
 
         # Count dependencies
         for tool_name, deps in self._dependency_graph.items():
-            stats['dependency_counts'][tool_name] = len(deps)
+            stats["dependency_counts"][tool_name] = len(deps)
 
         # Find tools with optional dependencies
         for tool_name, info in self._tool_info.items():
             if info.optional_dependencies:
-                stats['tools_with_optional_deps'].append(tool_name)
+                stats["tools_with_optional_deps"].append(tool_name)
 
         return stats
 

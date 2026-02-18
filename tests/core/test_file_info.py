@@ -1,9 +1,12 @@
 """Tests for FileInfo module."""
 
-import pytest
 import tempfile
 from pathlib import Path
+
+import pytest
+
 from nodupe.tools.scanner_engine.file_info import FileInfo
+
 
 class TestFileInfo:
     """Test FileInfo class."""
@@ -35,26 +38,26 @@ class TestFileInfo:
             info = file_info.get_info()
 
             # Check that we have basic file info - actual structure is simpler
-            assert 'path' in info
-            assert 'size' in info
-            assert 'mtime' in info
-            assert 'ctime' in info
-            assert 'is_file' in info
-            assert 'is_dir' in info
-            assert 'is_symlink' in info
+            assert "path" in info
+            assert "size" in info
+            assert "mtime" in info
+            assert "ctime" in info
+            assert "is_file" in info
+            assert "is_dir" in info
+            assert "is_symlink" in info
 
             # File path should be the temp file path
-            assert str(Path(temp_path)) in info['path']
+            assert str(Path(temp_path)) in info["path"]
 
             # File size should match
-            assert info['size'] == len(test_content)
+            assert info["size"] == len(test_content)
 
             # Modified time should be a float
-            assert isinstance(info['mtime'], float)
+            assert isinstance(info["mtime"], float)
 
             # Should be a file, not a directory
-            assert info['is_file'] is True
-            assert info['is_dir'] is False
+            assert info["is_file"] is True
+            assert info["is_dir"] is False
 
         finally:
             # Clean up
@@ -62,17 +65,12 @@ class TestFileInfo:
 
     def test_get_info_different_file_types(self):
         """Test getting info for different file types."""
-        test_cases = [
-            ".txt",
-            ".log",
-            ".json",
-            ".csv",
-            ".bin",
-            ".dat"
-        ]
+        test_cases = [".txt", ".log", ".json", ".csv", ".bin", ".dat"]
 
         for extension in test_cases:
-            with tempfile.NamedTemporaryFile(suffix=extension, delete=False) as temp_file:
+            with tempfile.NamedTemporaryFile(
+                suffix=extension, delete=False
+            ) as temp_file:
                 temp_file.write(b"test content")
                 temp_path = temp_file.name
 
@@ -81,10 +79,10 @@ class TestFileInfo:
                 info = file_info.get_info()
 
                 # Basic file info should be present
-                assert 'path' in info
-                assert 'size' in info
-                assert 'mtime' in info
-                assert info['is_file'] is True
+                assert "path" in info
+                assert "size" in info
+                assert "mtime" in info
+                assert info["is_file"] is True
 
             finally:
                 # Clean up
@@ -100,8 +98,8 @@ class TestFileInfo:
             file_info = FileInfo(Path(temp_path))
             info = file_info.get_info()
 
-            assert info['size'] == 0
-            assert info['is_file'] is True
+            assert info["size"] == 0
+            assert info["is_file"] is True
 
         finally:
             # Clean up
@@ -119,8 +117,8 @@ class TestFileInfo:
             file_info = FileInfo(Path(temp_path))
             info = file_info.get_info()
 
-            assert info['size'] == len(large_content)
-            assert info['is_file'] is True
+            assert info["size"] == len(large_content)
+            assert info["is_file"] is True
 
         finally:
             # Clean up
@@ -143,8 +141,8 @@ class TestFileInfo:
             info = file_info.get_info()
 
             # Should work for directories too
-            assert info['is_dir'] is True
-            assert info['is_file'] is False
+            assert info["is_dir"] is True
+            assert info["is_file"] is False
 
     def test_get_info_special_characters(self):
         """Test getting info for files with special characters."""
@@ -155,7 +153,7 @@ class TestFileInfo:
                 "file-with-dashes.txt",
                 "file_with_underscores.txt",
                 "file.with.dots.txt",
-                "file[with]brackets.txt"
+                "file[with]brackets.txt",
             ]
 
             for filename in test_cases:
@@ -165,13 +163,15 @@ class TestFileInfo:
                 file_info = FileInfo(file_path)
                 info = file_info.get_info()
 
-                assert info['size'] > 0
-                assert info['is_file'] is True
-                assert filename in info['path']
+                assert info["size"] > 0
+                assert info["is_file"] is True
+                assert filename in info["path"]
 
     def test_get_info_binary_file(self):
         """Test getting info for binary file."""
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.bin') as temp_file:
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=".bin"
+        ) as temp_file:
             # Write binary data
             binary_data = bytes(range(256))  # 0-255
             temp_file.write(binary_data)
@@ -181,9 +181,9 @@ class TestFileInfo:
             file_info = FileInfo(Path(temp_path))
             info = file_info.get_info()
 
-            assert info['size'] == len(binary_data)
-            assert info['is_file'] is True
-            assert '.bin' in info['path']
+            assert info["size"] == len(binary_data)
+            assert info["is_file"] is True
+            assert ".bin" in info["path"]
 
         finally:
             # Clean up
@@ -221,14 +221,16 @@ class TestFileInfo:
             original_info = file_info.get_info()
 
             # Modify the file with different sized content
-            with open(temp_path, 'wb') as f:
+            with open(temp_path, "wb") as f:
                 f.write(b"modified content that is longer")
 
             modified_info = file_info.get_info()
 
             # File size should be different
-            assert original_info['size'] != modified_info['size']
-            assert original_info['size'] < modified_info['size']  # Original should be smaller
+            assert original_info["size"] != modified_info["size"]
+            assert (
+                original_info["size"] < modified_info["size"]
+            )  # Original should be smaller
 
             # Modified time might be different (depends on system)
             # We can't reliably test this as some systems may not update mtime immediately
@@ -254,18 +256,37 @@ class TestFileInfo:
             info2 = file_info2.get_info()
 
             # Should have different file paths
-            assert info1['path'] != info2['path']
+            assert info1["path"] != info2["path"]
 
             # Should have different file sizes (different content)
-            assert info1['size'] != info2['size']
-            assert info1['size'] < info2['size']  # First file should be smaller
+            assert info1["size"] != info2["size"]
+            assert info1["size"] < info2["size"]  # First file should be smaller
 
     def test_get_info_file_extensions(self):
         """Test file type detection based on extensions."""
         extensions = [
-            '.txt', '.log', '.json', '.csv', '.xml', '.html', '.css', '.js',
-            '.py', '.java', '.c', '.cpp', '.h', '.bin', '.dat', '.zip',
-            '.tar', '.gz', '.pdf', '.jpg', '.png', '.gif'
+            ".txt",
+            ".log",
+            ".json",
+            ".csv",
+            ".xml",
+            ".html",
+            ".css",
+            ".js",
+            ".py",
+            ".java",
+            ".c",
+            ".cpp",
+            ".h",
+            ".bin",
+            ".dat",
+            ".zip",
+            ".tar",
+            ".gz",
+            ".pdf",
+            ".jpg",
+            ".png",
+            ".gif",
         ]
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -277,8 +298,8 @@ class TestFileInfo:
                 info = file_info.get_info()
 
                 # Basic file info should be present
-                assert info['is_file'] is True
-                assert extension in info['path']
+                assert info["is_file"] is True
+                assert extension in info["path"]
 
     def test_get_info_performance(self):
         """Test performance of getting file info."""
@@ -294,7 +315,7 @@ class TestFileInfo:
             # Time multiple calls
             start_time = time.time()
             for _ in range(100):
-                info = file_info.get_info()
+                file_info.get_info()
             end_time = time.time()
 
             # Should be fast (less than 1 second for 100 calls)

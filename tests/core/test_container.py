@@ -1,6 +1,7 @@
 """Test container module functionality."""
 
 import pytest
+
 from nodupe.core.container import ServiceContainer, container
 
 
@@ -10,8 +11,8 @@ class TestServiceContainer:
     def test_initialization(self):
         """Test ServiceContainer initialization."""
         sc = ServiceContainer()
-        assert hasattr(sc, 'services')
-        assert hasattr(sc, 'factories')
+        assert hasattr(sc, "services")
+        assert hasattr(sc, "factories")
         assert isinstance(sc.services, dict)
         assert isinstance(sc.factories, dict)
         assert len(sc.services) == 0
@@ -152,8 +153,8 @@ class TestGlobalContainer:
     def test_global_container_instance(self):
         """Test that global container is a ServiceContainer instance."""
         assert isinstance(container, ServiceContainer)
-        assert hasattr(container, 'services')
-        assert hasattr(container, 'factories')
+        assert hasattr(container, "services")
+        assert hasattr(container, "factories")
 
     def test_global_container_isolation(self):
         """Test that global container maintains isolation."""

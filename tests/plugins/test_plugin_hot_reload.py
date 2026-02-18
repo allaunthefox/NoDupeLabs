@@ -1,8 +1,10 @@
 """Test tool hot reload functionality."""
 
-import pytest
-from unittest.mock import MagicMock, patch
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.tool_system.hot_reload import ToolHotReload
 from nodupe.core.tool_system.registry import ToolRegistry
 
@@ -17,11 +19,10 @@ class TestToolHotReload:
         assert isinstance(hot_reload, ToolHotReload)
 
         # Test that it has expected attributes
-        assert hasattr(hot_reload, 'watch_tool')
-        assert hasattr(hot_reload, 'start')
-        assert hasattr(hot_reload, 'stop')
-        assert hasattr(hot_reload, 'initialize')
-        assert hasattr(hot_reload, 'shutdown')
+        assert hasattr(hot_reload, "watch_tool")
+        assert hasattr(hot_reload, "start")
+        assert hasattr(hot_reload, "stop")
+        assert hasattr(hot_reload, "initialize")
 
     def test_tool_hot_reload_with_container(self):
         """Test tool hot reload with dependency container."""
@@ -45,8 +46,8 @@ class TestToolHotReload:
         hot_reload.initialize(container)
         assert hot_reload.container is container
 
-        # Test shutdown
-        hot_reload.shutdown()
+        # Reset container (ToolHotReload exposes initialize but no shutdown)
+        hot_reload.initialize(None)
         assert hot_reload.container is None
 
         # Test re-initialization
@@ -57,28 +58,29 @@ class TestToolHotReload:
 class TestToolHotReloadOperations:
     """Test tool hot reload operations."""
 
-    def test_watch_tool(self):
+    def test_watch_tool(self, tmp_path):
         """Test watching a tool."""
         hot_reload = ToolHotReload()
 
-        # Watch a tool
-        hot_reload.watch_tool("test_tool", Path("/test/tool.py"))
+        # Create a temporary file and watch it
+        tmp = tmp_path / "tool.py"
+        tmp.write_text("# test tool")
+        hot_reload.watch_tool("test_tool", tmp)
 
         # Verify tool is being watched
         assert "test_tool" in hot_reload._watched_tools
-        assert hot_reload._watched_tools["test_tool"] == Path(
-            "/test/tool.py")
+        assert hot_reload._watched_tools["test_tool"]["path"] == tmp
 
-    def test_watch_multiple_tools(self):
+    def test_watch_multiple_tools(self, tmp_path):
         """Test watching multiple tools."""
         hot_reload = ToolHotReload()
 
-        # Watch multiple tools
-        tools = [
-            ("tool1", Path("/test/tool1.py")),
-            ("tool2", Path("/test/tool2.py")),
-            ("tool3", Path("/test/tool3.py"))
-        ]
+        # Create files and watch multiple tools
+        tools = []
+        for i in range(3):
+            p = tmp_path / f"tool{i}.py"
+            p.write_text("# tool")
+            tools.append((f"tool{i}", p))
 
         for name, path in tools:
             hot_reload.watch_tool(name, path)
@@ -86,14 +88,14 @@ class TestToolHotReloadOperations:
         # Verify all tools are being watched
         for name, path in tools:
             assert name in hot_reload._watched_tools
-            assert hot_reload._watched_tools[name] == path
+            assert hot_reload._watched_tools[name]["path"] == path
 
     def test_start_hot_reload(self):
         """Test starting hot reload."""
         hot_reload = ToolHotReload()
 
         # Mock the poll loop
-        with patch.object(hot_reload, '_poll_loop') as mock_poll_loop:
+        with patch.object(hot_reload, "_poll_loop") as mock_poll_loop:
             hot_reload.start()
 
             # Verify poll loop was started
@@ -104,45 +106,47 @@ class TestToolHotReloadOperations:
         hot_reload = ToolHotReload()
 
         # Start hot reload
-        with patch.object(hot_reload, '_poll_loop') as mock_poll_loop:
+        with patch.object(hot_reload, "_poll_loop"):
             hot_reload.start()
 
             # Stop hot reload
             hot_reload.stop()
 
-            # Verify running flag is set to False
-            assert hot_reload._running is False
+            # Verify thread was cleaned up
+            assert hot_reload._thread is None
 
     def test_hot_reload_lifecycle(self):
         """Test hot reload lifecycle."""
         hot_reload = ToolHotReload()
 
         # Start hot reload
-        with patch.object(hot_reload, '_poll_loop') as mock_poll_loop:
+        with patch.object(hot_reload, "_poll_loop"):
             hot_reload.start()
-            assert hot_reload._running is True
+            assert hot_reload._thread is not None
 
             # Stop hot reload
             hot_reload.stop()
-            assert hot_reload._running is False
+            assert hot_reload._thread is None
 
 
 class TestToolHotReloadEdgeCases:
     """Test tool hot reload edge cases."""
 
-    def test_watch_duplicate_tool(self):
+    def test_watch_duplicate_tool(self, tmp_path):
         """Test watching duplicate tool."""
         hot_reload = ToolHotReload()
 
-        # Watch a tool
-        hot_reload.watch_tool("test_tool", Path("/test/tool.py"))
+        p1 = tmp_path / "tool.py"
+        p1.write_text("# v1")
+        hot_reload.watch_tool("test_tool", p1)
 
         # Watch the same tool again (should overwrite)
-        hot_reload.watch_tool("test_tool", Path("/test/tool_new.py"))
+        p2 = tmp_path / "tool_new.py"
+        p2.write_text("# v2")
+        hot_reload.watch_tool("test_tool", p2)
 
         # Verify tool path was updated
-        assert hot_reload._watched_tools["test_tool"] == Path(
-            "/test/tool_new.py")
+        assert hot_reload._watched_tools["test_tool"]["path"] == p2
 
     def test_watch_tool_with_nonexistent_path(self):
         """Test watching tool with non-existent path."""
@@ -151,17 +155,17 @@ class TestToolHotReloadEdgeCases:
         # Watch a tool with non-existent path
         hot_reload.watch_tool("test_tool", Path("/nonexistent/tool.py"))
 
-        # Should still be watched (validation happens during reload)
-        assert "test_tool" in hot_reload._watched_tools
+        # Should NOT be watched because path does not exist
+        assert "test_tool" not in hot_reload._watched_tools
 
     def test_start_hot_reload_already_running(self):
         """Test starting hot reload when already running."""
         hot_reload = ToolHotReload()
 
         # Start hot reload
-        with patch.object(hot_reload, '_poll_loop') as mock_poll_loop:
+        with patch.object(hot_reload, "_poll_loop") as mock_poll_loop:
             hot_reload.start()
-            assert hot_reload._running is True
+            assert hot_reload._thread is not None
 
             # Try to start again
             hot_reload.start()
@@ -177,21 +181,21 @@ class TestToolHotReloadEdgeCases:
         hot_reload.stop()
 
         # Should handle gracefully
-        assert hot_reload._running is False
+        assert hot_reload._thread is None
 
 
 class TestToolHotReloadPerformance:
     """Test tool hot reload performance."""
 
-    def test_mass_tool_watching(self):
+    def test_mass_tool_watching(self, tmp_path):
         """Test mass tool watching."""
         hot_reload = ToolHotReload()
 
         # Watch many tools
         for i in range(100):
-            hot_reload.watch_tool(
-                f"tool_{i}", Path(
-                    f"/test/tool_{i}.py"))
+            p = tmp_path / f"tool_{i}.py"
+            p.write_text("# tool")
+            hot_reload.watch_tool(f"tool_{i}", p)
 
         # Verify all tools are being watched
         assert len(hot_reload._watched_tools) == 100
@@ -199,7 +203,7 @@ class TestToolHotReloadPerformance:
         for i in range(100):
             assert f"tool_{i}" in hot_reload._watched_tools
 
-    def test_hot_reload_performance(self):
+    def test_hot_reload_performance(self, tmp_path):
         """Test hot reload performance."""
         import time
 
@@ -208,13 +212,13 @@ class TestToolHotReloadPerformance:
         # Test watching performance
         start_time = time.time()
         for i in range(1000):
-            hot_reload.watch_tool(
-                f"perf_tool_{i}", Path(
-                    f"/test/tool_{i}.py"))
+            p = tmp_path / f"perf_tool_{i}.py"
+            p.write_text("# tool")
+            hot_reload.watch_tool(f"perf_tool_{i}", p)
         watch_time = time.time() - start_time
 
         # Should be fast operation
-        assert watch_time < 0.1
+        assert watch_time < 0.5
 
         # Verify all tools are being watched
         assert len(hot_reload._watched_tools) == 1000
@@ -223,27 +227,31 @@ class TestToolHotReloadPerformance:
 class TestToolHotReloadIntegration:
     """Test tool hot reload integration scenarios."""
 
-    def test_hot_reload_with_registry(self):
+    def test_hot_reload_with_registry(self, tmp_path):
         """Test hot reload integration with registry."""
         hot_reload = ToolHotReload()
-        registry = ToolRegistry()
+        ToolRegistry()
 
+        p = tmp_path / "tool.py"
+        p.write_text("# tool")
         # Watch a tool
-        hot_reload.watch_tool("test_tool", Path("/test/tool.py"))
+        hot_reload.watch_tool("test_tool", p)
 
         # Verify integration
         assert "test_tool" in hot_reload._watched_tools
 
-    def test_hot_reload_with_loader(self):
+    def test_hot_reload_with_loader(self, tmp_path):
         """Test hot reload integration with loader."""
         from nodupe.core.tool_system.loader import ToolLoader
 
         hot_reload = ToolHotReload()
         registry = ToolRegistry()
-        loader = ToolLoader(registry)
+        ToolLoader(registry)
 
+        p = tmp_path / "tool.py"
+        p.write_text("# tool")
         # Watch a tool
-        hot_reload.watch_tool("test_tool", Path("/test/tool.py"))
+        hot_reload.watch_tool("test_tool", p)
 
         # Verify integration
         assert "test_tool" in hot_reload._watched_tools
@@ -252,12 +260,14 @@ class TestToolHotReloadIntegration:
 class TestToolHotReloadErrorHandling:
     """Test tool hot reload error handling."""
 
-    def test_watch_tool_with_invalid_name(self):
+    def test_watch_tool_with_invalid_name(self, tmp_path):
         """Test watching tool with invalid name."""
         hot_reload = ToolHotReload()
 
+        p = tmp_path / "tool.py"
+        p.write_text("# tool")
         # Watch a tool with invalid name
-        hot_reload.watch_tool("", Path("/test/tool.py"))
+        hot_reload.watch_tool("", p)
 
         # Should handle gracefully
         assert "" in hot_reload._watched_tools
@@ -266,38 +276,30 @@ class TestToolHotReloadErrorHandling:
         """Test watching tool with invalid path."""
         hot_reload = ToolHotReload()
 
-        # Watch a tool with invalid path
-        hot_reload.watch_tool("test_tool", None)
-
-        # Should handle gracefully
-        assert "test_tool" in hot_reload._watched_tools
-        assert hot_reload._watched_tools["test_tool"] is None
+        # Passing None should raise a TypeError
+        with pytest.raises(TypeError):
+            hot_reload.watch_tool("test_tool", None)
 
     def test_start_hot_reload_with_exception(self):
         """Test starting hot reload when exception occurs."""
         hot_reload = ToolHotReload()
 
         # Mock poll loop to raise exception
-        with patch.object(hot_reload, '_poll_loop', side_effect=Exception("Poll loop failed")):
+        with patch.object(
+            hot_reload, "_poll_loop", side_effect=Exception("Poll loop failed")
+        ):
             # Should handle exception gracefully
             hot_reload.start()
 
-            # Verify running flag is still set appropriately
-            assert hot_reload._running is True
-
-
-class TestToolHotReloadAdvanced:
-    """Test advanced tool hot reload functionality."""
-
-    def test_hot_reload_with_tool_lifecycle(self):
-        """Test hot reload with tool lifecycle."""
+            # Verify thread was started
+            assert hot_reload._thread is not None
         hot_reload = ToolHotReload()
 
         # Watch multiple tools
         tools = [
             ("tool1", Path("/test/tool1.py")),
             ("tool2", Path("/test/tool2.py")),
-            ("tool3", Path("/test/tool3.py"))
+            ("tool3", Path("/test/tool3.py")),
         ]
 
         for name, path in tools:
@@ -306,7 +308,7 @@ class TestToolHotReloadAdvanced:
         # Verify all tools are being watched
         for name, path in tools:
             assert name in hot_reload._watched_tools
-            assert hot_reload._watched_tools[name] == path
+            assert hot_reload._watched_tools[name]["path"] == path
 
     def test_hot_reload_with_conditional_watching(self):
         """Test hot reload with conditional watching."""
@@ -315,9 +317,7 @@ class TestToolHotReloadAdvanced:
         # Watch tools conditionally
         for i in range(10):
             if i % 2 == 0:  # Only watch even-numbered tools
-                hot_reload.watch_tool(
-                    f"tool_{i}", Path(
-                        f"/test/tool_{i}.py"))
+                hot_reload.watch_tool(f"tool_{i}", Path(f"/test/tool_{i}.py"))
 
         # Verify only even-numbered tools are being watched
         assert len(hot_reload._watched_tools) == 5
@@ -333,8 +333,10 @@ class TestToolHotReloadAdvanced:
         hot_reload = ToolHotReload()
 
         # Watch initial set of tools
-        initial_tools = [("tool1", Path("/test/tool1.py")),
-                           ("tool2", Path("/test/tool2.py"))]
+        initial_tools = [
+            ("tool1", Path("/test/tool1.py")),
+            ("tool2", Path("/test/tool2.py")),
+        ]
         for name, path in initial_tools:
             hot_reload.watch_tool(name, path)
 
@@ -342,8 +344,10 @@ class TestToolHotReloadAdvanced:
         assert len(hot_reload._watched_tools) == 2
 
         # Add more tools dynamically
-        new_tools = [("tool3", Path("/test/tool3.py")),
-                       ("tool4", Path("/test/tool4.py"))]
+        new_tools = [
+            ("tool3", Path("/test/tool3.py")),
+            ("tool4", Path("/test/tool4.py")),
+        ]
         for name, path in new_tools:
             hot_reload.watch_tool(name, path)
 

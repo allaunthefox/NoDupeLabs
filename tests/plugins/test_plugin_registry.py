@@ -1,9 +1,11 @@
 """Test tool registry functionality."""
 
-import pytest
 from unittest.mock import MagicMock
-from nodupe.core.tool_system.registry import ToolRegistry
+
+import pytest
+
 from nodupe.core.tool_system.base import Tool
+from nodupe.core.tool_system.registry import ToolRegistry
 
 
 class TestToolRegistry:
@@ -16,12 +18,12 @@ class TestToolRegistry:
         assert isinstance(registry, ToolRegistry)
 
         # Test that it has expected attributes
-        assert hasattr(registry, 'register')
-        assert hasattr(registry, 'unregister')
-        assert hasattr(registry, 'get_tool')
-        assert hasattr(registry, 'get_tools')
-        assert hasattr(registry, 'initialize')
-        assert hasattr(registry, 'shutdown')
+        assert hasattr(registry, "register")
+        assert hasattr(registry, "unregister")
+        assert hasattr(registry, "get_tool")
+        assert hasattr(registry, "get_tools")
+        assert hasattr(registry, "initialize")
+        assert hasattr(registry, "shutdown")
 
     def test_tool_registry_singleton_behavior(self):
         """Test tool registry singleton behavior."""

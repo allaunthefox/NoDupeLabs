@@ -6,9 +6,11 @@
 Provides access to the ISO standard Action Code registry (LUT).
 """
 
-from typing import List, Dict, Any, Optional, Callable
-from nodupe.core.tool_system.base import Tool
+from typing import Any, Callable
+
 from nodupe.core.api.codes import ActionCode
+from nodupe.core.tool_system.base import Tool
+
 
 class LUTTool(Tool):
     """Action Code Registry (LUT) tool."""
@@ -22,22 +24,23 @@ class LUTTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         """Tool dependencies."""
         return []
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         from nodupe.core.container import container
+
         return {
-            'get_codes': ActionCode.get_lut,
-            'describe_code': ActionCode.get_description,
-            'check_iso_compliance': container.check_compliance
+            "get_codes": ActionCode.get_lut,
+            "describe_code": ActionCode.get_description,
+            "check_iso_compliance": container.check_compliance,
         }
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool and register services."""
-        container.register_service('lut_service', self)
+        container.register_service("lut_service", self)
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
@@ -49,12 +52,15 @@ class LUTTool(Tool):
             "It explains what the different codes in the logs mean in plain language."
         )
 
-    def run_standalone(self, args: List[str]) -> int:
+    def run_standalone(self, args: list[str]) -> int:
         """Execute in stand-alone mode."""
         import argparse
+
         parser = argparse.ArgumentParser(description=self.describe_usage())
-        parser.add_argument("--code", type=int, help="The code number you want to look up")
-        
+        parser.add_argument(
+            "--code", type=int, help="The code number you want to look up"
+        )
+
         if not args:
             parser.print_help()
             return 0
@@ -65,12 +71,13 @@ class LUTTool(Tool):
             print(f"Code {parsed.code}: {desc}")
         return 0
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
-            'specification': 'ISO-8000-110:2021',
-            'features': ['code_lookup', 'description_retrieval']
+            "specification": "ISO-8000-110:2021",
+            "features": ["code_lookup", "description_retrieval"],
         }
+
 
 def register_tool():
     """Register the LUT tool."""

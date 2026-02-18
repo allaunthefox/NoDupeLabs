@@ -4,9 +4,9 @@ Incremental scanning support.
 """
 
 import json
-from pathlib import Path
-from typing import Dict, Any, Optional, List
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Optional
 
 
 class Incremental:
@@ -17,8 +17,8 @@ class Incremental:
     @staticmethod
     def save_checkpoint(
         scan_path: str,
-        processed_files: Dict[str, Any],
-        metadata: Optional[Dict[str, Any]] = None
+        processed_files: dict[str, Any],
+        metadata: Optional[dict[str, Any]] = None,
     ) -> None:
         """Save incremental scanning checkpoint
 
@@ -27,23 +27,19 @@ class Incremental:
             processed_files: Dictionary of processed files with their metadata
             metadata: Additional checkpoint metadata
         """
-        checkpoint_data: Dict[str, Any] = {
+        checkpoint_data: dict[str, Any] = {
             "scan_path": scan_path,
             "processed_files": processed_files,
             "timestamp": datetime.now().isoformat(),
-            "metadata": metadata or {}
+            "metadata": metadata or {},
         }
 
         checkpoint_file = Path(scan_path) / Incremental.CHECKPOINT_FILE
-        with open(checkpoint_file, 'w') as f:
-            json.dump(
-                checkpoint_data,
-                f,
-                indent=2
-            )
+        with open(checkpoint_file, "w") as f:
+            json.dump(checkpoint_data, f, indent=2)
 
     @staticmethod
-    def load_checkpoint(scan_path: str) -> Optional[Dict[str, Any]]:
+    def load_checkpoint(scan_path: str) -> Optional[dict[str, Any]]:
         """Load incremental scanning checkpoint
 
         Args:
@@ -58,7 +54,7 @@ class Incremental:
             return None
 
         try:
-            with open(checkpoint_file, 'r') as f:
+            with open(checkpoint_file) as f:
                 data = json.load(f)
                 return dict(data) if isinstance(data, dict) else None
         except (json.JSONDecodeError, UnicodeDecodeError, OSError):
@@ -66,7 +62,7 @@ class Incremental:
             return None
 
     @staticmethod
-    def get_remaining_files(scan_path: str, all_files: List[str]) -> List[str]:
+    def get_remaining_files(scan_path: str, all_files: list[str]) -> list[str]:
         """Get files that haven't been processed yet
 
         Args:
@@ -87,14 +83,18 @@ class Incremental:
         return remaining_files
 
     @staticmethod
-    def update_checkpoint(scan_path: str, new_processed_files: Dict[str, Any]) -> None:
+    def update_checkpoint(
+        scan_path: str, new_processed_files: dict[str, Any]
+    ) -> None:
         """Update existing checkpoint with new processed files
 
         Args:
             scan_path: Path of the scan
             new_processed_files: New files to add to checkpoint
         """
-        existing_checkpoint: Optional[Dict[str, Any]] = Incremental.load_checkpoint(scan_path)
+        existing_checkpoint: Optional[dict[str, Any]] = (
+            Incremental.load_checkpoint(scan_path)
+        )
 
         if existing_checkpoint:
             existing_checkpoint["processed_files"].update(new_processed_files)
@@ -104,11 +104,11 @@ class Incremental:
                 "scan_path": scan_path,
                 "processed_files": new_processed_files,
                 "timestamp": datetime.now().isoformat(),
-                "metadata": {}
+                "metadata": {},
             }
 
         checkpoint_file = Path(scan_path) / Incremental.CHECKPOINT_FILE
-        with open(checkpoint_file, 'w') as f:
+        with open(checkpoint_file, "w") as f:
             json.dump(existing_checkpoint, f, indent=2)
 
     @staticmethod

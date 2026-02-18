@@ -20,8 +20,8 @@ Dependencies:
 
 import threading
 import time
-from typing import Optional, Dict, Any, Tuple, List
 from collections import OrderedDict
+from typing import Any, Optional
 
 
 class EmbeddingCacheError(Exception):
@@ -39,7 +39,7 @@ class EmbeddingCache:
         self,
         max_size: int = 1000,
         ttl_seconds: int = 3600,
-        max_dimensions: int = 1024
+        max_dimensions: int = 1024,
     ):
         """Initialize embedding cache.
 
@@ -53,16 +53,11 @@ class EmbeddingCache:
         self.max_dimensions = max_dimensions
 
         # Cache storage: key -> (embedding_vector, timestamp)
-        self._cache: OrderedDict[str, Tuple[List[float], float]] = OrderedDict()
+        self._cache: OrderedDict[str, tuple[list[float], float]] = OrderedDict()
         self._lock = threading.RLock()
-        self._stats = {
-            'hits': 0,
-            'misses': 0,
-            'evictions': 0,
-            'insertions': 0
-        }
+        self._stats = {"hits": 0, "misses": 0, "evictions": 0, "insertions": 0}
 
-    def get_embedding(self, key: str) -> Optional[List[float]]:
+    def get_embedding(self, key: str) -> Optional[list[float]]:
         """Get cached embedding vector.
 
         Args:
@@ -73,7 +68,7 @@ class EmbeddingCache:
         """
         with self._lock:
             if key not in self._cache:
-                self._stats['misses'] += 1
+                self._stats["misses"] += 1
                 return None
 
             embedding, timestamp = self._cache[key]
@@ -81,13 +76,13 @@ class EmbeddingCache:
             # Check if entry is expired
             if time.monotonic() - timestamp > self.ttl_seconds:
                 del self._cache[key]
-                self._stats['misses'] += 1
+                self._stats["misses"] += 1
                 return None
 
-            self._stats['hits'] += 1
+            self._stats["hits"] += 1
             return embedding
 
-    def set_embedding(self, key: str, embedding: List[float]) -> None:
+    def set_embedding(self, key: str, embedding: list[float]) -> None:
         """Set embedding vector in cache.
 
         Args:
@@ -104,7 +99,7 @@ class EmbeddingCache:
             # Remove oldest entry if at max size
             if len(self._cache) >= self.max_size:
                 self._cache.popitem(last=False)
-                self._stats['evictions'] += 1
+                self._stats["evictions"] += 1
 
             # Store with current timestamp
             timestamp = time.monotonic()
@@ -113,7 +108,7 @@ class EmbeddingCache:
             # Move to end to mark as most recently used
             self._cache.move_to_end(key, last=True)
 
-            self._stats['insertions'] += 1
+            self._stats["insertions"] += 1
 
     def calculate_similarity(self, key1: str, key2: str) -> Optional[float]:
         """Calculate cosine similarity between two cached embeddings.
@@ -155,7 +150,7 @@ class EmbeddingCache:
             num_entries = len(self._cache)
             self._cache.clear()
             # Increment evictions by the number of entries that were cleared
-            self._stats['evictions'] += num_entries
+            self._stats["evictions"] += num_entries
 
     def validate_cache(self) -> int:
         """Validate all cache entries and remove stale ones.
@@ -181,7 +176,7 @@ class EmbeddingCache:
 
             return removed_count
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics.
 
         Returns:
@@ -189,11 +184,11 @@ class EmbeddingCache:
         """
         with self._lock:
             stats = self._stats.copy()
-            stats['size'] = len(self._cache)
-            stats['capacity'] = self.max_size
-            stats['hit_rate'] = (
-                stats['hits'] / (stats['hits'] + stats['misses'])
-                if (stats['hits'] + stats['misses']) > 0
+            stats["size"] = len(self._cache)
+            stats["capacity"] = self.max_size
+            stats["hit_rate"] = (
+                stats["hits"] / (stats["hits"] + stats["misses"])
+                if (stats["hits"] + stats["misses"]) > 0
                 else 0.0
             )
             return stats
@@ -238,7 +233,7 @@ class EmbeddingCache:
             # Remove excess entries from the beginning (LRU)
             while len(self._cache) > self.max_size:
                 self._cache.popitem(last=False)
-                self._stats['evictions'] += 1
+                self._stats["evictions"] += 1
 
     def get_memory_usage(self) -> int:
         """Get approximate memory usage of cache.
@@ -250,14 +245,14 @@ class EmbeddingCache:
             # Rough estimate: key string + embedding array + timestamp + overhead
             usage = 0
             for key, (embedding, timestamp) in self._cache.items():
-                usage += len(key.encode('utf-8'))  # Key
+                usage += len(key.encode("utf-8"))  # Key
                 usage += len(embedding) * 8  # Float array (8 bytes per float)
                 usage += 8  # Timestamp (float)
                 usage += 50  # Overhead per entry
 
             return usage
 
-    def _cosine_similarity(self, vec1: List[float], vec2: List[float]) -> float:
+    def _cosine_similarity(self, vec1: list[float], vec2: list[float]) -> float:
         """Calculate cosine similarity between two vectors.
 
         Args:
@@ -268,7 +263,9 @@ class EmbeddingCache:
             Cosine similarity (0.0 to 1.0)
         """
         if len(vec1) != len(vec2):
-            raise EmbeddingCacheError("Vector dimensions must match for similarity calculation")
+            raise EmbeddingCacheError(
+                "Vector dimensions must match for similarity calculation"
+            )
 
         # Calculate dot product
         dot_product = sum(a * b for a, b in zip(vec1, vec2))
@@ -287,11 +284,8 @@ class EmbeddingCache:
         return max(0.0, min(1.0, similarity))
 
     def find_similar(
-        self,
-        key: str,
-        threshold: float = 0.8,
-        max_results: int = 10
-    ) -> List[Tuple[str, float]]:
+        self, key: str, threshold: float = 0.8, max_results: int = 10
+    ) -> list[tuple[str, float]]:
         """Find similar embeddings to a cached embedding.
 
         Args:
@@ -312,7 +306,9 @@ class EmbeddingCache:
                 if cache_key == key:
                     continue  # Skip self
 
-                similarity = self._cosine_similarity(reference_embedding, embedding)
+                similarity = self._cosine_similarity(
+                    reference_embedding, embedding
+                )
                 if similarity >= threshold:
                     similarities.append((cache_key, similarity))
 
@@ -320,7 +316,7 @@ class EmbeddingCache:
         similarities.sort(key=lambda x: x[1], reverse=True)
         return similarities[:max_results]
 
-    def get_average_embedding(self, keys: List[str]) -> Optional[List[float]]:
+    def get_average_embedding(self, keys: list[str]) -> Optional[list[float]]:
         """Get average embedding from multiple cached embeddings.
 
         Args:
@@ -349,7 +345,9 @@ class EmbeddingCache:
         dim = len(embeddings[0])
 
         for i in range(dim):
-            avg_value = sum(embedding[i] for embedding in embeddings) / num_embeddings
+            avg_value = (
+                sum(embedding[i] for embedding in embeddings) / num_embeddings
+            )
             avg_embedding.append(avg_value)
 
         return avg_embedding
@@ -365,17 +363,17 @@ class EmbeddingCache:
         """
         with self._lock:
             keys_to_remove = []
-            for key in self._cache.keys():
+            for key in self._cache:
                 if pattern.lower() in key.lower():
                     keys_to_remove.append(key)
 
             for key in keys_to_remove:
                 del self._cache[key]
-                self._stats['evictions'] += 1
+                self._stats["evictions"] += 1
 
             return len(keys_to_remove)
 
-    def get_cached_keys(self) -> List[str]:
+    def get_cached_keys(self) -> list[str]:
         """Get list of all cached keys.
 
         Returns:
@@ -386,9 +384,7 @@ class EmbeddingCache:
 
 
 def create_embedding_cache(
-    max_size: int = 1000,
-    ttl_seconds: int = 3600,
-    max_dims: int = 1024
+    max_size: int = 1000, ttl_seconds: int = 3600, max_dims: int = 1024
 ) -> EmbeddingCache:
     """Create an embedding cache instance.
 

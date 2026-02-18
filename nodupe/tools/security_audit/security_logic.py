@@ -18,7 +18,7 @@ Dependencies:
 import os
 import re
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional
 
 
 class SecurityError(Exception):
@@ -34,12 +34,12 @@ class Security:
 
     # Dangerous path components that should be rejected
     DANGEROUS_PATTERNS = [
-        '..',           # Parent directory traversal
-        '~',            # Home directory expansion
-        '///',          # Multiple slashes
-        '\x00',         # Null byte
-        '\r',           # Carriage return
-        '\n',           # Line feed
+        "..",  # Parent directory traversal
+        "~",  # Home directory expansion
+        "///",  # Multiple slashes
+        "\x00",  # Null byte
+        "\r",  # Carriage return
+        "\n",  # Line feed
     ]
 
     # Characters not allowed in filenames (Windows + Unix)
@@ -47,16 +47,33 @@ class Security:
 
     # Reserved Windows filenames
     RESERVED_NAMES = {
-        'CON', 'PRN', 'AUX', 'NUL',
-        'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9',
-        'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9',
+        "CON",
+        "PRN",
+        "AUX",
+        "NUL",
+        "COM1",
+        "COM2",
+        "COM3",
+        "COM4",
+        "COM5",
+        "COM6",
+        "COM7",
+        "COM8",
+        "COM9",
+        "LPT1",
+        "LPT2",
+        "LPT3",
+        "LPT4",
+        "LPT5",
+        "LPT6",
+        "LPT7",
+        "LPT8",
+        "LPT9",
     }
 
     @staticmethod
     def sanitize_path(
-        path: str,
-        allow_absolute: bool = True,
-        allow_parent: bool = False
+        path: str, allow_absolute: bool = True, allow_parent: bool = False
     ) -> str:
         """Sanitize a file path to prevent directory traversal attacks.
 
@@ -77,20 +94,21 @@ class Security:
                 path = str(path)
 
             # Check for null bytes
-            if '\x00' in path:
+            if "\x00" in path:
                 raise SecurityError("Path contains null bytes")
 
             # Check for dangerous patterns
-            if not allow_parent:
-                if '..' in path:
-                    raise SecurityError("Path contains parent directory reference (..)")
+            if not allow_parent and ".." in path:
+                raise SecurityError(
+                    "Path contains parent directory reference (..)"
+                )
 
             # Normalize path separators
-            path = path.replace('\\', '/')
+            path = path.replace("\\", "/")
 
             # Remove multiple consecutive slashes
-            while '//' in path:
-                path = path.replace('//', '/')
+            while "//" in path:
+                path = path.replace("//", "/")
 
             # Convert to Path for normalization
             path_obj = Path(path)
@@ -119,7 +137,7 @@ class Security:
         must_exist: bool = False,
         must_be_file: bool = False,
         must_be_dir: bool = False,
-        allowed_parent: Optional[Path] = None
+        allowed_parent: Optional[Path] = None,
     ) -> bool:
         """Validate a file path for security and existence.
 
@@ -138,10 +156,7 @@ class Security:
         """
         try:
             # Convert to Path object
-            if isinstance(path, str):
-                path_obj = Path(path)
-            else:
-                path_obj = path
+            path_obj = Path(path) if isinstance(path, str) else path
 
             # Resolve to absolute path
             try:
@@ -164,7 +179,9 @@ class Security:
                             f"Path {resolved} is outside allowed directory {allowed_resolved}"
                         )
                 except (OSError, RuntimeError) as e:
-                    raise SecurityError(f"Cannot resolve allowed parent: {e}") from e
+                    raise SecurityError(
+                        f"Cannot resolve allowed parent: {e}"
+                    ) from e
 
             # Check existence
             if must_exist and not resolved.exists():
@@ -193,9 +210,7 @@ class Security:
 
     @staticmethod
     def sanitize_filename(
-        filename: str,
-        replacement: str = '_',
-        max_length: int = 255
+        filename: str, replacement: str = "_", max_length: int = 255
     ) -> str:
         """Sanitize a filename to be safe across platforms.
 
@@ -215,24 +230,26 @@ class Security:
             filename = os.path.basename(filename)
 
             # Check for empty filename
-            if not filename or filename in ('.', '..'):
+            if not filename or filename in (".", ".."):
                 raise SecurityError("Invalid filename")
 
             # Replace invalid characters
-            filename = re.sub(Security.INVALID_FILENAME_CHARS, replacement, filename)
+            filename = re.sub(
+                Security.INVALID_FILENAME_CHARS, replacement, filename
+            )
 
             # Remove leading/trailing spaces and dots
-            filename = filename.strip('. ')
+            filename = filename.strip(". ")
 
             # Check for reserved names (Windows)
-            name_without_ext = filename.split('.')[0].upper()
+            name_without_ext = filename.split(".")[0].upper()
             if name_without_ext in Security.RESERVED_NAMES:
                 filename = f"{replacement}{filename}"
 
             # Truncate to max length
             if len(filename) > max_length:
                 # Try to preserve extension
-                parts = filename.rsplit('.', 1)
+                parts = filename.rsplit(".", 1)
                 if len(parts) == 2:
                     name, ext = parts
                     max_name_length = max_length - len(ext) - 1
@@ -282,7 +299,7 @@ class Security:
         path: str,
         readable: bool = False,
         writable: bool = False,
-        executable: bool = False
+        executable: bool = False,
     ) -> bool:
         """Check file permissions.
 
@@ -300,10 +317,7 @@ class Security:
         """
         try:
             # Convert to Path object
-            if isinstance(path, str):
-                path_obj = Path(path)
-            else:
-                path_obj = path
+            path_obj = Path(path) if isinstance(path, str) else path
 
             # Check existence
             if not path_obj.exists():
@@ -363,10 +377,7 @@ class Security:
             if isinstance(path, str):
                 path = Path(path)
 
-            if follow_symlinks:
-                resolved = path.resolve()
-            else:
-                resolved = path
+            resolved = path.resolve() if follow_symlinks else path
 
             return str(resolved)
 
@@ -375,8 +386,7 @@ class Security:
 
     @staticmethod
     def validate_extension(
-        filename: str,
-        allowed_extensions: List[str]
+        filename: str, allowed_extensions: list[str]
     ) -> bool:
         """Validate file extension against allowed list.
 
@@ -397,7 +407,7 @@ class Security:
 
             # Normalize allowed extensions (ensure they start with dot)
             normalized_allowed = [
-                ext if ext.startswith('.') else f'.{ext}'
+                ext if ext.startswith(".") else f".{ext}"
                 for ext in allowed_extensions
             ]
 
@@ -415,9 +425,7 @@ class Security:
 
     @staticmethod
     def generate_safe_filename(
-        base_name: str,
-        extension: str = '',
-        add_timestamp: bool = False
+        base_name: str, extension: str = "", add_timestamp: bool = False
     ) -> str:
         """Generate a safe filename.
 
@@ -434,13 +442,14 @@ class Security:
             safe_base = Security.sanitize_filename(base_name)
 
             # Normalize extension
-            if extension and not extension.startswith('.'):
-                extension = f'.{extension}'
+            if extension and not extension.startswith("."):
+                extension = f".{extension}"
 
             # Add timestamp if requested
             if add_timestamp:
                 from datetime import datetime
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 safe_base = f"{safe_base}_{timestamp}"
 
             # Combine

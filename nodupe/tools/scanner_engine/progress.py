@@ -19,9 +19,9 @@ Dependencies:
     - threading (standard library)
 """
 
-import time
-from typing import Dict, Any, Optional, Callable
 import threading
+import time
+from typing import Any, Callable, Optional
 
 
 class ProgressTracker:
@@ -64,7 +64,9 @@ class ProgressTracker:
             self._status = "in_progress"
             self._error_count = 0
 
-    def update(self, items_completed: int = 1, bytes_processed: int = 0) -> None:
+    def update(
+        self, items_completed: int = 1, bytes_processed: int = 0
+    ) -> None:
         """Update progress with completed items and processed bytes.
 
         Args:
@@ -88,18 +90,26 @@ class ProgressTracker:
             self._error_count += 1
             self._last_update_time = time.monotonic()
 
-    def get_progress(self) -> Dict[str, Any]:
+    def get_progress(self) -> dict[str, Any]:
         """Get current progress information.
 
         Returns:
             Dictionary containing progress information
         """
         with self._lock:
-            elapsed = time.monotonic() - self._start_time if self._start_time > 0 else 0
+            elapsed = (
+                time.monotonic() - self._start_time
+                if self._start_time > 0
+                else 0
+            )
 
             # Calculate rates
-            items_per_second: float = self._completed_items / elapsed if elapsed > 0 else 0.0
-            bytes_per_second: float = self._processed_bytes / elapsed if elapsed > 0 else 0.0
+            items_per_second: float = (
+                self._completed_items / elapsed if elapsed > 0 else 0.0
+            )
+            bytes_per_second: float = (
+                self._processed_bytes / elapsed if elapsed > 0 else 0.0
+            )
 
             # Calculate estimates
             remaining_items = max(0, self._total_items - self._completed_items)
@@ -113,28 +123,34 @@ class ProgressTracker:
 
             percent_complete: float = 0.0
             if self._total_items > 0:
-                percent_complete = (self._completed_items / self._total_items) * 100
+                percent_complete = (
+                    self._completed_items / self._total_items
+                ) * 100
             elif self._total_bytes > 0:
-                percent_complete = (self._processed_bytes / self._total_bytes) * 100
+                percent_complete = (
+                    self._processed_bytes / self._total_bytes
+                ) * 100
 
             return {
-                'status': self._status,
-                'start_time': self._start_time,
-                'elapsed_time': elapsed,
-                'total_items': self._total_items,
-                'completed_items': self._completed_items,
-                'remaining_items': remaining_items,
-                'total_bytes': self._total_bytes,
-                'processed_bytes': self._processed_bytes,
-                'remaining_bytes': remaining_bytes,
-                'percent_complete': percent_complete,
-                'items_per_second': items_per_second,
-                'bytes_per_second': bytes_per_second,
-                'time_remaining': time_remaining,
-                'error_count': self._error_count
+                "status": self._status,
+                "start_time": self._start_time,
+                "elapsed_time": elapsed,
+                "total_items": self._total_items,
+                "completed_items": self._completed_items,
+                "remaining_items": remaining_items,
+                "total_bytes": self._total_bytes,
+                "processed_bytes": self._processed_bytes,
+                "remaining_bytes": remaining_bytes,
+                "percent_complete": percent_complete,
+                "items_per_second": items_per_second,
+                "bytes_per_second": bytes_per_second,
+                "time_remaining": time_remaining,
+                "error_count": self._error_count,
             }
 
-    def report_progress(self, on_progress: Optional[Callable[[Dict[str, Any]], None]] = None) -> None:
+    def report_progress(
+        self, on_progress: Optional[Callable[[dict[str, Any]], None]] = None
+    ) -> None:
         """Report progress via callback.
 
         Args:
@@ -163,7 +179,11 @@ class ProgressTracker:
             Elapsed time in seconds
         """
         with self._lock:
-            return time.monotonic() - self._start_time if self._start_time > 0 else 0
+            return (
+                time.monotonic() - self._start_time
+                if self._start_time > 0
+                else 0
+            )
 
     def get_status(self) -> str:
         """Get current status.
@@ -192,7 +212,7 @@ class ProgressTracker:
         with self._lock:
             return self._error_count
 
-    def format_progress(self, progress: Optional[Dict[str, Any]] = None) -> str:
+    def format_progress(self, progress: Optional[dict[str, Any]] = None) -> str:
         """Format progress information as string.
 
         Args:
@@ -204,19 +224,21 @@ class ProgressTracker:
         if progress is None:
             progress = self.get_progress()
 
-        status = progress.get('status', 'unknown')
-        percent = progress.get('percent_complete', 0)
-        elapsed = progress.get('elapsed_time', 0)
-        remaining = progress.get('time_remaining', 0)
-        items = progress.get('completed_items', 0)
-        total = progress.get('total_items', 0)
-        errors = progress.get('error_count', 0)
+        status = progress.get("status", "unknown")
+        percent = progress.get("percent_complete", 0)
+        elapsed = progress.get("elapsed_time", 0)
+        remaining = progress.get("time_remaining", 0)
+        items = progress.get("completed_items", 0)
+        total = progress.get("total_items", 0)
+        errors = progress.get("error_count", 0)
 
-        return (f"Status: {status} | "
-                f"Progress: {percent:.1f}% | "
-                f"Items: {items}/{total} | "
-                f"Time: {elapsed:.1f}s (remaining: {remaining:.1f}s) | "
-                f"Errors: {errors}")
+        return (
+            f"Status: {status} | "
+            f"Progress: {percent:.1f}% | "
+            f"Items: {items}/{total} | "
+            f"Time: {elapsed:.1f}s (remaining: {remaining:.1f}s) | "
+            f"Errors: {errors}"
+        )
 
 
 def create_progress_tracker() -> ProgressTracker:

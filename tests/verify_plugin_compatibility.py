@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-import sys
 import os
+import sys
 import traceback
 from typing import List
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 
 def test_tool_compatibility_import():
     """Test that ToolCompatibility can be imported and used."""
@@ -14,7 +15,11 @@ def test_tool_compatibility_import():
         print("🧪 Testing ToolCompatibility import...")
 
         # Test the import that was failing
-        from nodupe.core.tool_system.compatibility import ToolCompatibility, ToolCompatibilityError
+        from nodupe.core.tool_system.compatibility import (
+            ToolCompatibility,
+            ToolCompatibilityError,
+        )
+
         print("✅ ToolCompatibility import successful")
 
         # Test instantiation
@@ -34,7 +39,7 @@ def test_tool_compatibility_import():
                 return "1.0.0"
 
             @property
-            def dependencies(self) -> List[str]:
+            def dependencies(self) -> list[str]:
                 return ["core>=1.0.0"]
 
             def __init__(self):
@@ -70,6 +75,7 @@ def test_tool_compatibility_import():
         traceback.print_exc()
         return False
 
+
 def test_performance_utils():
     """Test that performance utilities work correctly."""
     try:
@@ -99,6 +105,7 @@ def test_performance_utils():
         traceback.print_exc()
         return False
 
+
 def test_test_utils():
     """Test that test_utils.py can be imported."""
     try:
@@ -106,6 +113,7 @@ def test_test_utils():
 
         # This was the file that had the resource module issue
         import tests.test_utils
+
         print("✅ test_utils.py import successful")
 
         return True
@@ -118,6 +126,7 @@ def test_test_utils():
         print(f"❌ Error in test_utils: {e}")
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     print("🚀 Running verification tests for fixes...")

@@ -4,13 +4,14 @@ This is an example of how to implement an accessible tool that follows
 the accessibility standards and supports users with visual impairments.
 """
 
-from typing import List, Dict, Any, Callable
+from typing import Any, Callable
+
 from nodupe.core.tool_system.accessible_base import AccessibleTool
 
 
 class ExampleAccessibleTool(AccessibleTool):
     """Example accessible tool demonstrating accessibility features."""
-    
+
     def __init__(self):
         super().__init__()  # Initialize accessibility features
         self._name = "ExampleAccessibleTool"
@@ -27,25 +28,49 @@ class ExampleAccessibleTool(AccessibleTool):
         return self._version
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         return self._dependencies
 
     def initialize(self, container: Any) -> None:
         """Initialize the accessible tool."""
-        from .api.codes import ActionCode
+        from ..api.codes import ActionCode
+
         self._initialized = True
         # Accessibility is core requirement - always available even if external libraries fail
-        self.announce_to_assistive_tech(f"Initializing {self.name} v{self.version}")
-        self.log_accessible_message(f"{self.name} initialized successfully", "info")
-        print(f"[{ActionCode.ACC_ISO_COMPLIANT}] Tool is ISO accessibility compliant")
+        try:
+            self.announce_to_assistive_tech(
+                f"Initializing {self.name} v{self.version}"
+            )
+        except Exception:
+            # Accessibility announcement must not prevent initialization
+            pass
+
+        try:
+            self.log_accessible_message(
+                f"{self.name} initialized successfully", "info"
+            )
+        except Exception:
+            pass
+        print(
+            f"[{ActionCode.ACC_ISO_COMPLIANT}] Tool is ISO accessibility compliant"
+        )
 
     def shutdown(self) -> None:
         """Shutdown the accessible tool."""
-        self.announce_to_assistive_tech(f"Shutting down {self.name}")
+        try:
+            self.announce_to_assistive_tech(f"Shutting down {self.name}")
+        except Exception:
+            # Don't let announce failures prevent shutdown
+            pass
         self._initialized = False
-        self.log_accessible_message(f"{self.name} shutdown complete", "info")
+        try:
+            self.log_accessible_message(
+                f"{self.name} shutdown complete", "info"
+            )
+        except Exception:
+            pass
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
             "name": self.name,
@@ -54,13 +79,17 @@ class ExampleAccessibleTool(AccessibleTool):
             "capabilities": [
                 "accessible_operations",
                 "screen_reader_support",
-                "braille_display_support"
+                "braille_display_support",
             ],
-            "iso_stakeholders": ["developer", "end_user", "accessibility_advocate"],
-            "iso_concerns": ["functionality", "usability", "accessibility"]
+            "iso_stakeholders": [
+                "developer",
+                "end_user",
+                "accessibility_advocate",
+            ],
+            "iso_concerns": ["functionality", "usability", "accessibility"],
         }
 
-    def get_ipc_socket_documentation(self) -> Dict[str, Any]:
+    def get_ipc_socket_documentation(self) -> dict[str, Any]:
         """Document IPC socket interfaces for assistive technology integration."""
         return {
             "socket_endpoints": {
@@ -73,8 +102,8 @@ class ExampleAccessibleTool(AccessibleTool):
                         "status": "Current operational status",
                         "progress": "Current progress percentage",
                         "errors": "Any current errors or warnings",
-                        "estimated_completion": "Estimated time to completion"
-                    }
+                        "estimated_completion": "Estimated time to completion",
+                    },
                 },
                 "process": {
                     "path": "/api/v1/process",
@@ -83,9 +112,9 @@ class ExampleAccessibleTool(AccessibleTool):
                     "accessible_output": True,
                     "parameters": {
                         "data": "Input data to process",
-                        "format": "Output format preference"
-                    }
-                }
+                        "format": "Output format preference",
+                    },
+                },
             },
             "accessibility_features": {
                 "text_only_mode": True,
@@ -93,28 +122,34 @@ class ExampleAccessibleTool(AccessibleTool):
                 "progress_reporting": True,
                 "error_explanation": True,
                 "screen_reader_integration": True,
-                "braille_api_support": True
-            }
+                "braille_api_support": True,
+            },
         }
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         """Dictionary of methods exposed via programmatic API (Socket/IPC)."""
         return {
-            'get_status': self.get_accessible_status,
-            'process_data': self.process_accessible_data,
-            'get_help': self.get_accessible_help
+            "get_status": self.get_accessible_status,
+            "process_data": self.process_accessible_data,
+            "get_help": self.get_accessible_help,
         }
 
-    def run_standalone(self, args: List[str]) -> int:
+    def run_standalone(self, args: list[str]) -> int:
         """Execute the tool in stand-alone mode without the core engine."""
-        self.announce_to_assistive_tech(f"Running {self.name} in standalone mode")
-        
+        self.announce_to_assistive_tech(
+            f"Running {self.name} in standalone mode"
+        )
+
         # Process arguments if provided
         if args:
-            self.announce_to_assistive_tech(f"Arguments received: {', '.join(args)}")
-        
-        self.announce_to_assistive_tech(f"{self.name} standalone execution completed")
+            self.announce_to_assistive_tech(
+                f"Arguments received: {', '.join(args)}"
+            )
+
+        self.announce_to_assistive_tech(
+            f"{self.name} standalone execution completed"
+        )
         return 0
 
     def describe_usage(self) -> str:
@@ -127,12 +162,16 @@ class ExampleAccessibleTool(AccessibleTool):
 
     def process_accessible_data(self, data: Any, format: str = "auto") -> str:
         """Process data with accessibility considerations."""
-        self.announce_to_assistive_tech(f"Starting to process data of type: {type(data).__name__}")
-        
+        self.announce_to_assistive_tech(
+            f"Starting to process data of type: {type(data).__name__}"
+        )
+
         # Format the data for accessibility
         accessible_data = self.format_for_accessibility(data)
-        self.announce_to_assistive_tech(f"Formatted data for accessibility: {accessible_data[:100]}...")
-        
+        self.announce_to_assistive_tech(
+            f"Formatted data for accessibility: {accessible_data[:100]}..."
+        )
+
         # Simulate processing
         if isinstance(data, dict):
             result = f"Processed dictionary with {len(data)} keys"
@@ -140,7 +179,7 @@ class ExampleAccessibleTool(AccessibleTool):
             result = f"Processed list with {len(data)} items"
         else:
             result = f"Processed {len(str(data))} characters of data"
-        
+
         self.announce_to_assistive_tech(f"Processing complete: {result}")
         return result
 
@@ -156,11 +195,11 @@ class ExampleAccessibleTool(AccessibleTool):
         self.announce_to_assistive_tech(help_text)
         return help_text
 
-    def get_architecture_rationale(self) -> Dict[str, str]:
+    def get_architecture_rationale(self) -> dict[str, str]:
         """Get architectural rationale following ISO/IEC/IEEE 42010."""
         return {
             "design_decision": "Created as an accessible tool to demonstrate accessibility-first design",
-            "alternatives_considered": "Considered standard tool vs. accessible tool implementation",
+            "alternatives_considered": "Considered accessibility-first approach vs. standard tool implementation",
             "tradeoffs": "Added accessibility library dependencies vs. gained inclusive design",
-            "stakeholder_impact": "Enables users with visual impairments to use the tool effectively"
+            "stakeholder_impact": "Enables users with visual impairments to use the tool effectively",
         }

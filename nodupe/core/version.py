@@ -9,6 +9,7 @@ from typing import NamedTuple, Optional, Union
 
 class VersionInfo(NamedTuple):
     """Version information tuple."""
+
     major: int
     minor: int
     micro: int
@@ -24,7 +25,9 @@ class VersionInfo(NamedTuple):
 
 
 # Application version information
-__version_info__ = VersionInfo(major=1, minor=0, micro=0, releaselevel="final", serial=0)
+__version_info__ = VersionInfo(
+    major=1, minor=0, micro=0, releaselevel="final", serial=0
+)
 __version__ = str(__version_info__)
 
 
@@ -74,7 +77,11 @@ def get_python_version_info() -> tuple[int, int, int]:
     Returns:
         Tuple containing (major, minor, micro) version numbers
     """
-    return (sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
+    return (
+        sys.version_info.major,
+        sys.version_info.minor,
+        sys.version_info.micro,
+    )
 
 
 def is_compatible_version(version_str: str, min_version: str) -> bool:
@@ -167,10 +174,14 @@ def format_version_info(version_info: VersionInfo) -> str:
         Formatted version string
     """
     if version_info.releaselevel == "final":
-        return f"v{version_info.major}.{version_info.minor}.{version_info.micro}"
+        return (
+            f"v{version_info.major}.{version_info.minor}.{version_info.micro}"
+        )
     else:
         level_map = {"alpha": "Alpha", "beta": "Beta", "candidate": "RC"}
-        level_name = level_map.get(version_info.releaselevel, version_info.releaselevel)
+        level_name = level_map.get(
+            version_info.releaselevel, version_info.releaselevel
+        )
         return f"v{version_info.major}.{version_info.minor}.{version_info.micro} {level_name} {version_info.serial}"
 
 
@@ -181,7 +192,9 @@ PYTHON_MIN_VERSION = (3, 9)
 PYTHON_MIN_VERSION_STR = f"{PYTHON_MIN_VERSION[0]}.{PYTHON_MIN_VERSION[1]}"
 
 
-def get_system_info() -> dict[str, Union[str, VersionInfo, tuple[int, int], tuple[int, int, int]]]:
+def get_system_info() -> (
+    dict[str, Union[str, VersionInfo, tuple[int, int], tuple[int, int, int]]]
+):
     """Get comprehensive system and version information.
 
     Returns:
@@ -215,7 +228,7 @@ def check_compatibility() -> dict[str, Union[bool, str, list[str]]]:
         "python_compatible": python_ok,
         "version": get_version(),
         "python_version": get_python_version(),
-        "issues": [] if python_ok else ["Python version requirement not met"]
+        "issues": [] if python_ok else ["Python version requirement not met"],
     }
 
 

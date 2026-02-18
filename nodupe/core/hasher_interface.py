@@ -7,13 +7,18 @@ Defines the interface for hashing aspects to be used by plugins and core.
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional, Callable
+from typing import Any, Callable, Optional
+
 
 class HasherInterface(ABC):
     """Abstract base class for hashers."""
 
     @abstractmethod
-    def hash_file(self, file_path: str, on_progress: Optional[Callable[[Dict[str, Any]], None]] = None) -> str:
+    def hash_file(
+        self,
+        file_path: str,
+        on_progress: Optional[Callable[[dict[str, Any]], None]] = None,
+    ) -> str:
         """Calculate hash of a file."""
 
     @abstractmethod
@@ -37,5 +42,5 @@ class HasherInterface(ABC):
         """Get current algorithm."""
 
     @abstractmethod
-    def get_available_algorithms(self) -> List[str]:
+    def get_available_algorithms(self) -> list[str]:
         """Get available algorithms."""

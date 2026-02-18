@@ -26,7 +26,7 @@ This document summarizes the recent documentation updates and improvements made 
   - Zero Pylance errors across the codebase
 
 ### December 14, 2025
-- ✅ **Core System Refactoring**: 
+- ✅ **Core System Refactoring**:
   - Unified and refactored main entry point
   - Full BruteForce backend integration for similarity system
   - Complete duplicate planning implementation
@@ -278,6 +278,6 @@ This document summarizes the recent documentation updates and improvements made 
 
 ---
 
-**Documentation Summary Generated**: 2025-12-18  
-**Maintainer**: NoDupeLabs Development Team  
+**Documentation Summary Generated**: 2025-12-18
+**Maintainer**: NoDupeLabs Development Team
 **Status**: Documentation actively maintained and updated

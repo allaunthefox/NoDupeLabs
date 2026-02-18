@@ -17,8 +17,9 @@ Dependencies:
     - typing (standard library only)
 """
 
-from typing import Optional, List, Dict, Any
 import pickle
+from typing import Any, Optional
+
 from .connection import DatabaseConnection
 
 
@@ -40,7 +41,13 @@ class EmbeddingRepository:
         """
         self.db = db_connection
 
-    def add_embedding(self, file_id: int, embedding: Any, model_version: str, created_time: int) -> Optional[int]:
+    def add_embedding(
+        self,
+        file_id: int,
+        embedding: Any,
+        model_version: str,
+        created_time: int,
+    ) -> Optional[int]:
         """Add embedding to database.
 
         Args:
@@ -57,18 +64,18 @@ class EmbeddingRepository:
             embedding_bytes = pickle.dumps(embedding)
 
             cursor = self.db.execute(
-                '''
+                """
                 INSERT INTO embeddings (file_id, embedding, model_version, created_time)
                 VALUES (?, ?, ?, ?)
-                ''',
-                (file_id, embedding_bytes, model_version, created_time)
+                """,
+                (file_id, embedding_bytes, model_version, created_time),
             )
             return cursor.lastrowid
         except Exception as e:
             print(f"[ERROR] Failed to add embedding: {e}")
             raise
 
-    def get_embedding(self, embedding_id: int) -> Optional[Dict[str, Any]]:
+    def get_embedding(self, embedding_id: int) -> Optional[dict[str, Any]]:
         """Get embedding by ID.
 
         Args:
@@ -79,24 +86,25 @@ class EmbeddingRepository:
         """
         try:
             cursor = self.db.execute(
-                'SELECT * FROM embeddings WHERE id = ?',
-                (embedding_id,)
+                "SELECT * FROM embeddings WHERE id = ?", (embedding_id,)
             )
             row = cursor.fetchone()
             if row:
                 return {
-                    'id': row[0],
-                    'file_id': row[1],
-                    'embedding': pickle.loads(row[2]),
-                    'model_version': row[3],
-                    'created_time': row[4]
+                    "id": row[0],
+                    "file_id": row[1],
+                    "embedding": pickle.loads(row[2]),
+                    "model_version": row[3],
+                    "created_time": row[4],
                 }
             return None
         except Exception as e:
             print(f"[ERROR] Failed to get embedding: {e}")
             raise
 
-    def get_embedding_by_file(self, file_id: int, model_version: str) -> Optional[Dict[str, Any]]:
+    def get_embedding_by_file(
+        self, file_id: int, model_version: str
+    ) -> Optional[dict[str, Any]]:
         """Get embedding by file ID and model version.
 
         Args:
@@ -108,24 +116,24 @@ class EmbeddingRepository:
         """
         try:
             cursor = self.db.execute(
-                'SELECT * FROM embeddings WHERE file_id = ? AND model_version = ?',
-                (file_id, model_version)
+                "SELECT * FROM embeddings WHERE file_id = ? AND model_version = ?",
+                (file_id, model_version),
             )
             row = cursor.fetchone()
             if row:
                 return {
-                    'id': row[0],
-                    'file_id': row[1],
-                    'embedding': pickle.loads(row[2]),
-                    'model_version': row[3],
-                    'created_time': row[4]
+                    "id": row[0],
+                    "file_id": row[1],
+                    "embedding": pickle.loads(row[2]),
+                    "model_version": row[3],
+                    "created_time": row[4],
                 }
             return None
         except Exception as e:
             print(f"[ERROR] Failed to get embedding by file: {e}")
             raise
 
-    def get_embeddings_by_file(self, file_id: int) -> List[Dict[str, Any]]:
+    def get_embeddings_by_file(self, file_id: int) -> list[dict[str, Any]]:
         """Get all embeddings for a file.
 
         Args:
@@ -136,16 +144,16 @@ class EmbeddingRepository:
         """
         try:
             cursor = self.db.execute(
-                'SELECT * FROM embeddings WHERE file_id = ? ORDER BY model_version',
-                (file_id,)
+                "SELECT * FROM embeddings WHERE file_id = ? ORDER BY model_version",
+                (file_id,),
             )
             return [
                 {
-                    'id': row[0],
-                    'file_id': row[1],
-                    'embedding': pickle.loads(row[2]),
-                    'model_version': row[3],
-                    'created_time': row[4]
+                    "id": row[0],
+                    "file_id": row[1],
+                    "embedding": pickle.loads(row[2]),
+                    "model_version": row[3],
+                    "created_time": row[4],
                 }
                 for row in cursor.fetchall()
             ]
@@ -153,7 +161,9 @@ class EmbeddingRepository:
             print(f"[ERROR] Failed to get embeddings by file: {e}")
             raise
 
-    def get_embeddings_by_model(self, model_version: str) -> List[Dict[str, Any]]:
+    def get_embeddings_by_model(
+        self, model_version: str
+    ) -> list[dict[str, Any]]:
         """Get all embeddings for a model version.
 
         Args:
@@ -164,16 +174,16 @@ class EmbeddingRepository:
         """
         try:
             cursor = self.db.execute(
-                'SELECT * FROM embeddings WHERE model_version = ? ORDER BY file_id',
-                (model_version,)
+                "SELECT * FROM embeddings WHERE model_version = ? ORDER BY file_id",
+                (model_version,),
             )
             return [
                 {
-                    'id': row[0],
-                    'file_id': row[1],
-                    'embedding': pickle.loads(row[2]),
-                    'model_version': row[3],
-                    'created_time': row[4]
+                    "id": row[0],
+                    "file_id": row[1],
+                    "embedding": pickle.loads(row[2]),
+                    "model_version": row[3],
+                    "created_time": row[4],
                 }
                 for row in cursor.fetchall()
             ]
@@ -196,8 +206,8 @@ class EmbeddingRepository:
             embedding_bytes = pickle.dumps(embedding)
 
             cursor = self.db.execute(
-                'UPDATE embeddings SET embedding = ? WHERE id = ?',
-                (embedding_bytes, embedding_id)
+                "UPDATE embeddings SET embedding = ? WHERE id = ?",
+                (embedding_bytes, embedding_id),
             )
             return cursor.rowcount > 0
         except Exception as e:
@@ -215,8 +225,7 @@ class EmbeddingRepository:
         """
         try:
             cursor = self.db.execute(
-                'DELETE FROM embeddings WHERE id = ?',
-                (embedding_id,)
+                "DELETE FROM embeddings WHERE id = ?", (embedding_id,)
             )
             return cursor.rowcount > 0
         except Exception as e:
@@ -234,8 +243,7 @@ class EmbeddingRepository:
         """
         try:
             cursor = self.db.execute(
-                'DELETE FROM embeddings WHERE file_id = ?',
-                (file_id,)
+                "DELETE FROM embeddings WHERE file_id = ?", (file_id,)
             )
             return cursor.rowcount
         except Exception as e:
@@ -253,29 +261,31 @@ class EmbeddingRepository:
         """
         try:
             cursor = self.db.execute(
-                'DELETE FROM embeddings WHERE model_version = ?',
-                (model_version,)
+                "DELETE FROM embeddings WHERE model_version = ?",
+                (model_version,),
             )
             return cursor.rowcount
         except Exception as e:
             print(f"[ERROR] Failed to delete embeddings by model: {e}")
             raise
 
-    def get_all_embeddings(self) -> List[Dict[str, Any]]:
+    def get_all_embeddings(self) -> list[dict[str, Any]]:
         """Get all embeddings from database.
 
         Returns:
             List of all embeddings
         """
         try:
-            cursor = self.db.execute('SELECT * FROM embeddings ORDER BY file_id, model_version')
+            cursor = self.db.execute(
+                "SELECT * FROM embeddings ORDER BY file_id, model_version"
+            )
             return [
                 {
-                    'id': row[0],
-                    'file_id': row[1],
-                    'embedding': pickle.loads(row[2]),
-                    'model_version': row[3],
-                    'created_time': row[4]
+                    "id": row[0],
+                    "file_id": row[1],
+                    "embedding": pickle.loads(row[2]),
+                    "model_version": row[3],
+                    "created_time": row[4],
                 }
                 for row in cursor.fetchall()
             ]
@@ -290,7 +300,7 @@ class EmbeddingRepository:
             Total embedding count
         """
         try:
-            cursor = self.db.execute('SELECT COUNT(*) FROM embeddings')
+            cursor = self.db.execute("SELECT COUNT(*) FROM embeddings")
             return cursor.fetchone()[0]
         except Exception as e:
             print(f"[ERROR] Failed to count embeddings: {e}")
@@ -307,15 +317,15 @@ class EmbeddingRepository:
         """
         try:
             cursor = self.db.execute(
-                'SELECT COUNT(*) FROM embeddings WHERE model_version = ?',
-                (model_version,)
+                "SELECT COUNT(*) FROM embeddings WHERE model_version = ?",
+                (model_version,),
             )
             return cursor.fetchone()[0]
         except Exception as e:
             print(f"[ERROR] Failed to count embeddings by model: {e}")
             raise
 
-    def batch_add_embeddings(self, embeddings: List[Dict[str, Any]]) -> int:
+    def batch_add_embeddings(self, embeddings: list[dict[str, Any]]) -> int:
         """Add multiple embeddings in batch.
 
         Args:
@@ -330,19 +340,19 @@ class EmbeddingRepository:
         try:
             data = [
                 (
-                    emb_data['file_id'],
-                    pickle.dumps(emb_data['embedding']),
-                    emb_data['model_version'],
-                    emb_data['created_time']
+                    emb_data["file_id"],
+                    pickle.dumps(emb_data["embedding"]),
+                    emb_data["model_version"],
+                    emb_data["created_time"],
                 )
                 for emb_data in embeddings
             ]
 
             self.db.executemany(
-                '''INSERT INTO embeddings
+                """INSERT INTO embeddings
                 (file_id, embedding, model_version, created_time)
-                VALUES (?, ?, ?, ?)''',
-                [tuple(item) for item in data]
+                VALUES (?, ?, ?, ?)""",
+                [tuple(item) for item in data],
             )
             return len(embeddings)
         except Exception as e:  # pylint: disable=broad-exception-caught
@@ -352,14 +362,16 @@ class EmbeddingRepository:
     def clear_all_embeddings(self) -> None:
         """Clear all embeddings from database."""
         try:
-            self.db.execute('DELETE FROM embeddings')
+            self.db.execute("DELETE FROM embeddings")
             self.db.commit()
         except Exception as e:
             print(f"[ERROR] Failed to clear all embeddings: {e}")
             raise
 
 
-def get_embedding_repository(db_path: str = "output/index.db") -> EmbeddingRepository:
+def get_embedding_repository(
+    db_path: str = "output/index.db",
+) -> EmbeddingRepository:
     """Get embedding repository instance.
 
     Args:

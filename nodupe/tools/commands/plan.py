@@ -7,10 +7,11 @@ This tool bridges the gap between 'scan' and 'apply' by creating
 an execution plan based on duplicate detection results.
 """
 
-from nodupe.core.tool_system.base import Tool
-from typing import Any, Dict
 import argparse
 import json
+from typing import Any
+
+from nodupe.core.tool_system.base import Tool
 
 # Tool manager is injected by the core system
 PM = None
@@ -43,17 +44,37 @@ class PlanTool(Tool):
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
-        return {'commands': ['plan'], 'strategies': ['newest', 'oldest', 'interactive']}
+        return {
+            "commands": ["plan"],
+            "strategies": ["newest", "oldest", "interactive"],
+        }
+
+    @property
+    def api_methods(self) -> dict[str, Any]:
+        """Programmatic API methods exposed by this tool."""
+        return {"plan.execute": self.execute_plan}
+
+    def run_standalone(self, args: list[str]) -> int:
+        """Run tool in standalone mode (minimal stub for tests)."""
+        return 0
+
+    def describe_usage(self) -> str:
+        """Return a short usage description."""
+        return "Plan tool — generate execution plans from scan results."
 
     def _on_plan_start(self, **kwargs: Any) -> None:
         """Handle plan start event."""
-        print(f"[TOOL] Planning started with strategy: {kwargs.get('strategy', 'unknown')}")
+        print(
+            f"[TOOL] Planning started with strategy: {kwargs.get('strategy', 'unknown')}"
+        )
 
     def _on_plan_complete(self, **kwargs: Any) -> None:
         """Handle plan complete event."""
-        print(f"[TOOL] Planning completed. Actions generated: {kwargs.get('action_count', 0)}")
+        print(
+            f"[TOOL] Planning completed. Actions generated: {kwargs.get('action_count', 0)}"
+        )
 
     def register_commands(self, subparsers: Any) -> None:
         """Register plan command with argument parser.
@@ -61,10 +82,18 @@ class PlanTool(Tool):
         Args:
             subparsers: Argument parser subparsers
         """
-        parser = subparsers.add_parser('plan', help='Create execution plan from scan results')
-        parser.add_argument('--strategy', choices=['newest', 'oldest', 'interactive'],
-                            default='newest', help='Strategy to select keeper file')
-        parser.add_argument('--output', '-o', default='plan.json', help='Output plan file path')
+        parser = subparsers.add_parser(
+            "plan", help="Create execution plan from scan results"
+        )
+        parser.add_argument(
+            "--strategy",
+            choices=["newest", "oldest", "interactive"],
+            default="newest",
+            help="Strategy to select keeper file",
+        )
+        parser.add_argument(
+            "--output", "-o", default="plan.json", help="Output plan file path"
+        )
         parser.set_defaults(func=self.execute_plan)
 
     def execute_plan(self, args: argparse.Namespace) -> int:
@@ -81,18 +110,21 @@ class PlanTool(Tool):
             print(f"[TOOL] Executing plan with strategy: {args.strategy}")
 
             # 1. Get Services
-            container = getattr(args, 'container', None)
+            container = getattr(args, "container", None)
             if not container:
                 from nodupe.core.container import container as global_container
+
                 container = global_container
 
-            db = container.get_service('database')
+            db = container.get_service("database")
             if not db:
                 print("[ERROR] Database service not available")
                 from nodupe.core.database.connection import DatabaseConnection
+
                 db = DatabaseConnection.get_instance()
 
             from nodupe.core.database.files import FileRepository
+
             repo = FileRepository(db)
             files = repo.get_all_files()
 
@@ -104,11 +136,11 @@ class PlanTool(Tool):
             print(f"[TOOL] Grouping {len(files)} files by hash...")
             groups = {}
             for f in files:
-                if not f.get('hash'):
+                if not f.get("hash"):
                     continue
-                if f['hash'] not in groups:
-                    groups[f['hash']] = []
-                groups[f['hash']].append(f)
+                if f["hash"] not in groups:
+                    groups[f["hash"]] = []
+                groups[f["hash"]].append(f)
 
             action_plan = []
             stats = {"total_groups": 0, "duplicates_found": 0, "reassigned": 0}
@@ -123,15 +155,17 @@ class PlanTool(Tool):
 
                 # Sort group based on strategy
                 # The first item in sorted list will be the KEEPER (Original)
-                if args.strategy == 'newest':
+                if args.strategy == "newest":
                     # Keep newest modified: Sort descending by mtime
-                    group.sort(key=lambda x: x.get('modified_time', 0), reverse=True)
-                elif args.strategy == 'oldest':
+                    group.sort(
+                        key=lambda x: x.get("modified_time", 0), reverse=True
+                    )
+                elif args.strategy == "oldest":
                     # Keep oldest modified: Sort ascending by mtime
-                    group.sort(key=lambda x: x.get('modified_time', 0))
+                    group.sort(key=lambda x: x.get("modified_time", 0))
                 else:
                     # Default/Interactive: Keep shortest path length (preferred usually)
-                    group.sort(key=lambda x: len(x['path']))
+                    group.sort(key=lambda x: len(x["path"]))
 
                 keeper = group[0]
                 duplicates = group[1:]
@@ -140,26 +174,30 @@ class PlanTool(Tool):
 
                 # 4. Generate Actions & Update DB
                 # Ensure keeper is NOT marked as duplicate
-                if keeper.get('is_duplicate'):
-                    repo.mark_as_original(keeper['id'])
+                if keeper.get("is_duplicate"):
+                    repo.mark_as_original(keeper["id"])
                     stats["reassigned"] += 1
 
-                action_plan.append({
-                    "type": "KEEP",
-                    "path": keeper['path'],
-                    "reason": f"Selected by {args.strategy} strategy (id={keeper['id']})"
-                })
+                action_plan.append(
+                    {
+                        "type": "KEEP",
+                        "path": keeper["path"],
+                        "reason": f"Selected by {args.strategy} strategy (id={keeper['id']})",
+                    }
+                )
 
                 for dup in duplicates:
                     # Update DB to point to new keeper
-                    repo.mark_as_duplicate(dup['id'], keeper['id'])
+                    repo.mark_as_duplicate(dup["id"], keeper["id"])
 
-                    action_plan.append({
-                        "type": "DELETE",  # Or implies 'process'
-                        "path": dup['path'],
-                        "duplicate_of": keeper['path'],
-                        "reason": f"Duplicate of {keeper['path']}"
-                    })
+                    action_plan.append(
+                        {
+                            "type": "DELETE",  # Or implies 'process'
+                            "path": dup["path"],
+                            "duplicate_of": keeper["path"],
+                            "reason": f"Duplicate of {keeper['path']}",
+                        }
+                    )
 
             # 5. Output JSON Plan
             plan_data = {
@@ -167,20 +205,22 @@ class PlanTool(Tool):
                     "strategy": args.strategy,
                     "version": "1.0",
                     "generated_at": "2025-12-14",
-                    "stats": stats
+                    "stats": stats,
                 },
-                "actions": action_plan
+                "actions": action_plan,
             }
 
-            with open(args.output, 'w') as f:
+            with open(args.output, "w") as f:
                 json.dump(plan_data, f, indent=2)
 
             print(f"[TOOL] Plan saved to {args.output}")
             print(
-                f"[TOOL] Summary: {stats['duplicates_found']} duplicates identified in {stats['total_groups']} groups.")
-            if stats['reassigned'] > 0:
+                f"[TOOL] Summary: {stats['duplicates_found']} duplicates identified in {stats['total_groups']} groups."
+            )
+            if stats["reassigned"] > 0:
                 print(
-                    f"[TOOL] Reassigned {stats['reassigned']} files as originals based on strategy.")
+                    f"[TOOL] Reassigned {stats['reassigned']} files as originals based on strategy."
+                )
 
             self._on_plan_complete(action_count=len(action_plan))
             return 0
@@ -200,4 +240,4 @@ def register_tool():
 
 
 # Export tool interface
-__all__ = ['plan_tool', 'register_tool']
+__all__ = ["plan_tool", "register_tool"]

@@ -7,16 +7,21 @@ This module tests authentication and authorization, data protection mechanisms,
 secure file handling, and tool security boundaries.
 """
 
-import pytest
-import sys
-import os
-import tempfile
 import json
-from unittest.mock import patch, MagicMock
+import os
+import sys
+import tempfile
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.main import main
-from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.apply import ApplyTool
-from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.similarity import (
+    SimilarityCommandTool as SimilarityTool,
+)
+
 
 class TestAuthenticationAuthorization:
     """Test authentication and authorization mechanisms."""
@@ -24,12 +29,12 @@ class TestAuthenticationAuthorization:
     def test_cli_authentication_mechanisms(self):
         """Test CLI authentication mechanisms."""
         # Test version command (should not require auth)
-        with patch('sys.argv', ['nodupe', 'version']):
+        with patch("sys.argv", ["nodupe", "version"]):
             result = main()
             assert result == 0
 
         # Test help command (should not require auth)
-        with patch('sys.argv', ['nodupe', '--help']):
+        with patch("sys.argv", ["nodupe", "--help"]):
             with pytest.raises(SystemExit) as excinfo:
                 main()
             assert excinfo.value.code == 0
@@ -37,7 +42,7 @@ class TestAuthenticationAuthorization:
     def test_tool_authorization(self):
         """Test tool authorization mechanisms."""
         # Test tool list command
-        with patch('sys.argv', ['nodupe', 'tool', '--list']):
+        with patch("sys.argv", ["nodupe", "tool", "--list"]):
             result = main()
             assert result == 0
 
@@ -50,6 +55,7 @@ class TestAuthenticationAuthorization:
         assert apply_tool.name == "apply"
         assert apply_tool.version == "1.0.0"
 
+
 class TestDataProtection:
     """Test data protection mechanisms."""
 
@@ -58,9 +64,18 @@ class TestDataProtection:
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create test files with sensitive content
             sensitive_files = [
-                ("PASSWORD_REMOVEDs.txt", "user:PASSWORD_REMOVED123\nadmin:admin456"),
-                ("config.json", '{"API_KEY_REMOVED": "SECRET_REMOVED123", "TOKEN_REMOVED": "abc456"}'),
-                ("CREDENTIAL_REMOVEDs.txt", "database:user:pass\nservice:api:key")
+                (
+                    "PASSWORD_REMOVEDs.txt",
+                    "user:PASSWORD_REMOVED123\nadmin:admin456",
+                ),
+                (
+                    "config.json",
+                    '{"API_KEY_REMOVED": "SECRET_REMOVED123", "TOKEN_REMOVED": "abc456"}',
+                ),
+                (
+                    "CREDENTIAL_REMOVEDs.txt",
+                    "database:user:pass\nservice:api:key",
+                ),
             ]
 
             for filename, content in sensitive_files:
@@ -96,9 +111,17 @@ class TestDataProtection:
                     {
                         "hash": "sensitive_hash",
                         "files": [
-                            {"path": "/secure/location/PASSWORD_REMOVEDs.txt", "size": 100, "type": "txt"},
-                            {"path": "/secure/location/keys.txt", "size": 100, "type": "txt"}
-                        ]
+                            {
+                                "path": "/secure/location/PASSWORD_REMOVEDs.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                            {
+                                "path": "/secure/location/keys.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                        ],
                     }
                 ]
             }
@@ -117,6 +140,7 @@ class TestDataProtection:
             apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0  # Should handle sensitive paths properly
 
+
 class TestSecureFileHandling:
     """Test secure file handling mechanisms."""
 
@@ -129,16 +153,16 @@ class TestSecureFileHandling:
                 ("empty.txt", ""),
                 ("special_chars.txt", "Special: ñ, ü, é, ß, ©, ®"),
                 ("unicode.txt", "Unicode: 🔒 🔑 🔐"),
-                ("binary.dat", b'\x00\x01\x02\x03\x04\x05')
+                ("binary.dat", b"\x00\x01\x02\x03\x04\x05"),
             ]
 
             for filename, content in test_files:
                 test_file = os.path.join(temp_dir, filename)
-                if filename.endswith('.dat'):
+                if filename.endswith(".dat"):
                     with open(test_file, "wb") as f:
                         f.write(content)
                 else:
-                    with open(test_file, "w", encoding='utf-8') as f:
+                    with open(test_file, "w", encoding="utf-8") as f:
                         f.write(content)
 
             # Mock container and services
@@ -169,9 +193,17 @@ class TestSecureFileHandling:
                     {
                         "hash": "secure_hash",
                         "files": [
-                            {"path": "/var/secure/file1.txt", "size": 150, "type": "txt"},
-                            {"path": "/var/secure/file2.txt", "size": 150, "type": "txt"}
-                        ]
+                            {
+                                "path": "/var/secure/file1.txt",
+                                "size": 150,
+                                "type": "txt",
+                            },
+                            {
+                                "path": "/var/secure/file2.txt",
+                                "size": 150,
+                                "type": "txt",
+                            },
+                        ],
                     }
                 ]
             }
@@ -188,7 +220,10 @@ class TestSecureFileHandling:
             apply_args.verbose = False
 
             apply_result = apply_tool.execute_apply(apply_args)
-            assert apply_result == 0  # Should handle secure file references properly
+            assert (
+                apply_result == 0
+            )  # Should handle secure file references properly
+
 
 class TestToolSecurity:
     """Test tool security boundaries."""
@@ -250,8 +285,12 @@ class TestToolSecurity:
                     {
                         "hash": "apply_hash",
                         "files": [
-                            {"path": "/tmp/apply_test.txt", "size": 100, "type": "txt"}
-                        ]
+                            {
+                                "path": "/tmp/apply_test.txt",
+                                "size": 100,
+                                "type": "txt",
+                            }
+                        ],
                     }
                 ]
             }
@@ -270,6 +309,7 @@ class TestToolSecurity:
             apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0
 
+
 class TestSecurityValidation:
     """Test security validation procedures."""
 
@@ -286,23 +326,15 @@ class TestSecurityValidation:
             scan_tool = ScanTool()
             security_scenarios = [
                 # Normal scenario
-                {
-                    "paths": [temp_dir],
-                    "container": MagicMock(),
-                    "expected": 0
-                },
+                {"paths": [temp_dir], "container": MagicMock(), "expected": 0},
                 # Protected directory scenario
-                {
-                    "paths": ["/etc"],
-                    "container": None,
-                    "expected": "int"
-                },
+                {"paths": ["/etc"], "container": None, "expected": "int"},
                 # Mixed valid/invalid scenario
                 {
                     "paths": [temp_dir, "/invalid"],
                     "container": MagicMock(),
-                    "expected": 0
-                }
+                    "expected": 0,
+                },
             ]
 
             for scenario in security_scenarios:
@@ -337,9 +369,17 @@ class TestSecurityValidation:
                     {
                         "hash": "valid_security_hash",
                         "files": [
-                            {"path": "/tmp/valid1.txt", "size": 100, "type": "txt"},
-                            {"path": "/tmp/valid2.txt", "size": 100, "type": "txt"}
-                        ]
+                            {
+                                "path": "/tmp/valid1.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                            {
+                                "path": "/tmp/valid2.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                        ],
                     }
                 ]
             }
@@ -351,23 +391,11 @@ class TestSecurityValidation:
             apply_tool = ApplyTool()
             security_scenarios = [
                 # Normal scenario
-                {
-                    "input": valid_file,
-                    "action": "list",
-                    "expected": 0
-                },
+                {"input": valid_file, "action": "list", "expected": 0},
                 # Invalid file scenario
-                {
-                    "input": "/etc/passwd",
-                    "action": "list",
-                    "expected": "int"
-                },
+                {"input": "/etc/passwd", "action": "list", "expected": "int"},
                 # Protected action scenario
-                {
-                    "input": valid_file,
-                    "action": "delete",
-                    "expected": 0
-                }
+                {"input": valid_file, "action": "delete", "expected": 0},
             ]
 
             for scenario in security_scenarios:
@@ -385,6 +413,7 @@ class TestSecurityValidation:
                 else:
                     assert isinstance(apply_result, int)
 
+
 class TestPenetrationTesting:
     """Test basic penetration testing scenarios."""
 
@@ -395,7 +424,7 @@ class TestPenetrationTesting:
             ["../../../etc/passwd"],
             ["../../../etc/shadow"],
             ["/dev/null"],
-            ["/proc/self/mem"]
+            ["/proc/self/mem"],
         ]
 
         scan_tool = ScanTool()
@@ -422,21 +451,33 @@ class TestPenetrationTesting:
                 # Very large file size
                 {
                     "files": [
-                        {"path": "/tmp/huge.txt", "size": 999999999999, "type": "txt"}
+                        {
+                            "path": "/tmp/huge.txt",
+                            "size": 999999999999,
+                            "type": "txt",
+                        }
                     ]
                 },
                 # Malicious path patterns
                 {
                     "files": [
-                        {"path": "../../../../etc/passwd", "size": 100, "type": "txt"}
+                        {
+                            "path": "../../../../etc/passwd",
+                            "size": 100,
+                            "type": "txt",
+                        }
                     ]
                 },
                 # Special characters in paths
                 {
                     "files": [
-                        {"path": "/tmp/file;rm -rf;.txt", "size": 100, "type": "txt"}
+                        {
+                            "path": "/tmp/file;rm -rf;.txt",
+                            "size": 100,
+                            "type": "txt",
+                        }
                     ]
-                }
+                },
             ]
 
             apply_tool = ApplyTool()
@@ -445,10 +486,7 @@ class TestPenetrationTesting:
                 malicious_file = os.path.join(temp_dir, "malicious.json")
                 malicious_data = {
                     "duplicate_groups": [
-                        {
-                            "hash": "malicious_hash",
-                            "files": scenario["files"]
-                        }
+                        {"hash": "malicious_hash", "files": scenario["files"]}
                     ]
                 }
 
@@ -465,6 +503,7 @@ class TestPenetrationTesting:
                 apply_result = apply_tool.execute_apply(apply_args)
                 # Should handle potentially malicious input securely
                 assert isinstance(apply_result, int)
+
 
 class TestSecurityAudit:
     """Test security audit procedures."""
@@ -485,9 +524,17 @@ class TestSecurityAudit:
                     {
                         "hash": f"audit_hash_{i}",
                         "files": [
-                            {"path": f"{temp_dir}/audit_{i}.txt", "size": 100 + i, "type": "txt"},
-                            {"path": f"{temp_dir}/audit_{i+1}.txt", "size": 100 + i, "type": "txt"}
-                        ]
+                            {
+                                "path": f"{temp_dir}/audit_{i}.txt",
+                                "size": 100 + i,
+                                "type": "txt",
+                            },
+                            {
+                                "path": f"{temp_dir}/audit_{i+1}.txt",
+                                "size": 100 + i,
+                                "type": "txt",
+                            },
+                        ],
                     }
                     for i in range(0, 8, 2)
                 ]
@@ -514,7 +561,7 @@ class TestSecurityAudit:
             audit_operations = [
                 ("scan", scan_tool, [temp_dir]),
                 ("apply", apply_tool, audit_file),
-                ("similarity", similarity_tool, query_file)
+                ("similarity", similarity_tool, query_file),
             ]
 
             security_results = []
@@ -565,19 +612,20 @@ class TestSecurityAudit:
         # Test that system maintains security compliance
         security_checks = [
             # CLI security
-            ("version", ['nodupe', 'version']),
-            ("help", ['nodupe', '--help']),
-            ("tool_list", ['nodupe', 'tool', '--list'])
+            ("version", ["nodupe", "version"]),
+            ("help", ["nodupe", "--help"]),
+            ("tool_list", ["nodupe", "tool", "--list"]),
         ]
 
         for check_name, args in security_checks:
-            with patch('sys.argv', args):
+            with patch("sys.argv", args):
                 if "help" in check_name:
                     with pytest.raises(SystemExit):
                         main()
                 else:
                     result = main()
                     assert result == 0
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

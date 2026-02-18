@@ -16,7 +16,7 @@ Dependencies:
 """
 
 import sqlite3
-from typing import List, Dict, Any, Optional
+from typing import Any, Optional
 
 
 class IndexingError(Exception):
@@ -48,7 +48,7 @@ class DatabaseIndexing:
             cursor = self.connection.cursor()
 
             # Files table indexes (from schema)
-            indexes: List[str] = [
+            indexes: list[str] = [
                 "CREATE INDEX IF NOT EXISTS idx_files_path ON files(path)",
                 "CREATE INDEX IF NOT EXISTS idx_files_size ON files(size)",
                 "CREATE INDEX IF NOT EXISTS idx_files_hash ON files(hash)",
@@ -56,24 +56,20 @@ class DatabaseIndexing:
                 "CREATE INDEX IF NOT EXISTS idx_files_duplicate_of ON files(duplicate_of)",
                 "CREATE INDEX IF NOT EXISTS idx_files_status ON files(status)",
                 "CREATE INDEX IF NOT EXISTS idx_files_modified_time ON files(modified_time)",
-
                 # Embeddings table indexes
                 "CREATE INDEX IF NOT EXISTS idx_embeddings_file_id ON embeddings(file_id)",
                 "CREATE INDEX IF NOT EXISTS idx_embeddings_model_version ON embeddings(model_version)",
                 "CREATE INDEX IF NOT EXISTS idx_embeddings_created_time ON embeddings(created_time)",
-
                 # File relationships indexes
                 "CREATE INDEX IF NOT EXISTS idx_file_relationships_file1_id ON file_relationships(file1_id)",
                 "CREATE INDEX IF NOT EXISTS idx_file_relationships_file2_id ON file_relationships(file2_id)",
                 "CREATE INDEX IF NOT EXISTS idx_file_relationships_type ON file_relationships(relationship_type)",
                 "CREATE INDEX IF NOT EXISTS idx_file_relationships_similarity ON file_relationships(similarity_score)",
-
                 # Plugins table indexes
                 "CREATE INDEX IF NOT EXISTS idx_tools_name ON tools(name)",
                 "CREATE INDEX IF NOT EXISTS idx_tools_type ON tools(type)",
                 "CREATE INDEX IF NOT EXISTS idx_tools_status ON tools(status)",
                 "CREATE INDEX IF NOT EXISTS idx_tools_enabled ON tools(enabled)",
-
                 # Composite indexes for common queries
                 (
                     "CREATE INDEX IF NOT EXISTS idx_files_status_duplicate "
@@ -114,9 +110,9 @@ class DatabaseIndexing:
         self,
         index_name: str,
         table_name: str,
-        columns: List[str],
+        columns: list[str],
         unique: bool = False,
-        if_not_exists: bool = True
+        if_not_exists: bool = True,
     ) -> None:
         """Create a custom index.
 
@@ -148,7 +144,9 @@ class DatabaseIndexing:
 
         except sqlite3.Error as e:
             self.connection.rollback()
-            raise IndexingError(f"Failed to create index {index_name}: {e}") from e
+            raise IndexingError(
+                f"Failed to create index {index_name}: {e}"
+            ) from e
 
     def drop_index(self, index_name: str, if_exists: bool = True) -> None:
         """Drop an index.
@@ -171,9 +169,13 @@ class DatabaseIndexing:
 
         except sqlite3.Error as e:
             self.connection.rollback()
-            raise IndexingError(f"Failed to drop index {index_name}: {e}") from e
+            raise IndexingError(
+                f"Failed to drop index {index_name}: {e}"
+            ) from e
 
-    def get_indexes(self, table_name: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_indexes(
+        self, table_name: Optional[str] = None
+    ) -> list[dict[str, Any]]:
         """Get list of indexes.
 
         Args:
@@ -192,7 +194,7 @@ class DatabaseIndexing:
                 cursor.execute(
                     "SELECT name, tbl_name, sql FROM sqlite_master "
                     "WHERE type='index' AND tbl_name=? AND name NOT LIKE 'sqlite_%'",
-                    (table_name,)
+                    (table_name,),
                 )
             else:
                 cursor.execute(
@@ -200,20 +202,16 @@ class DatabaseIndexing:
                     "WHERE type='index' AND name NOT LIKE 'sqlite_%'"
                 )
 
-            indexes: List[Dict[str, Any]] = []
+            indexes: list[dict[str, Any]] = []
             for row in cursor.fetchall():
-                indexes.append({
-                    'name': row[0],
-                    'table': row[1],
-                    'sql': row[2]
-                })
+                indexes.append({"name": row[0], "table": row[1], "sql": row[2]})
 
             return indexes
 
         except sqlite3.Error as e:
             raise IndexingError(f"Failed to get indexes: {e}") from e
 
-    def get_index_info(self, index_name: str) -> List[Dict[str, Any]]:
+    def get_index_info(self, index_name: str) -> list[dict[str, Any]]:
         """Get detailed information about an index.
 
         Args:
@@ -229,20 +227,18 @@ class DatabaseIndexing:
             cursor = self.connection.cursor()
             cursor.execute(f"PRAGMA index_info({index_name})")
 
-            columns: List[Dict[str, Any]] = []
+            columns: list[dict[str, Any]] = []
             for row in cursor.fetchall():
-                columns.append({
-                    'seqno': row[0],
-                    'cid': row[1],
-                    'name': row[2]
-                })
+                columns.append({"seqno": row[0], "cid": row[1], "name": row[2]})
 
             return columns
 
         except sqlite3.Error as e:
-            raise IndexingError(f"Failed to get index info for {index_name}: {e}") from e
+            raise IndexingError(
+                f"Failed to get index info for {index_name}: {e}"
+            ) from e
 
-    def analyze_query(self, query: str) -> List[Dict[str, Any]]:
+    def analyze_query(self, query: str) -> list[dict[str, Any]]:
         """Analyze query execution plan.
 
         Args:
@@ -258,13 +254,13 @@ class DatabaseIndexing:
             cursor = self.connection.cursor()
             cursor.execute(f"EXPLAIN QUERY PLAN {query}")
 
-            plan: List[Dict[str, Any]] = []
+            plan: list[dict[str, Any]] = []
             rows = cursor.fetchall()
             for row in rows:
-                plan_item: Dict[str, Any] = {
-                    'id': row[0],
-                    'parent': row[1],
-                    'detail': row[3] if len(row) > 3 else row[2]
+                plan_item: dict[str, Any] = {
+                    "id": row[0],
+                    "parent": row[1],
+                    "detail": row[3] if len(row) > 3 else row[2],
                 }
                 plan.append(plan_item)
 
@@ -290,7 +286,7 @@ class DatabaseIndexing:
             plan = self.analyze_query(query)
 
             for step in plan:
-                detail = step.get('detail', '').lower()
+                detail = step.get("detail", "").lower()
                 if index_name.lower() in detail:
                     return True
 
@@ -301,7 +297,7 @@ class DatabaseIndexing:
                 raise
             raise IndexingError(f"Index usage check failed: {e}") from e
 
-    def get_table_stats(self, table_name: str) -> Dict[str, Any]:
+    def get_table_stats(self, table_name: str) -> dict[str, Any]:
         """Get table statistics.
 
         Args:
@@ -322,8 +318,7 @@ class DatabaseIndexing:
 
             # Get table size (approximate)
             cursor.execute(
-                "SELECT SUM(pgsize) FROM dbstat WHERE name=?",
-                (table_name,)
+                "SELECT SUM(pgsize) FROM dbstat WHERE name=?", (table_name,)
             )
             result = cursor.fetchone()
             table_size = result[0] if result[0] else 0
@@ -332,19 +327,21 @@ class DatabaseIndexing:
             cursor.execute(
                 "SELECT COUNT(*) FROM sqlite_master "
                 "WHERE type='index' AND tbl_name=?",
-                (table_name,)
+                (table_name,),
             )
             index_count = cursor.fetchone()[0]
 
             return {
-                'table_name': table_name,
-                'row_count': row_count,
-                'table_size_bytes': table_size,
-                'index_count': index_count
+                "table_name": table_name,
+                "row_count": row_count,
+                "table_size_bytes": table_size,
+                "index_count": index_count,
             }
 
         except sqlite3.Error as e:
-            raise IndexingError(f"Failed to get table stats for {table_name}: {e}") from e
+            raise IndexingError(
+                f"Failed to get table stats for {table_name}: {e}"
+            ) from e
 
     def reindex(self, index_name: Optional[str] = None) -> None:
         """Rebuild indexes.
@@ -367,7 +364,7 @@ class DatabaseIndexing:
             self.connection.rollback()
             raise IndexingError(f"Reindex failed: {e}") from e
 
-    def find_missing_indexes(self) -> List[Dict[str, Any]]:
+    def find_missing_indexes(self) -> list[dict[str, Any]]:
         """Find tables without indexes (except primary key).
 
         Returns:
@@ -385,7 +382,7 @@ class DatabaseIndexing:
             )
             tables = [row[0] for row in cursor.fetchall()]
 
-            suggestions: List[Dict[str, Any]] = []
+            suggestions: list[dict[str, Any]] = []
 
             for table in tables:
                 # Get table info
@@ -395,7 +392,7 @@ class DatabaseIndexing:
                 # Get existing indexes
                 cursor.execute(
                     "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name=?",
-                    (table,)
+                    (table,),
                 )
                 indexes = [row[0] for row in cursor.fetchall()]
 
@@ -403,19 +400,27 @@ class DatabaseIndexing:
                 if not indexes:
                     # Suggest indexes on common column types
                     for col in columns:
-                        if col.lower() in ['id', 'created_at', 'updated_at', 'status', 'type']:
-                            suggestions.append({
-                                'table': table,
-                                'column': col,
-                                'reason': f'Common query column: {col}'
-                            })
+                        if col.lower() in [
+                            "id",
+                            "created_at",
+                            "updated_at",
+                            "status",
+                            "type",
+                        ]:
+                            suggestions.append(
+                                {
+                                    "table": table,
+                                    "column": col,
+                                    "reason": f"Common query column: {col}",
+                                }
+                            )
 
             return suggestions
 
         except sqlite3.Error as e:
             raise IndexingError(f"Missing index analysis failed: {e}") from e
 
-    def get_index_stats(self) -> Dict[str, Any]:
+    def get_index_stats(self) -> dict[str, Any]:
         """Get overall index statistics.
 
         Returns:
@@ -447,10 +452,12 @@ class DatabaseIndexing:
             total_tables = cursor.fetchone()[0]
 
             return {
-                'total_indexes': total_indexes,
-                'total_tables': total_tables,
-                'indexes_by_table': by_table,
-                'avg_indexes_per_table': total_indexes / total_tables if total_tables > 0 else 0
+                "total_indexes": total_indexes,
+                "total_tables": total_tables,
+                "indexes_by_table": by_table,
+                "avg_indexes_per_table": (
+                    total_indexes / total_tables if total_tables > 0 else 0
+                ),
             }
 
         except sqlite3.Error as e:
@@ -462,8 +469,8 @@ def create_covering_index(
     connection: sqlite3.Connection,
     index_name: str,
     table_name: str,
-    where_columns: List[str],
-    select_columns: List[str]
+    where_columns: list[str],
+    select_columns: list[str],
 ) -> None:
     """Create a covering index for a specific query pattern.
 
@@ -479,7 +486,9 @@ def create_covering_index(
     """
     try:
         # Combine columns (WHERE columns first, then SELECT columns)
-        all_columns = where_columns + [c for c in select_columns if c not in where_columns]
+        all_columns = where_columns + [
+            c for c in select_columns if c not in where_columns
+        ]
         columns_str = ", ".join(all_columns)
 
         index_sql = (

@@ -5,7 +5,11 @@ import traceback
 
 try:
     print("Attempting to import ToolCompatibility...")
-    from nodupe.core.tool_system.compatibility import ToolCompatibility, ToolCompatibilityError
+    from nodupe.core.tool_system.compatibility import (
+        ToolCompatibility,
+        ToolCompatibilityError,
+    )
+
     print("✅ Import successful!")
 
     # Try to create an instance
@@ -15,10 +19,10 @@ try:
 
     # Check if it has the expected methods
     print("Checking methods...")
-    assert hasattr(compat, 'check_compatibility')
-    assert hasattr(compat, 'get_compatibility_report')
-    assert hasattr(compat, 'initialize')
-    assert hasattr(compat, 'shutdown')
+    assert hasattr(compat, "check_compatibility")
+    assert hasattr(compat, "get_compatibility_report")
+    assert hasattr(compat, "initialize")
+    assert hasattr(compat, "shutdown")
     print("✅ All expected methods found!")
 
 except ImportError as e:

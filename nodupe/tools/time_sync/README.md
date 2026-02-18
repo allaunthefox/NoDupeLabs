@@ -104,11 +104,11 @@ try:
     print(f"Synchronized via NTP: {host}")
 except Exception as e:
     print(f"NTP failed: {e}")
-    
+
     # Fallback: Use automatic fallback strategy
     source, server_time, offset, delay = plugin.sync_with_fallback()
     print(f"Synchronized via {source}: offset={offset:.3f}s, delay={delay:.3f}s")
-    
+
     # Check synchronization status
     status = plugin.get_sync_status()
     print(f"Sync method: {status['sync_method']}")
@@ -351,7 +351,7 @@ current_time = plugin.get_corrected_fast64()
 
 # Store in database as integer
 # INSERT INTO events (timestamp, data) VALUES (?, ?)
-# cursor.execute("INSERT INTO events (timestamp, data) VALUES (?, ?)", 
+# cursor.execute("INSERT INTO events (timestamp, data) VALUES (?, ?)",
 #                (current_time, "event_data"))
 
 # Query and decode

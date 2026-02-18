@@ -2,22 +2,27 @@
 # Comprehensive test fixtures for database operations, file system operations, tool system mocking, etc.
 
 import os
-import tempfile
 import shutil
+import tempfile
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator, Dict, Any, Optional, Callable
-import pytest  # type: ignore
+from typing import Any, Callable, Dict, Optional
 from unittest.mock import MagicMock, patch
+
+import pytest  # type: ignore
+
 import nodupe.core.container as container_module
+from nodupe.core import config
 from nodupe.core.container import ServiceContainer
-import nodupe.core.config as config
-from nodupe.core.tool_system.registry import ToolRegistry
 from nodupe.core.tool_system.loader import ToolLoader
+from nodupe.core.tool_system.registry import ToolRegistry
 
 ## Mock Database Connection for Testing
 
+
 class MockDatabaseConnection:
     """Mock database connection for testing purposes."""
+
     def __init__(self, db_path: str = ":memory:"):
         self.db_path = db_path
         self.closed = False
@@ -25,11 +30,13 @@ class MockDatabaseConnection:
     def get_connection(self):
         """Return a mock connection."""
         import sqlite3
+
         return sqlite3.connect(self.db_path)
 
     def close(self):
         """Close the connection."""
         self.closed = True
+
 
 @pytest.fixture(scope="function")
 def temp_db_connection() -> Generator[MockDatabaseConnection, None, None]:
@@ -39,6 +46,7 @@ def temp_db_connection() -> Generator[MockDatabaseConnection, None, None]:
         yield conn
     finally:
         conn.close()
+
 
 @pytest.fixture(scope="function")
 def temp_db_file() -> Generator[str, None, None]:
@@ -52,7 +60,9 @@ def temp_db_file() -> Generator[str, None, None]:
         if os.path.exists(temp_file.name):
             os.unlink(temp_file.name)
 
+
 ## File System Fixtures
+
 
 @pytest.fixture(scope="function")
 def temp_dir() -> Generator[Path, None, None]:
@@ -64,6 +74,7 @@ def temp_dir() -> Generator[Path, None, None]:
         if temp_dir.exists():
             shutil.rmtree(temp_dir)
 
+
 @pytest.fixture(scope="function")
 def temp_file(temp_dir: Path) -> Generator[Path, None, None]:
     """Create a temporary file in the temp directory."""
@@ -71,34 +82,40 @@ def temp_file(temp_dir: Path) -> Generator[Path, None, None]:
     temp_file.write_text("This is a test file content.")
     yield temp_file
 
+
 @pytest.fixture(scope="function")
-def sample_files(temp_dir: Path) -> Generator[Dict[str, Path], None, None]:
+def sample_files(temp_dir: Path) -> Generator[dict[str, Path], None, None]:
     """Create a set of sample files for duplicate detection testing."""
     files = {
         "small.txt": temp_dir / "small.txt",
         "medium.txt": temp_dir / "medium.txt",
         "large.txt": temp_dir / "large.txt",
         "duplicate_small.txt": temp_dir / "duplicate_small.txt",
-        "binary.dat": temp_dir / "binary.dat"
+        "binary.dat": temp_dir / "binary.dat",
     }
 
     # Create text files with different content
     files["small.txt"].write_text("Small file content")
     files["medium.txt"].write_text("Medium file content " * 100)
     files["large.txt"].write_text("Large file content " * 1000)
-    files["duplicate_small.txt"].write_text("Small file content")  # Duplicate of small.txt
+    files["duplicate_small.txt"].write_text(
+        "Small file content"
+    )  # Duplicate of small.txt
     files["binary.dat"].write_bytes(os.urandom(1024))
 
     yield files
 
+
 @pytest.fixture(scope="function")
-def file_system_with_duplicates(temp_dir: Path) -> Generator[Dict[str, Path], None, None]:
+def file_system_with_duplicates(
+    temp_dir: Path,
+) -> Generator[dict[str, Path], None, None]:
     """Create a file system structure with duplicates for testing."""
     # Create directory structure
     dirs = {
         "documents": temp_dir / "documents",
         "images": temp_dir / "images",
-        "backups": temp_dir / "backups"
+        "backups": temp_dir / "backups",
     }
 
     for dir_path in dirs.values():
@@ -112,7 +129,7 @@ def file_system_with_duplicates(temp_dir: Path) -> Generator[Dict[str, Path], No
         "duplicate1": dirs["images"] / "copy.txt",
         "duplicate2": dirs["backups"] / "backup.txt",
         "unique1": dirs["documents"] / "unique1.txt",
-        "unique2": dirs["images"] / "unique2.txt"
+        "unique2": dirs["images"] / "unique2.txt",
     }
 
     # Write content
@@ -124,38 +141,43 @@ def file_system_with_duplicates(temp_dir: Path) -> Generator[Dict[str, Path], No
 
     yield files
 
+
 ## Configuration Fixtures
 
+
 @pytest.fixture(scope="function")
-def mock_config() -> Generator[Dict[str, Any], None, None]:
+def mock_config() -> Generator[dict[str, Any], None, None]:
     """Provide a mock configuration dictionary for testing."""
     yield {
         "database": {
             "path": ":memory:",
             "timeout": 10.0,
-            "journal_mode": "WAL"
+            "journal_mode": "WAL",
         },
         "scan": {
             "min_file_size": "1KB",
             "max_file_size": "10MB",
             "default_extensions": ["txt", "pdf", "jpg"],
-            "exclude_dirs": [".git", ".venv"]
+            "exclude_dirs": [".git", ".venv"],
         },
         "performance": {
             "max_workers": 4,
             "batch_size": 100,
-            "chunk_size": "1MB"
+            "chunk_size": "1MB",
         },
         "logging": {
             "level": "DEBUG",
             "file": "test.log",
             "max_size": "5MB",
-            "backup_count": 3
-        }
+            "backup_count": 3,
+        },
     }
 
+
 @pytest.fixture(scope="function")
-def temp_config_file(temp_dir: Path, mock_config: Dict[str, Any]) -> Generator[Path, None, None]:
+def temp_config_file(
+    temp_dir: Path, mock_config: dict[str, Any]
+) -> Generator[Path, None, None]:
     """Create a temporary configuration file."""
     config_file = temp_dir / "config.toml"
     import tomlkit as toml
@@ -165,25 +187,36 @@ def temp_config_file(temp_dir: Path, mock_config: Dict[str, Any]) -> Generator[P
 
     yield config_file
 
+
 @pytest.fixture(scope="function")
-def loaded_config(temp_config_file: Path) -> Generator[config.ConfigManager, None, None]:
+def loaded_config(
+    temp_config_file: Path,
+) -> Generator[config.ConfigManager, None, None]:
     """Load and provide a configuration object from the temp config file."""
     cfg = config.ConfigManager(str(temp_config_file))
     yield cfg
 
+
 ## Tool System Fixtures
+
 
 @pytest.fixture(scope="function")
 def mock_tool_registry() -> Generator[ToolRegistry, None, None]:
-    """Create a mock tool registry for testing."""
+    """Create a fresh ToolRegistry singleton for testing."""
+    # Ensure singleton state is reset between tests
+    ToolRegistry._reset_instance()
     registry = ToolRegistry()
     yield registry
 
+
 @pytest.fixture(scope="function")
-def mock_tool_loader(mock_tool_registry: ToolRegistry) -> Generator[ToolLoader, None, None]:
+def mock_tool_loader(
+    mock_tool_registry: ToolRegistry,
+) -> Generator[ToolLoader, None, None]:
     """Create a mock tool loader for testing."""
     loader = ToolLoader(mock_tool_registry)
     yield loader
+
 
 @pytest.fixture(scope="function")
 def mock_tool() -> Generator[MagicMock, None, None]:
@@ -198,13 +231,18 @@ def mock_tool() -> Generator[MagicMock, None, None]:
     mock.cleanup = MagicMock()
     yield mock
 
+
 @pytest.fixture(scope="function")
-def registered_mock_tool(mock_tool_registry: ToolRegistry, mock_tool: MagicMock) -> Generator[MagicMock, None, None]:
+def registered_mock_tool(
+    mock_tool_registry: ToolRegistry, mock_tool: MagicMock
+) -> Generator[MagicMock, None, None]:
     """Register a mock tool and yield it."""
     mock_tool_registry.register_tool(mock_tool)
     yield mock_tool
 
+
 ## Resource Management Fixtures
+
 
 @pytest.fixture(scope="function")
 def memory_mapped_file(temp_file: Path) -> Generator[Any, None, None]:
@@ -223,6 +261,7 @@ def memory_mapped_file(temp_file: Path) -> Generator[Any, None, None]:
         finally:
             mmap_obj.close()
 
+
 @pytest.fixture(scope="function")
 def resource_pool() -> Generator[Any, None, None]:
     """Create a test resource pool."""
@@ -234,7 +273,9 @@ def resource_pool() -> Generator[Any, None, None]:
     finally:
         pool.close()
 
+
 ## Container and Dependency Injection Fixtures
+
 
 @pytest.fixture(scope="function")
 def test_container() -> Generator[ServiceContainer, None, None]:
@@ -248,8 +289,11 @@ def test_container() -> Generator[ServiceContainer, None, None]:
 
     yield cont
 
+
 @pytest.fixture(scope="function")
-def container_with_mocks(test_container: ServiceContainer) -> Generator[ServiceContainer, None, None]:
+def container_with_mocks(
+    test_container: ServiceContainer,
+) -> Generator[ServiceContainer, None, None]:
     """Create a container with mock services for testing."""
     # Add mock services
     test_container.register_service("mock_service", MagicMock())
@@ -258,37 +302,51 @@ def container_with_mocks(test_container: ServiceContainer) -> Generator[ServiceC
 
     yield test_container
 
+
 ## Error and Exception Fixtures
 
+
 @pytest.fixture(scope="function")
-def mock_error_condition() -> Generator[Callable[[Exception], None], None, None]:
+def mock_error_condition() -> (
+    Generator[Callable[[Exception], None], None, None]
+):
     """Fixture to simulate error conditions."""
-    def raise_error(error_type: Exception = Exception, message: str = "Test error") -> Callable:
+
+    def raise_error(
+        error_type: Exception = Exception, message: str = "Test error"
+    ) -> Callable:
         def _inner():
             raise error_type(message)
+
         return _inner
 
     yield raise_error
 
+
 @pytest.fixture(scope="function")
 def mock_timeout() -> Generator[Callable[[float], None], None, None]:
     """Fixture to simulate timeout conditions."""
+
     def timeout_after(seconds: float) -> Callable:
         import time
+
         def _inner():
             time.sleep(seconds + 0.1)
+
         return _inner
 
     yield timeout_after
 
+
 ## Performance Testing Fixtures
+
 
 @pytest.fixture(scope="function")
 def performance_monitor() -> Generator[Callable, None, None]:
     """Fixture for monitoring test performance."""
     import time
 
-    def monitor(func: Callable, *args, **kwargs) -> Dict[str, float]:
+    def monitor(func: Callable, *args, **kwargs) -> dict[str, float]:
         start_time = time.time()
         start_mem = get_memory_usage()
 
@@ -300,27 +358,36 @@ def performance_monitor() -> Generator[Callable, None, None]:
         return {
             "execution_time": end_time - start_time,
             "memory_increase": end_mem - start_mem,
-            "result": result
+            "result": result,
         }
 
     def get_memory_usage() -> float:
-        import psutil
         import os
+
+        import psutil
+
         process = psutil.Process(os.getpid())
         return process.memory_info().rss / 1024 / 1024  # MB
 
     yield monitor
 
+
 ## Helper Functions
 
-def create_test_file(path: Path, size: int = 1024, content: str = None) -> Path:
+
+def create_test_file(
+    path: Path, size: int = 1024, content: Optional[str] = None
+) -> Path:
     """Helper function to create test files."""
     if content is None:
         content = "A" * size
     path.write_text(content)
     return path
 
-def create_file_structure(base_dir: Path, structure: Dict[str, Any]) -> Dict[str, Path]:
+
+def create_file_structure(
+    base_dir: Path, structure: dict[str, Any]
+) -> dict[str, Path]:
     """Helper function to create complex file structures."""
     created_files = {}
 
@@ -341,26 +408,82 @@ def create_file_structure(base_dir: Path, structure: Dict[str, Any]) -> Dict[str
 
     return created_files
 
+
 ## Test Configuration Hooks
+
 
 def pytest_configure(config):
     """Pytest configuration hook."""
     # Add custom markers
     config.addinivalue_line(
-        "markers",
-        "performance: mark test as performance test"
+        "markers", "performance: mark test as performance test"
     )
-    config.addinivalue_line(
-        "markers",
-        "stress: mark test as stress test"
-    )
+    config.addinivalue_line("markers", "stress: mark test as stress test")
+
+
+@pytest.fixture(autouse=True)
+def _teardown_background_services():
+    """Global teardown for flaky background state.
+
+    Ensures any background servers or hot-reload threads are stopped and
+    shared singletons are reset between tests so test-order does not leak
+    state into subsequent tests.
+    """
+    yield
+
+    # Best-effort stop of IPC server / hot-reload and clear DI container
+    try:
+        ipc = container_module.container.get_service("ipc_server")
+        if ipc and hasattr(ipc, "stop"):
+            try:
+                ipc.stop()
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    try:
+        hot = container_module.container.get_service("hot_reload")
+        if hot and hasattr(hot, "stop"):
+            try:
+                hot.stop()
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    # Clear global service container so future tests start clean
+    try:
+        container_module.container.clear()
+    except Exception:
+        pass
+
+    # Clear DB connection singletons used across tests
+    try:
+        from nodupe.core.database.connection import DatabaseConnection
+
+        DatabaseConnection._instances.clear()
+    except Exception:
+        pass
+
+    # Reset global singletons used across the tool system (ToolRegistry)
+    try:
+        from nodupe.core.tool_system.registry import ToolRegistry
+
+        ToolRegistry._reset_instance()
+    except Exception:
+        pass
+
 
 def pytest_collection_modifyitems(items):
     """Modify test collection order."""
     # Run performance tests last
-    performance_tests = [item for item in items if "performance" in item.keywords]
+    performance_tests = [
+        item for item in items if "performance" in item.keywords
+    ]
     other_tests = [item for item in items if "performance" not in item.keywords]
     items[:] = other_tests + performance_tests
+
 
 def pytest_runtest_setup(item):
     """Test setup hook."""

@@ -1,17 +1,24 @@
 # Test Utility Functions
 # Comprehensive tests for all utility functions
 
-import pytest
+import json
+import sqlite3
 import tempfile
 from pathlib import Path
-import sqlite3
-import json
 from unittest.mock import MagicMock
+
+import pytest
 
 # Import all utility modules
 from tests.utils import (
-    filesystem, database, tools, performance, errors, validation
+    database,
+    errors,
+    filesystem,
+    performance,
+    plugins,
+    validation,
 )
+
 
 def test_filesystem_utilities():
     """Test filesystem utility functions"""
@@ -20,37 +27,38 @@ def test_filesystem_utilities():
 
         # Test create_test_file_structure
         structure = {
-            "dir1": {
-                "file1.txt": "Content 1",
-                "file2.txt": "Content 2"
-            },
-            "file3.txt": "Content 3"
+            "dir1": {"file1.txt": "Content 1", "file2.txt": "Content 2"},
+            "file3.txt": "Content 3",
         }
 
-        created_files = filesystem.create_test_file_structure(base_path, structure)
+        created_files = filesystem.create_test_file_structure(
+            base_path, structure
+        )
         assert len(created_files) == 3
         assert (base_path / "dir1" / "file1.txt").exists()
         assert (base_path / "file3.txt").exists()
 
         # Test create_duplicate_files
-        duplicates = filesystem.create_duplicate_files(base_path / "duplicates", "Test content", 2)
+        duplicates = filesystem.create_duplicate_files(
+            base_path / "duplicates", "Test content", 2
+        )
         assert len(duplicates) == 3  # 1 original + 2 duplicates
 
         # Test create_files_with_varying_sizes
         sizes = [100, 1000, 10000]
-        sized_files = filesystem.create_files_with_varying_sizes(base_path / "sized", sizes)
+        sized_files = filesystem.create_files_with_varying_sizes(
+            base_path / "sized", sizes
+        )
         assert len(sized_files) == 3
 
         # Test verify_file_structure
         expected_structure = {
-            "dir1": {
-                "file1.txt": "Content 1",
-                "file2.txt": "Content 2"
-            },
-            "file3.txt": "Content 3"
+            "dir1": {"file1.txt": "Content 1", "file2.txt": "Content 2"},
+            "file3.txt": "Content 3",
         }
 
         assert filesystem.verify_file_structure(base_path, expected_structure)
+
 
 def test_database_utilities():
     """Test database utility functions"""
@@ -72,15 +80,13 @@ def test_database_utilities():
     # Test insert_test_data
     test_data = [
         {"id": 1, "name": "Test 1", "value": 1.1},
-        {"id": 2, "name": "Test 2", "value": 2.2}
+        {"id": 2, "name": "Test 2", "value": 2.2},
     ]
 
     database.insert_test_data(conn, "test", test_data)
 
     # Test verify_database_state
-    expected_state = {
-        "test": test_data
-    }
+    expected_state = {"test": test_data}
 
     assert database.verify_database_state(conn, expected_state)
 
@@ -107,10 +113,11 @@ def test_database_utilities():
 
     conn.close()
 
+
 def test_tool_utilities():
     """Test tool utility functions"""
     # Test create_mock_tool
-    mock_tool = tools.create_mock_tool("test_tool")
+    mock_tool = plugins.create_mock_tool("test_tool")
     assert mock_tool.name == "test_tool"
     assert mock_tool.metadata["version"] == "1.0.0"
 
@@ -120,44 +127,50 @@ def test_tool_utilities():
 
         tool_defs = [
             {"name": "tool1", "version": "1.0.0"},
-            {"name": "tool2", "version": "2.0.0"}
+            {"name": "tool2", "version": "2.0.0"},
         ]
 
-        tool_paths = tools.create_tool_directory_structure(base_path, tool_defs)
+        tool_paths = plugins.create_tool_directory_structure(
+            base_path, tool_defs
+        )
         assert len(tool_paths) == 2
         assert (base_path / "tool1" / "tool1.py").exists()
         assert (base_path / "tool2" / "tool2.py").exists()
 
     # Test mock_tool_loader
-    mock_loader = tools.mock_tool_loader()
+    mock_loader = plugins.mock_tool_loader()
     assert isinstance(mock_loader, MagicMock)
 
     # Test create_tool_test_scenarios
-    scenarios = tools.create_tool_test_scenarios()
+    scenarios = plugins.create_tool_test_scenarios()
     assert len(scenarios) == 3
 
     # Test create_tool_dependency_graph
     tool_defs_with_deps = [
         {"name": "tool_a", "dependencies": ["tool_b"]},
         {"name": "tool_b", "dependencies": []},
-        {"name": "tool_c", "dependencies": ["tool_a", "tool_b"]}
+        {"name": "tool_c", "dependencies": ["tool_a", "tool_b"]},
     ]
 
-    graph = tools.create_tool_dependency_graph(tool_defs_with_deps)
+    graph = plugins.create_tool_dependency_graph(tool_defs_with_deps)
     assert graph["tool_a"] == ["tool_b"]
     assert graph["tool_c"] == ["tool_a", "tool_b"]
 
     # Test test_tool_dependency_resolution
     resolution_order = ["tool_b", "tool_a", "tool_c"]
-    assert tools.test_tool_dependency_resolution(graph, resolution_order)
+    assert plugins.test_tool_dependency_resolution(graph, resolution_order)
+
 
 def test_performance_utilities():
     """Test performance utility functions"""
+
     # Test benchmark_function_performance
     def test_function(x):
         return x * 2
 
-    results = performance.benchmark_function_performance(test_function, iterations=10, warmup_iterations=5, args=(5,))
+    results = performance.benchmark_function_performance(
+        test_function, iterations=10, warmup_iterations=5, args=(5,)
+    )
     assert "total_time" in results
     assert "average_time" in results
     assert "operations_per_second" in results
@@ -178,6 +191,7 @@ def test_performance_utilities():
     # Test create_stress_test_scenarios
     stress_scenarios = performance.create_stress_test_scenarios()
     assert len(stress_scenarios) == 3
+
 
 def test_error_utilities():
     """Test error utility functions"""
@@ -201,15 +215,11 @@ def test_error_utilities():
     monitoring_scenarios = errors.create_error_monitoring_test_scenarios()
     assert len(monitoring_scenarios) == 4
 
+
 def test_validation_utilities():
     """Test validation utility functions"""
     # Test validate_test_data_structure
-    test_data = {
-        "database": {
-            "host": "localhost",
-            "port": 5432
-        }
-    }
+    test_data = {"database": {"host": "localhost", "port": 5432}}
 
     schema = {
         "type": "dict",
@@ -219,10 +229,10 @@ def test_validation_utilities():
                 "required": ["host", "port"],
                 "properties": {
                     "host": {"type": "str"},
-                    "port": {"type": "int", "min": 1, "max": 65535}
-                }
+                    "port": {"type": "int", "min": 1, "max": 65535},
+                },
             }
-        }
+        },
     }
 
     assert validation.validate_test_data_structure(test_data, schema)
@@ -232,7 +242,7 @@ def test_validation_utilities():
     assert len(test_cases) == 2
 
     # Test validate_json_schema
-    json_data = '''{
+    json_data = """{
         "status": "success",
         "data": {
             "users": [
@@ -241,7 +251,7 @@ def test_validation_utilities():
             ]
         },
         "timestamp": "2023-01-01T00:00:00Z"
-    }'''
+    }"""
 
     json_schema = {
         "type": "dict",
@@ -259,14 +269,17 @@ def test_validation_utilities():
                             "required": ["id", "name"],
                             "properties": {
                                 "id": {"type": "int", "min": 1},
-                                "name": {"type": "str"}
-                            }
-                        }
+                                "name": {"type": "str"},
+                            },
+                        },
                     }
-                }
+                },
             },
-            "timestamp": {"type": "str", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"}
-        }
+            "timestamp": {
+                "type": "str",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            },
+        },
     }
 
     assert validation.validate_json_schema(json_data, json_schema)
@@ -281,7 +294,7 @@ def test_validation_utilities():
             "columns": {
                 "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY"]},
                 "name": {"type": "TEXT", "constraints": ["NOT NULL"]},
-                "email": {"type": "TEXT", "constraints": ["UNIQUE"]}
+                "email": {"type": "TEXT", "constraints": ["UNIQUE"]},
             }
         }
     }
@@ -291,7 +304,7 @@ def test_validation_utilities():
             "columns": {
                 "id": {"type": "INTEGER", "constraints": ["PRIMARY KEY"]},
                 "name": {"type": "TEXT", "constraints": ["NOT NULL"]},
-                "email": {"type": "TEXT", "constraints": ["UNIQUE"]}
+                "email": {"type": "TEXT", "constraints": ["UNIQUE"]},
             }
         }
     }
@@ -308,15 +321,12 @@ def test_validation_utilities():
         "version": "1.0.0",
         "author": "Test Author",
         "description": "Test tool",
-        "metadata": {
-            "category": "utility",
-            "compatibility": ["1.0", "2.0"]
-        },
+        "metadata": {"category": "utility", "compatibility": ["1.0", "2.0"]},
         "functions": {
             "initialize": lambda: True,
             "execute": lambda x: x * 2,
-            "cleanup": lambda: None
-        }
+            "cleanup": lambda: None,
+        },
     }
 
     expected_structure = {
@@ -326,14 +336,14 @@ def test_validation_utilities():
             "required": ["category", "compatibility"],
             "properties": {
                 "category": {"type": "str"},
-                "compatibility": {"type": "list", "items": {"type": "str"}}
-            }
+                "compatibility": {"type": "list", "items": {"type": "str"}},
+            },
         },
         "functions": {
             "initialize": {"parameters": []},
             "execute": {"parameters": ["x"]},
-            "cleanup": {"parameters": []}
-        }
+            "cleanup": {"parameters": []},
+        },
     }
 
     assert validation.validate_tool_structure(tool_def, expected_structure)
@@ -347,17 +357,10 @@ def test_validation_utilities():
         "status": "success",
         "code": 200,
         "data": {
-            "items": [
-                {"id": 1, "name": "Item 1"},
-                {"id": 2, "name": "Item 2"}
-            ],
-            "pagination": {
-                "page": 1,
-                "page_size": 10,
-                "total": 2
-            }
+            "items": [{"id": 1, "name": "Item 1"}, {"id": 2, "name": "Item 2"}],
+            "pagination": {"page": 1, "page_size": 10, "total": 2},
         },
-        "timestamp": "2023-01-01T00:00:00Z"
+        "timestamp": "2023-01-01T00:00:00Z",
     }
 
     api_schema = {
@@ -377,9 +380,9 @@ def test_validation_utilities():
                             "required": ["id", "name"],
                             "properties": {
                                 "id": {"type": "int", "min": 1},
-                                "name": {"type": "str"}
-                            }
-                        }
+                                "name": {"type": "str"},
+                            },
+                        },
                     },
                     "pagination": {
                         "type": "dict",
@@ -387,13 +390,16 @@ def test_validation_utilities():
                         "properties": {
                             "page": {"type": "int", "min": 1},
                             "page_size": {"type": "int", "min": 1, "max": 100},
-                            "total": {"type": "int", "min": 0}
-                        }
-                    }
-                }
+                            "total": {"type": "int", "min": 0},
+                        },
+                    },
+                },
             },
-            "timestamp": {"type": "str", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"}
-        }
+            "timestamp": {
+                "type": "str",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+            },
+        },
     }
 
     assert validation.validate_api_response(api_response, api_schema)
@@ -409,16 +415,37 @@ def test_validation_utilities():
             "username": "test_user",
             "email": "test@example.com",
             "status": "active",
-            "age": 25
+            "age": 25,
         }
     }
 
     validation_rules = [
-        {"field": "user.id", "type": "range", "min": 1, "max": 1000, "required": True},
-        {"field": "user.username", "type": "pattern", "pattern": "^[a-z_]+$", "required": True},
-        {"field": "user.email", "type": "pattern", "pattern": "^[^@]+@[^@]+\\.[^@]+$", "required": True},
-        {"field": "user.status", "type": "enum", "values": ["active", "inactive", "suspended"], "required": True},
-        {"field": "user.age", "type": "range", "min": 18, "max": 120}
+        {
+            "field": "user.id",
+            "type": "range",
+            "min": 1,
+            "max": 1000,
+            "required": True,
+        },
+        {
+            "field": "user.username",
+            "type": "pattern",
+            "pattern": "^[a-z_]+$",
+            "required": True,
+        },
+        {
+            "field": "user.email",
+            "type": "pattern",
+            "pattern": "^[^@]+@[^@]+\\.[^@]+$",
+            "required": True,
+        },
+        {
+            "field": "user.status",
+            "type": "enum",
+            "values": ["active", "inactive", "suspended"],
+            "required": True,
+        },
+        {"field": "user.age", "type": "range", "min": 18, "max": 120},
     ]
 
     assert validation.validate_data_consistency(data, validation_rules)
@@ -426,6 +453,7 @@ def test_validation_utilities():
     # Test create_data_consistency_test_scenarios
     consistency_scenarios = validation.create_data_consistency_test_scenarios()
     assert len(consistency_scenarios) == 2
+
 
 if __name__ == "__main__":
     # Run all tests

@@ -55,8 +55,16 @@ pytest -m "slow" -v
 
 | Area | Status |
 |------|--------|
-| Core | 16.5% |
-| Target | 60%+ |
+| Core | 9% (current; core-first tests added) |
+| Target | 80% (CI gate) |
+
+**Recent progress**
+- Added focused unit tests for core API (decorators, ratelimit, validation, logging) and initial `ScanTool` / `ApplyTool` tests; smoke-imports expanded to exercise module-level code.
+
+**Next priorities (short-term)**
+1. Core `tool_system` tests — `loader`, `registry`, `lifecycle` (highest leverage)
+2. Representative tool tests — `hashing`, `scanner_engine`, `commands`
+3. Add more smoke-imports and small deterministic unit tests until coverage meets CI gate
 
 ## Writing Tests
 

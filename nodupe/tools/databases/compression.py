@@ -16,8 +16,8 @@ Example:
 
 from __future__ import annotations
 
-from typing import Any
 import zlib
+from typing import Any
 
 
 class DatabaseCompression:
@@ -59,7 +59,7 @@ class DatabaseCompression:
             b'x\x9c...'
         """
         if isinstance(data, str):
-            data = data.encode('utf-8')
+            data = data.encode("utf-8")
 
         try:
             return zlib.compress(data, self.level)
@@ -86,7 +86,7 @@ class DatabaseCompression:
             decompressed = zlib.decompress(compressed_data)
             # Try to decode as UTF-8
             try:
-                return decompressed.decode('utf-8')
+                return decompressed.decode("utf-8")
             except UnicodeDecodeError:
                 return decompressed
         except zlib.error as e:
@@ -108,7 +108,7 @@ class DatabaseCompression:
         try:
             return self.compress_data(data)
         except ValueError:
-            return b''
+            return b""
 
     def decompress_safe(self, compressed_data: bytes) -> Any:
         """Safely decompress data, returning original on failure.

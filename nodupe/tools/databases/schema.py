@@ -16,9 +16,9 @@ Dependencies:
 """
 
 import sqlite3
-from typing import Dict, List, Tuple, Optional
-from pathlib import Path
 import time
+from pathlib import Path
+from typing import Optional
 
 
 class SchemaError(Exception):
@@ -37,7 +37,7 @@ class DatabaseSchema:
 
     # Schema definitions from DATABASE_SCHEMA.md
     TABLES = {
-        'files': """
+        "files": """
             CREATE TABLE IF NOT EXISTS files (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 path TEXT NOT NULL UNIQUE,
@@ -56,8 +56,7 @@ class DatabaseSchema:
                 FOREIGN KEY (duplicate_of) REFERENCES files(id) ON DELETE SET NULL
             )
         """,
-
-        'embeddings': """
+        "embeddings": """
             CREATE TABLE IF NOT EXISTS embeddings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 file_id INTEGER NOT NULL,
@@ -68,8 +67,7 @@ class DatabaseSchema:
                 FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
             )
         """,
-
-        'file_relationships': """
+        "file_relationships": """
             CREATE TABLE IF NOT EXISTS file_relationships (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 file1_id INTEGER NOT NULL,
@@ -82,8 +80,7 @@ class DatabaseSchema:
                 FOREIGN KEY (file2_id) REFERENCES files(id) ON DELETE CASCADE
             )
         """,
-
-        'tools': """
+        "tools": """
             CREATE TABLE IF NOT EXISTS tools (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL UNIQUE,
@@ -96,8 +93,7 @@ class DatabaseSchema:
                 updated_at INTEGER NOT NULL
             )
         """,
-
-        'tool_config': """
+        "tool_config": """
             CREATE TABLE IF NOT EXISTS tool_config (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 tool_id INTEGER NOT NULL,
@@ -108,8 +104,7 @@ class DatabaseSchema:
                 FOREIGN KEY (tool_id) REFERENCES tools(id) ON DELETE CASCADE
             )
         """,
-
-        'scans': """
+        "scans": """
             CREATE TABLE IF NOT EXISTS scans (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 scan_path TEXT NOT NULL,
@@ -122,14 +117,13 @@ class DatabaseSchema:
                 error_message TEXT
             )
         """,
-
-        'schema_version': """
+        "schema_version": """
             CREATE TABLE IF NOT EXISTS schema_version (
                 version TEXT PRIMARY KEY,
                 applied_at INTEGER NOT NULL,
                 description TEXT
             )
-        """
+        """,
     }
 
     # Index definitions from DATABASE_SCHEMA.md
@@ -141,28 +135,23 @@ class DatabaseSchema:
         "CREATE INDEX IF NOT EXISTS idx_files_is_duplicate ON files(is_duplicate)",
         "CREATE INDEX IF NOT EXISTS idx_files_duplicate_of ON files(duplicate_of)",
         "CREATE INDEX IF NOT EXISTS idx_files_status ON files(status)",
-
         # Embeddings table indexes
         "CREATE INDEX IF NOT EXISTS idx_embeddings_file_id ON embeddings(file_id)",
         "CREATE INDEX IF NOT EXISTS idx_embeddings_model_version ON embeddings(model_version)",
         "CREATE INDEX IF NOT EXISTS idx_embeddings_created_time ON embeddings(created_time)",
-
         # File relationships indexes
         "CREATE INDEX IF NOT EXISTS idx_file_relationships_file1_id ON file_relationships(file1_id)",
         "CREATE INDEX IF NOT EXISTS idx_file_relationships_file2_id ON file_relationships(file2_id)",
         "CREATE INDEX IF NOT EXISTS idx_file_relationships_type ON file_relationships(relationship_type)",
         "CREATE INDEX IF NOT EXISTS idx_file_relationships_similarity ON file_relationships(similarity_score)",
-
         # Plugins table indexes
         "CREATE INDEX IF NOT EXISTS idx_tools_name ON tools(name)",
         "CREATE INDEX IF NOT EXISTS idx_tools_type ON tools(type)",
         "CREATE INDEX IF NOT EXISTS idx_tools_status ON tools(status)",
         "CREATE INDEX IF NOT EXISTS idx_tools_enabled ON tools(enabled)",
-
         # Plugin config indexes
         "CREATE INDEX IF NOT EXISTS idx_tool_config_tool_id ON tool_config(tool_id)",
         "CREATE INDEX IF NOT EXISTS idx_tool_config_key ON tool_config(key)",
-
         # Scans table indexes
         "CREATE INDEX IF NOT EXISTS idx_scans_scan_path ON scans(scan_path)",
         "CREATE INDEX IF NOT EXISTS idx_scans_start_time ON scans(start_time)",
@@ -206,7 +195,7 @@ class DatabaseSchema:
             cursor.execute(
                 "INSERT OR REPLACE INTO schema_version (version, applied_at, description) "
                 "VALUES (?, ?, ?)",
-                (self.SCHEMA_VERSION, current_time, "Initial schema creation")
+                (self.SCHEMA_VERSION, current_time, "Initial schema creation"),
             )
 
             self.connection.commit()
@@ -295,7 +284,7 @@ class DatabaseSchema:
             f"Migration from {from_version} to {to_version} not implemented"
         )
 
-    def validate_schema(self) -> Tuple[bool, List[str]]:
+    def validate_schema(self) -> tuple[bool, list[str]]:
         """Validate database schema against specification.
 
         Returns:
@@ -309,10 +298,10 @@ class DatabaseSchema:
             errors = []
 
             # Check all tables exist
-            for table_name in self.TABLES.keys():
+            for table_name in self.TABLES:
                 cursor.execute(
                     "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-                    (table_name,)
+                    (table_name,),
                 )
                 if not cursor.fetchone():
                     errors.append(f"Table '{table_name}' does not exist")
@@ -322,16 +311,14 @@ class DatabaseSchema:
             for index_sql in self.INDEXES:
                 # Extract index name from SQL
                 parts = index_sql.split()
-                if 'INDEX' in parts:
-                    idx = parts.index('INDEX')
+                if "INDEX" in parts:
+                    idx = parts.index("INDEX")
                     if idx + 2 < len(parts):
                         index_name = parts[idx + 2]
                         expected_indexes.add(index_name)
 
-            cursor.execute(
-                "SELECT name FROM sqlite_master WHERE type='index'"
-            )
-            existing_indexes = set(row[0] for row in cursor.fetchall())
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='index'")
+            existing_indexes = {row[0] for row in cursor.fetchall()}
 
             missing_indexes = expected_indexes - existing_indexes
             for index_name in missing_indexes:
@@ -352,9 +339,7 @@ class DatabaseSchema:
             cursor = self.connection.cursor()
 
             # Get all tables
-            cursor.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            )
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
             tables = [row[0] for row in cursor.fetchall()]
 
             # Drop all tables
@@ -367,7 +352,7 @@ class DatabaseSchema:
             self.connection.rollback()
             raise SchemaError(f"Failed to drop schema: {e}") from e
 
-    def get_table_info(self, table_name: str) -> List[Dict]:
+    def get_table_info(self, table_name: str) -> list[dict]:
         """Get table column information.
 
         Args:
@@ -385,21 +370,25 @@ class DatabaseSchema:
 
             columns = []
             for row in cursor.fetchall():
-                columns.append({
-                    'cid': row[0],
-                    'name': row[1],
-                    'type': row[2],
-                    'notnull': bool(row[3]),
-                    'default': row[4],
-                    'pk': bool(row[5])
-                })
+                columns.append(
+                    {
+                        "cid": row[0],
+                        "name": row[1],
+                        "type": row[2],
+                        "notnull": bool(row[3]),
+                        "default": row[4],
+                        "pk": bool(row[5]),
+                    }
+                )
 
             return columns
 
         except sqlite3.Error as e:
-            raise SchemaError(f"Failed to get table info for {table_name}: {e}") from e
+            raise SchemaError(
+                f"Failed to get table info for {table_name}: {e}"
+            ) from e
 
-    def get_indexes(self, table_name: str) -> List[str]:
+    def get_indexes(self, table_name: str) -> list[str]:
         """Get indexes for a table.
 
         Args:
@@ -415,13 +404,15 @@ class DatabaseSchema:
             cursor = self.connection.cursor()
             cursor.execute(
                 "SELECT name FROM sqlite_master WHERE type='index' AND tbl_name=?",
-                (table_name,)
+                (table_name,),
             )
 
             return [row[0] for row in cursor.fetchall()]
 
         except sqlite3.Error as e:
-            raise SchemaError(f"Failed to get indexes for {table_name}: {e}") from e
+            raise SchemaError(
+                f"Failed to get indexes for {table_name}: {e}"
+            ) from e
 
     def optimize_database(self) -> None:
         """Optimize database (VACUUM and ANALYZE).

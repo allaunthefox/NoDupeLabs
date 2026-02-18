@@ -18,14 +18,15 @@ Dependencies:
     - Core modules
 """
 
-from typing import Any, Dict
 import argparse
 import time
-from nodupe.core.tool_system.base import Tool
-from nodupe.core.scan.processor import FileProcessor
-from nodupe.core.scan.walker import FileWalker
-from nodupe.core.database.files import FileRepository
+from typing import Any
+
 from nodupe.core.database.connection import DatabaseConnection
+from nodupe.core.database.files import FileRepository
+from nodupe.core.tool_system.base import Tool
+from nodupe.tools.scanner_engine.processor import FileProcessor
+from nodupe.tools.scanner_engine.walker import FileWalker
 
 
 class ScanTool(Tool):
@@ -45,9 +46,22 @@ class ScanTool(Tool):
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
-        return {'commands': ['scan']}
+        return {"commands": ["scan"]}
+
+    @property
+    def api_methods(self) -> dict[str, Any]:
+        """Programmatic API methods exposed by this tool."""
+        return {"scan.execute": self.execute_scan}
+
+    def run_standalone(self, args: list[str]) -> int:
+        """Run tool in standalone mode (minimal stub for tests)."""
+        return 0
+
+    def describe_usage(self) -> str:
+        """Return a short usage description."""
+        return "Scan tool — scan directories for duplicates."
 
     def _on_scan_start(self, **kwargs: Any) -> None:
         """Handle scan start event."""
@@ -55,17 +69,31 @@ class ScanTool(Tool):
 
     def _on_scan_complete(self, **kwargs: Any) -> None:
         """Handle scan complete event."""
-        print(f"[TOOL] Scan completed: {kwargs.get('files_processed', 0)} files processed")
+        print(
+            f"[TOOL] Scan completed: {kwargs.get('files_processed', 0)} files processed"
+        )
 
     def register_commands(self, subparsers: Any) -> None:
         """Register scan command with argument parser."""
-        scan_parser = subparsers.add_parser('scan', help='Scan directories for duplicates')
-        scan_parser.add_argument('paths', nargs='+', help='Directories to scan')
-        scan_parser.add_argument('--min-size', type=int, default=0, help='Minimum file size')
-        scan_parser.add_argument('--max-size', type=int, help='Maximum file size')
-        scan_parser.add_argument('--extensions', nargs='+', help='File extensions to include')
-        scan_parser.add_argument('--exclude', nargs='+', help='Directories to exclude')
-        scan_parser.add_argument('--verbose', '-v', action='store_true', help='Verbose output')
+        scan_parser = subparsers.add_parser(
+            "scan", help="Scan directories for duplicates"
+        )
+        scan_parser.add_argument("paths", nargs="+", help="Directories to scan")
+        scan_parser.add_argument(
+            "--min-size", type=int, default=0, help="Minimum file size"
+        )
+        scan_parser.add_argument(
+            "--max-size", type=int, help="Maximum file size"
+        )
+        scan_parser.add_argument(
+            "--extensions", nargs="+", help="File extensions to include"
+        )
+        scan_parser.add_argument(
+            "--exclude", nargs="+", help="Directories to exclude"
+        )
+        scan_parser.add_argument(
+            "--verbose", "-v", action="store_true", help="Verbose output"
+        )
         scan_parser.set_defaults(func=self.execute_scan)
 
     def execute_scan(self, args: argparse.Namespace) -> int:
@@ -77,11 +105,14 @@ class ScanTool(Tool):
         try:
             # Validation
             if not args.paths:
-                print("[ERROR] No paths provided. Please specify at least one directory to scan.")
+                print(
+                    "[ERROR] No paths provided. Please specify at least one directory to scan."
+                )
                 return 1
 
             # Check if paths exist
             import os
+
             valid_paths = []
             for path in args.paths:
                 if not os.path.exists(path):
@@ -93,12 +124,12 @@ class ScanTool(Tool):
             start_time = time.monotonic()
 
             # 1. Get services
-            container = getattr(args, 'container', None)
+            container = getattr(args, "container", None)
             if not container:
                 print("[ERROR] Dependency container not available")
                 return 1
 
-            db_connection = container.get_service('database')
+            db_connection = container.get_service("database")
             if not db_connection:
                 print("[ERROR] Database service not available")
                 # Fallback or error? Main system should have DB.
@@ -110,25 +141,28 @@ class ScanTool(Tool):
             file_repo = FileRepository(db_connection)
 
             # Setup filter
-            def file_filter(info: Dict[str, Any]) -> bool:
+            def file_filter(info: dict[str, Any]) -> bool:
                 """TODO: Document file_filter."""
-                if args.min_size and info['size'] < args.min_size:
+                if args.min_size and info["size"] < args.min_size:
                     return False
-                if args.max_size and info['size'] > args.max_size:
+                if args.max_size and info["size"] > args.max_size:
                     return False
                 if args.extensions:
-                    ext = info['extension'].lstrip('.')
+                    ext = info["extension"].lstrip(".")
                     if ext not in args.extensions:
                         return False
                 # Add exclude logic if needed
                 return True
 
             # Setup progress callback
-            def progress_callback(p: Dict[str, Any]) -> None:
+            def progress_callback(p: dict[str, Any]) -> None:
                 """TODO: Document progress_callback."""
                 if args.verbose:
                     print(
-                        f"\rScanning... {p['files_processed']} files ({p['files_per_second']:.1f} f/s)", end="", flush=True)
+                        f"\rScanning... {p['files_processed']} files ({p['files_per_second']:.1f} f/s)",
+                        end="",
+                        flush=True,
+                    )
 
             # 3. Process Execution
             walker = FileWalker()
@@ -144,7 +178,7 @@ class ScanTool(Tool):
                 results = processor.process_files(
                     root_path=path,
                     file_filter=file_filter,
-                    on_progress=progress_callback
+                    on_progress=progress_callback,
                 )
 
                 if results:
@@ -183,6 +217,7 @@ class ScanTool(Tool):
             print(f"[TOOL ERROR] Scan failed: {e}")
             if args.verbose:
                 import traceback
+
                 traceback.print_exc()
             return 1
 
@@ -199,4 +234,4 @@ def register_tool():
 
 
 # Export tool interface
-__all__ = ['scan_tool', 'register_tool']
+__all__ = ["register_tool", "scan_tool"]

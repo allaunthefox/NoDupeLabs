@@ -7,17 +7,22 @@ This module tests system stability under continuous operation, error recovery
 mechanisms, resource management, and graceful degradation under stress.
 """
 
-import pytest
-import sys
+import json
 import os
+import sys
 import tempfile
 import time
-import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
+
 from nodupe.core.main import main
-from nodupe.tools.commands.scan import ScanTool
 from nodupe.tools.commands.apply import ApplyTool
-from nodupe.tools.commands.similarity import SimilarityCommandTool as SimilarityTool
+from nodupe.tools.commands.scan import ScanTool
+from nodupe.tools.commands.similarity import (
+    SimilarityCommandTool as SimilarityTool,
+)
+
 
 class TestContinuousOperation:
     """Test system stability under continuous operation."""
@@ -69,9 +74,13 @@ class TestContinuousOperation:
                     {
                         "hash": "continuous_hash",
                         "files": [
-                            {"path": f"/tmp/file_{i}.txt", "size": 100 + i, "type": "txt"}
+                            {
+                                "path": f"/tmp/file_{i}.txt",
+                                "size": 100 + i,
+                                "type": "txt",
+                            }
                             for i in range(5)
-                        ]
+                        ],
                     }
                 ]
             }
@@ -120,7 +129,9 @@ class TestContinuousOperation:
 
             success_count = 0
             for iteration in range(10):
-                similarity_result = similarity_tool.execute_similarity(similarity_args)
+                similarity_result = similarity_tool.execute_similarity(
+                    similarity_args
+                )
                 if similarity_result == 0:
                     success_count += 1
 
@@ -128,6 +139,7 @@ class TestContinuousOperation:
 
             # Should have high success rate
             assert success_count >= 9  # At least 90% success rate
+
 
 class TestResourceStress:
     """Test system behavior under resource stress conditions."""
@@ -168,21 +180,21 @@ class TestResourceStress:
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create large duplicates file
             duplicates_file = os.path.join(temp_dir, "large_duplicates.json")
-            large_data = {
-                "duplicate_groups": []
-            }
+            large_data = {"duplicate_groups": []}
 
             # Create 1000 duplicate groups
             for i in range(1000):
                 group = {
                     "hash": f"stress_hash_{i}",
                     "files": [
-                        {"path": f"/data/file_{i}_{j}.txt", "size": 500 + i * j, "type": "txt"}
+                        {
+                            "path": f"/data/file_{i}_{j}.txt",
+                            "size": 500 + i * j,
+                            "type": "txt",
+                        }
                         for j in range(3)
                     ],
-                    "metadata": {
-                        "additional_info": "x" * 200  # Some metadata
-                    }
+                    "metadata": {"additional_info": "x" * 200},  # Some metadata
                 }
                 large_data["duplicate_groups"].append(group)
 
@@ -201,6 +213,7 @@ class TestResourceStress:
             apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0  # Should handle large dataset gracefully
 
+
 class TestErrorRecoveryMechanisms:
     """Test system error recovery mechanisms."""
 
@@ -218,7 +231,7 @@ class TestErrorRecoveryMechanisms:
                 "file_with_spaces .txt",
                 "file-with-dashes.txt",
                 "file.with.dots.txt",
-                "file_with_underscores.txt"
+                "file_with_underscores.txt",
             ]
 
             for filename in special_files:
@@ -255,20 +268,29 @@ class TestErrorRecoveryMechanisms:
                     {
                         "hash": "valid_hash_1",
                         "files": [
-                            {"path": "/tmp/valid1.txt", "size": 100, "type": "txt"},
-                            {"path": "/tmp/valid2.txt", "size": 100, "type": "txt"}
-                        ]
+                            {
+                                "path": "/tmp/valid1.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                            {
+                                "path": "/tmp/valid2.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                        ],
                     },
-                    {
-                        "hash": "invalid_hash",
-                        "files": []  # Empty files list
-                    },
+                    {"hash": "invalid_hash", "files": []},  # Empty files list
                     {
                         "hash": "valid_hash_2",
                         "files": [
-                            {"path": "/tmp/valid3.txt", "size": 150, "type": "txt"}
-                        ]
-                    }
+                            {
+                                "path": "/tmp/valid3.txt",
+                                "size": 150,
+                                "type": "txt",
+                            }
+                        ],
+                    },
                 ]
             }
 
@@ -286,6 +308,7 @@ class TestErrorRecoveryMechanisms:
 
             apply_result = apply_tool.execute_apply(apply_args)
             assert apply_result == 0  # Should handle invalid data gracefully
+
 
 class TestGracefulDegradation:
     """Test graceful degradation under stress conditions."""
@@ -324,9 +347,17 @@ class TestGracefulDegradation:
                     {
                         "hash": "missing_hash",
                         "files": [
-                            {"path": "/nonexistent/path/file1.txt", "size": 100, "type": "txt"},
-                            {"path": "/nonexistent/path/file2.txt", "size": 100, "type": "txt"}
-                        ]
+                            {
+                                "path": "/nonexistent/path/file1.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                            {
+                                "path": "/nonexistent/path/file2.txt",
+                                "size": 100,
+                                "type": "txt",
+                            },
+                        ],
                     }
                 ]
             }
@@ -346,6 +377,7 @@ class TestGracefulDegradation:
             apply_result = apply_tool.execute_apply(apply_args)
             # Should handle missing files gracefully
             assert isinstance(apply_result, int)
+
 
 class TestLongRunningOperations:
     """Test reliability of long-running operations."""
@@ -384,25 +416,29 @@ class TestLongRunningOperations:
 
             assert scan_result == 0
             execution_time = end_time - start_time
-            assert execution_time < 30.0  # Should complete within reasonable time
+            assert (
+                execution_time < 30.0
+            )  # Should complete within reasonable time
 
     def test_long_running_apply_operation(self):
         """Test reliability of long-running apply operation."""
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create large duplicates file
             duplicates_file = os.path.join(temp_dir, "long_duplicates.json")
-            long_data = {
-                "duplicate_groups": []
-            }
+            long_data = {"duplicate_groups": []}
 
             # Create 2000 duplicate groups for long operation
             for i in range(2000):
                 group = {
                     "hash": f"long_hash_{i}",
                     "files": [
-                        {"path": f"/data/long_file_{i}_{j}.txt", "size": 200 + i * j, "type": "txt"}
+                        {
+                            "path": f"/data/long_file_{i}_{j}.txt",
+                            "size": 200 + i * j,
+                            "type": "txt",
+                        }
                         for j in range(2)
-                    ]
+                    ],
                 }
                 long_data["duplicate_groups"].append(group)
 
@@ -424,7 +460,10 @@ class TestLongRunningOperations:
 
             assert apply_result == 0
             execution_time = end_time - start_time
-            assert execution_time < 15.0  # Should handle large dataset efficiently
+            assert (
+                execution_time < 15.0
+            )  # Should handle large dataset efficiently
+
 
 class TestResourceManagement:
     """Test system resource management and cleanup."""
@@ -475,9 +514,17 @@ class TestResourceManagement:
                     {
                         "hash": f"cleanup_hash_{i}",
                         "files": [
-                            {"path": f"/tmp/cleanup_{i}_1.txt", "size": 150 + i, "type": "txt"},
-                            {"path": f"/tmp/cleanup_{i}_2.txt", "size": 150 + i, "type": "txt"}
-                        ]
+                            {
+                                "path": f"/tmp/cleanup_{i}_1.txt",
+                                "size": 150 + i,
+                                "type": "txt",
+                            },
+                            {
+                                "path": f"/tmp/cleanup_{i}_2.txt",
+                                "size": 150 + i,
+                                "type": "txt",
+                            },
+                        ],
                     }
                     for i in range(50)
                 ]
@@ -505,6 +552,7 @@ class TestResourceManagement:
             final_apply_result = apply_tool.execute_apply(apply_args)
             assert final_apply_result == 0
 
+
 class TestSystemStability:
     """Test overall system stability and reliability."""
 
@@ -518,15 +566,25 @@ class TestSystemStability:
                     f.write(f"System stability test {i}")
 
             # Create duplicates file
-            duplicates_file = os.path.join(temp_dir, "stability_duplicates.json")
+            duplicates_file = os.path.join(
+                temp_dir, "stability_duplicates.json"
+            )
             stability_data = {
                 "duplicate_groups": [
                     {
                         "hash": f"stability_hash_{i}",
                         "files": [
-                            {"path": f"{temp_dir}/stability_{i}.txt", "size": 200 + i, "type": "txt"},
-                            {"path": f"{temp_dir}/stability_{i+1}.txt", "size": 200 + i, "type": "txt"}
-                        ]
+                            {
+                                "path": f"{temp_dir}/stability_{i}.txt",
+                                "size": 200 + i,
+                                "type": "txt",
+                            },
+                            {
+                                "path": f"{temp_dir}/stability_{i+1}.txt",
+                                "size": 200 + i,
+                                "type": "txt",
+                            },
+                        ],
                     }
                     for i in range(0, 40, 2)
                 ]
@@ -555,7 +613,7 @@ class TestSystemStability:
                 ("apply", apply_tool, duplicates_file),
                 ("similarity", similarity_tool, query_file),
                 ("scan", scan_tool, None),
-                ("apply", apply_tool, duplicates_file)
+                ("apply", apply_tool, duplicates_file),
             ]
 
             success_count = 0
@@ -639,6 +697,7 @@ class TestSystemStability:
 
             # System should maintain reliability under load
             assert success_count >= 8  # At least 80% success rate under load
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

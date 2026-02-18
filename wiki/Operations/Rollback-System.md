@@ -1,6 +1,6 @@
 # Rollback System
 
-**Status:** Design Document  
+**Status:** Design Document
 **Phase:** 3.1
 
 ## Overview
@@ -105,24 +105,24 @@ A point-in-time capture of file metadata before changes.
 ```python
 class SnapshotManager:
     """Manages file snapshots for rollback."""
-    
+
     def create_snapshot(self, paths: list[str]) -> Snapshot:
         """Create a snapshot of specified paths.
-        
+
         Returns:
             Snapshot object with metadata
         """
-    
+
     def restore_snapshot(self, snapshot_id: str) -> bool:
         """Restore files from a snapshot.
-        
+
         Returns:
             True if successful
         """
-    
+
     def list_snapshots(self) -> list[SnapshotSummary]:
         """List all available snapshots."""
-    
+
     def delete_snapshot(self, snapshot_id: str) -> bool:
         """Delete a snapshot."""
 ```
@@ -132,27 +132,27 @@ class SnapshotManager:
 ```python
 class TransactionLog:
     """Logs operations for rollback capability."""
-    
+
     def begin_transaction(self) -> str:
         """Start a new transaction.
-        
+
         Returns:
             Transaction ID
         """
-    
+
     def log_operation(self, operation: Operation) -> None:
         """Log an operation in the current transaction."""
-    
+
     def commit_transaction(self) -> str:
         """Commit the transaction.
-        
+
         Returns:
             Final status
         """
-    
+
     def rollback_transaction(self, transaction_id: str) -> bool:
         """Rollback all operations in a transaction.
-        
+
         Returns:
             True if successful
         """
@@ -163,21 +163,21 @@ class TransactionLog:
 ```python
 class RollbackManager:
     """High-level rollback orchestration."""
-    
-    def __init__(self, snapshot_manager: SnapshotManager, 
+
+    def __init__(self, snapshot_manager: SnapshotManager,
                  transaction_log: TransactionLog):
         self.snapshots = snapshot_manager
         self.transactions = transaction_log
-    
+
     def execute_with_protection(self, operation: callable) -> Result:
         """Execute an operation with rollback protection.
-        
+
         Creates snapshot before, logs operations, rollback on failure.
         """
-    
+
     def restore_to_snapshot(self, snapshot_id: str) -> bool:
         """Restore entire state to a snapshot."""
-    
+
     def undo_last_operation(self) -> bool:
         """Undo the most recent operation."""
 ```

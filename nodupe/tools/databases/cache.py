@@ -17,8 +17,8 @@ Example:
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
 import time
+from typing import Any, Optional
 
 
 class DatabaseCache:
@@ -36,7 +36,9 @@ class DatabaseCache:
         >>> cache.get("query_1")
     """
 
-    def __init__(self, connection: Any, max_size: int = 1000, ttl: float = 300.0) -> None:
+    def __init__(
+        self, connection: Any, max_size: int = 1000, ttl: float = 300.0
+    ) -> None:
         """Initialize database cache.
 
         Args:
@@ -45,7 +47,7 @@ class DatabaseCache:
             ttl: Time-to-live in seconds.
         """
         self.connection = connection
-        self._cache: Dict[str, tuple[Any, float]] = {}
+        self._cache: dict[str, tuple[Any, float]] = {}
         self.max_size = max_size
         self.ttl = ttl
 
@@ -86,7 +88,9 @@ class DatabaseCache:
         """
         # Evict oldest if at capacity
         if len(self._cache) >= self.max_size:
-            oldest_key = min(self._cache.keys(), key=lambda k: self._cache[k][1])
+            oldest_key = min(
+                self._cache.keys(), key=lambda k: self._cache[k][1]
+            )
             del self._cache[oldest_key]
 
         self._cache[key] = (value, time.time())

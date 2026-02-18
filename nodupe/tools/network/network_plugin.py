@@ -6,9 +6,12 @@
 Provides network and remote storage capabilities as a tool.
 """
 
-from typing import List, Dict, Any, Optional, Callable
+from typing import Any, Callable
+
 from nodupe.core.tool_system.base import Tool
+
 from . import get_network_manager
+
 
 class NetworkTool(Tool):
     """Network capabilities tool."""
@@ -22,16 +25,16 @@ class NetworkTool(Tool):
         return "1.0.0"
 
     @property
-    def dependencies(self) -> List[str]:
+    def dependencies(self) -> list[str]:
         return []
 
     @property
-    def api_methods(self) -> Dict[str, Callable[..., Any]]:
+    def api_methods(self) -> dict[str, Callable[..., Any]]:
         return {
-            'upload_file': self.manager.upload_file,
-            'download_file': self.manager.download_file,
-            'list_files': self.manager.list_files,
-            'delete_file': self.manager.delete_file
+            "upload_file": self.manager.upload_file,
+            "download_file": self.manager.download_file,
+            "list_files": self.manager.list_files,
+            "delete_file": self.manager.delete_file,
         }
 
     def __init__(self):
@@ -40,17 +43,18 @@ class NetworkTool(Tool):
 
     def initialize(self, container: Any) -> None:
         """Initialize the tool and register services."""
-        container.register_service('network_manager', self.manager)
+        container.register_service("network_manager", self.manager)
 
     def shutdown(self) -> None:
         """Shutdown the tool."""
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get tool capabilities."""
         return {
-            'storage_backend': self.manager.storage_backend.__class__.__name__,
-            'available': True
+            "storage_backend": self.manager.storage_backend.__class__.__name__,
+            "available": True,
         }
+
 
 def register_tool():
     """Register the network tool."""

@@ -1,18 +1,19 @@
 """Tests for version module."""
 
 import pytest
+
 from nodupe.core.version import (
-    get_version,
-    get_version_info,
+    VersionInfo,
+    check_compatibility,
     check_python_version,
+    format_version_info,
     get_python_version,
     get_python_version_info,
+    get_system_info,
+    get_version,
+    get_version_info,
     is_compatible_version,
     parse_version,
-    format_version_info,
-    get_system_info,
-    check_compatibility,
-    VersionInfo,
 )
 
 
@@ -40,7 +41,7 @@ class TestVersion:
         """Test Python version checking."""
         # Should pass with current Python version
         assert check_python_version((3, 7))
-        
+
         # Should fail with impossible future version
         assert not check_python_version((99, 0))
 

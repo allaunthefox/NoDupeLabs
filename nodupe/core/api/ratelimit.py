@@ -11,7 +11,7 @@ from __future__ import annotations
 import functools
 import time
 from collections import deque
-from typing import Any, Callable, Deque, Dict, Optional
+from typing import Any, Callable, Optional
 
 
 class RateLimiter:
@@ -25,7 +25,7 @@ class RateLimiter:
         """Initialize rate limiter."""
         self.requests_per_minute = requests_per_minute
         self.window_size: float = 60.0
-        self._requests: Dict[str, Deque[float]] = {}
+        self._requests: dict[str, deque[float]] = {}
 
     def check_rate_limit(self, client_id: Optional[str] = None) -> bool:
         """Check if request is within rate limit."""
@@ -72,7 +72,9 @@ class RateLimitExceeded(Exception):
         super().__init__(self.message)
 
 
-def rate_limited(requests_per_minute: int = 60) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+def rate_limited(
+    requests_per_minute: int = 60,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator to apply rate limiting to a function."""
     limiter = RateLimiter(requests_per_minute=requests_per_minute)
 
@@ -81,8 +83,12 @@ def rate_limited(requests_per_minute: int = 60) -> Callable[[Callable[..., Any]]
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             if not limiter.check_rate_limit():
                 wait_time = limiter.throttle()
-                raise RateLimitExceeded(f"Rate limit exceeded. Try again in {wait_time:.1f} seconds.", retry_after=wait_time)
+                raise RateLimitExceeded(
+                    f"Rate limit exceeded. Try again in {wait_time:.1f} seconds.",
+                    retry_after=wait_time,
+                )
             return func(*args, **kwargs)
+
         return wrapper
 
     return decorator

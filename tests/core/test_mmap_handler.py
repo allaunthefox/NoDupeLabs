@@ -1,9 +1,11 @@
 """Tests for memory-mapped file handler module."""
 
-import pytest
 import mmap
 from pathlib import Path
-from nodupe.core.mmap_handler import MMAPHandler
+
+import pytest
+
+from nodupe.tools.os_filesystem.mmap_handler import MMAPHandler
 
 
 class TestMMAPHandler:
@@ -67,7 +69,9 @@ class TestMMAPHandler:
         test_file = tmp_path / "test.txt"
         test_file.write_bytes(b"Test data")
 
-        mapped = MMAPHandler.create_mmap(str(test_file), access_mode=mmap.ACCESS_READ)
+        mapped = MMAPHandler.create_mmap(
+            str(test_file), access_mode=mmap.ACCESS_READ
+        )
         assert mapped is not None
         # Should be able to read
         data = mapped.read(4)

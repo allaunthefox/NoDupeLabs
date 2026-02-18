@@ -188,10 +188,10 @@ Tools should implement methods to generate accessible output:
 def generate_accessible_output(self, data: Any) -> str:
     """
     Generate output that is suitable for assistive technologies.
-    
+
     Args:
         data: Raw data to convert to accessible format
-        
+
     Returns:
         Human-readable string suitable for screen readers and braille displays
     """
@@ -266,7 +266,7 @@ Each tool must provide comprehensive IPC documentation:
 def get_ipc_documentation(self) -> Dict[str, Any]:
     """
     Document IPC socket interfaces for assistive technology integration.
-    
+
     Returns:
         Dictionary describing available IPC endpoints and their accessibility features
     """
@@ -318,7 +318,7 @@ def test_screen_reader_compatibility(self):
     tool = MyAccessibleTool()
     sample_data = {"status": "running", "progress": 50, "items_processed": 100}
     accessible_output = tool.generate_accessible_output(sample_data)
-    
+
     # Verify output is readable and descriptive
     self.assertIn("status:", accessible_output)
     self.assertIn("running", accessible_output)
@@ -330,7 +330,7 @@ def test_braille_display_compatibility(self):
     tool = MyAccessibleTool()
     sample_data = {"status": "completed", "results": 42}
     accessible_output = tool.generate_accessible_output(sample_data)
-    
+
     # Braille displays have limited space, so output should be concise but complete
     lines = accessible_output.split('\n')
     for line in lines:
@@ -341,11 +341,11 @@ def test_ipc_documentation_exists(self):
     """Test that IPC socket documentation is available."""
     tool = MyAccessibleTool()
     ipc_doc = tool.get_ipc_documentation()
-    
+
     # Verify documentation structure
     self.assertIn("socket_endpoints", ipc_doc)
     self.assertIn("accessibility_features", ipc_doc)
-    
+
     # Verify accessibility features are documented
     features = ipc_doc["accessibility_features"]
     self.assertTrue(features["text_only_mode"])
@@ -354,7 +354,7 @@ def test_ipc_documentation_exists(self):
 def test_library_integration(self):
     """Test that accessibility libraries are properly integrated."""
     tool = MyAccessibleTool()
-    
+
     # Test that screen reader announcement works
     try:
         tool.announce_to_assistive_tech("Test message")

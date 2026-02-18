@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 
-import sys
 import os
+import sys
 
 # Add the project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+
 def test_basic_import():
     """Test basic import of ToolCompatibility."""
     try:
-        from nodupe.core.tool_system.compatibility import ToolCompatibility, ToolCompatibilityError
+        from nodupe.core.tool_system.compatibility import (
+            ToolCompatibility,
+            ToolCompatibilityError,
+        )
+
         print("✅ Import successful in test context")
 
         # Test instantiation
@@ -23,6 +28,7 @@ def test_basic_import():
     except Exception as e:
         print(f"❌ Error: {e}")
         return False
+
 
 if __name__ == "__main__":
     success = test_basic_import()

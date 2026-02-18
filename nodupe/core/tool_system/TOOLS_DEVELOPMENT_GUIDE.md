@@ -164,7 +164,7 @@ class Tool(ABC):
     @abstractmethod
     def get_capabilities(self) -> Dict[str, Any]:
         """Get tool capabilities"""
-        
+
     @abstractmethod
     def get_architecture_rationale(self) -> Dict[str, str]:
         """Get architectural rationale for this tool following ISO/IEC/IEEE 42010"""
@@ -439,7 +439,7 @@ class MyTool(Tool):
     def _setup_tool(self) -> None:
         # Tool-specific setup
         pass
-        
+
     def get_architecture_rationale(self) -> Dict[str, str]:
         return {
             "design_decision": "This tool provides specific functionality",
@@ -562,7 +562,7 @@ class TestMyTool(unittest.TestCase):
         capabilities = self.tool.get_capabilities()
         self.assertIn('name', capabilities)
         self.assertIn('version', capabilities)
-        
+
     def test_iso_compliance(self):
         # Test ISO/IEC/IEEE 42010 compliance
         rationale = self.tool.get_architecture_rationale()
@@ -699,10 +699,10 @@ class AccessibleTool(Tool):
     def get_accessible_output(self, data: Any) -> str:
         """
         Generate accessible output that can be interpreted by assistive technologies.
-        
+
         Args:
             data: Raw data to convert to accessible format
-            
+
         Returns:
             Human-readable string suitable for screen readers and braille displays
         """
@@ -731,11 +731,11 @@ class AccessibleTool(Tool):
             return f"'{value}'" if value else "Empty"
         else:
             return f"{type(value).__name__} object"
-            
+
     def get_ipc_socket_documentation(self) -> Dict[str, Any]:
         """
         Document IPC socket interfaces for assistive technology integration.
-        
+
         Returns:
             Dictionary describing available IPC endpoints and their accessibility features
         """
@@ -794,34 +794,34 @@ class TestAccessibleTool(unittest.TestCase):
         tool = AccessibleTool()
         sample_data = {"status": "running", "progress": 50, "items_processed": 100}
         accessible_output = tool.get_accessible_output(sample_data)
-        
+
         # Verify output is readable and descriptive
         self.assertIn("status:", accessible_output)
         self.assertIn("running", accessible_output)
         self.assertIn("progress:", accessible_output)
         self.assertIn("items_processed:", accessible_output)
-        
+
     def test_braille_display_compatibility(self):
         """Test that output is suitable for braille displays."""
         tool = AccessibleTool()
         sample_data = {"status": "completed", "results": 42}
         accessible_output = tool.get_accessible_output(sample_data)
-        
+
         # Braille displays have limited space, so output should be concise but complete
         lines = accessible_output.split('\n')
         for line in lines:
             # Each line should be meaningful when read individually
             self.assertGreater(len(line.strip()), 0)
-            
+
     def test_ipc_documentation_exists(self):
         """Test that IPC socket documentation is available."""
         tool = AccessibleTool()
         ipc_doc = tool.get_ipc_socket_documentation()
-        
+
         # Verify documentation structure
         self.assertIn("socket_endpoints", ipc_doc)
         self.assertIn("accessibility_features", ipc_doc)
-        
+
         # Verify accessibility features are documented
         features = ipc_doc["accessibility_features"]
         self.assertTrue(features["text_only_mode"])
@@ -880,7 +880,7 @@ class ISOFocusedTool(Tool):
             "tradeoffs": "Added complexity of tool management vs. gained modularity and maintainability",
             "stakeholder_impact": "Developers can extend functionality independently, operators can manage tools separately"
         }
-    
+
     def get_iso_stakeholders_and_concerns(self) -> Dict[str, List[str]]:
         return {
             "developers": ["ease_of_extension", "clear_interfaces"],
@@ -1450,7 +1450,7 @@ class BasicTool(Tool):
             "iso_stakeholders": ["developer", "end_user"],
             "iso_concerns": ["functionality", "usability"]
         }
-        
+
     def get_architecture_rationale(self) -> Dict[str, str]:
         return {
             "design_decision": "Created as a separate tool to maintain modularity",

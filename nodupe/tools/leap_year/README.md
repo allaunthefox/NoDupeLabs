@@ -311,7 +311,7 @@ def validate_date_for_db(year, month, day):
     plugin = LeapYearPlugin()
     if not plugin.is_valid_date(year, month, day):
         raise ValueError(f"Invalid date: {year}-{month:02d}-{day:02d}")
-    
+
     # Safe to insert into database
     return True
 
@@ -319,11 +319,11 @@ def validate_date_for_db(year, month, day):
 def validate_date_range(start_year, end_year):
     plugin = LeapYearPlugin()
     invalid_years = []
-    
+
     for year in range(start_year, end_year + 1):
         if not (1 <= year <= 9999):
             invalid_years.append(year)
-    
+
     return invalid_years
 ```
 
@@ -332,20 +332,20 @@ def validate_date_range(start_year, end_year):
 # Generate calendar for a year
 def generate_calendar(year):
     plugin = LeapYearPlugin()
-    
+
     calendar = {
         'year': year,
         'is_leap': plugin.is_leap_year(year),
         'months': []
     }
-    
+
     for month in range(1, 13):
         days = plugin.get_days_in_month(year, month)
         calendar['months'].append({
             'month': month,
             'days': days
         })
-    
+
     return calendar
 
 # Find all leap years in a century

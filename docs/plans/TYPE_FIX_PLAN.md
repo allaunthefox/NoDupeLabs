@@ -163,11 +163,11 @@ def fix_missing_return_types(content: str) -> str:
     """Add -> None to functions without return types."""
     # Match function definitions without return type
     pattern = r'^(\s*)def (\w+)\([^)]*\):$'
-    
+
     def replacer(match):
         indent, name = match.groups()
         return f"{indent}def {name}(...):"
-    
+
     return re.sub(pattern, replacer, content, flags=re.MULTILINE)
 
 
@@ -176,10 +176,10 @@ def fix_dict_returns(content: str) -> str:
     patterns = [
         (r'(\w+)\.get\([^)]+\)(?!\))', r'dict(\1.get(...))'),
     ]
-    
+
     for pattern, repl in patterns:
         content = re.sub(pattern, repl, content)
-    
+
     return content
 
 
@@ -195,14 +195,14 @@ def add_type_ignore(content: str, lines: list[int]) -> str:
 def main():
     """Run type fixes on all affected files."""
     base = Path("nodupe/core")
-    
+
     # Files that need simple fixes
     simple_fixes = {
         "security.py": [
             (r'def (\w+)\(.*\):$', r'def \1(...):\n        """TODO."""\n        pass')
         ],
     }
-    
+
     print("Type fixing not yet implemented - requires manual review")
     print("Use: mypy nodupe/core --config-file mypy.ini to check progress")
 

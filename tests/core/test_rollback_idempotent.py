@@ -1,8 +1,9 @@
 """Tests for idempotent backup in rollback system."""
+
 import tempfile
 from pathlib import Path
 
-from nodupe.core.rollback import SnapshotManager
+from nodupe.tools.maintenance import SnapshotManager
 
 
 class TestIdempotentBackup:

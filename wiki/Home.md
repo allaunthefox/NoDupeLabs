@@ -7,11 +7,15 @@ A plugin-based deduplication system for finding and managing duplicate files.
 | Metric | Value |
 |--------|-------|
 | Tests | 1023 |
-| Coverage | 16.5% |
+| Coverage | 9% (measured; CI gate = 80%) |
 | Docstring Coverage | 100% |
 | Modules | 78 |
 | Classes | 222 |
 | Functions | 1182 |
+
+### Current focus
+- Core-first test expansion: added unit tests for `decorators`, `ratelimit`, `validation`, `logging`, `ScanTool` and `ApplyTool` — these pass locally. ✅
+- Priority next: add tests for `tool_system` (loader, registry, lifecycle) and representative high-impact tools (`hashing`, `scanner_engine`, `commands`) to raise coverage to the CI gate (80%). ⚠️
 
 ## Features
 
